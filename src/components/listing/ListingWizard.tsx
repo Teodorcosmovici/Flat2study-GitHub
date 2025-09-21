@@ -173,8 +173,8 @@ export const ListingWizard = () => {
           amenities: listingData.amenities,
           availability_date: listingData.available_from,
           images: listingData.images,
-          status: 'pending_review',
-          review_status: 'pending_review',
+          status: 'DRAFT', // Set to DRAFT initially
+          review_status: 'pending_review', // Always requires admin review
           minimum_stay_days: (listingData.min_stay_months || 1) * 30,
           maximum_stay_days: listingData.max_stay_months ? listingData.max_stay_months * 30 : 365,
         });
@@ -183,7 +183,7 @@ export const ListingWizard = () => {
 
       toast({
         title: "Listing Submitted for Review",
-        description: "Your listing has been submitted to our Trust & Safety team for review. It will appear on the website automatically within 24 hours if approved.",
+        description: "Your listing has been submitted to our admin team for review. You'll be notified once it's approved and published.",
       });
 
       navigate('/landlord-dashboard');
