@@ -8,15 +8,14 @@ import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
-import CreateListing from "./pages/CreateListing";
-import MyListings from "./pages/MyListings";
-import Messages from "./pages/Messages";
+import { ListingWizard } from "./components/listing/ListingWizard";
+import { LandlordDashboard } from "./pages/LandlordDashboard";
+import { AdminDashboard } from "./pages/AdminDashboard";
 import ListingDetails from "./pages/ListingDetails";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
 import NotFound from "./pages/NotFound";
 import UserTypeSelection from "./pages/UserTypeSelection";
-import SignupRealtor from "./pages/SignupRealtor";
 import SignupPrivate from "./pages/SignupPrivate";
 import SignupStudent from "./pages/SignupStudent";
 import EditListing from "./pages/EditListing";
@@ -36,14 +35,13 @@ const App = () => (
           <Route path="/search" element={<Search />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/get-started" element={<UserTypeSelection />} />
-          <Route path="/signup/realtor" element={<SignupRealtor />} />
           <Route path="/signup/private" element={<SignupPrivate />} />
           <Route path="/signup/student" element={<SignupStudent />} />
           <Route path="/about" element={<About />} />
-          <Route path="/create-listing" element={<CreateListing />} />
+          <Route path="/create-listing" element={<ListingWizard />} />
+          <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
+          <Route path="/admin-dashboard" element={<AdminDashboard />} />
           <Route path="/edit-listing/:id" element={<EditListing />} />
-          <Route path="/my-listings" element={<MyListings />} />
-          <Route path="/messages" element={<Messages />} />
           <Route path="/favorites" element={<Favorites />} />
           <Route path="/profile" element={<Profile />} />
           <Route path="/listing/:id" element={<ListingDetails />} />

@@ -341,6 +341,10 @@ export type Database = {
           price_history: Json | null
           published_at: string | null
           rent_monthly_eur: number | null
+          review_notes: string | null
+          review_status: string | null
+          reviewed_at: string | null
+          reviewed_by: string | null
           size_sqm: number | null
           status: string | null
           title: string | null
@@ -384,6 +388,10 @@ export type Database = {
           price_history?: Json | null
           published_at?: string | null
           rent_monthly_eur?: number | null
+          review_notes?: string | null
+          review_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           size_sqm?: number | null
           status?: string | null
           title?: string | null
@@ -427,6 +435,10 @@ export type Database = {
           price_history?: Json | null
           published_at?: string | null
           rent_monthly_eur?: number | null
+          review_notes?: string | null
+          review_status?: string | null
+          reviewed_at?: string | null
+          reviewed_by?: string | null
           size_sqm?: number | null
           status?: string | null
           title?: string | null
