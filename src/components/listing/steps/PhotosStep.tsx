@@ -25,14 +25,21 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
     const uploadedUrls: string[] = [];
 
     try {
+      const { data: authData, error: userError } = await supabase.auth.getUser();
+      if (userError || !authData?.user) {
+        throw new Error('Please sign in to upload photos.');
+      }
+      const userId = authData.user.id;
+
       for (const file of Array.from(files)) {
-        const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `listing-images/${fileName}`;
+        const fileExt = file.name.split('.').pop() || 'jpg';
+        const random = Math.random().toString(36).slice(2, 8);
+        const fileName = `${Date.now()}-${random}.${fileExt}`;
+        const filePath = `${userId}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('listing-images')
-          .upload(filePath, file);
+          .upload(filePath, file, { cacheControl: '3600', upsert: false, contentType: file.type });
 
         if (uploadError) {
           throw uploadError;
