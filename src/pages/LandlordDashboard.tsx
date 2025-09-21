@@ -3,6 +3,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import Header from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
@@ -158,7 +159,9 @@ export const LandlordDashboard = () => {
   }
 
   return (
-    <div className="container mx-auto px-4 py-8">
+    <>
+      <Header />
+      <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
         <div>
           <h1 className="text-3xl font-bold">Landlord Dashboard</h1>
@@ -365,5 +368,6 @@ export const LandlordDashboard = () => {
         </TabsContent>
       </Tabs>
     </div>
+    </>
   );
 };
