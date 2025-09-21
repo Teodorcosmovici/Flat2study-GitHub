@@ -20,7 +20,7 @@ import {
   Filter
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { OwnerConversations } from '@/components/owner/OwnerConversations';
+
 
 interface OwnerDashboardProps {
   onLogout: () => void;
@@ -177,7 +177,10 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
           </div>
         </header>
         <div className="container mx-auto px-4 py-6 h-[calc(100vh-80px)]">
-          <OwnerConversations onBack={() => setShowConversations(false)} />
+          <div className="text-center py-12">
+            <h2 className="text-2xl font-bold mb-4">Conversations</h2>
+            <p className="text-muted-foreground">Messaging system has been removed</p>
+          </div>
         </div>
       </div>
     );

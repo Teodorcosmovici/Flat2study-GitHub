@@ -1,10 +1,10 @@
-export type UserRole = 'STUDENT' | 'AGENCY' | 'PRIVATE' | 'ADMIN';
+export type UserRole = 'STUDENT' | 'PRIVATE' | 'ADMIN';
 
 export type ListingType = 'room' | 'studio' | 'apartment';
 
 export type ListingStatus = 'DRAFT' | 'PUBLISHED' | 'EXPIRED' | 'ARCHIVED';
 
-export type VisitRequestStatus = 'NEW' | 'AGENCY_REPLIED' | 'SCHEDULED' | 'CLOSED';
+export type VisitRequestStatus = 'NEW' | 'LANDLORD_REPLIED' | 'SCHEDULED' | 'CLOSED';
 
 export interface User {
   id: string;
@@ -22,15 +22,11 @@ export interface StudentProfile {
   isVerified: boolean;
 }
 
-export interface Agency {
+export interface Landlord {
   id: string;
-  ownerUserId: string;
   name: string;
-  website?: string;
   phone: string;
-  logoUrl?: string;
-  billingEmail?: string;
-  createdAt: string;
+  email: string;
 }
 
 export interface University {
@@ -44,7 +40,7 @@ export interface University {
 
 export interface Listing {
   id: string;
-  agency: Agency;
+  landlord: Landlord;
   title: string;
   type: ListingType;
   description: string;
@@ -53,9 +49,8 @@ export interface Listing {
   country: string;
   lat: number;
   lng: number;
-  rentMonthlyEUR: number;
-  depositEUR: number;
-  agencyFee?: string;
+  rentMonthlyEur: number;
+  depositEur: number;
   billsIncluded: boolean;
   furnished: boolean;
   bedrooms: number;
@@ -71,11 +66,12 @@ export interface Listing {
   status: ListingStatus;
   expiresAt?: string;
   distance?: number; // Distance to selected university in km
-  booking_enabled?: boolean;
-  instant_booking?: boolean;
-  minimum_stay_days?: number;
-  maximum_stay_days?: number;
-  advance_booking_days?: number;
+  bookingEnabled?: boolean;
+  instantBooking?: boolean;
+  minimumStayDays?: number;
+  maximumStayDays?: number;
+  advanceBookingDays?: number;
+  priceHistory?: any[];
 }
 
 export interface Favorite {

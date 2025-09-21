@@ -10,7 +10,7 @@ import { useFeaturedListings } from '@/hooks/useFeaturedListings';
 import { Logo } from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { useUnreadMessagesCount } from '@/hooks/useUnreadMessagesCount';
+
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSelector } from '@/components/ui/language-selector';
@@ -21,7 +21,7 @@ import { useState } from 'react';
 const Index = () => {
   const { user, profile } = useAuth();
   const { t, language, setLanguage } = useLanguage();
-  const unreadCount = useUnreadMessagesCount();
+  const unreadCount = 0; // Removed messaging system
   const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
   const { listings: featuredListings, loading: listingsLoading } = useFeaturedListings(6);
   const isMobile = useIsMobile();
@@ -36,7 +36,20 @@ const Index = () => {
   };
 
   const isStudent = profile?.user_type === 'student';
-  const isRealtor = profile?.user_type === 'agency' || profile?.user_type === 'private';
+  const isLandlord = profile?.user_type === 'private';
+  const isAdmin = profile?.user_type === 'admin';
+
+  // Redirect landlords to their dashboard
+  if (isLandlord && !isOwnerAuthenticated) {
+    window.location.href = '/landlord-dashboard';
+    return null;
+  }
+
+  // Redirect admins to admin dashboard  
+  if (isAdmin && !isOwnerAuthenticated) {
+    window.location.href = '/admin-dashboard';
+    return null;
+  }
 
   if (isOwnerAuthenticated) {
     return <OwnerDashboard onLogout={() => setIsOwnerAuthenticated(false)} />;
@@ -82,13 +95,13 @@ const Index = () => {
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
             {user && profile ? 
-              (isStudent ? t('home.heroSubtitleStudent') : t('home.heroSubtitleRealtor')) : 
+              (isStudent ? t('home.heroSubtitleStudent') : 'Manage your property listings') : 
               t('home.heroSubtitle')
             }
           </p>
           
           <div className="flex flex-col gap-4 justify-center max-w-md mx-auto">
-            {user && isRealtor ? (
+            {user && isLandlord ? (
               <>
                 <Link to="/create-listing">
                   <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold">
@@ -315,7 +328,7 @@ const Index = () => {
                 </div>
               </section>
             </>
-          ) : isRealtor ? (
+          ) : isLandlord ? (
             <>
               {/* Realtor Dashboard Content */}
               <section className="py-16 px-4 bg-muted/30">

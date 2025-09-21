@@ -2,7 +2,7 @@ import { Button } from '@/components/ui/button';
 import { Heart, User, Menu, LogOut, MessageSquare, Settings } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
-import { useUnreadMessagesCount } from '@/hooks/useUnreadMessagesCount';
+
 import { Badge } from '@/components/ui/badge';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuSeparator, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { LanguageSelector } from '@/components/ui/language-selector';
@@ -13,7 +13,6 @@ import { useLocation } from 'react-router-dom';
 
 export default function Header() {
   const { user, profile, signOut, loading: authLoading } = useAuth();
-  const unreadCount = useUnreadMessagesCount();
   const { t } = useLanguage();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
@@ -111,11 +110,6 @@ export default function Header() {
                       <User className="h-4 w-4 mr-2" />
                     )}
                     <span className="hidden md:inline">{profile?.full_name || user.email?.split('@')[0] || t('header.account')}</span>
-                    {unreadCount > 0 && (
-                      <Badge className="absolute -top-1 -right-1 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs bg-destructive hover:bg-destructive">
-                        {unreadCount > 9 ? '9+' : unreadCount}
-                      </Badge>
-                    )}
                   </Button>
                 </DropdownMenuTrigger>
                 <DropdownMenuContent align="end">
@@ -133,22 +127,29 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  <DropdownMenuItem asChild>
-                    <Link to="/messages" className="flex items-center">
-                      <MessageSquare className="h-4 w-4 mr-2" />
-                      {t('header.messages')}
-                      {unreadCount > 0 && (
-                        <Badge className="ml-2 h-5 w-5 rounded-full p-0 flex items-center justify-center text-xs">
-                          {unreadCount}
-                        </Badge>
-                      )}
-                    </Link>
-                  </DropdownMenuItem>
-                  {(profile?.user_type === 'agency' || profile?.user_type === 'private') && (
+                  {profile?.user_type === 'student' && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/my-bookings" className="flex items-center">
+                          <MessageSquare className="h-4 w-4 mr-2" />
+                          My Bookings
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
+                  )}
+                  {profile?.user_type === 'private' && (
                     <DropdownMenuItem asChild>
-                      <Link to="/my-listings" className="flex items-center">
+                      <Link to="/landlord-dashboard" className="flex items-center">
                         <Settings className="h-4 w-4 mr-2" />
-                        {t('header.myListings')}
+                        {t('header.dashboard')}
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
+                  {profile?.user_type === 'admin' && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/admin-dashboard" className="flex items-center">
+                        <Settings className="h-4 w-4 mr-2" />
+                        Admin Dashboard
                       </Link>
                     </DropdownMenuItem>
                   )}

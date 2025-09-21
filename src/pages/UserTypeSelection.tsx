@@ -29,66 +29,45 @@ export default function UserTypeSelection() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6 h-auto md:h-96 max-w-5xl mx-auto">
-          {/* For Apartment Seekers */}
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
+          {/* For Students */}
           <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 group flex flex-col">
             <Link to="/signup/student" className="flex flex-col h-full">
               <CardHeader className="text-center pb-4 flex-1">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
                   <GraduationCap className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl">{t('userType.studentTitle')}</CardTitle>
+                <CardTitle className="text-xl">I'm a Student</CardTitle>
                 <CardDescription>
-                  {t('userType.studentDescription')}
+                  Looking for student accommodation
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center pt-0">
                 <p className="text-sm text-muted-foreground mb-4">
-                  {t('userType.studentFeatures')}
+                  Find and book student housing, view listings, save favorites
                 </p>
-                <Button className="w-full">{t('userType.getStarted')}</Button>
+                <Button className="w-full">Get Started as Student</Button>
               </CardContent>
             </Link>
           </Card>
 
-          {/* For Private Landlords */}
+          {/* For Landlords/Property Managers */}
           <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 group flex flex-col">
             <Link to="/signup/private" className="flex flex-col h-full">
               <CardHeader className="text-center pb-4 flex-1">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
                   <Home className="h-8 w-8 text-primary" />
                 </div>
-                <CardTitle className="text-xl">{t('userType.privateTitle')}</CardTitle>
+                <CardTitle className="text-xl">I'm a Landlord</CardTitle>
                 <CardDescription>
-                  {t('userType.privateDescription')}
+                  Property owner or manager renting to students
                 </CardDescription>
               </CardHeader>
               <CardContent className="text-center pt-0">
                 <p className="text-sm text-muted-foreground mb-4">
-                  {t('userType.privateFeatures')}
+                  List properties, manage bookings, connect with students
                 </p>
-                <Button className="w-full">{t('userType.getStarted')}</Button>
-              </CardContent>
-            </Link>
-          </Card>
-
-          {/* For Realtors */}
-          <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 group flex flex-col">
-            <Link to="/signup/realtor" className="flex flex-col h-full">
-              <CardHeader className="text-center pb-4 flex-1">
-                <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                  <Building className="h-8 w-8 text-primary" />
-                </div>
-                <CardTitle className="text-xl">{t('userType.realtorTitle')}</CardTitle>
-                <CardDescription>
-                  {t('userType.realtorDescription')}
-                </CardDescription>
-              </CardHeader>
-              <CardContent className="text-center pt-0">
-                <p className="text-sm text-muted-foreground mb-4">
-                  {t('userType.realtorFeatures')}
-                </p>
-                <Button className="w-full">{t('userType.getStarted')}</Button>
+                <Button className="w-full">Get Started as Landlord</Button>
               </CardContent>
             </Link>
           </Card>

@@ -6,7 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
+
 import { toast } from '@/hooks/use-toast';
 import { 
   ArrowLeft, 
@@ -21,7 +21,7 @@ import {
   Phone, 
   Mail, 
   Building,
-  Send,
+  
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
