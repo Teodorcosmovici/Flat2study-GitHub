@@ -4,6 +4,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Textarea } from '@/components/ui/textarea';
 import { 
   Users, 
   Building, 
@@ -17,10 +18,32 @@ import {
   LogOut,
   ChevronDown,
   ChevronRight,
-  Filter
+  Filter,
+  CheckCircle,
+  XCircle,
+  Clock
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
+import { toast } from '@/hooks/use-toast';
 
+
+interface PendingListing {
+  id: string;
+  title: string;
+  description: string;
+  address_line: string;
+  city: string;
+  rent_monthly_eur: number;
+  review_status: string;
+  review_notes: string;
+  images: string[];
+  created_at: string;
+  agency_id: string;
+  profiles: {
+    full_name: string;
+    email: string;
+  };
+}
 
 interface OwnerDashboardProps {
   onLogout: () => void;
@@ -37,6 +60,9 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
     recentListings: [],
     recentMessages: []
   });
+  const [pendingListings, setPendingListings] = useState<PendingListing[]>([]);
+  const [selectedListing, setSelectedListing] = useState<PendingListing | null>(null);
+  const [reviewNotes, setReviewNotes] = useState('');
   const [analytics, setAnalytics] = useState<any>(null);
   const [loading, setLoading] = useState(true);
   const [showAllUsers, setShowAllUsers] = useState(false);
@@ -48,8 +74,70 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
 
   useEffect(() => {
     fetchDashboardData();
+    fetchPendingListings();
     fetchAnalytics();
   }, [dateRange]);
+
+  const fetchPendingListings = async () => {
+    try {
+      const { data, error } = await supabase
+        .from('listings')
+        .select(`
+          *,
+          profiles!listings_agency_id_fkey (
+            full_name,
+            email
+          )
+        `)
+        .eq('review_status', 'pending_review')
+        .order('created_at', { ascending: true });
+
+      if (error) throw error;
+      setPendingListings((data || []).map(listing => ({
+        ...listing,
+        images: Array.isArray(listing.images) ? listing.images.map(img => String(img)) : []
+      })));
+    } catch (error) {
+      console.error('Error fetching pending listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load pending listings",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleReviewAction = async (listingId: string, action: 'approved' | 'rejected', notes: string) => {
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({
+          review_status: action,
+          review_notes: notes,
+          reviewed_at: new Date().toISOString(),
+          status: action === 'approved' ? 'PUBLISHED' : 'DRAFT'
+        })
+        .eq('id', listingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Listing ${action} successfully${action === 'approved' ? ' and published' : ''}`,
+      });
+
+      fetchPendingListings();
+      setSelectedListing(null);
+      setReviewNotes('');
+    } catch (error) {
+      console.error('Error updating listing:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update listing",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchDashboardData = async () => {
     try {
@@ -214,6 +302,159 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Pending Listings Review Section */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-6">
+            <div>
+              <h2 className="text-2xl font-bold">Listings Approval</h2>
+              <p className="text-muted-foreground">Review and approve pending property listings</p>
+            </div>
+            <Badge variant="outline" className="text-orange-600">
+              {pendingListings.length} Pending Review
+            </Badge>
+          </div>
+
+          <div className="grid gap-6 lg:grid-cols-2">
+            {/* Listings List */}
+            <div className="space-y-4">
+              <h3 className="text-lg font-semibold">Listings Awaiting Review</h3>
+              
+              {pendingListings.map((listing) => (
+                <Card 
+                  key={listing.id}
+                  className={`cursor-pointer transition-colors ${
+                    selectedListing?.id === listing.id ? 'ring-2 ring-primary' : ''
+                  }`}
+                  onClick={() => setSelectedListing(listing)}
+                >
+                  <CardContent className="p-4">
+                    <div className="flex gap-4">
+                      {listing.images[0] && (
+                        <img
+                          src={listing.images[0]}
+                          alt={listing.title}
+                          className="w-16 h-16 object-cover rounded"
+                        />
+                      )}
+                      <div className="flex-1 space-y-1">
+                        <h4 className="font-semibold">{listing.title}</h4>
+                        <p className="text-sm text-muted-foreground">{listing.address_line}, {listing.city}</p>
+                        <p className="text-sm font-medium text-green-600">€{listing.rent_monthly_eur}/month</p>
+                        <p className="text-xs text-muted-foreground">
+                          By: {listing.profiles?.full_name} • {new Date(listing.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
+                    </div>
+                  </CardContent>
+                </Card>
+              ))}
+
+              {pendingListings.length === 0 && (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
+                    <h4 className="text-lg font-semibold mb-2">All caught up!</h4>
+                    <p className="text-muted-foreground">
+                      No listings pending review at the moment.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+
+            {/* Review Panel */}
+            <div className="space-y-4">
+              {selectedListing ? (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center gap-2">
+                      <Eye className="h-5 w-5" />
+                      Review Listing
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <h4 className="font-semibold text-lg">{selectedListing.title}</h4>
+                      <p className="text-muted-foreground">{selectedListing.address_line}, {selectedListing.city}</p>
+                      <p className="text-lg font-bold text-green-600 mt-2">
+                        €{selectedListing.rent_monthly_eur}/month
+                      </p>
+                    </div>
+
+                    <div>
+                      <h5 className="font-medium mb-2">Description</h5>
+                      <p className="text-sm text-muted-foreground">{selectedListing.description}</p>
+                    </div>
+
+                    <div>
+                      <h5 className="font-medium mb-2">Landlord Details</h5>
+                      <p className="text-sm">Name: {selectedListing.profiles?.full_name}</p>
+                      <p className="text-sm">Email: {selectedListing.profiles?.email}</p>
+                    </div>
+
+                    <div>
+                      <h5 className="font-medium mb-2">Photos ({selectedListing.images.length})</h5>
+                      <div className="grid grid-cols-3 gap-2">
+                        {selectedListing.images.slice(0, 6).map((image, index) => (
+                          <img
+                            key={index}
+                            src={image}
+                            alt={`Property photo ${index + 1}`}
+                            className="w-full h-20 object-cover rounded"
+                          />
+                        ))}
+                        {selectedListing.images.length > 6 && (
+                          <div className="w-full h-20 bg-muted rounded flex items-center justify-center text-sm">
+                            +{selectedListing.images.length - 6} more
+                          </div>
+                        )}
+                      </div>
+                    </div>
+
+                    <div>
+                      <h5 className="font-medium mb-2">Review Notes (Optional)</h5>
+                      <Textarea
+                        value={reviewNotes}
+                        onChange={(e) => setReviewNotes(e.target.value)}
+                        placeholder="Add notes about your review decision..."
+                        className="min-h-[80px]"
+                      />
+                    </div>
+
+                    <div className="flex gap-3 pt-4">
+                      <Button
+                        onClick={() => handleReviewAction(selectedListing.id, 'approved', reviewNotes)}
+                        className="flex-1 bg-green-600 hover:bg-green-700"
+                      >
+                        <CheckCircle className="w-4 h-4 mr-2" />
+                        Approve & Publish
+                      </Button>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleReviewAction(selectedListing.id, 'rejected', reviewNotes)}
+                        className="flex-1"
+                      >
+                        <XCircle className="w-4 h-4 mr-2" />
+                        Reject
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              ) : (
+                <Card>
+                  <CardContent className="p-12 text-center">
+                    <Clock className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+                    <h4 className="text-lg font-semibold mb-2">Select a listing to review</h4>
+                    <p className="text-muted-foreground">
+                      Click on a listing from the left panel to start reviewing.
+                    </p>
+                  </CardContent>
+                </Card>
+              )}
+            </div>
+          </div>
+        </div>
+
         {/* Analytics Time Range Selector */}
         <div className="mb-6">
           <Card>
