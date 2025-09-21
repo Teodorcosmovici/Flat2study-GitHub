@@ -118,6 +118,9 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
 
         if (error) throw error;
 
+        // Remove from local state immediately
+        setPendingListings(prev => prev.filter(listing => listing.id !== listingId));
+
         toast({
           title: "Success",
           description: "Listing rejected and deleted successfully",
@@ -136,13 +139,15 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
 
         if (error) throw error;
 
+        // Remove from local state immediately
+        setPendingListings(prev => prev.filter(listing => listing.id !== listingId));
+
         toast({
           title: "Success",
           description: "Listing approved and published successfully",
         });
       }
 
-      fetchPendingListings();
       setSelectedListing(null);
       setReviewNotes('');
     } catch (error) {
