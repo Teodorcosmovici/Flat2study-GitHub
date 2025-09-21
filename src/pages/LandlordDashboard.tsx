@@ -1,5 +1,6 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -43,13 +44,9 @@ export const LandlordDashboard = () => {
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
   const [loading, setLoading] = useState(true);
-  const [stats, setStats] = useState({
-    totalListings: 0,
-    activeListings: 0,
-    pendingReview: 0,
-    totalBookings: 0,
-    monthlyRevenue: 0
-  });
+  
+  // Use the dashboard stats hook for real-time updates
+  const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
 
   useEffect(() => {
     if (profile?.user_type !== 'private') {
@@ -57,6 +54,27 @@ export const LandlordDashboard = () => {
       return;
     }
     fetchDashboardData();
+
+    // Set up real-time subscription for listings updates
+    const channel = supabase
+      .channel('landlord-dashboard-listings')
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'listings',
+          filter: `agency_id=eq.${profile?.id}`
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .subscribe();
+
+    return () => {
+      supabase.removeChannel(channel);
+    };
   }, [profile, navigate]);
 
   const fetchDashboardData = async () => {
@@ -72,41 +90,13 @@ export const LandlordDashboard = () => {
 
       if (listingsError) throw listingsError;
 
-      // Fetch bookings
-      const { data: bookingsData, error: bookingsError } = await supabase
-        .from('bookings')
-        .select(`
-          *,
-          listings:listing_id (
-            title,
-            address_line
-          )
-        `)
-        .eq('landlord_id', profile.id)
-        .order('created_at', { ascending: false });
-
-      if (bookingsError) throw bookingsError;
-
       setListings((listingsData || []).map(listing => ({
         ...listing,
         images: Array.isArray(listing.images) ? listing.images.map(img => String(img)) : []
       })));
+      
+      // Skip bookings for now due to database relationship issues
       setBookings([]);
-
-      // Calculate stats
-      const totalListings = listingsData?.length || 0;
-      const activeListings = listingsData?.filter(l => l.status === 'PUBLISHED').length || 0;
-      const pendingReview = listingsData?.filter(l => l.review_status === 'pending_review').length || 0;
-      const totalBookings = bookingsData?.length || 0;
-      const monthlyRevenue = bookingsData?.reduce((sum, booking) => sum + (booking.monthly_rent || 0), 0) || 0;
-
-      setStats({
-        totalListings,
-        activeListings,
-        pendingReview,
-        totalBookings,
-        monthlyRevenue
-      });
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -188,7 +178,7 @@ export const LandlordDashboard = () => {
             <Home className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalListings}</div>
+            <div className="text-2xl font-bold">{listings.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -197,7 +187,9 @@ export const LandlordDashboard = () => {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-green-600">{stats.activeListings}</div>
+            <div className="text-2xl font-bold text-green-600">
+              {statsLoading ? "..." : activeListingsCount}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -206,7 +198,9 @@ export const LandlordDashboard = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold text-orange-600">{stats.pendingReview}</div>
+            <div className="text-2xl font-bold text-orange-600">
+              {listings.filter(l => l.review_status === 'pending_review').length}
+            </div>
           </CardContent>
         </Card>
         <Card>
@@ -215,7 +209,7 @@ export const LandlordDashboard = () => {
             <Calendar className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">{stats.totalBookings}</div>
+            <div className="text-2xl font-bold">{bookings.length}</div>
           </CardContent>
         </Card>
         <Card>
@@ -224,7 +218,9 @@ export const LandlordDashboard = () => {
             <BarChart3 className="h-4 w-4 text-muted-foreground" />
           </CardHeader>
           <CardContent>
-            <div className="text-2xl font-bold">€{stats.monthlyRevenue.toLocaleString()}</div>
+            <div className="text-2xl font-bold">
+              €{bookings.reduce((sum, booking) => sum + (booking.monthly_rent || 0), 0).toLocaleString()}
+            </div>
           </CardContent>
         </Card>
       </div>
