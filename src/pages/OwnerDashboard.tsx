@@ -109,22 +109,38 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
 
   const handleReviewAction = async (listingId: string, action: 'approved' | 'rejected', notes: string) => {
     try {
-      const { error } = await supabase
-        .from('listings')
-        .update({
-          review_status: action,
-          review_notes: notes,
-          reviewed_at: new Date().toISOString(),
-          status: action === 'approved' ? 'PUBLISHED' : 'DRAFT'
-        })
-        .eq('id', listingId);
+      if (action === 'rejected') {
+        // Delete the listing when rejected
+        const { error } = await supabase
+          .from('listings')
+          .delete()
+          .eq('id', listingId);
 
-      if (error) throw error;
+        if (error) throw error;
 
-      toast({
-        title: "Success",
-        description: `Listing ${action} successfully${action === 'approved' ? ' and published' : ''}`,
-      });
+        toast({
+          title: "Success",
+          description: "Listing rejected and deleted successfully",
+        });
+      } else {
+        // Approve and publish the listing
+        const { error } = await supabase
+          .from('listings')
+          .update({
+            review_status: 'approved',
+            review_notes: notes,
+            reviewed_at: new Date().toISOString(),
+            status: 'PUBLISHED'
+          })
+          .eq('id', listingId);
+
+        if (error) throw error;
+
+        toast({
+          title: "Success",
+          description: "Listing approved and published successfully",
+        });
+      }
 
       fetchPendingListings();
       setSelectedListing(null);
@@ -435,7 +451,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
                         className="flex-1"
                       >
                         <XCircle className="w-4 h-4 mr-2" />
-                        Reject
+                        Reject & Delete
                       </Button>
                     </div>
                   </CardContent>
