@@ -2,7 +2,7 @@ import Header from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Link } from 'react-router-dom';
+import { Link, useNavigate } from 'react-router-dom';
 import { Search, Users, Shield, MapPin, Heart, MessageCircle, BarChart3, Plus, Eye, ChevronDown } from 'lucide-react';
 import { ScrollIndicator } from '@/components/ui/scroll-indicator';
 import { universities } from '@/data/mockData';
@@ -16,11 +16,12 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import OwnerAccess from '@/components/OwnerAccess';
 import OwnerDashboard from '@/pages/OwnerDashboard';
-import { useState } from 'react';
+import { useState, useEffect } from 'react';
 
 const Index = () => {
   const { user, profile } = useAuth();
   const { t, language, setLanguage } = useLanguage();
+  const navigate = useNavigate();
   const unreadCount = 0; // Removed messaging system
   const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
   const { listings: featuredListings, loading: listingsLoading } = useFeaturedListings(6);
@@ -39,17 +40,14 @@ const Index = () => {
   const isLandlord = profile?.user_type === 'private';
   const isAdmin = profile?.user_type === 'admin';
 
-  // Redirect landlords to their dashboard
-  if (isLandlord && !isOwnerAuthenticated) {
-    window.location.href = '/landlord-dashboard';
-    return null;
-  }
-
-  // Redirect admins to admin dashboard  
-  if (isAdmin && !isOwnerAuthenticated) {
-    window.location.href = '/admin-dashboard';
-    return null;
-  }
+  // Redirect landlords to their dashboard using React Router
+  useEffect(() => {
+    if (isLandlord && !isOwnerAuthenticated) {
+      navigate('/landlord-dashboard', { replace: true });
+    } else if (isAdmin && !isOwnerAuthenticated) {
+      navigate('/admin-dashboard', { replace: true });
+    }
+  }, [isLandlord, isAdmin, isOwnerAuthenticated, navigate]);
 
   if (isOwnerAuthenticated) {
     return <OwnerDashboard onLogout={() => setIsOwnerAuthenticated(false)} />;
@@ -212,7 +210,8 @@ const Index = () => {
                               <img 
                                 src={listing.images[0] || '/placeholder.svg'}
                                 alt={listing.title} 
-                                className="w-full h-full object-cover" 
+                                className="w-full h-full object-cover"
+                                loading="lazy"
                               />
                               <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
                                 {t('home.featured')}

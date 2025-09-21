@@ -131,10 +131,15 @@ All colors MUST be HSL.
 @layer components {
   .hero-gradient {
     background: var(--gradient-hero);
+    will-change: auto;
   }
   
   .card-gradient {
     background: var(--gradient-card);
+  }
+  
+  .text-price {
+    color: hsl(var(--price));
   }
   
   /* Hide scrollbar for horizontal scroll - critical for mobile */
@@ -144,5 +149,23 @@ All colors MUST be HSL.
   }
   .scrollbar-hide::-webkit-scrollbar { 
     display: none;
+  }
+  
+  /* Performance optimizations */
+  .hover\\:shadow-lg {
+    transition: box-shadow 0.2s ease-in-out;
+    transform: translateZ(0);
+  }
+  
+  /* Reduce motion for users who prefer it */
+  @media (prefers-reduced-motion: reduce) {
+    *,
+    *::before,
+    *::after {
+      animation-duration: 0.01ms !important;
+      animation-iteration-count: 1 !important;
+      transition-duration: 0.01ms !important;
+      scroll-behavior: auto !important;
+    }
   }
 }
