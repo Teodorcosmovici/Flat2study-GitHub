@@ -176,7 +176,7 @@ export default function SimpleMapView({
         newMarkerIds.add(listing.id);
         
         const isHovered = hoveredListingId === listing.id;
-        const price = formatPrice(listing.rentMonthlyEUR);
+        const price = formatPrice(listing.rentMonthlyEur);
 
         // Update or create marker
         let marker = markersRef.current[listing.id];
@@ -308,7 +308,7 @@ export default function SimpleMapView({
               <h3 style="font-weight: 600; font-size: 13px; margin: 0 0 8px 0; text-align: center;">${group.length} Properties at ${group[0].addressLine}</h3>
               <div style="display: flex; flex-direction: column; gap: 8px;">
                 ${group.map((listing) => {
-                  const price = formatPrice(listing.rentMonthlyEUR);
+                  const price = formatPrice(listing.rentMonthlyEur);
                   const img = listing.images && listing.images[0]
                     ? `<img src="${listing.images[0]}" alt="${listing.title}" style="width: 48px; height: 48px; object-fit: cover; border-radius: 6px; flex-shrink: 0;" />`
                     : '<div style="width: 48px; height: 48px; background: #f3f4f6; border-radius: 6px; flex-shrink: 0;"></div>';

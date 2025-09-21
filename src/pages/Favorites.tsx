@@ -72,8 +72,8 @@ export default function Favorites() {
           lng: listing.lng,
           latitude: listing.lat,
           longitude: listing.lng,
-          rentMonthlyEUR: listing.rent_monthly_eur,
-          depositEUR: listing.deposit_eur,
+          rentMonthlyEur: listing.rent_monthly_eur,
+          depositEur: listing.deposit_eur,
           billsIncluded: listing.bills_included,
           furnished: listing.furnished,
           bedrooms: listing.bedrooms,
@@ -87,15 +87,11 @@ export default function Favorites() {
           status: listing.status as any, // Type assertion for ListingStatus
           createdAt: listing.created_at,
           publishedAt: listing.published_at,
-          agency: {
-            id: listing.id, // Using listing id as agency id since we don't have proper agency id
-            ownerUserId: '', // Not available from this query
-            name: listing.agency_name || '',
+          landlord: {
+            id: listing.id, // Using listing id as landlord id since we don't have proper landlord id
+            name: listing.agency_name || 'Property Manager',
             phone: '', // Contact info no longer exposed for security
-            website: undefined,
-            logoUrl: undefined,
-            billingEmail: '', // Contact info no longer exposed for security
-            createdAt: listing.created_at
+            email: '' // Contact info no longer exposed for security
           }
         })) || [];
 

@@ -1,4 +1,4 @@
-import { University, Listing, Agency, StudentProfile } from '@/types';
+import { University, Listing, Landlord, StudentProfile } from '@/types';
 
 export const universities: University[] = [
   {
@@ -35,33 +35,25 @@ export const universities: University[] = [
   }
 ];
 
-export const agencies: Agency[] = [
+export const landlords: Landlord[] = [
   {
     id: '1',
-    ownerUserId: 'agency1',
     name: 'Milano Student Living',
-    website: 'https://milanostudentliving.com',
     phone: '+39 02 1234 5678',
-    logoUrl: '/images/agency1-logo.jpg',
-    billingEmail: 'billing@milanostudentliving.com',
-    createdAt: '2024-01-15T10:00:00Z'
+    email: 'billing@milanostudentliving.com'
   },
   {
     id: '2', 
-    ownerUserId: 'agency2',
     name: 'Urban Student Homes',
-    website: 'https://urbanstudenthomes.it',
     phone: '+39 02 8765 4321',
-    logoUrl: '/images/agency2-logo.jpg',
-    billingEmail: 'info@urbanstudenthomes.it',
-    createdAt: '2024-02-01T09:30:00Z'
+    email: 'info@urbanstudenthomes.it'
   }
 ];
 
 export const mockListings: Listing[] = [
   {
     id: '1',
-    agency: agencies[0],
+    landlord: landlords[0],
     title: 'Modern Studio near Bocconi University',
     type: 'studio',
     description: 'Beautiful modern studio apartment just 5 minutes walk from Bocconi University. Fully furnished with high-speed internet, air conditioning, and modern appliances. Perfect for international students.',
@@ -70,8 +62,8 @@ export const mockListings: Listing[] = [
     country: 'Italy',
     lat: 45.4396,
     lng: 9.1946,
-    rentMonthlyEUR: 800,
-    depositEUR: 1600,
+    rentMonthlyEur: 800,
+    depositEur: 1600,
     billsIncluded: true,
     furnished: true,
     bedrooms: 1,
@@ -93,7 +85,7 @@ export const mockListings: Listing[] = [
   },
   {
     id: '2',
-    agency: agencies[0],
+    landlord: landlords[0],
     title: 'Shared Room in Student House - Porta Romana',
     type: 'room',
     description: 'Cozy room in a shared student house with 3 other international students. Great location near public transport with easy access to all Milan universities. Friendly, multicultural environment.',
@@ -102,8 +94,8 @@ export const mockListings: Listing[] = [
     country: 'Italy',
     lat: 45.4542,
     lng: 9.2061,
-    rentMonthlyEUR: 550,
-    depositEUR: 1100,
+    rentMonthlyEur: 550,
+    depositEur: 1100,
     billsIncluded: false,
     furnished: true,
     bedrooms: 1,
@@ -124,7 +116,7 @@ export const mockListings: Listing[] = [
   },
   {
     id: '3',
-    agency: agencies[1],
+    landlord: landlords[1],
     title: 'Luxury 1BR Apartment - Navigli District',
     type: 'apartment',
     description: 'Stunning one-bedroom apartment in the heart of Navigli district. Recently renovated with premium finishes, balcony overlooking the canal, and walking distance to nightlife and restaurants.',
@@ -133,8 +125,8 @@ export const mockListings: Listing[] = [
     country: 'Italy',
     lat: 45.4498,
     lng: 9.1684,
-    rentMonthlyEUR: 1200,
-    depositEUR: 2400,
+    rentMonthlyEur: 1200,
+    depositEur: 2400,
     billsIncluded: false,
     furnished: true,
     bedrooms: 1,
@@ -157,7 +149,7 @@ export const mockListings: Listing[] = [
   },
   {
     id: '4',
-    agency: agencies[1],
+    landlord: landlords[1],
     title: 'Student Flat near Politecnico',
     type: 'apartment',
     description: 'Spacious 2-bedroom flat perfect for sharing with another student. Close to Politecnico di Milano campus with excellent transport links. Includes parking space.',
@@ -166,8 +158,8 @@ export const mockListings: Listing[] = [
     country: 'Italy',
     lat: 45.4781,
     lng: 9.2301,
-    rentMonthlyEUR: 900,
-    depositEUR: 1800,
+    rentMonthlyEur: 900,
+    depositEur: 1800,
     billsIncluded: true,
     furnished: true,
     bedrooms: 2,
@@ -188,7 +180,7 @@ export const mockListings: Listing[] = [
   },
   {
     id: '5',
-    agency: agencies[0],
+    landlord: landlords[0],
     title: 'Bright Studio - Citta Studi Area',
     type: 'studio',
     description: 'Bright and airy studio apartment in the student-friendly Citta Studi neighborhood. Recently renovated with modern amenities and excellent natural light.',
@@ -197,8 +189,8 @@ export const mockListings: Listing[] = [
     country: 'Italy',
     lat: 45.4734,
     lng: 9.2363,
-    rentMonthlyEUR: 700,
-    depositEUR: 1400,
+    rentMonthlyEur: 700,
+    depositEur: 1400,
     billsIncluded: true,
     furnished: true,
     bedrooms: 1,

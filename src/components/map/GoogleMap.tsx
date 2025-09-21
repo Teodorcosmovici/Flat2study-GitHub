@@ -114,7 +114,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ listings, className = '', onListi
       const position = { lat: listing.lat, lng: listing.lng };
 
       // Create custom marker with price
-      const priceText = `€${Math.round(listing.rentMonthlyEUR / 1000)}k`;
+      const priceText = `€${Math.round(listing.rentMonthlyEur / 1000)}k`;
       
       const marker = new google.maps.Marker({
         position,
@@ -142,7 +142,7 @@ const GoogleMap: React.FC<GoogleMapProps> = ({ listings, className = '', onListi
           <h3 style="margin: 0 0 8px 0; font-size: 16px; font-weight: bold; color: #1f2937;">${listing.title}</h3>
           <p style="margin: 0 0 8px 0; color: #6b7280; font-size: 14px;">${listing.addressLine}</p>
           <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 8px;">
-            <span style="font-size: 18px; font-weight: bold; color: hsl(221.2 83.2% 53.3%);">€${listing.rentMonthlyEUR}/month</span>
+            <span style="font-size: 18px; font-weight: bold; color: hsl(221.2 83.2% 53.3%);">€${listing.rentMonthlyEur}/month</span>
             <span style="color: #6b7280; font-size: 14px;">${listing.bedrooms} bed • ${listing.bathrooms} bath</span>
           </div>
           <button onclick="window.handleListingClick('${listing.id}')" 

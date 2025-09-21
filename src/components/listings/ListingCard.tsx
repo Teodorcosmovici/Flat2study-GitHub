@@ -204,7 +204,7 @@ export default function ListingCard({
           </div>
           <div className="text-right flex-shrink-0">
             <div className="font-bold text-lg text-price">
-              {formatPrice(listing.rentMonthlyEUR)}
+              {formatPrice(listing.rentMonthlyEur)}
             </div>
             <div className="text-xs text-muted-foreground">per month</div>
           </div>
@@ -276,19 +276,10 @@ export default function ListingCard({
           </div>
         )}
 
-        {/* Agency */}
+        {/* Landlord */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            {listing.agency.logoUrl && (
-              <img 
-                src={listing.agency.logoUrl}
-                alt={listing.agency.name}
-                className="w-6 h-6 rounded object-cover"
-                loading="lazy"
-                decoding="async"
-              />
-            )}
-            <span className="text-sm text-muted-foreground">{listing.agency.name}</span>
+            <span className="text-sm text-muted-foreground">{listing.landlord.name}</span>
           </div>
           
           <div className="flex gap-2">

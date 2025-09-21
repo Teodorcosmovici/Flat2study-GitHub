@@ -44,10 +44,10 @@ export const BookingForm: React.FC<BookingFormProps> = ({
     }
     
     const nights = differenceInDays(selectedDates.checkOut, selectedDates.checkIn);
-    const monthlyRent = listing.rentMonthlyEUR;
+    const monthlyRent = listing.rentMonthlyEur;
     const dailyRate = monthlyRent / 30; // Approximate daily rate
     const totalRent = Math.round(dailyRate * nights);
-    const securityDeposit = listing.depositEUR;
+    const securityDeposit = listing.depositEur;
     
     return {
       nights,
@@ -66,7 +66,7 @@ export const BookingForm: React.FC<BookingFormProps> = ({
       
       await createBooking(
         listing.id,
-        listing.agency.id,
+        listing.landlord.id,
         format(selectedDates.checkIn, 'yyyy-MM-dd'),
         format(selectedDates.checkOut, 'yyyy-MM-dd'),
         costs.totalRent,

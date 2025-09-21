@@ -234,7 +234,7 @@ export default function MapView({
                         </p>
                         <div className="mt-2">
                           <span className="font-bold text-sm text-green-600">
-                            {formatPrice(listing.rentMonthlyEUR)}/month
+                            {formatPrice(listing.rentMonthlyEur)}/month
                           </span>
                         </div>
                       </div>
@@ -287,7 +287,7 @@ export default function MapView({
                           </p>
                           <div className="mt-1">
                             <span className="font-bold text-xs text-green-600">
-                              {formatPrice(listing.rentMonthlyEUR)}/month
+                              {formatPrice(listing.rentMonthlyEur)}/month
                             </span>
                           </div>
                         </div>

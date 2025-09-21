@@ -6,6 +6,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
+import { Textarea } from '@/components/ui/textarea';
 
 import { toast } from '@/hooks/use-toast';
 import { 
@@ -17,7 +18,8 @@ import {
   Euro, 
   Wifi, 
   Car, 
-  Users, 
+  Users,
+  Send,
   Phone, 
   Mail, 
   Building,
@@ -102,9 +104,8 @@ export default function ListingDetails() {
         country: listingData.country,
         lat: listingData.lat,
         lng: listingData.lng,
-        rentMonthlyEUR: listingData.rent_monthly_eur,
-        depositEUR: listingData.deposit_eur,
-        agencyFee: listingData.agency_fee,
+        rentMonthlyEur: listingData.rent_monthly_eur,
+        depositEur: listingData.deposit_eur,
         billsIncluded: listingData.bills_included,
         furnished: listingData.furnished,
         bedrooms: listingData.bedrooms,
@@ -119,15 +120,11 @@ export default function ListingDetails() {
         publishedAt: listingData.published_at,
         status: listingData.status as ListingStatus,
         expiresAt: listingData.expires_at,
-        agency: {
+        landlord: {
           id: listingData.agency_id,
-          name: agencyProfile?.agency_name || 'Agency',
+          name: agencyProfile?.agency_name || 'Property Manager',
           phone: agencyProfile?.phone || '',
-          logoUrl: undefined,
-          ownerUserId: '',
-          website: undefined,
-          billingEmail: agencyProfile?.email || '',
-          createdAt: ''
+          email: agencyProfile?.email || ''
         }
       };
 
@@ -167,15 +164,15 @@ export default function ListingDetails() {
     console.log('Sending message with data:', {
       listing_id: listing.id,
       sender_id: user.id,
-      agency_id: listing.agency.id,
-      agency: listing.agency,
+      landlord_id: listing.landlord.id,
+      landlord: listing.landlord,
       message: message.trim(),
       sender_name: profile.full_name || 'Student',
       sender_phone: profile.phone,
       sender_university: profile.university
     });
 
-    if (!listing.agency.id) {
+    if (!listing.landlord.id) {
       toast({
         title: "Error",
         description: "Agency information is missing. Please try refreshing the page.",
@@ -194,7 +191,7 @@ export default function ListingDetails() {
         .insert({
           listing_id: listing.id,
           sender_id: user.id,
-          agency_id: listing.agency.id,
+          agency_id: listing.landlord.id,
           message: message.trim(),
           sender_name: profile.full_name || 'Student',
           sender_phone: profile.phone,
@@ -483,7 +480,7 @@ export default function ListingDetails() {
                     </div>
                     <div className="text-right">
                       <div className="text-3xl font-bold text-price">
-                        {formatPrice(listing.rentMonthlyEUR)}
+                        {formatPrice(listing.rentMonthlyEur)}
                       </div>
                       <div className="text-sm text-muted-foreground">per month</div>
                     </div>
@@ -513,17 +510,11 @@ export default function ListingDetails() {
                     )}
                     <div className="flex items-center space-x-2">
                       <Euro className="h-5 w-5 text-muted-foreground" />
-                      <span>€{listing.depositEUR} deposit</span>
+                      <span>€{listing.depositEur} deposit</span>
                     </div>
                   </div>
 
                   {/* Financial Information */}
-                  {listing.agencyFee && (
-                    <div className="flex items-center space-x-2">
-                      <Euro className="h-5 w-5 text-muted-foreground" />
-                      <span>Agency Fee: {listing.agencyFee}</span>
-                    </div>
-                  )}
 
                   {/* Availability */}
                   <div className="flex items-center space-x-2">
@@ -637,22 +628,22 @@ export default function ListingDetails() {
                 </CardHeader>
                 <CardContent className="space-y-4">
                   <div>
-                    <h4 className="font-semibold text-lg">{listing.agency.name}</h4>
+                    <h4 className="font-semibold text-lg">{listing.landlord.name}</h4>
                   </div>
                   
                   {/* Show contact information only if user is logged in */}
                   {user ? (
                     <div className="space-y-2">
-                      {listing.agency.phone && (
+                      {listing.landlord.phone && (
                         <div className="flex items-center space-x-2">
                           <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{listing.agency.phone}</span>
+                          <span>{listing.landlord.phone}</span>
                         </div>
                       )}
-                      {listing.agency.billingEmail && (
+                      {listing.landlord.email && (
                         <div className="flex items-center space-x-2">
                           <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span>{listing.agency.billingEmail}</span>
+                          <span>{listing.landlord.email}</span>
                         </div>
                       )}
                     </div>

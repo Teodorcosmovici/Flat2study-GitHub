@@ -95,7 +95,7 @@ const OpenStreetMapFallback = ({ listings, className, onListingClick }: MapboxMa
                     </p>
                     <div className="flex items-center justify-between mb-2">
                       <span className="text-lg font-bold text-primary">
-                        {formatPrice(listing.rentMonthlyEUR)}
+                        {formatPrice(listing.rentMonthlyEur)}
                         <span className="text-xs text-muted-foreground font-normal">/month</span>
                       </span>
                       <Badge variant="secondary" className="text-xs">
@@ -253,7 +253,7 @@ const MapboxMap = ({ listings, className, onListingClick }: MapboxMapProps) => {
         `;
         
         // Add price to marker - simplified display
-        const priceK = Math.round(listing.rentMonthlyEUR / 100);
+        const priceK = Math.round(listing.rentMonthlyEur / 100);
         markerElement.innerHTML = `€${priceK}k`;
 
         // Add hover effect
@@ -278,7 +278,7 @@ const MapboxMap = ({ listings, className, onListingClick }: MapboxMapProps) => {
           style: 'currency',
           currency: 'EUR',
           maximumFractionDigits: 0
-        }).format(listing.rentMonthlyEUR);
+        }).format(listing.rentMonthlyEur);
 
         const popup = new mapboxgl.Popup({
           offset: 25,

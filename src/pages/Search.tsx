@@ -69,8 +69,8 @@ export default function Search() {
           country: item.country,
           lat: item.lat,
           lng: item.lng,
-          rentMonthlyEUR: item.rent_monthly_eur,
-          depositEUR: item.deposit_eur,
+          rentMonthlyEur: item.rent_monthly_eur,
+          depositEur: item.deposit_eur,
           billsIncluded: item.bills_included,
           furnished: item.furnished,
           bedrooms: item.bedrooms,
@@ -84,13 +84,11 @@ export default function Search() {
           createdAt: item.created_at,
           publishedAt: item.published_at,
           status: item.status,
-          agency: {
-            id: item.id, // Using listing id as agency id for now
-            ownerUserId: '',
-            name: (item.agency_name && item.agency_name.trim()) ? item.agency_name : 'Real Estate Agency',
+          landlord: {
+            id: item.id, // Using listing id as landlord id for now
+            name: (item.agency_name && item.agency_name.trim()) ? item.agency_name : 'Property Manager',
             phone: '', // Contact info no longer exposed for security
-            billingEmail: '', // Contact info no longer exposed for security
-            createdAt: item.created_at
+            email: '' // Contact info no longer exposed for security
           }
         }));
 
@@ -128,10 +126,10 @@ export default function Search() {
 
     // Price range
     if (filters.priceMin !== undefined) {
-      filtered = filtered.filter(listing => listing.rentMonthlyEUR >= filters.priceMin!);
+      filtered = filtered.filter(listing => listing.rentMonthlyEur >= filters.priceMin!);
     }
     if (filters.priceMax !== undefined) {
-      filtered = filtered.filter(listing => listing.rentMonthlyEUR <= filters.priceMax!);
+      filtered = filtered.filter(listing => listing.rentMonthlyEur <= filters.priceMax!);
     }
 
     // Property type
@@ -170,10 +168,10 @@ export default function Search() {
     // Sort results
     switch (sortBy) {
       case 'price-low':
-        filtered.sort((a, b) => a.rentMonthlyEUR - b.rentMonthlyEUR);
+        filtered.sort((a, b) => a.rentMonthlyEur - b.rentMonthlyEur);
         break;
       case 'price-high':
-        filtered.sort((a, b) => b.rentMonthlyEUR - a.rentMonthlyEUR);
+        filtered.sort((a, b) => b.rentMonthlyEur - a.rentMonthlyEur);
         break;
       case 'newest':
         filtered.sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime());
@@ -237,8 +235,8 @@ export default function Search() {
         country: item.country,
         lat: item.lat,
         lng: item.lng,
-        rentMonthlyEUR: item.rent_monthly_eur,
-        depositEUR: item.deposit_eur,
+        rentMonthlyEur: item.rent_monthly_eur,
+        depositEur: item.deposit_eur,
         billsIncluded: item.bills_included,
         furnished: item.furnished,
         bedrooms: item.bedrooms,
@@ -252,13 +250,11 @@ export default function Search() {
         createdAt: item.created_at,
         publishedAt: item.published_at,
         status: item.status,
-        agency: {
+        landlord: {
           id: item.id,
-          ownerUserId: '',
-          name: (item.agency_name && item.agency_name.trim()) ? item.agency_name : 'Real Estate Agency',
+          name: (item.agency_name && item.agency_name.trim()) ? item.agency_name : 'Property Manager',
           phone: '',
-          billingEmail: '',
-          createdAt: item.created_at
+          email: ''
         }
       }));
 
