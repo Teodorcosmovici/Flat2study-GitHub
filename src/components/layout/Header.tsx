@@ -164,6 +164,20 @@ export default function Header() {
           ) : (
             /* Non-authenticated user buttons */
             <>
+              <Link to="/landlord">
+                <Button 
+                  variant="ghost" 
+                  size="sm" 
+                  className={`transition-colors duration-300 ${
+                    shouldShowBackground 
+                      ? 'text-foreground hover:text-foreground/80' 
+                      : 'text-white hover:text-white/80 hover:bg-white/10'
+                  }`}
+                >
+                  <span className="text-xs md:text-sm">I'm a landlord</span>
+                </Button>
+              </Link>
+
               <Link to="/auth">
                 <Button 
                   variant="ghost" 

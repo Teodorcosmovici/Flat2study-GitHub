@@ -11,6 +11,7 @@ import About from "./pages/About";
 import { ListingWizard } from "./components/listing/ListingWizard";
 import { LandlordDashboard } from "./pages/LandlordDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
+import LandlordLanding from "./pages/LandlordLanding";
 import ListingDetails from "./pages/ListingDetails";
 import Favorites from "./pages/Favorites";
 import Profile from "./pages/Profile";
@@ -35,6 +36,7 @@ const App = () => (
           <Route path="/search" element={<Search />} />
           <Route path="/auth" element={<Auth />} />
           <Route path="/get-started" element={<UserTypeSelection />} />
+          <Route path="/landlord" element={<LandlordLanding />} />
           <Route path="/signup/private" element={<SignupPrivate />} />
           <Route path="/signup/student" element={<SignupStudent />} />
           <Route path="/about" element={<About />} />
