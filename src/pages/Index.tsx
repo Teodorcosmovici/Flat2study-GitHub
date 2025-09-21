@@ -40,14 +40,7 @@ const Index = () => {
   const isLandlord = profile?.user_type === 'private';
   const isAdmin = profile?.user_type === 'admin';
 
-  // Redirect landlords to their dashboard using React Router
-  useEffect(() => {
-    if (isLandlord && !isOwnerAuthenticated) {
-      navigate('/landlord-dashboard', { replace: true });
-    } else if (isAdmin && !isOwnerAuthenticated) {
-      navigate('/admin-dashboard', { replace: true });
-    }
-  }, [isLandlord, isAdmin, isOwnerAuthenticated, navigate]);
+  // Removed automatic redirect - users can now access homepage when logged in
 
   if (isOwnerAuthenticated) {
     return <OwnerDashboard onLogout={() => setIsOwnerAuthenticated(false)} />;
