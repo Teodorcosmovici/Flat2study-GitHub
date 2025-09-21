@@ -28,15 +28,7 @@ const AMENITIES = [
 
 const RULES = [
   'No Smoking',
-  'No Pets',
-  'No Parties',
-  'Quiet Hours (10pm - 8am)',
-  'No Overnight Guests',
-  'Clean Kitchen After Use',
-  'Take Shoes Off Indoors',
-  'No Loud Music',
-  'Respect Common Areas',
-  'No Drugs'
+  'No Pets'
 ];
 
 interface AmenitiesRulesStepProps {

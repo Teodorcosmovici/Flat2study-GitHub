@@ -45,10 +45,7 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
 
       <div>
         <Label htmlFor="rent_amount">
-          Rent Amount (EUR) *
-          {data.rent_basis === 'daily' && ' - Per Day'}
-          {data.rent_basis === 'semi_monthly' && ' - Per 2 Weeks'}
-          {data.rent_basis === 'monthly' && ' - Per Month'}
+          Rent Amount (EUR) - Per Month *
         </Label>
         <Input
           id="rent_amount"
