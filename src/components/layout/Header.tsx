@@ -141,7 +141,7 @@ export default function Header() {
                     <DropdownMenuItem asChild>
                       <Link to="/landlord-dashboard" className="flex items-center">
                         <Settings className="h-4 w-4 mr-2" />
-                        {t('header.dashboard')}
+                        Dashboard
                       </Link>
                     </DropdownMenuItem>
                   )}
