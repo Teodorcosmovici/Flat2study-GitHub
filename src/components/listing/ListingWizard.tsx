@@ -242,17 +242,17 @@ export const ListingWizard = () => {
         <CardContent>
           {renderStepContent()}
           
-          <div className="flex justify-between mt-8">
-            <Button
-              variant="outline"
-              onClick={handleBack}
-              disabled={currentStep === 0}
-            >
-              <ChevronLeft className="w-4 h-4 mr-2" />
-              Back
-            </Button>
-            
-            {currentStep < STEPS.length - 1 ? (
+          {currentStep < STEPS.length - 1 && (
+            <div className="flex justify-between mt-8">
+              <Button
+                variant="outline"
+                onClick={handleBack}
+                disabled={currentStep === 0}
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
+              
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
@@ -260,15 +260,20 @@ export const ListingWizard = () => {
                 Next
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
-            ) : (
+            </div>
+          )}
+          
+          {currentStep === STEPS.length - 1 && (
+            <div className="flex justify-start mt-8">
               <Button
-                onClick={handleSubmit}
-                disabled={!canProceed()}
+                variant="outline"
+                onClick={handleBack}
               >
-                Submit for Review
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
               </Button>
-            )}
-          </div>
+            </div>
+          )}
         </CardContent>
       </Card>
     </div>
