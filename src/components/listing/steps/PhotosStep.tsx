@@ -6,6 +6,8 @@ import { Card } from '@/components/ui/card';
 import { X, Upload, Image as ImageIcon } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 
 interface PhotosStepProps {
   data: {
@@ -16,20 +18,29 @@ interface PhotosStepProps {
 
 export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
   const [uploading, setUploading] = useState(false);
+  const { user } = useAuth();
+  const navigate = useNavigate();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
     if (!files || files.length === 0) return;
 
+    // Check if user is authenticated
+    if (!user) {
+      toast({
+        title: "Authentication required",
+        description: "Please sign in to upload photos.",
+        variant: "destructive",
+      });
+      navigate('/auth');
+      return;
+    }
+
     setUploading(true);
     const uploadedUrls: string[] = [];
 
     try {
-      const { data: authData, error: userError } = await supabase.auth.getUser();
-      if (userError || !authData?.user) {
-        throw new Error('Please sign in to upload photos.');
-      }
-      const userId = authData.user.id;
+      const userId = user.id;
 
       for (const file of Array.from(files)) {
         const fileExt = file.name.split('.').pop() || 'jpg';
