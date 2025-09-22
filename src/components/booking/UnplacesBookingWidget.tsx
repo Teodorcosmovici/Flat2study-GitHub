@@ -94,6 +94,13 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     // Disable past dates
     if (date < today) return true;
     
+    // Disable dates before the listing's availability date
+    if (listing.availabilityDate) {
+      const availableDate = new Date(listing.availabilityDate);
+      availableDate.setHours(0, 0, 0, 0);
+      if (date < availableDate) return true;
+    }
+    
     // Disable dates that are marked as unavailable
     return unavailableDates.some(unavailable => 
       unavailable.toDateString() === date.toDateString()
@@ -103,7 +110,14 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   const isCheckOutDisabled = (date: Date) => {
     if (isDateDisabled(date)) return true;
     if (!checkIn) return true;
-    return date <= checkIn;
+    
+    // Ensure move out is after move in
+    if (date <= checkIn) return true;
+    
+    // Ensure minimum 1 month rental period
+    const oneMonthLater = new Date(checkIn);
+    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
+    return date < oneMonthLater;
   };
 
   return (
