@@ -3,66 +3,61 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Shield, Globe, Star, Calendar, Euro, Headphones, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
-
 export default function LandlordLanding() {
-  const { t } = useLanguage();
-
-  const features = [
-    {
-      icon: Star,
-      title: "Quality tenants",
-      description: "Access verified student tenants with guaranteed first payments. You always choose whether to accept or not.",
-      highlight: true
-    },
-    {
-      icon: Calendar,
-      title: "Online viewings and bookings",
-      description: "Save time with virtual tours and direct online bookings. No more endless property showings.",
-      highlight: false
-    },
-    {
-      icon: Euro,
-      title: "We only charge you if you rent out",
-      description: "Pay only when successful - a small percentage of the total contract value once rented, never before.",
-      highlight: true
-    },
-    {
-      icon: Headphones,
-      title: "Personalised service",
-      description: "Get expert support from our multilingual team at your disposal to help you at all times.",
-      highlight: false
-    }
-  ];
-
-  const steps = [
-    {
-      number: "1",
-      title: "List your property for free",
-      description: "Create your listing with photos and details. No upfront costs.",
-      bgColor: "bg-primary/10"
-    },
-    {
-      number: "2", 
-      title: "Accept booking requests",
-      description: "Review verified student applications and choose your ideal tenant.",
-      bgColor: "bg-accent/20"
-    },
-    {
-      number: "3",
-      title: "Receive payments",
-      description: "Get secure monthly rent payments directly to your account.",
-      bgColor: "bg-secondary/20"
-    }
-  ];
-
-  const stats = [
-    { number: "50,000", label: "students in our network", sublabel: "looking for an apartment per year" },
-    { number: "5 top Milan universities", label: "", sublabel: "in our network" },
-    { number: "7 days", label: "is enough for our best listings", sublabel: "to be rented" }
-  ];
-
-  return (
-    <div className="min-h-screen bg-background">
+  const {
+    t
+  } = useLanguage();
+  const features = [{
+    icon: Star,
+    title: "Quality tenants",
+    description: "Access verified student tenants with guaranteed first payments. You always choose whether to accept or not.",
+    highlight: true
+  }, {
+    icon: Calendar,
+    title: "Online viewings and bookings",
+    description: "Save time with virtual tours and direct online bookings. No more endless property showings.",
+    highlight: false
+  }, {
+    icon: Euro,
+    title: "We only charge you if you rent out",
+    description: "Pay only when successful - a small percentage of the total contract value once rented, never before.",
+    highlight: true
+  }, {
+    icon: Headphones,
+    title: "Personalised service",
+    description: "Get expert support from our multilingual team at your disposal to help you at all times.",
+    highlight: false
+  }];
+  const steps = [{
+    number: "1",
+    title: "List your property for free",
+    description: "Create your listing with photos and details. No upfront costs.",
+    bgColor: "bg-primary/10"
+  }, {
+    number: "2",
+    title: "Accept booking requests",
+    description: "Review verified student applications and choose your ideal tenant.",
+    bgColor: "bg-accent/20"
+  }, {
+    number: "3",
+    title: "Receive payments",
+    description: "Get secure monthly rent payments directly to your account.",
+    bgColor: "bg-secondary/20"
+  }];
+  const stats = [{
+    number: "50,000",
+    label: "students in our network",
+    sublabel: "looking for an apartment per year"
+  }, {
+    number: "5 top Milan universities",
+    label: "",
+    sublabel: "in our network"
+  }, {
+    number: "7 days",
+    label: "is enough for our best listings",
+    sublabel: "to be rented"
+  }];
+  return <div className="min-h-screen bg-background">
       {/* Back Home Button */}
       <div className="absolute top-4 left-4 z-10">
         <Link to="/">
@@ -146,8 +141,7 @@ export default function LandlordLanding() {
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
-            {stats.map((stat, index) => (
-              <div key={index} className="space-y-2">
+            {stats.map((stat, index) => <div key={index} className="space-y-2">
                 <h3 className="text-3xl md:text-4xl font-bold text-primary">
                   {stat.number}
                 </h3>
@@ -157,8 +151,7 @@ export default function LandlordLanding() {
                 <p className="text-sm text-muted-foreground">
                   {stat.sublabel}
                 </p>
-              </div>
-            ))}
+              </div>)}
           </div>
         </div>
       </section>
@@ -182,12 +175,9 @@ export default function LandlordLanding() {
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto max-w-6xl">
           <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => (
-              <Card key={index} className={`h-full ${feature.highlight ? 'ring-2 ring-primary/20' : ''}`}>
+            {features.map((feature, index) => <Card key={index} className={`h-full ${feature.highlight ? 'ring-2 ring-primary/20' : ''}`}>
                 <CardHeader className="text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${
-                    feature.highlight ? 'bg-primary/10' : 'bg-muted/50'
-                  }`}>
+                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${feature.highlight ? 'bg-primary/10' : 'bg-muted/50'}`}>
                     <feature.icon className={`w-8 h-8 ${feature.highlight ? 'text-primary' : 'text-muted-foreground'}`} />
                   </div>
                   <CardTitle className="text-lg">{feature.title}</CardTitle>
@@ -197,8 +187,7 @@ export default function LandlordLanding() {
                     {feature.description}
                   </CardDescription>
                 </CardContent>
-              </Card>
-            ))}
+              </Card>)}
           </div>
         </div>
       </section>
@@ -213,8 +202,7 @@ export default function LandlordLanding() {
           </div>
           
           <div className="space-y-8">
-            {steps.map((step, index) => (
-              <div key={index} className={`${step.bgColor} rounded-2xl p-8`}>
+            {steps.map((step, index) => <div key={index} className={`${step.bgColor} rounded-2xl p-8`}>
                 <div className="flex items-center space-x-6">
                   <div className="flex-shrink-0">
                     <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center font-bold text-lg">
@@ -226,17 +214,12 @@ export default function LandlordLanding() {
                     <p className="text-muted-foreground">{step.description}</p>
                   </div>
                 </div>
-              </div>
-            ))}
+              </div>)}
             
             {/* Additional info for step 3 */}
             <div className="bg-background border rounded-2xl p-8">
               <div className="text-center space-y-4">
-                <p className="text-muted-foreground">
-                  You will receive complete information about your potential tenants. 
-                  Once a request is accepted, we put you directly in touch with your tenant 
-                  so you can organize their arrival.
-                </p>
+                <p className="text-muted-foreground">You will receive complete information about your potential tenants. Once a request is accepted,  the tenant pays the first month rental and the deposit..</p>
                 <p className="text-muted-foreground">
                   Within 48 hours of your tenant's arrival, we will transfer you the 
                   first rental payment minus our service fee.
@@ -253,9 +236,7 @@ export default function LandlordLanding() {
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
             Ready to start earning?
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">
-            Join thousands of landlords already maximizing their rental income with verified student tenants.
-          </p>
+          <p className="text-lg text-muted-foreground mb-8">Join thousands olandlords already maximizing their rental income with verified student tenants.</p>
           <Link to="/signup/private">
             <Button size="lg" className="hero-gradient text-white text-2xl font-bold px-16 py-8 shadow-2xl">
               Start listing for free
@@ -263,6 +244,5 @@ export default function LandlordLanding() {
           </Link>
         </div>
       </section>
-    </div>
-  );
+    </div>;
 }
