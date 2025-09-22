@@ -379,37 +379,6 @@ const Index = () => {
                 </div>
               </section>
 
-              {/* Dashboard Stats */}
-              <section className="py-16 px-4">
-                <div className="container mx-auto">
-                  <div className="text-center mb-12">
-                    <h2 className="text-3xl font-bold mb-4">{t('home.dashboardStats')}</h2>
-                    <p className="text-muted-foreground text-lg">
-                      {t('home.dashboardStatsSubtitle')}
-                    </p>
-                  </div>
-                  
-                  <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-md mx-auto">
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <div className="text-3xl font-bold text-primary mb-2">
-                          {statsLoading ? '...' : activeListingsCount}
-                        </div>
-                        <p className="text-muted-foreground">{t('home.activeListings')}</p>
-                      </CardContent>
-                    </Card>
-
-                    <Card>
-                      <CardContent className="p-6 text-center">
-                        <div className="text-3xl font-bold text-primary mb-2">
-                          {statsLoading ? '...' : uniqueInquiriesCount}
-                        </div>
-                        <p className="text-muted-foreground">{t('home.inquiries')}</p>
-                      </CardContent>
-                    </Card>
-                  </div>
-                </div>
-              </section>
             </>
           ) : null}
         </>
