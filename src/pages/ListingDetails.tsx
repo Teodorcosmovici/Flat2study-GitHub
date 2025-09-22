@@ -7,7 +7,6 @@ import { useListingTracking } from '@/hooks/useListingTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Textarea } from '@/components/ui/textarea';
 
 import { toast } from '@/hooks/use-toast';
 import { 
@@ -20,11 +19,9 @@ import {
   Wifi, 
   Car, 
   Users,
-  Send,
   Phone, 
   Mail, 
   Building,
-  
   ChevronLeft,
   ChevronRight
 } from 'lucide-react';
@@ -36,6 +33,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import TranslateButton from '@/components/listings/TranslateButton';
 import { BookingForm } from '@/components/booking/BookingForm';
 import { ImageLightbox } from '@/components/ui/image-lightbox';
+import { UnplacesBookingWidget } from '@/components/booking/UnplacesBookingWidget';
 
 // Helper function to get text in current language
 const getLocalizedText = (multilingualField: any, language: string, fallback: string = '') => {
@@ -57,15 +55,8 @@ export default function ListingDetails() {
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [message, setMessage] = useState('');
-  const [sendingMessage, setSendingMessage] = useState(false);
   const [translatedDescription, setTranslatedDescription] = useState('');
   const [isDescriptionTranslated, setIsDescriptionTranslated] = useState(false);
-
-  // Set default message when language changes
-  useEffect(() => {
-    setMessage(t('listing.messageDefault'));
-  }, [t]);
 
   useEffect(() => {
     if (id) {
@@ -145,86 +136,6 @@ export default function ListingDetails() {
     }
   };
 
-  const sendMessage = async () => {
-    if (!user || !listing || !profile) {
-      toast({
-        title: t('listing.authRequired'),
-        description: t('listing.authRequiredDesc'),
-        variant: "destructive"
-      });
-      return;
-    }
-
-    if (!message.trim()) {
-      toast({
-        title: t('listing.messageRequired'),
-        description: t('listing.messageRequiredDesc'),
-        variant: "destructive"
-      });
-      return;
-    }
-
-    // Debug logging
-    console.log('Sending message with data:', {
-      listing_id: listing.id,
-      sender_id: user.id,
-      landlord_id: listing.landlord.id,
-      landlord: listing.landlord,
-      message: message.trim(),
-      sender_name: profile.full_name || 'Student',
-      sender_phone: profile.phone,
-      sender_university: profile.university
-    });
-
-    if (!listing.landlord.id) {
-      toast({
-        title: "Error",
-        description: "Agency information is missing. Please try refreshing the page.",
-        variant: "destructive"
-      });
-      return;
-    }
-
-    setSendingMessage(true);
-    try {
-      // Generate conversation ID for proper message isolation
-      const conversationId = `listing-${listing.id}-student-${user.id}`;
-
-      const { error } = await supabase
-        .from('messages')
-        .insert({
-          listing_id: listing.id,
-          sender_id: user.id,
-          agency_id: listing.landlord.id,
-          message: message.trim(),
-          sender_name: profile.full_name || 'Student',
-          sender_phone: profile.phone,
-          sender_university: profile.university,
-          conversation_id: conversationId
-        });
-
-      if (error) {
-        console.error('Supabase error:', error);
-        throw error;
-      }
-
-      toast({
-        title: t('listing.messageSent'),
-        description: t('listing.messageSentDesc')
-      });
-
-      setMessage(t('listing.messageDefault'));
-    } catch (error) {
-      console.error('Error sending message:', error);
-      toast({
-        title: t('listing.error'),
-        description: t('listing.messageError'),
-        variant: "destructive"
-      });
-    } finally {
-      setSendingMessage(false);
-    }
-  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
@@ -600,30 +511,14 @@ export default function ListingDetails() {
 
             {/* Sidebar */}
             <div className="space-y-6">
-              {/* Message Form */}
-              {user && profile?.user_type === 'student' && (
-                <Card>
-                  <CardHeader>
-                    <CardTitle>Send Message</CardTitle>
-                  </CardHeader>
-                  <CardContent className="space-y-4">
-                    <Textarea
-                      value={message}
-                      onChange={(e) => setMessage(e.target.value)}
-                      placeholder="Enter your message..."
-                      rows={4}
-                    />
-                    <Button 
-                      onClick={sendMessage}
-                      disabled={sendingMessage}
-                      className="w-full"
-                    >
-                      <Send className="h-4 w-4 mr-2" />
-                      {sendingMessage ? 'Sending...' : 'Send Message'}
-                    </Button>
-                  </CardContent>
-                </Card>
-              )}
+              {/* Booking Widget */}
+              <UnplacesBookingWidget 
+                listing={listing}
+                onBookingRequest={(data) => {
+                  console.log('Booking request:', data);
+                  // Handle booking request here
+                }}
+              />
 
               {/* Agency Contact */}
               <Card>
