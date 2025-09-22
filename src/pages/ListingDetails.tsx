@@ -520,53 +520,6 @@ export default function ListingDetails() {
                 }}
               />
 
-              {/* Agency Contact */}
-              <Card>
-                <CardHeader>
-                  <CardTitle>Agency Contact</CardTitle>
-                </CardHeader>
-                <CardContent className="space-y-4">
-                  <div>
-                    <h4 className="font-semibold text-lg">{listing.landlord.name}</h4>
-                  </div>
-                  
-                  {/* Show contact information only if user is logged in */}
-                  {user ? (
-                    <div className="space-y-2">
-                      {listing.landlord.phone && (
-                        <div className="flex items-center space-x-2">
-                          <Phone className="h-4 w-4 text-muted-foreground" />
-                          <span>{listing.landlord.phone}</span>
-                        </div>
-                      )}
-                      {listing.landlord.email && (
-                        <div className="flex items-center space-x-2">
-                          <Mail className="h-4 w-4 text-muted-foreground" />
-                          <span>{listing.landlord.email}</span>
-                        </div>
-                      )}
-                    </div>
-                  ) : (
-                    <div className="text-muted-foreground text-sm">
-                      <p>Please log in to view contact details</p>
-                    </div>
-                  )}
-
-                  {!user && (
-                    <div className="pt-4 border-t">
-                      <p className="text-sm text-muted-foreground mb-3">
-                        Please log in to send a message to this agency.
-                      </p>
-                      <Button 
-                        onClick={() => navigate('/auth')}
-                        className="w-full"
-                      >
-                        Log In to Contact
-                      </Button>
-                    </div>
-                  )}
-                </CardContent>
-              </Card>
             </div>
           </div>
         </div>
