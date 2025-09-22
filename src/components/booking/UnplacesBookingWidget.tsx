@@ -91,8 +91,10 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     const today = new Date();
     today.setHours(0, 0, 0, 0);
     
+    // Disable past dates
     if (date < today) return true;
     
+    // Disable dates that are marked as unavailable
     return unavailableDates.some(unavailable => 
       unavailable.toDateString() === date.toDateString()
     );
