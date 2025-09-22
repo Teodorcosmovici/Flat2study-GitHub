@@ -7,7 +7,9 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
-import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User, CheckCircle } from 'lucide-react';
+import { Input } from '@/components/ui/input';
+import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
+import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User, CheckCircle, Search, Building2, MessageSquare, Clock, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -126,15 +128,15 @@ export const LandlordDashboard = () => {
 
   const getStatusBadge = (status: string, reviewStatus: string) => {
     if (reviewStatus === 'pending_review') {
-      return <Badge variant="outline" className="text-orange-600">Pending Review</Badge>;
+      return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Unpublished</Badge>;
     }
     if (reviewStatus === 'rejected') {
       return <Badge variant="destructive">Rejected</Badge>;
     }
     if (status === 'PUBLISHED') {
-      return <Badge variant="default" className="bg-green-600">Published</Badge>;
+      return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Published</Badge>;
     }
-    return <Badge variant="secondary">{status}</Badge>;
+    return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Unpublished</Badge>;
   };
 
   const handleDeleteListing = async (listingId: string) => {
@@ -191,210 +193,181 @@ export const LandlordDashboard = () => {
 
   if (loading) {
     return (
-      <div className="container mx-auto px-4 py-8">
-        <div className="text-center">Loading dashboard...</div>
+      <div className="min-h-screen bg-background">
+        <div className="flex items-center justify-center h-64">
+          <div className="text-center text-muted-foreground">Loading dashboard...</div>
+        </div>
       </div>
     );
   }
 
   return (
-    <>
-      {/* Dedicated Landlord Dashboard Header */}
-      <header className="bg-white border-b border-gray-200 shadow-sm">
-        <div className="container mx-auto px-4 py-4">
+    <div className="min-h-screen bg-background">
+      {/* Header */}
+      <header className="bg-background border-b">
+        <div className="max-w-7xl mx-auto px-6 py-4">
           <div className="flex justify-between items-center">
-            <div className="flex items-center gap-4">
-              <div>
-                <h1 className="text-2xl font-bold text-black">Landlord Dashboard</h1>
-                <p className="text-gray-600">Welcome back, {profile?.full_name || 'Property Manager'}</p>
+            <div className="flex items-center gap-6">
+              <div className="flex items-center gap-3">
+                <Building2 className="h-8 w-8 text-primary" />
+                <h1 className="text-2xl font-semibold">Dashboard</h1>
               </div>
             </div>
+            
             <div className="flex items-center gap-4">
-              <div className="flex items-center gap-2 text-sm text-gray-600">
-                <User className="h-4 w-4" />
-                <span>{user?.email}</span>
-              </div>
-              <Button 
-                variant="outline" 
-                onClick={() => navigate('/')}
-                className="text-black border-gray-300 hover:bg-gray-100"
-              >
-                <Home className="w-4 h-4 mr-2" />
-                Back to Home
+              <Button onClick={() => navigate('/create-listing')} className="bg-primary hover:bg-primary/90">
+                <Plus className="w-4 h-4 mr-2" />
+                Add listing
               </Button>
-              <Button 
-                variant="outline" 
-                onClick={handleLogout}
-                className="text-black border-gray-300 hover:bg-gray-100"
-              >
-                <LogOut className="w-4 h-4 mr-2" />
-                Logout
-              </Button>
+              
+              <Avatar className="h-8 w-8">
+                <AvatarFallback>
+                  {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
+                </AvatarFallback>
+              </Avatar>
             </div>
           </div>
         </div>
       </header>
 
-      <div className="container mx-auto px-4 py-8">
-        <div className="flex justify-between items-center mb-8">
-          <div>
-            <h2 className="text-xl font-semibold text-black">Property Management</h2>
-            <p className="text-gray-600">Manage your listings, bookings, and analytics</p>
-          </div>
-          <Button onClick={() => navigate('/create-listing')} size="lg">
-            <Plus className="w-4 h-4 mr-2" />
-            Add New Listing
-          </Button>
-        </div>
-
-      {/* Stats Cards */}
-      <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Listings</CardTitle>
-            <Home className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{listings.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Active</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-green-600">
-              {statsLoading ? "..." : activeListingsCount}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Pending Review</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold text-orange-600">
-              {listings.filter(l => l.review_status === 'pending_review').length}
-            </div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Total Bookings</CardTitle>
-            <Calendar className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{bookings.length}</div>
-          </CardContent>
-        </Card>
-        <Card>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">Monthly Revenue</CardTitle>
-            <BarChart3 className="h-4 w-4 text-muted-foreground" />
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">
-              €{bookings.reduce((sum, booking) => sum + (booking.monthly_rent || 0), 0).toLocaleString()}
-            </div>
-          </CardContent>
-        </Card>
-      </div>
-
-      <Tabs defaultValue="listings" className="space-y-6">
-        <TabsList>
-          <TabsTrigger value="listings">My Listings</TabsTrigger>
-          <TabsTrigger value="bookings">Rented Out</TabsTrigger>
-          <TabsTrigger value="analytics">Analytics</TabsTrigger>
-        </TabsList>
-
-        <TabsContent value="listings" className="space-y-4">
-          <div className="flex justify-between items-center">
-            <h2 className="text-2xl font-bold">My Properties</h2>
-            <Button onClick={() => navigate('/create-listing')}>
-              <Plus className="w-4 h-4 mr-2" />
-              Add New Listing
-            </Button>
+      {/* Navigation Tabs */}
+      <div className="max-w-7xl mx-auto px-6">
+        <Tabs defaultValue="listings" className="w-full">
+          <div className="border-b">
+            <TabsList className="h-14 bg-transparent gap-8 px-0">
+              <TabsTrigger 
+                value="listings" 
+                className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
+              >
+                Listings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="booking-requests" 
+                className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
+              >
+                Booking requests
+              </TabsTrigger>
+              <TabsTrigger 
+                value="confirmed-bookings" 
+                className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
+              >
+                Confirmed bookings
+              </TabsTrigger>
+              <TabsTrigger 
+                value="account" 
+                className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
+              >
+                Account
+              </TabsTrigger>
+            </TabsList>
           </div>
 
-          <div className="grid gap-4">
-            {listings.filter(listing => listing.status !== 'RENTED').map((listing) => (
-              <Card key={listing.id}>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div className="flex gap-4">
+          {/* Listings Tab */}
+          <TabsContent value="listings" className="py-6">
+            <div className="flex justify-between items-center mb-6">
+              <div>
+                <h2 className="text-3xl font-bold">{listings.length} Listings</h2>
+              </div>
+              <div className="flex items-center gap-4">
+                <Button variant="outline" className="px-6">
+                  Edit
+                </Button>
+                <Button onClick={() => navigate('/create-listing')} className="bg-primary hover:bg-primary/90 px-6">
+                  <Plus className="w-4 h-4 mr-2" />
+                  Add a listing
+                </Button>
+              </div>
+            </div>
+
+            {/* Search Bar */}
+            <div className="relative mb-6">
+              <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+              <Input 
+                placeholder="Quick find"
+                className="pl-10 bg-muted/30 border-muted"
+              />
+            </div>
+
+            {/* Listings Table */}
+            <div className="bg-card rounded-lg border">
+              {/* Table Header */}
+              <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/20 rounded-t-lg font-medium text-sm text-muted-foreground">
+                <div className="col-span-1">
+                  <input type="checkbox" className="rounded" />
+                </div>
+                <div className="col-span-3">ADDRESS / REFERENCE</div>
+                <div className="col-span-1">AVAILABILITY</div>
+                <div className="col-span-1">PRICE</div>
+                <div className="col-span-2">VERIFICATION</div>
+                <div className="col-span-2">TENANTS INTERESTED</div>
+                <div className="col-span-1">SCORE</div>
+                <div className="col-span-1">ACTIONS</div>
+              </div>
+
+              {/* Table Content */}
+              {listings.filter(listing => listing.status !== 'RENTED').map((listing) => (
+                <div key={listing.id} className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/5">
+                  <div className="col-span-1">
+                    <input type="checkbox" className="rounded" />
+                  </div>
+                  <div className="col-span-3">
+                    <div className="flex gap-3">
                       {listing.images[0] && (
                         <img
                           src={listing.images[0]}
                           alt={listing.title}
-                          className="w-24 h-24 object-cover rounded-lg"
+                          className="w-16 h-16 object-cover rounded-lg"
                         />
                       )}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold">{listing.title}</h3>
-                          {getStatusBadge(listing.status, listing.review_status)}
-                        </div>
-                        <p className="text-muted-foreground">
+                      <div>
+                        <h3 className="font-medium">{listing.title}</h3>
+                        <p className="text-sm text-muted-foreground">
                           {listing.bedrooms} bed, {listing.bathrooms} bath • {listing.city}
                         </p>
-                        <p className="text-lg font-bold text-green-600">
-                          €{listing.rent_monthly_eur}/month
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Created: {new Date(listing.created_at).toLocaleDateString()}
+                        <p className="text-xs text-muted-foreground">
+                          REF {listing.id.slice(0, 8)} | Bedroom {listing.bedrooms}
                         </p>
                       </div>
                     </div>
-                    
-                     <div className="flex gap-2">
-                       <Button variant="outline" size="sm" onClick={() => navigate(`/listing/${listing.id}`)}>
-                         <Eye className="w-4 h-4" />
-                       </Button>
-                       <Button variant="outline" size="sm" onClick={() => navigate(`/edit-listing/${listing.id}`)}>
-                         <Edit className="w-4 h-4" />
-                       </Button>
-                       <Button 
-                         variant="outline" 
-                         size="sm" 
-                         onClick={() => handleDeleteListing(listing.id)}
-                         className="text-red-600 hover:text-red-700"
-                       >
-                         <Trash2 className="w-4 h-4" />
-                       </Button>
-                       <AlertDialog>
-                         <AlertDialogTrigger asChild>
-                           <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white">
-                             <CheckCircle className="w-4 h-4 mr-1" />
-                             Rented Out!
-                           </Button>
-                         </AlertDialogTrigger>
-                         <AlertDialogContent>
-                           <AlertDialogHeader>
-                             <AlertDialogTitle>Are you sure it was rented out?</AlertDialogTitle>
-                             <AlertDialogDescription>
-                               This action will move the listing to your past listings and mark it as rented out.
-                             </AlertDialogDescription>
-                           </AlertDialogHeader>
-                           <AlertDialogFooter>
-                             <AlertDialogCancel>Cancel</AlertDialogCancel>
-                             <AlertDialogAction onClick={() => handleRentedOut(listing.id)}>
-                               Yes, mark as rented out
-                             </AlertDialogAction>
-                           </AlertDialogFooter>
-                         </AlertDialogContent>
-                       </AlertDialog>
-                     </div>
                   </div>
-                </CardContent>
-              </Card>
-            ))}
+                  <div className="col-span-1">
+                    {getStatusBadge(listing.status, listing.review_status)}
+                  </div>
+                  <div className="col-span-1">
+                    <span className="font-medium">€{listing.rent_monthly_eur}</span>
+                  </div>
+                  <div className="col-span-2">
+                    <div className="flex items-center gap-2">
+                      {listing.review_status === 'approved' ? (
+                        <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
+                          Draft →
+                        </Badge>
+                      ) : (
+                        <Badge variant="outline" className="text-orange-600 border-orange-200">
+                          Draft →
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                  <div className="col-span-2">
+                    <Badge variant="outline" className="text-orange-600 border-orange-200">
+                      Draft →
+                    </Badge>
+                  </div>
+                  <div className="col-span-1">
+                    <span className="text-muted-foreground">-</span>
+                  </div>
+                  <div className="col-span-1">
+                    <Button variant="outline" size="sm" onClick={() => navigate(`/edit-listing/${listing.id}`)}>
+                      <Edit className="w-4 h-4" />
+                    </Button>
+                  </div>
+                </div>
+              ))}
 
-            {listings.filter(listing => listing.status !== 'RENTED').length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Home className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
+              {listings.filter(listing => listing.status !== 'RENTED').length === 0 && (
+                <div className="p-12 text-center">
+                  <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No listings yet</h3>
                   <p className="text-muted-foreground mb-4">
                     Create your first property listing to start attracting tenants.
@@ -403,77 +376,95 @@ export const LandlordDashboard = () => {
                     <Plus className="w-4 h-4 mr-2" />
                     Create Your First Listing
                   </Button>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
+                </div>
+              )}
+            </div>
+          </TabsContent>
 
-        <TabsContent value="bookings" className="space-y-4">
-          <h2 className="text-2xl font-bold">Rented Out</h2>
-          
-          <div className="grid gap-4">
-            {listings.filter(listing => listing.status === 'RENTED').map((listing) => (
-              <Card key={listing.id}>
-                <CardContent className="p-6">
-                  <div className="flex justify-between items-start">
-                    <div className="flex gap-4">
-                      {listing.images[0] && (
-                        <img
-                          src={listing.images[0]}
-                          alt={listing.title}
-                          className="w-24 h-24 object-cover rounded-lg"
-                        />
-                      )}
-                      <div className="space-y-2">
-                        <div className="flex items-center gap-2">
-                          <h3 className="text-lg font-semibold">{listing.title}</h3>
-                          <Badge variant="default" className="bg-gray-600">Rented Out</Badge>
-                        </div>
-                        <p className="text-muted-foreground">
-                          {listing.bedrooms} bed, {listing.bathrooms} bath • {listing.city}
-                        </p>
-                        <p className="text-lg font-bold text-green-600">
-                          €{listing.rent_monthly_eur}/month
-                        </p>
-                        <p className="text-sm text-muted-foreground">
-                          Created: {new Date(listing.created_at).toLocaleDateString()}
-                        </p>
-                      </div>
-                    </div>
-                  </div>
-                </CardContent>
-              </Card>
-            ))}
-
-            {listings.filter(listing => listing.status === 'RENTED').length === 0 && (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No rented out listings yet</h3>
-                  <p className="text-muted-foreground">
-                    Listings marked as rented out will appear here.
-                  </p>
-                </CardContent>
-              </Card>
-            )}
-          </div>
-        </TabsContent>
-
-        <TabsContent value="analytics" className="space-y-4">
-          <h2 className="text-2xl font-bold">Analytics</h2>
-          <Card>
-            <CardContent className="p-12 text-center">
-              <BarChart3 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-              <h3 className="text-lg font-semibold mb-2">Analytics Coming Soon</h3>
-              <p className="text-muted-foreground">
-                Detailed analytics and insights about your property performance will be available here.
+          {/* Booking Requests Tab */}
+          <TabsContent value="booking-requests" className="py-6">
+            <div className="text-center py-12">
+              <MessageSquare className="mx-auto h-12 w-12 text-blue-500 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">It looks like you don't have any booking requests at the moment.</h3>
+              <p className="text-muted-foreground mb-4">
+                Once you receive booking requests, you can see them here.
               </p>
-            </CardContent>
-          </Card>
-        </TabsContent>
-      </Tabs>
+              <p className="text-muted-foreground">
+                Want to increase your chances of getting booking requests? 
+                <Button variant="link" className="text-blue-500 p-0 ml-1">
+                  Promote your listings!
+                </Button>
+              </p>
+            </div>
+          </TabsContent>
+
+          {/* Confirmed Bookings Tab */}
+          <TabsContent value="confirmed-bookings" className="py-6">
+            <div className="text-center py-12">
+              <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
+              <h3 className="text-xl font-semibold mb-2">No confirmed bookings yet</h3>
+              <p className="text-muted-foreground">
+                Confirmed bookings will appear here once tenants complete their reservations.
+              </p>
+            </div>
+          </TabsContent>
+
+          {/* Account Tab */}
+          <TabsContent value="account" className="py-6">
+            <div className="max-w-2xl">
+              <h2 className="text-2xl font-bold mb-6">Account Settings</h2>
+              
+              <div className="space-y-6">
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Profile Information</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div>
+                      <label className="text-sm font-medium">Full Name</label>
+                      <Input value={profile?.full_name || ''} readOnly className="mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">Email</label>
+                      <Input value={user?.email || ''} readOnly className="mt-1" />
+                    </div>
+                    <div>
+                      <label className="text-sm font-medium">User Type</label>
+                      <Input value="Private Landlord" readOnly className="mt-1" />
+                    </div>
+                  </CardContent>
+                </Card>
+
+                <Card>
+                  <CardHeader>
+                    <CardTitle>Actions</CardTitle>
+                  </CardHeader>
+                  <CardContent className="space-y-4">
+                    <div className="flex gap-4">
+                      <Button 
+                        variant="outline" 
+                        onClick={() => navigate('/')}
+                        className="flex-1"
+                      >
+                        <Home className="w-4 h-4 mr-2" />
+                        Back to Home
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        onClick={handleLogout}
+                        className="flex-1"
+                      >
+                        <LogOut className="w-4 h-4 mr-2" />
+                        Logout
+                      </Button>
+                    </div>
+                  </CardContent>
+                </Card>
+              </div>
+            </div>
+          </TabsContent>
+        </Tabs>
+      </div>
     </div>
-    </>
   );
 };
