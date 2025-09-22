@@ -185,6 +185,14 @@ export const LandlordDashboard = () => {
               </div>
               <Button 
                 variant="outline" 
+                onClick={() => navigate('/')}
+                className="text-black border-gray-300 hover:bg-gray-100"
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Back to Home
+              </Button>
+              <Button 
+                variant="outline" 
                 onClick={handleLogout}
                 className="text-black border-gray-300 hover:bg-gray-100"
               >
