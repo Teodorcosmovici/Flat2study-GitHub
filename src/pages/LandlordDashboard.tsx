@@ -6,7 +6,8 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User } from 'lucide-react';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger } from '@/components/ui/alert-dialog';
+import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User, CheckCircle } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -158,6 +159,31 @@ export const LandlordDashboard = () => {
     }
   };
 
+  const handleRentedOut = async (listingId: string) => {
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({ status: 'RENTED' })
+        .eq('id', listingId);
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: "Listing marked as rented out successfully",
+      });
+      
+      fetchDashboardData();
+    } catch (error) {
+      console.error('Error updating listing status:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update listing status",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -274,7 +300,7 @@ export const LandlordDashboard = () => {
       <Tabs defaultValue="listings" className="space-y-6">
         <TabsList>
           <TabsTrigger value="listings">My Listings</TabsTrigger>
-          <TabsTrigger value="bookings">Bookings</TabsTrigger>
+          <TabsTrigger value="bookings">Past Listings</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -317,22 +343,44 @@ export const LandlordDashboard = () => {
                       </div>
                     </div>
                     
-                    <div className="flex gap-2">
-                      <Button variant="outline" size="sm" onClick={() => navigate(`/listing/${listing.id}`)}>
-                        <Eye className="w-4 h-4" />
-                      </Button>
-                      <Button variant="outline" size="sm" onClick={() => navigate(`/edit-listing/${listing.id}`)}>
-                        <Edit className="w-4 h-4" />
-                      </Button>
-                      <Button 
-                        variant="outline" 
-                        size="sm" 
-                        onClick={() => handleDeleteListing(listing.id)}
-                        className="text-red-600 hover:text-red-700"
-                      >
-                        <Trash2 className="w-4 h-4" />
-                      </Button>
-                    </div>
+                     <div className="flex gap-2">
+                       <Button variant="outline" size="sm" onClick={() => navigate(`/listing/${listing.id}`)}>
+                         <Eye className="w-4 h-4" />
+                       </Button>
+                       <Button variant="outline" size="sm" onClick={() => navigate(`/edit-listing/${listing.id}`)}>
+                         <Edit className="w-4 h-4" />
+                       </Button>
+                       <Button 
+                         variant="outline" 
+                         size="sm" 
+                         onClick={() => handleDeleteListing(listing.id)}
+                         className="text-red-600 hover:text-red-700"
+                       >
+                         <Trash2 className="w-4 h-4" />
+                       </Button>
+                       <AlertDialog>
+                         <AlertDialogTrigger asChild>
+                           <Button variant="default" size="sm" className="bg-green-600 hover:bg-green-700 text-white">
+                             <CheckCircle className="w-4 h-4 mr-1" />
+                             Rented Out!
+                           </Button>
+                         </AlertDialogTrigger>
+                         <AlertDialogContent>
+                           <AlertDialogHeader>
+                             <AlertDialogTitle>Are you sure it was rented out?</AlertDialogTitle>
+                             <AlertDialogDescription>
+                               This action will move the listing to your past listings and mark it as rented out.
+                             </AlertDialogDescription>
+                           </AlertDialogHeader>
+                           <AlertDialogFooter>
+                             <AlertDialogCancel>Cancel</AlertDialogCancel>
+                             <AlertDialogAction onClick={() => handleRentedOut(listing.id)}>
+                               Yes, mark as rented out
+                             </AlertDialogAction>
+                           </AlertDialogFooter>
+                         </AlertDialogContent>
+                       </AlertDialog>
+                     </div>
                   </div>
                 </CardContent>
               </Card>
@@ -357,39 +405,49 @@ export const LandlordDashboard = () => {
         </TabsContent>
 
         <TabsContent value="bookings" className="space-y-4">
-          <h2 className="text-2xl font-bold">Bookings</h2>
+          <h2 className="text-2xl font-bold">Past Listings</h2>
           
           <div className="grid gap-4">
-            {bookings.map((booking) => (
-              <Card key={booking.id}>
+            {listings.filter(listing => listing.status === 'RENTED').map((listing) => (
+              <Card key={listing.id}>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
-                    <div className="space-y-2">
-                      <h3 className="text-lg font-semibold">{booking.listing?.title || 'Property'}</h3>
-                      <p className="text-muted-foreground">{booking.listing?.address_line}</p>
-                      <p className="text-sm">
-                        Check-in: {new Date(booking.check_in_date).toLocaleDateString()} • 
-                        Check-out: {new Date(booking.check_out_date).toLocaleDateString()}
-                      </p>
-                      <p className="text-lg font-bold text-green-600">
-                        €{booking.monthly_rent}/month
-                      </p>
+                    <div className="flex gap-4">
+                      {listing.images[0] && (
+                        <img
+                          src={listing.images[0]}
+                          alt={listing.title}
+                          className="w-24 h-24 object-cover rounded-lg"
+                        />
+                      )}
+                      <div className="space-y-2">
+                        <div className="flex items-center gap-2">
+                          <h3 className="text-lg font-semibold">{listing.title}</h3>
+                          <Badge variant="default" className="bg-gray-600">Rented Out</Badge>
+                        </div>
+                        <p className="text-muted-foreground">
+                          {listing.bedrooms} bed, {listing.bathrooms} bath • {listing.city}
+                        </p>
+                        <p className="text-lg font-bold text-green-600">
+                          €{listing.rent_monthly_eur}/month
+                        </p>
+                        <p className="text-sm text-muted-foreground">
+                          Created: {new Date(listing.created_at).toLocaleDateString()}
+                        </p>
+                      </div>
                     </div>
-                    <Badge variant={booking.status === 'confirmed' ? 'default' : 'secondary'}>
-                      {booking.status}
-                    </Badge>
                   </div>
                 </CardContent>
               </Card>
             ))}
 
-            {bookings.length === 0 && (
+            {listings.filter(listing => listing.status === 'RENTED').length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
                   <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No bookings yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">No past listings yet</h3>
                   <p className="text-muted-foreground">
-                    Bookings will appear here once students start reserving your properties.
+                    Listings marked as rented out will appear here.
                   </p>
                 </CardContent>
               </Card>
