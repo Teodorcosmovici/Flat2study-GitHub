@@ -68,9 +68,9 @@ export default function LandlordLanding() {
   ];
 
   const stats = [
-    { number: "5,000+", label: "properties", sublabel: "listed worldwide" },
-    { number: "50,000+", label: "successful bookings", sublabel: "since 2015" },
-    { number: "150+", label: "cities in Europe", sublabel: "and more globally" }
+    { number: "50,000", label: "students in our network", sublabel: "looking for an apartment per year" },
+    { number: "Partnership", label: "with the network of the 5 biggest", sublabel: "universities in Milan" },
+    { number: "7 days", label: "is enough for our best listings", sublabel: "to be rented" }
   ];
 
   return (
