@@ -104,7 +104,7 @@ export default function LandlordLanding() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/signup/private">
-                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 animate-pulse hover:animate-none">
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-2xl font-bold px-12 py-8 animate-pulse hover:animate-none shadow-2xl">
                     List with us
                   </Button>
                 </Link>
@@ -269,7 +269,7 @@ export default function LandlordLanding() {
             Join thousands of landlords already maximizing their rental income with verified student tenants.
           </p>
           <Link to="/signup/private">
-            <Button size="lg" className="hero-gradient text-white text-lg px-12 py-6 animate-pulse hover:animate-none">
+            <Button size="lg" className="hero-gradient text-white text-2xl font-bold px-16 py-8 animate-pulse hover:animate-none shadow-2xl">
               Start listing for free
             </Button>
           </Link>
