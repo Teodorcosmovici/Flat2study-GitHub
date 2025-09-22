@@ -114,7 +114,7 @@ export default function EditListing() {
         description: "An unexpected error occurred",
         variant: "destructive",
       });
-      navigate('/my-listings');
+      navigate('/landlord-dashboard');
     } finally {
       setIsLoading(false);
     }
@@ -223,7 +223,7 @@ export default function EditListing() {
         description: "Your listing has been updated successfully.",
       });
 
-      navigate('/my-listings');
+      navigate('/landlord-dashboard');
     } catch (error) {
       console.error('Error updating listing:', error);
       toast({
@@ -258,9 +258,9 @@ export default function EditListing() {
     );
   }
 
-  // Show access denied for non-agency users
-  if (user && profile?.user_type !== 'agency') {
-    return null; // Will redirect via useEffect
+  // Allow both agency and private users; others will be redirected via useEffect
+  if (user && (profile?.user_type !== 'agency' && profile?.user_type !== 'private')) {
+    return null;
   }
 
   return (
@@ -270,10 +270,10 @@ export default function EditListing() {
       <main className="container max-w-4xl mx-auto py-8">
         {/* Header */}
         <div className="flex items-center gap-4 mb-8">
-          <Link to="/my-listings">
+          <Link to="/landlord-dashboard">
             <Button variant="ghost" size="sm">
               <ArrowLeft className="h-4 w-4 mr-2" />
-              Back to My Listings
+              Back to Dashboard
             </Button>
           </Link>
           <div>
