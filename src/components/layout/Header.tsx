@@ -136,8 +136,8 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                     </>
-                  )}
-                  {profile?.user_type === 'private' && (
+                   )}
+                  {(profile?.user_type === 'agency' || profile?.user_type === 'private') && (
                     <DropdownMenuItem asChild>
                       <Link to="/landlord-dashboard" className="flex items-center">
                         <Settings className="h-4 w-4 mr-2" />
@@ -145,13 +145,35 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  {profile?.user_type === 'admin' && (
+                  {(profile?.user_type === 'agency' || profile?.user_type === 'private') && (
                     <DropdownMenuItem asChild>
-                      <Link to="/admin-dashboard" className="flex items-center">
-                        <Settings className="h-4 w-4 mr-2" />
-                        Admin Dashboard
+                      <Link to="/customer-database" className="flex items-center">
+                        <User className="h-4 w-4 mr-2" />
+                        Customer Database
                       </Link>
                     </DropdownMenuItem>
+                  )}
+                  {profile?.user_type === 'admin' && (
+                    <>
+                      <DropdownMenuItem asChild>
+                        <Link to="/admin-dashboard" className="flex items-center">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Admin Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/owner-dashboard" className="flex items-center">
+                          <Settings className="h-4 w-4 mr-2" />
+                          Owner Dashboard
+                        </Link>
+                      </DropdownMenuItem>
+                      <DropdownMenuItem asChild>
+                        <Link to="/customer-database" className="flex items-center">
+                          <User className="h-4 w-4 mr-2" />
+                          Customer Database
+                        </Link>
+                      </DropdownMenuItem>
+                    </>
                   )}
                   <DropdownMenuSeparator />
                   <DropdownMenuItem onClick={signOut} className="text-destructive">

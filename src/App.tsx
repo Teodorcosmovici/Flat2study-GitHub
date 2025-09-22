@@ -22,6 +22,8 @@ import SignupPrivate from "./pages/SignupPrivate";
 import SignupStudent from "./pages/SignupStudent";
 import EditListing from "./pages/EditListing";
 import MyBookings from "./pages/MyBookings";
+import OwnerDashboard from "./pages/OwnerDashboard";
+import CustomerDatabase from "./pages/CustomerDatabase";
 
 const queryClient = new QueryClient();
 
@@ -47,6 +49,8 @@ const AppRoutes = () => {
       <Route path="/profile" element={<Profile />} />
       <Route path="/listing/:id" element={<ListingDetails />} />
       <Route path="/my-bookings" element={<MyBookings />} />
+      <Route path="/owner-dashboard" element={<OwnerDashboard />} />
+      <Route path="/customer-database" element={<CustomerDatabase />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

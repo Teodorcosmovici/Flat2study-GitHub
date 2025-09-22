@@ -78,11 +78,7 @@ interface PendingListing {
   };
 }
 
-interface OwnerDashboardProps {
-  onLogout: () => void;
-}
-
-const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
+const OwnerDashboard = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalListings: 0,
@@ -381,9 +377,9 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
               <h1 className="text-2xl font-bold">Flat2Study Owner Dashboard</h1>
               <p className="text-muted-foreground">Platform overview and management</p>
             </div>
-            <Button variant="outline" onClick={onLogout}>
+            <Button variant="outline" onClick={() => window.location.href = '/'}>
               <LogOut className="h-4 w-4 mr-2" />
-              Logout
+              Back to Home
             </Button>
           </div>
         </header>
@@ -417,9 +413,9 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
             <h1 className="text-2xl font-bold">Flat2Study Owner Dashboard</h1>
             <p className="text-muted-foreground">Platform overview and management</p>
           </div>
-          <Button variant="outline" onClick={onLogout}>
+          <Button variant="outline" onClick={() => window.location.href = '/'}>
             <LogOut className="h-4 w-4 mr-2" />
-            Logout
+            Back to Home
           </Button>
         </div>
       </header>

@@ -43,7 +43,7 @@ const Index = () => {
   // Removed automatic redirect - users can now access homepage when logged in
 
   if (isOwnerAuthenticated) {
-    return <OwnerDashboard onLogout={() => setIsOwnerAuthenticated(false)} />;
+    return <OwnerDashboard />;
   }
 
   return (
