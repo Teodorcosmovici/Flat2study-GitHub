@@ -1,9 +1,10 @@
 import React from 'react';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
-import { Switch } from '@/components/ui/switch';
+import { Button } from '@/components/ui/button';
 import { AlertCircle } from 'lucide-react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { cn } from '@/lib/utils';
 
 interface BasicInfoStepProps {
   data: {
@@ -54,15 +55,29 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }
 
         <div className="space-y-3">
           <Label>Is the property furnished? *</Label>
-          <div className="flex items-center space-x-3">
-            <Switch
-              id="furnished"
-              checked={data.furnished}
-              onCheckedChange={(checked) => updateData({ furnished: checked })}
-            />
-            <Label htmlFor="furnished" className="text-sm">
-              {data.furnished ? 'Yes, furnished' : 'No, unfurnished'}
-            </Label>
+          <div className="flex gap-4">
+            <Button
+              type="button"
+              variant={data.furnished ? "default" : "outline"}
+              onClick={() => updateData({ furnished: true })}
+              className={cn(
+                "flex-1",
+                data.furnished && "bg-primary text-primary-foreground"
+              )}
+            >
+              Yes
+            </Button>
+            <Button
+              type="button"
+              variant={!data.furnished ? "outline" : "outline"}
+              onClick={() => updateData({ furnished: false })}
+              className={cn(
+                "flex-1",
+                !data.furnished && "border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
+              )}
+            >
+              No
+            </Button>
           </div>
           
           {!data.furnished && (
