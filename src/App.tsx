@@ -3,6 +3,7 @@ import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
+import { usePageTracking } from "@/hooks/usePageTracking";
 
 import Index from "./pages/Index";
 import Search from "./pages/Search";
@@ -24,6 +25,34 @@ import MyBookings from "./pages/MyBookings";
 
 const queryClient = new QueryClient();
 
+const AppRoutes = () => {
+  usePageTracking();
+  
+  return (
+    <Routes>
+      <Route path="/" element={<Index />} />
+      <Route path="/search" element={<Search />} />
+      <Route path="/auth" element={<Auth />} />
+      <Route path="/get-started" element={<UserTypeSelection />} />
+      <Route path="/landlord" element={<LandlordLanding />} />
+      <Route path="/signup/private" element={<SignupPrivate />} />
+      <Route path="/signup/student" element={<SignupStudent />} />
+      <Route path="/about" element={<About />} />
+      <Route path="/create-listing" element={<ListingWizard />} />
+      <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
+      <Route path="/my-listings" element={<LandlordDashboard />} />
+      <Route path="/admin-dashboard" element={<AdminDashboard />} />
+      <Route path="/edit-listing/:id" element={<EditListing />} />
+      <Route path="/favorites" element={<Favorites />} />
+      <Route path="/profile" element={<Profile />} />
+      <Route path="/listing/:id" element={<ListingDetails />} />
+      <Route path="/my-bookings" element={<MyBookings />} />
+      {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
+      <Route path="*" element={<NotFound />} />
+    </Routes>
+  );
+};
+
 const App = () => (
   <QueryClientProvider client={queryClient}>
     <TooltipProvider>
@@ -31,27 +60,7 @@ const App = () => (
       <Sonner />
       
       <BrowserRouter>
-        <Routes>
-          <Route path="/" element={<Index />} />
-          <Route path="/search" element={<Search />} />
-          <Route path="/auth" element={<Auth />} />
-          <Route path="/get-started" element={<UserTypeSelection />} />
-          <Route path="/landlord" element={<LandlordLanding />} />
-          <Route path="/signup/private" element={<SignupPrivate />} />
-          <Route path="/signup/student" element={<SignupStudent />} />
-          <Route path="/about" element={<About />} />
-          <Route path="/create-listing" element={<ListingWizard />} />
-          <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
-          <Route path="/my-listings" element={<LandlordDashboard />} />
-          <Route path="/admin-dashboard" element={<AdminDashboard />} />
-          <Route path="/edit-listing/:id" element={<EditListing />} />
-          <Route path="/favorites" element={<Favorites />} />
-          <Route path="/profile" element={<Profile />} />
-          <Route path="/listing/:id" element={<ListingDetails />} />
-          <Route path="/my-bookings" element={<MyBookings />} />
-          {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
-          <Route path="*" element={<NotFound />} />
-        </Routes>
+        <AppRoutes />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>

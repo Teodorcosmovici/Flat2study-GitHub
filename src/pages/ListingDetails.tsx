@@ -3,6 +3,7 @@ import { useParams, useNavigate } from 'react-router-dom';
 import { Listing, ListingType, ListingStatus } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useListingTracking } from '@/hooks/useListingTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
@@ -48,6 +49,9 @@ export default function ListingDetails() {
   const { id } = useParams<{ id: string }>();
   const navigate = useNavigate();
   const { user, profile } = useAuth();
+  
+  // Track listing view
+  useListingTracking(id);
   const { t, language } = useLanguage();
   const isMobile = useIsMobile();
   const [listing, setListing] = useState<Listing | null>(null);

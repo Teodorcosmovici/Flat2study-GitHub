@@ -202,6 +202,11 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
       const endDate = new Date();
       endDate.setDate(endDate.getDate() - dateRange.end);
 
+      console.log('Fetching analytics with date range:', { 
+        start_date: startDate.toISOString().split('T')[0],
+        end_date: endDate.toISOString().split('T')[0]
+      });
+
       const { data, error } = await supabase.rpc('get_platform_analytics', {
         start_date: startDate.toISOString().split('T')[0],
         end_date: endDate.toISOString().split('T')[0]
@@ -210,6 +215,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
       if (error) {
         console.error('Error fetching analytics:', error);
       } else {
+        console.log('Analytics data received:', data);
         setAnalytics(data);
       }
     } catch (error) {
