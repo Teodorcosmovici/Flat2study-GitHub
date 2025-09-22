@@ -416,13 +416,6 @@ export const LandlordDashboard = () => {
 
           {/* Confirmed Bookings Tab */}
           <TabsContent value="confirmed-bookings" className="py-6">
-            <div className="text-center py-12">
-              <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">No confirmed bookings yet</h3>
-              <p className="text-muted-foreground">
-                Confirmed bookings will appear here once tenants complete their reservations.
-              </p>
-            </div>
           </TabsContent>
 
           {/* Account Tab */}
