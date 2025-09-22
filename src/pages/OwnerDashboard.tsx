@@ -413,10 +413,16 @@ const OwnerDashboard = () => {
             <h1 className="text-2xl font-bold">Flat2Study Owner Dashboard</h1>
             <p className="text-muted-foreground">Platform overview and management</p>
           </div>
-          <Button variant="outline" onClick={() => window.location.href = '/'}>
-            <LogOut className="h-4 w-4 mr-2" />
-            Back to Home
-          </Button>
+          <div className="flex gap-2">
+            <Button variant="outline" onClick={() => window.location.href = '/customer-database'}>
+              <Users className="h-4 w-4 mr-2" />
+              Customer Database
+            </Button>
+            <Button variant="outline" onClick={() => window.location.href = '/'}>
+              <LogOut className="h-4 w-4 mr-2" />
+              Back to Home
+            </Button>
+          </div>
         </div>
       </header>
 
@@ -713,6 +719,108 @@ const OwnerDashboard = () => {
                   <div className="text-2xl font-bold">{stats.activeAgencies}</div>
                 </div>
                 <TrendingUp className="h-8 w-8 text-primary" />
+              </div>
+            </CardContent>
+          </Card>
+        </div>
+
+        {/* Customer Database Overview */}
+        <div className="mb-8">
+          <div className="flex justify-between items-center mb-4">
+            <div>
+              <h2 className="text-2xl font-bold">Customer Database</h2>
+              <p className="text-muted-foreground">Overview of all registered students and their activity</p>
+            </div>
+            <Button onClick={() => window.location.href = '/customer-database'}>
+              View Full Database
+            </Button>
+          </div>
+          
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-6">
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Total Students</p>
+                    <div className="text-2xl font-bold">{stats.allUsers.filter(u => u.user_type === 'student').length}</div>
+                  </div>
+                  <Users className="h-8 w-8 text-blue-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">Active This Month</p>
+                    <div className="text-2xl font-bold">
+                      {stats.recentUsers.filter(u => u.user_type === 'student').length}
+                    </div>
+                  </div>
+                  <Users className="h-8 w-8 text-green-600" />
+                </div>
+              </CardContent>
+            </Card>
+            
+            <Card>
+              <CardContent className="p-6">
+                <div className="flex items-center justify-between">
+                  <div>
+                    <p className="text-sm font-medium text-muted-foreground">With Messages</p>
+                    <div className="text-2xl font-bold">
+                      {stats.allUsers.filter(u => u.user_type === 'student' && u.message_count > 0).length}
+                    </div>
+                  </div>
+                  <MessageCircle className="h-8 w-8 text-purple-600" />
+                </div>
+              </CardContent>
+            </Card>
+          </div>
+
+          {/* Recent Student Activity */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Users className="h-5 w-5" />
+                Recent Student Registrations
+              </CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-3">
+                {stats.recentUsers.filter(u => u.user_type === 'student').slice(0, 5).map((user: any) => (
+                  <div key={user.id} className="flex items-center justify-between p-3 border rounded-lg">
+                    <div className="flex-1">
+                      <h4 className="font-medium">{user.full_name || 'Anonymous Student'}</h4>
+                      <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                        <Mail className="h-3 w-3" />
+                        {user.email}
+                        {user.university && (
+                          <>
+                            <span>•</span>
+                            <span>{user.university}</span>
+                          </>
+                        )}
+                      </div>
+                    </div>
+                    <div className="text-right">
+                      <p className="text-sm text-muted-foreground">
+                        {formatDate(user.created_at)}
+                      </p>
+                      {user.message_count > 0 && (
+                        <Badge variant="secondary" className="text-xs">
+                          {user.message_count} messages
+                        </Badge>
+                      )}
+                    </div>
+                  </div>
+                ))}
+                {stats.recentUsers.filter(u => u.user_type === 'student').length === 0 && (
+                  <div className="text-center py-6 text-muted-foreground">
+                    <Users className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                    <p>No recent student registrations</p>
+                  </div>
+                )}
               </div>
             </CardContent>
           </Card>
