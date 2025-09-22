@@ -126,10 +126,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   <span>{formatPrice(35)}</span>
                 </div>
                 
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>To landlord</span>
-                  <ArrowRight className="h-3 w-3" />
-                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
@@ -160,10 +156,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                     </div>
                   );
                 })}
-                <div className="flex justify-between text-xs text-muted-foreground mt-2">
-                  <span>To landlord</span>
-                  <ArrowRight className="h-3 w-3" />
-                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
