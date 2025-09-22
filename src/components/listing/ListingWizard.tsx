@@ -243,17 +243,14 @@ export const ListingWizard = () => {
           {renderStepContent()}
           
           {currentStep < STEPS.length - 1 && (
-            <div className="flex justify-start mt-8">
-              {currentStep > 0 && (
-                <Button
-                  variant="outline"
-                  onClick={handleBack}
-                  className="mr-4"
-                >
-                  <ChevronLeft className="w-4 h-4 mr-2" />
-                  Back
-                </Button>
-              )}
+            <div className="flex justify-between mt-8">
+              <Button
+                variant="outline"
+                onClick={currentStep === 0 ? () => navigate('/landlord-dashboard') : handleBack}
+              >
+                <ChevronLeft className="w-4 h-4 mr-2" />
+                Back
+              </Button>
               
               <Button
                 onClick={handleNext}
