@@ -304,12 +304,11 @@ export const LandlordDashboard = () => {
             {/* Listings Table */}
             <div className="bg-card rounded-lg border">
               {/* Table Header */}
-              <div className="grid grid-cols-12 gap-4 p-4 border-b bg-muted/20 rounded-t-lg font-medium text-sm text-muted-foreground">
+              <div className="grid grid-cols-11 gap-4 p-4 border-b bg-muted/20 rounded-t-lg font-medium text-sm text-muted-foreground">
                 <div className="col-span-1">
                   <input type="checkbox" className="rounded" />
                 </div>
                 <div className="col-span-3">ADDRESS / REFERENCE</div>
-                <div className="col-span-1">AVAILABILITY</div>
                 <div className="col-span-1">PRICE</div>
                 <div className="col-span-2">VERIFICATION</div>
                 <div className="col-span-2">TENANTS INTERESTED</div>
@@ -319,7 +318,7 @@ export const LandlordDashboard = () => {
 
               {/* Table Content */}
               {listings.filter(listing => listing.status !== 'RENTED').map((listing) => (
-                <div key={listing.id} className="grid grid-cols-12 gap-4 p-4 border-b hover:bg-muted/5">
+                <div key={listing.id} className="grid grid-cols-11 gap-4 p-4 border-b hover:bg-muted/5">
                   <div className="col-span-1">
                     <input type="checkbox" className="rounded" />
                   </div>
@@ -342,9 +341,6 @@ export const LandlordDashboard = () => {
                         </p>
                       </div>
                     </div>
-                  </div>
-                  <div className="col-span-1">
-                    {getStatusBadge(listing.status, listing.review_status)}
                   </div>
                   <div className="col-span-1">
                     <span className="font-medium">€{listing.rent_monthly_eur}</span>
