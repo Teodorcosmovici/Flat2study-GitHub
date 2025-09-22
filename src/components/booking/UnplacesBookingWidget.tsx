@@ -78,7 +78,14 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   };
 
   const handleSelectDates = () => {
-    if (checkIn && checkOut && onBookingRequest) {
+    if (!checkIn || !checkOut) return;
+    
+    // Validate dates before submitting
+    if (isDateDisabled(checkIn) || isCheckOutDisabled(checkOut)) {
+      return; // Don't submit if dates are invalid
+    }
+    
+    if (onBookingRequest) {
       onBookingRequest({
         checkIn,
         checkOut,
@@ -225,7 +232,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
         <Button 
           className="w-full h-12 text-base font-medium"
           onClick={handleSelectDates}
-          disabled={!checkIn || !checkOut || loading}
+          disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
         >
           {loading ? 'Loading...' : 'Select dates'}
         </Button>
