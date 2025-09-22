@@ -285,9 +285,6 @@ export const LandlordDashboard = () => {
                 <h2 className="text-3xl font-bold">{listings.length} Listings</h2>
               </div>
               <div className="flex items-center gap-4">
-                <Button variant="outline" className="px-6">
-                  Edit
-                </Button>
                 <Button onClick={() => navigate('/create-listing')} className="bg-primary hover:bg-primary/90 px-6">
                   <Plus className="w-4 h-4 mr-2" />
                   Add a listing
