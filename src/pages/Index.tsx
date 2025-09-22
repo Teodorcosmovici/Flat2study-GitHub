@@ -460,14 +460,14 @@ const Index = () => {
                 {listingsLoading ? (
                   <div className="flex gap-8 overflow-x-auto pb-4">
                     {[...Array(6)].map((_, index) => (
-                      <Card key={index} className="min-w-[300px] md:min-w-[350px] flex-shrink-0 overflow-hidden">
-                        <div className="h-48 bg-muted animate-pulse"></div>
-                        <CardContent className="p-6">
-                          <div className="h-4 bg-muted animate-pulse rounded mb-2"></div>
-                          <div className="h-3 bg-muted animate-pulse rounded mb-3 w-3/4"></div>
+                      <Card key={index} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden">
+                        <div className="h-72 bg-muted animate-pulse"></div>
+                        <CardContent className="p-4">
+                          <div className="h-3 bg-muted animate-pulse rounded mb-1"></div>
+                          <div className="h-2 bg-muted animate-pulse rounded mb-2 w-3/4"></div>
                           <div className="flex items-center justify-between">
-                            <div className="h-6 bg-muted animate-pulse rounded w-20"></div>
-                            <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
+                            <div className="h-5 bg-muted animate-pulse rounded w-16"></div>
+                            <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
                           </div>
                         </CardContent>
                       </Card>
@@ -479,10 +479,10 @@ const Index = () => {
                     <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                   </div>
                 ) : (
-                  <div className="flex gap-8 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                  <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                     {featuredListings.map(listing => (
-                      <Card key={listing.id} className="min-w-[300px] md:min-w-[350px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
-                        <div className="relative h-48">
+                      <Card key={listing.id} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
+                        <div className="relative h-72">
                           <img 
                             src={listing.images[0] || '/placeholder.svg'} 
                             alt={listing.title} 
@@ -492,19 +492,19 @@ const Index = () => {
                             {t('home.featured')}
                           </Badge>
                         </div>
-                        <CardContent className="p-6">
-                          <h3 className="font-semibold mb-2 line-clamp-2">{listing.title}</h3>
-                          <p className="text-muted-foreground text-sm mb-3 flex items-center">
-                            <MapPin className="h-4 w-4 mr-1" />
+                        <CardContent className="p-4">
+                          <h3 className="font-semibold mb-1 line-clamp-1 text-sm">{listing.title}</h3>
+                          <p className="text-muted-foreground text-xs mb-2 flex items-center line-clamp-1">
+                            <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
                             {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
                           </p>
                           <div className="flex items-center justify-between">
-                            <span className="text-2xl font-bold text-price">
+                            <span className="text-lg font-bold text-price">
                               {formatPrice(listing.rent_monthly_eur)}
-                              <span className="text-sm text-muted-foreground font-normal">{t('home.month')}</span>
+                              <span className="text-xs text-muted-foreground font-normal">{t('home.month')}</span>
                             </span>
                             <Link to={`/listing/${listing.id}`}>
-                              <Button size="sm">{t('home.viewDetails')}</Button>
+                              <Button size="sm" className="text-xs px-3 py-1">{t('home.viewDetails')}</Button>
                             </Link>
                           </div>
                         </CardContent>
