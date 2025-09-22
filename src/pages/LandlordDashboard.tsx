@@ -300,7 +300,7 @@ export const LandlordDashboard = () => {
       <Tabs defaultValue="listings" className="space-y-6">
         <TabsList>
           <TabsTrigger value="listings">My Listings</TabsTrigger>
-          <TabsTrigger value="bookings">Past Listings</TabsTrigger>
+          <TabsTrigger value="bookings">Rented Out</TabsTrigger>
           <TabsTrigger value="analytics">Analytics</TabsTrigger>
         </TabsList>
 
@@ -314,7 +314,7 @@ export const LandlordDashboard = () => {
           </div>
 
           <div className="grid gap-4">
-            {listings.map((listing) => (
+            {listings.filter(listing => listing.status !== 'RENTED').map((listing) => (
               <Card key={listing.id}>
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
@@ -386,7 +386,7 @@ export const LandlordDashboard = () => {
               </Card>
             ))}
 
-            {listings.length === 0 && (
+            {listings.filter(listing => listing.status !== 'RENTED').length === 0 && (
               <Card>
                 <CardContent className="p-12 text-center">
                   <Home className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
@@ -405,7 +405,7 @@ export const LandlordDashboard = () => {
         </TabsContent>
 
         <TabsContent value="bookings" className="space-y-4">
-          <h2 className="text-2xl font-bold">Past Listings</h2>
+          <h2 className="text-2xl font-bold">Rented Out</h2>
           
           <div className="grid gap-4">
             {listings.filter(listing => listing.status === 'RENTED').map((listing) => (
@@ -445,7 +445,7 @@ export const LandlordDashboard = () => {
               <Card>
                 <CardContent className="p-12 text-center">
                   <Calendar className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No past listings yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">No rented out listings yet</h3>
                   <p className="text-muted-foreground">
                     Listings marked as rented out will appear here.
                   </p>
