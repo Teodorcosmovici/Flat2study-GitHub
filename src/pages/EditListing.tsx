@@ -6,41 +6,52 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Checkbox } from '@/components/ui/checkbox';
+import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { ArrowLeft, MapPin, Euro, Home, Camera, Calendar } from 'lucide-react';
 import { Link, useNavigate, useParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
-import { ListingType } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
-import { MultilingualInput } from '@/components/forms/MultilingualInput';
 
 export default function EditListing() {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
-  console.log('EditListing component loaded with ID:', id, 'Profile:', profile?.id);
-
   const [formData, setFormData] = useState({
-    title: { en: '', it: '' },
-    type: '' as ListingType | '',
-    description: { en: '', it: '' },
+    // Address fields
     addressLine: '',
-    city: '',
-    country: '',
-    rentMonthlyEUR: '',
-    depositEUR: '',
-    agencyFee: '',
-    billsIncluded: false,
-    furnished: false,
+    addressLine2: '',
+    postcode: '',
+    
+    // Property type and details
+    type: 'entire_property' as 'entire_property' | 'studio' | 'room_shared',
     bedrooms: '',
     bathrooms: '',
-    floor: '',
+    totalBedrooms: '', // for shared rooms
+    totalBathrooms: '', // for shared rooms
+    housematesGender: '' as 'male' | 'female' | 'mixed' | '',
     sizeSqm: '',
+    
+    // Description and amenities
+    description: '',
     amenities: [] as string[],
-    availabilityDate: '',
-    status: 'DRAFT'
+    rules: [] as string[],
+    
+    // Pricing
+    rentBasis: 'monthly' as 'daily' | 'semi_monthly' | 'monthly',
+    rentAmount: '',
+    deposit: '1_month' as 'none' | '1_month' | '1.5_months' | '2_months' | '3_months',
+    minStayMonths: '',
+    maxStayMonths: '',
+    availableFrom: '',
+    
+    // Utilities
+    electricity: 'included' as 'included' | number,
+    gas: 'included' as 'included' | number,
+    water: 'included' as 'included' | number,
+    internet: 'included' as 'included' | number
   });
 
   const [isSubmitting, setIsSubmitting] = useState(false);
@@ -50,9 +61,7 @@ export default function EditListing() {
 
   // Handle authentication and authorization
   useEffect(() => {
-    console.log('Auth check - User:', user, 'Profile:', profile, 'User type:', profile?.user_type, 'Loading:', loading);
     if (!loading && (!user || (profile?.user_type !== 'agency' && profile?.user_type !== 'private'))) {
-      console.log('User not authorized for editing, redirecting to home');
       navigate('/');
     }
   }, [user, profile, loading, navigate]);
@@ -68,13 +77,12 @@ export default function EditListing() {
     try {
       const { data, error } = await supabase
         .from('listings')
-        .select('*, title_multilingual, description_multilingual')
+        .select('*')
         .eq('id', id)
         .eq('agency_id', profile?.id)
         .single();
 
       if (error) {
-        console.error('Error fetching listing:', error);
         toast({
           title: "Error",
           description: "Failed to load listing or you don't have permission to edit this listing",
@@ -86,24 +94,29 @@ export default function EditListing() {
 
       // Populate form with existing data
       setFormData({
-        title: (data.title_multilingual as { en: string; it: string }) || { en: data.title as string || '', it: data.title as string || '' },
-        type: (data.type as ListingType) || '',
-        description: (data.description_multilingual as { en: string; it: string }) || { en: data.description as string || '', it: data.description as string || '' },
         addressLine: data.address_line || '',
-        city: data.city || '',
-        country: data.country || '',
-        rentMonthlyEUR: data.rent_monthly_eur?.toString() || '',
-        depositEUR: data.deposit_eur?.toString() || '',
-        agencyFee: data.agency_fee || '',
-        billsIncluded: data.bills_included || false,
-        furnished: data.furnished || false,
+        addressLine2: '', // Not stored in current schema
+        postcode: '', // Not stored in current schema
+        type: data.type === 'apartment' ? 'entire_property' : data.type === 'studio' ? 'studio' : 'room_shared',
         bedrooms: data.bedrooms?.toString() || '',
         bathrooms: data.bathrooms?.toString() || '',
-        floor: data.floor || '',
+        totalBedrooms: '', // Not stored separately
+        totalBathrooms: '', // Not stored separately
+        housematesGender: '', // Not stored in current schema
         sizeSqm: data.size_sqm?.toString() || '',
+        description: data.description || '',
         amenities: Array.isArray(data.amenities) ? data.amenities.filter(item => typeof item === 'string') as string[] : [],
-        availabilityDate: data.availability_date || '',
-        status: data.status || 'DRAFT'
+        rules: [], // Not stored in current schema
+        rentBasis: 'monthly', // Default
+        rentAmount: data.rent_monthly_eur?.toString() || '',
+        deposit: '1_month', // Default
+        minStayMonths: data.minimum_stay_days ? Math.round(data.minimum_stay_days / 30).toString() : '',
+        maxStayMonths: data.maximum_stay_days ? Math.round(data.maximum_stay_days / 30).toString() : '',
+        availableFrom: data.availability_date || '',
+        electricity: 'included',
+        gas: 'included',
+        water: 'included',
+        internet: 'included'
       });
 
       setUploadedImages(Array.isArray(data.images) ? data.images.filter(item => typeof item === 'string') as string[] : []);
@@ -172,33 +185,35 @@ export default function EditListing() {
       return;
     }
 
-    // No validation required - allow saving with any fields empty
-
     setIsSubmitting(true);
 
     try {
+      // Calculate deposit amount
+      let depositAmount = 0;
+      if (formData.deposit !== 'none' && formData.rentAmount) {
+        const multiplier = {
+          '1_month': 1,
+          '1.5_months': 1.5,
+          '2_months': 2,
+          '3_months': 3
+        }[formData.deposit];
+        depositAmount = parseInt(formData.rentAmount) * multiplier;
+      }
+
       const listingData = {
-        title_multilingual: formData.title,
-        title: formData.title.en || formData.title.it || null, // Keep backwards compatibility
-        type: formData.type || null,
-        description_multilingual: formData.description,
-        description: formData.description.en || formData.description.it || null, // Keep backwards compatibility
         address_line: formData.addressLine || null,
-        city: formData.city || null,
-        country: formData.country || null,
-        rent_monthly_eur: formData.rentMonthlyEUR ? parseInt(formData.rentMonthlyEUR) : null,
-        deposit_eur: formData.depositEUR ? parseInt(formData.depositEUR) : null,
-        bills_included: formData.billsIncluded,
-        furnished: formData.furnished,
+        type: formData.type === 'entire_property' ? 'apartment' : formData.type === 'studio' ? 'studio' : 'room',
+        description: formData.description || null,
+        rent_monthly_eur: formData.rentAmount ? parseInt(formData.rentAmount) : null,
+        deposit_eur: depositAmount || null,
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
-        floor: formData.floor || null,
         size_sqm: formData.sizeSqm ? parseInt(formData.sizeSqm) : null,
         amenities: formData.amenities,
-        availability_date: formData.availabilityDate || null,
-        agency_fee: formData.agencyFee || null,
+        availability_date: formData.availableFrom || null,
+        minimum_stay_days: formData.minStayMonths ? parseInt(formData.minStayMonths) * 30 : null,
+        maximum_stay_days: formData.maxStayMonths ? parseInt(formData.maxStayMonths) * 30 : null,
         images: uploadedImages,
-        status: formData.status,
         updated_at: new Date().toISOString()
       };
 
@@ -238,7 +253,13 @@ export default function EditListing() {
 
   const commonAmenities = [
     'WiFi', 'Washing Machine', 'Dishwasher', 'Parking', 'Balcony', 
-    'Garden', 'Gym', 'Swimming Pool', 'Air Conditioning', 'Heating'
+    'Garden', 'Gym', 'Swimming Pool', 'Air Conditioning', 'Heating',
+    'Microwave', 'Oven', 'Refrigerator', 'TV', 'Desk', 'Wardrobe'
+  ];
+
+  const commonRules = [
+    'No smoking', 'No pets', 'No parties', 'Quiet hours 10PM-8AM',
+    'Clean common areas', 'No overnight guests', 'Shoes off indoors'
   ];
 
   // Show loading state while checking auth or fetching data
@@ -283,72 +304,403 @@ export default function EditListing() {
         </div>
 
         <form onSubmit={handleSubmit} className="space-y-8">
-          {/* Status Selection */}
+          {/* Address Information */}
           <Card>
             <CardHeader>
-              <CardTitle>Listing Status</CardTitle>
+              <CardTitle className="flex items-center gap-2">
+                <MapPin className="h-5 w-5" />
+                Address Information
+              </CardTitle>
             </CardHeader>
-            <CardContent>
-              <Select value={formData.status} onValueChange={(value) => setFormData({...formData, status: value})}>
-                <SelectTrigger className="w-full md:w-48">
-                  <SelectValue placeholder="Select status" />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="DRAFT">Draft</SelectItem>
-                  <SelectItem value="PUBLISHED">Published</SelectItem>
-                  <SelectItem value="ARCHIVED">Archived</SelectItem>
-                </SelectContent>
-              </Select>
+            <CardContent className="space-y-4">
+              <div className="space-y-2">
+                <Label htmlFor="address">Address</Label>
+                <Input
+                  id="address"
+                  placeholder="Street address"
+                  value={formData.addressLine}
+                  onChange={(e) => setFormData({...formData, addressLine: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="address2">Address Line 2 (Optional)</Label>
+                <Input
+                  id="address2"
+                  placeholder="Apartment, suite, etc."
+                  value={formData.addressLine2}
+                  onChange={(e) => setFormData({...formData, addressLine2: e.target.value})}
+                />
+              </div>
+              <div className="space-y-2">
+                <Label htmlFor="postcode">Postcode</Label>
+                <Input
+                  id="postcode"
+                  placeholder="Postcode"
+                  value={formData.postcode}
+                  onChange={(e) => setFormData({...formData, postcode: e.target.value})}
+                />
+              </div>
             </CardContent>
           </Card>
 
-          {/* Basic Information */}
+          {/* Property Type & Details */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Home className="h-5 w-5" />
-                Basic Information
+                Property Type & Details
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <MultilingualInput
-                  label="Property Title"
-                  value={formData.title}
-                  onChange={(value) => setFormData({...formData, title: value})}
-                  placeholder="e.g., Cozy Studio Near University"
-                />
-                <div className="space-y-2">
-                  <Label htmlFor="type">Property Type</Label>
-                  <Select value={formData.type} onValueChange={(value: ListingType) => setFormData({...formData, type: value})}>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Select type" />
-                    </SelectTrigger>
-                    <SelectContent>
-                      <SelectItem value="room">Room</SelectItem>
-                      <SelectItem value="studio">Studio</SelectItem>
-                      <SelectItem value="apartment">Apartment</SelectItem>
-                    </SelectContent>
-                  </Select>
-                </div>
+              <div>
+                <Label>Property Type</Label>
+                <RadioGroup
+                  value={formData.type}
+                  onValueChange={(value) => setFormData({...formData, type: value as typeof formData.type})}
+                  className="mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="entire_property" id="entire_property" />
+                    <Label htmlFor="entire_property">Entire Property</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="studio" id="studio" />
+                    <Label htmlFor="studio">Studio</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="room_shared" id="room_shared" />
+                    <Label htmlFor="room_shared">Room in a Shared Property</Label>
+                  </div>
+                </RadioGroup>
               </div>
-              
-              <MultilingualInput
-                label="Description"
-                value={formData.description}
-                onChange={(value) => setFormData({...formData, description: value})}
-                type="textarea"
-                placeholder="Describe your property..."
-              />
+
+              {formData.type === 'entire_property' && (
+                <div className="grid grid-cols-2 gap-4">
+                  <div className="space-y-2">
+                    <Label htmlFor="bedrooms">Number of Bedrooms</Label>
+                    <Input
+                      id="bedrooms"
+                      type="number"
+                      min="1"
+                      value={formData.bedrooms}
+                      onChange={(e) => setFormData({...formData, bedrooms: e.target.value})}
+                    />
+                  </div>
+                  <div className="space-y-2">
+                    <Label htmlFor="bathrooms">Number of Bathrooms</Label>
+                    <Input
+                      id="bathrooms"
+                      type="number"
+                      min="1"
+                      value={formData.bathrooms}
+                      onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
+                    />
+                  </div>
+                </div>
+              )}
+
+              {formData.type === 'studio' && (
+                <div className="space-y-2">
+                  <Label htmlFor="bathrooms">Number of Bathrooms</Label>
+                  <Input
+                    id="bathrooms"
+                    type="number"
+                    min="1"
+                    value={formData.bathrooms}
+                    onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
+                  />
+                </div>
+              )}
+
+              {formData.type === 'room_shared' && (
+                <>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="total_bedrooms">Total Bedrooms in Apartment</Label>
+                      <Input
+                        id="total_bedrooms"
+                        type="number"
+                        min="1"
+                        value={formData.totalBedrooms}
+                        onChange={(e) => setFormData({...formData, totalBedrooms: e.target.value})}
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="total_bathrooms">Total Bathrooms in Apartment</Label>
+                      <Input
+                        id="total_bathrooms"
+                        type="number"
+                        min="1"
+                        value={formData.totalBathrooms}
+                        onChange={(e) => setFormData({...formData, totalBathrooms: e.target.value})}
+                      />
+                    </div>
+                  </div>
+                  
+                  <div className="space-y-2">
+                    <Label>Housemates Gender</Label>
+                    <Select 
+                      value={formData.housematesGender} 
+                      onValueChange={(value) => setFormData({...formData, housematesGender: value as typeof formData.housematesGender})}
+                    >
+                      <SelectTrigger>
+                        <SelectValue placeholder="Select housemates gender preference" />
+                      </SelectTrigger>
+                      <SelectContent>
+                        <SelectItem value="male">Male only</SelectItem>
+                        <SelectItem value="female">Female only</SelectItem>
+                        <SelectItem value="mixed">Mixed</SelectItem>
+                      </SelectContent>
+                    </Select>
+                  </div>
+                </>
+              )}
+
+              <div className="space-y-2">
+                <Label htmlFor="size_sqm">Full Property Size (sqm)</Label>
+                <Input
+                  id="size_sqm"
+                  type="number"
+                  min="1"
+                  value={formData.sizeSqm}
+                  onChange={(e) => setFormData({...formData, sizeSqm: e.target.value})}
+                  placeholder="Enter size in square meters"
+                />
+              </div>
             </CardContent>
           </Card>
 
-          {/* Images */}
+          {/* Property Description */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Property Description</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="space-y-2">
+                <Label htmlFor="description">Description</Label>
+                <Textarea
+                  id="description"
+                  value={formData.description}
+                  onChange={(e) => setFormData({...formData, description: e.target.value})}
+                  placeholder="Describe your property..."
+                  rows={4}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Amenities */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Amenities</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
+                {commonAmenities.map((amenity) => (
+                  <div key={amenity} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={amenity}
+                      checked={formData.amenities.includes(amenity)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({...formData, amenities: [...formData.amenities, amenity]});
+                        } else {
+                          setFormData({...formData, amenities: formData.amenities.filter(a => a !== amenity)});
+                        }
+                      }}
+                    />
+                    <Label htmlFor={amenity} className="text-sm">{amenity}</Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* House Rules */}
+          <Card>
+            <CardHeader>
+              <CardTitle>House Rules</CardTitle>
+            </CardHeader>
+            <CardContent>
+              <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
+                {commonRules.map((rule) => (
+                  <div key={rule} className="flex items-center space-x-2">
+                    <Checkbox
+                      id={rule}
+                      checked={formData.rules.includes(rule)}
+                      onCheckedChange={(checked) => {
+                        if (checked) {
+                          setFormData({...formData, rules: [...formData.rules, rule]});
+                        } else {
+                          setFormData({...formData, rules: formData.rules.filter(r => r !== rule)});
+                        }
+                      }}
+                    />
+                    <Label htmlFor={rule} className="text-sm">{rule}</Label>
+                  </div>
+                ))}
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Pricing & Availability */}
+          <Card>
+            <CardHeader>
+              <CardTitle className="flex items-center gap-2">
+                <Euro className="h-5 w-5" />
+                Pricing & Availability
+              </CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <div>
+                <Label>Rent Basis</Label>
+                <RadioGroup
+                  value={formData.rentBasis}
+                  onValueChange={(value) => setFormData({...formData, rentBasis: value as typeof formData.rentBasis})}
+                  className="mt-2"
+                >
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="daily" id="daily" />
+                    <Label htmlFor="daily">Daily Basis</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="semi_monthly" id="semi_monthly" />
+                    <Label htmlFor="semi_monthly">Semi-Monthly Basis (Every 2 weeks)</Label>
+                  </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="monthly" id="monthly" />
+                    <Label htmlFor="monthly">Monthly Basis</Label>
+                  </div>
+                </RadioGroup>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="rent_amount">Rent Amount (EUR)</Label>
+                <Input
+                  id="rent_amount"
+                  type="number"
+                  min="0"
+                  step="50"
+                  value={formData.rentAmount}
+                  onChange={(e) => setFormData({...formData, rentAmount: e.target.value})}
+                  placeholder="Enter rent amount"
+                />
+              </div>
+
+              <div className="space-y-2">
+                <Label>Security Deposit</Label>
+                <Select 
+                  value={formData.deposit} 
+                  onValueChange={(value) => setFormData({...formData, deposit: value as typeof formData.deposit})}
+                >
+                  <SelectTrigger>
+                    <SelectValue placeholder="Select deposit amount" />
+                  </SelectTrigger>
+                  <SelectContent>
+                    <SelectItem value="none">No deposit required</SelectItem>
+                    <SelectItem value="1_month">1 month rent</SelectItem>
+                    <SelectItem value="1.5_months">1.5 months rent</SelectItem>
+                    <SelectItem value="2_months">2 months rent</SelectItem>
+                    <SelectItem value="3_months">3 months rent</SelectItem>
+                  </SelectContent>
+                </Select>
+              </div>
+
+              <div className="grid grid-cols-2 gap-4">
+                <div className="space-y-2">
+                  <Label htmlFor="min_stay_months">Minimum Stay (months)</Label>
+                  <Input
+                    id="min_stay_months"
+                    type="number"
+                    min="1"
+                    value={formData.minStayMonths}
+                    onChange={(e) => setFormData({...formData, minStayMonths: e.target.value})}
+                    placeholder="e.g., 1"
+                  />
+                </div>
+                <div className="space-y-2">
+                  <Label htmlFor="max_stay_months">Maximum Stay (months)</Label>
+                  <Input
+                    id="max_stay_months"
+                    type="number"
+                    min="1"
+                    value={formData.maxStayMonths}
+                    onChange={(e) => setFormData({...formData, maxStayMonths: e.target.value})}
+                    placeholder="Leave empty for no limit"
+                  />
+                </div>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="available_from">Available From</Label>
+                <Input
+                  id="available_from"
+                  type="date"
+                  value={formData.availableFrom}
+                  onChange={(e) => setFormData({...formData, availableFrom: e.target.value})}
+                  min={new Date().toISOString().split('T')[0]}
+                />
+              </div>
+            </CardContent>
+          </Card>
+
+          {/* Utility Costs */}
+          <Card>
+            <CardHeader>
+              <CardTitle>Utility Costs</CardTitle>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              {['electricity', 'gas', 'water', 'internet'].map((utility) => (
+                <div key={utility} className="space-y-3 p-4 border rounded-lg">
+                  <Label className="text-base font-medium capitalize">{utility}</Label>
+                  <RadioGroup
+                    value={formData[utility as keyof typeof formData] === 'included' ? 'included' : 'estimate'}
+                    onValueChange={(val) => {
+                      if (val === 'included') {
+                        setFormData({...formData, [utility]: 'included'});
+                      } else {
+                        setFormData({...formData, [utility]: 0});
+                      }
+                    }}
+                  >
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="included" id={`${utility}-included`} />
+                      <Label htmlFor={`${utility}-included`} className="font-normal">
+                        Included in rent
+                      </Label>
+                    </div>
+                    <div className="flex items-center space-x-2">
+                      <RadioGroupItem value="estimate" id={`${utility}-estimate`} />
+                      <Label htmlFor={`${utility}-estimate`} className="font-normal">
+                        Estimate monthly cost
+                      </Label>
+                    </div>
+                  </RadioGroup>
+                  
+                  {formData[utility as keyof typeof formData] !== 'included' && (
+                    <div className="ml-6">
+                      <Input
+                        type="number"
+                        min="0"
+                        step="5"
+                        value={typeof formData[utility as keyof typeof formData] === 'number' ? formData[utility as keyof typeof formData] : ''}
+                        onChange={(e) => setFormData({...formData, [utility]: parseFloat(e.target.value) || 0})}
+                        placeholder="Monthly cost in EUR"
+                        className="w-48"
+                      />
+                    </div>
+                  )}
+                </div>
+              ))}
+            </CardContent>
+          </Card>
+
+          {/* Photos */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Camera className="h-5 w-5" />
-                Property Images
+                Property Photos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
@@ -390,214 +742,11 @@ export default function EditListing() {
             </CardContent>
           </Card>
 
-          {/* Location */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <MapPin className="h-5 w-5" />
-                Location
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="address">Address</Label>
-                <Input
-                  id="address"
-                  placeholder="Street address"
-                  value={formData.addressLine}
-                  onChange={(e) => setFormData({...formData, addressLine: e.target.value})}
-                />
-              </div>
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="city">City</Label>
-                  <Input
-                    id="city"
-                    placeholder="City"
-                    value={formData.city}
-                    onChange={(e) => setFormData({...formData, city: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="country">Country</Label>
-                  <Input
-                    id="country"
-                    placeholder="Country"
-                    value={formData.country}
-                    onChange={(e) => setFormData({...formData, country: e.target.value})}
-                  />
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Pricing & Details */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Euro className="h-5 w-5" />
-                Pricing & Details
-              </CardTitle>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="rent">Monthly Rent (EUR)</Label>
-                  <Input
-                    id="rent"
-                    type="number"
-                    placeholder="800"
-                    value={formData.rentMonthlyEUR}
-                    onChange={(e) => setFormData({...formData, rentMonthlyEUR: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="deposit">Deposit (EUR)</Label>
-                  <Input
-                    id="deposit"
-                    type="number"
-                    placeholder="1600"
-                    value={formData.depositEUR}
-                    onChange={(e) => setFormData({...formData, depositEUR: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                <div className="space-y-2">
-                  <Label htmlFor="bedrooms">Bedrooms</Label>
-                  <Input
-                    id="bedrooms"
-                    type="number"
-                    placeholder="1"
-                    value={formData.bedrooms}
-                    onChange={(e) => setFormData({...formData, bedrooms: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="bathrooms">Bathrooms</Label>
-                  <Input
-                    id="bathrooms"
-                    type="number"
-                    placeholder="1"
-                    value={formData.bathrooms}
-                    onChange={(e) => setFormData({...formData, bathrooms: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="floor">Floor</Label>
-                  <Input
-                    id="floor"
-                    placeholder="2nd"
-                    value={formData.floor}
-                    onChange={(e) => setFormData({...formData, floor: e.target.value})}
-                  />
-                </div>
-                <div className="space-y-2">
-                  <Label htmlFor="size">Size (sqm)</Label>
-                  <Input
-                    id="size"
-                    type="number"
-                    placeholder="45"
-                    value={formData.sizeSqm}
-                    onChange={(e) => setFormData({...formData, sizeSqm: e.target.value})}
-                  />
-                </div>
-              </div>
-
-              <div className="space-y-2">
-                <Label htmlFor="agencyFee">Agency Fee</Label>
-                <Input
-                  id="agencyFee"
-                  placeholder="e.g., 500 EUR or 1 month rent"
-                  value={formData.agencyFee}
-                  onChange={(e) => setFormData({...formData, agencyFee: e.target.value})}
-                />
-              </div>
-
-              <div className="flex gap-6">
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="furnished"
-                    checked={formData.furnished}
-                    onCheckedChange={(checked) => setFormData({...formData, furnished: checked as boolean})}
-                  />
-                  <Label htmlFor="furnished">Furnished</Label>
-                </div>
-                <div className="flex items-center space-x-2">
-                  <Checkbox
-                    id="bills"
-                    checked={formData.billsIncluded}
-                    onCheckedChange={(checked) => setFormData({...formData, billsIncluded: checked as boolean})}
-                  />
-                  <Label htmlFor="bills">Bills Included</Label>
-                </div>
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Amenities */}
-          <Card>
-            <CardHeader>
-              <CardTitle>Amenities</CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="grid grid-cols-2 md:grid-cols-3 gap-4">
-                {commonAmenities.map((amenity) => (
-                  <div key={amenity} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={amenity}
-                      checked={formData.amenities.includes(amenity)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData({...formData, amenities: [...formData.amenities, amenity]});
-                        } else {
-                          setFormData({...formData, amenities: formData.amenities.filter(a => a !== amenity)});
-                        }
-                      }}
-                    />
-                    <Label htmlFor={amenity}>{amenity}</Label>
-                  </div>
-                ))}
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Availability */}
-          <Card>
-            <CardHeader>
-              <CardTitle className="flex items-center gap-2">
-                <Calendar className="h-5 w-5" />
-                Availability
-              </CardTitle>
-            </CardHeader>
-            <CardContent>
-              <div className="space-y-2">
-                <Label htmlFor="availability">Available From</Label>
-                <Input
-                  id="availability"
-                  type="date"
-                  value={formData.availabilityDate}
-                  onChange={(e) => setFormData({...formData, availabilityDate: e.target.value})}
-                />
-              </div>
-            </CardContent>
-          </Card>
-
-          {/* Submit Button */}
-          <div className="flex gap-4">
-            <Button 
-              type="submit" 
-              disabled={isSubmitting}
-              className="hero-gradient text-white border-0 flex-1"
-            >
-              {isSubmitting ? 'Updating...' : 'Update Listing'}
+          {/* Save Button */}
+          <div className="flex justify-end space-x-4">
+            <Button type="submit" disabled={isSubmitting}>
+              {isSubmitting ? 'Saving...' : 'Save Changes'}
             </Button>
-            <Link to="/landlord-dashboard">
-              <Button type="button" variant="outline">
-                Cancel
-              </Button>
-            </Link>
           </div>
         </form>
       </main>
