@@ -539,9 +539,7 @@ export default function ListingDetails() {
                       <span className="text-sm">Valid ID or Passport</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <div className="h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center">
-                        <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full"></div>
-                      </div>
+                      <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-sm">
                         Student enrollment certificate or job offer certificate 
                         <span className="text-muted-foreground italic ml-1">(optional but higher chance to get your booking accepted)</span>
