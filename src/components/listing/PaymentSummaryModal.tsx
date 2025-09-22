@@ -36,7 +36,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
 
   const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstPaymentTotal = rentMonthlyEur + serviceFee;
-  const afterBookingTotal = depositEur + 120; // Security deposit + Cleaning fee
+  const afterBookingTotal = depositEur + 120 + 35 + 35; // Security deposit + Cleaning fee + Electricity + Gas
   const monthlyTotal = rentMonthlyEur + 70; // Monthly rent + Electricity + Gas
 
   return (
