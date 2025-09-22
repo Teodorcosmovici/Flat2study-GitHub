@@ -253,20 +253,15 @@ const Index = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    <Link to="/messages">
+                    <Link to="/my-bookings">
                       <Card className="h-full hover:shadow-lg transition-all duration-200 cursor-pointer group">
                         <CardContent className="p-6 text-center relative">
                           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
-                            <MessageCircle className="h-8 w-8 text-primary" />
+                            <BarChart3 className="h-8 w-8 text-primary" />
                           </div>
-                          {unreadCount > 0 && (
-                            <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground">
-                              {unreadCount}
-                            </Badge>
-                          )}
-                          <h3 className="text-xl font-semibold mb-3">{t('home.messages')}</h3>
+                          <h3 className="text-xl font-semibold mb-3">My Bookings</h3>
                           <p className="text-muted-foreground">
-                            {t('home.messagesDesc')}
+                            View and manage your booking requests
                           </p>
                         </CardContent>
                       </Card>
