@@ -17,9 +17,14 @@ interface UnplacesBookingWidgetProps {
     checkOut: Date;
     persons: number;
   }) => void;
+  onDatesChange?: (data: {
+    checkIn: Date;
+    checkOut: Date;
+    persons: number;
+  } | null) => void;
 }
 
-export function UnplacesBookingWidget({ listing, onBookingRequest }: UnplacesBookingWidgetProps) {
+export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange }: UnplacesBookingWidgetProps) {
   const [persons, setPersons] = useState(1);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
@@ -54,6 +59,10 @@ export function UnplacesBookingWidget({ listing, onBookingRequest }: UnplacesBoo
     // If check-out is before or same as check-in, clear it
     if (checkOut && checkOut <= date) {
       setCheckOut(undefined);
+      onDatesChange?.(null);
+    } else if (checkOut) {
+      // Both dates are selected, notify parent
+      onDatesChange?.({ checkIn: date, checkOut, persons });
     }
   };
 
@@ -61,6 +70,11 @@ export function UnplacesBookingWidget({ listing, onBookingRequest }: UnplacesBoo
     if (!date) return;
     setCheckOut(date);
     setShowCheckOutCalendar(false);
+    
+    // Both dates are selected, notify parent
+    if (checkIn) {
+      onDatesChange?.({ checkIn, checkOut: date, persons });
+    }
   };
 
   const handleSelectDates = () => {

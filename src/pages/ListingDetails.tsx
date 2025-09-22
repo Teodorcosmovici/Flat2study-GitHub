@@ -608,8 +608,10 @@ export default function ListingDetails() {
             <div className="lg:sticky lg:top-24 space-y-4">
               <UnplacesBookingWidget
                 listing={listing}
-                onBookingRequest={(data) => {
+                onDatesChange={(data) => {
                   setSelectedDates(data);
+                }}
+                onBookingRequest={(data) => {
                   toast({
                     title: "Booking request sent!",
                     description: "The landlord will respond within 24 hours.",
