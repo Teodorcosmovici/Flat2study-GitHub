@@ -3,11 +3,10 @@ import { useAuth } from '@/hooks/useAuth';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
-import Header from '@/components/layout/Header';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2 } from 'lucide-react';
+import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 
@@ -40,7 +39,7 @@ interface Booking {
 }
 
 export const LandlordDashboard = () => {
-  const { profile, user } = useAuth();
+  const { profile, user, signOut } = useAuth();
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -48,6 +47,15 @@ export const LandlordDashboard = () => {
   
   // Use the dashboard stats hook for real-time updates
   const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
+
+  const handleLogout = async () => {
+    try {
+      await signOut();
+      navigate('/');
+    } catch (error) {
+      console.error('Error logging out:', error);
+    }
+  };
 
   useEffect(() => {
     if (profile?.user_type !== 'private') {
@@ -160,18 +168,45 @@ export const LandlordDashboard = () => {
 
   return (
     <>
-      <Header />
-      <div className="container mx-auto px-4 py-8">
-      <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Landlord Dashboard</h1>
-          <p className="text-muted-foreground">Welcome back, {profile?.full_name || 'Property Manager'}</p>
+      {/* Dedicated Landlord Dashboard Header */}
+      <header className="bg-white border-b border-gray-200 shadow-sm">
+        <div className="container mx-auto px-4 py-4">
+          <div className="flex justify-between items-center">
+            <div className="flex items-center gap-4">
+              <div>
+                <h1 className="text-2xl font-bold text-black">Landlord Dashboard</h1>
+                <p className="text-gray-600">Welcome back, {profile?.full_name || 'Property Manager'}</p>
+              </div>
+            </div>
+            <div className="flex items-center gap-4">
+              <div className="flex items-center gap-2 text-sm text-gray-600">
+                <User className="h-4 w-4" />
+                <span>{user?.email}</span>
+              </div>
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+                className="text-black border-gray-300 hover:bg-gray-100"
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+            </div>
+          </div>
         </div>
-        <Button onClick={() => navigate('/create-listing')} size="lg">
-          <Plus className="w-4 h-4 mr-2" />
-          Add New Listing
-        </Button>
-      </div>
+      </header>
+
+      <div className="container mx-auto px-4 py-8">
+        <div className="flex justify-between items-center mb-8">
+          <div>
+            <h2 className="text-xl font-semibold text-black">Property Management</h2>
+            <p className="text-gray-600">Manage your listings, bookings, and analytics</p>
+          </div>
+          <Button onClick={() => navigate('/create-listing')} size="lg">
+            <Plus className="w-4 h-4 mr-2" />
+            Add New Listing
+          </Button>
+        </div>
 
       {/* Stats Cards */}
       <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-5 gap-4 mb-8">
