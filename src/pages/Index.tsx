@@ -101,9 +101,9 @@ const Index = () => {
                   </Button>
                 </Link>
                 <div className="text-center">
-                  <Link to="/search">
+                  <Link to="/landlord-dashboard">
                     <span className="text-white/90 hover:text-white underline cursor-pointer text-lg">
-                      {t('home.findPlace')}
+                      {t('home.goToMyListings')}
                     </span>
                   </Link>
                 </div>
@@ -347,7 +347,7 @@ const Index = () => {
                       </Card>
                     </Link>
 
-                    <Link to="/my-listings">
+                    <Link to="/landlord-dashboard">
                       <Card className="h-full hover:shadow-lg transition-all duration-200 cursor-pointer group">
                         <CardContent className="p-6 text-center">
                           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
