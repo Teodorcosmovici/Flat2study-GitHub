@@ -249,29 +249,6 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </div>
         </div>
 
-        {/* Booking Summary */}
-        {checkIn && checkOut && (
-          <div className="space-y-3 pt-3 border-t">
-            <div className="flex justify-between text-sm">
-              <span>Duration:</span>
-              <span>{calculateNights()} nights</span>
-            </div>
-            <div className="flex justify-between text-sm">
-              <span>Monthly rent:</span>
-              <span>{formatPrice(calculateTotalRent())}</span>
-            </div>
-            {listing.depositEur > 0 && (
-              <div className="flex justify-between text-sm">
-                <span>Security deposit:</span>
-                <span>{formatPrice(listing.depositEur)}</span>
-              </div>
-            )}
-            <div className="flex justify-between font-semibold pt-2 border-t">
-              <span>Total:</span>
-              <span>{formatPrice(calculateTotalRent() + (listing.depositEur || 0))}</span>
-            </div>
-          </div>
-        )}
 
         {/* Select Dates Button */}
         <Button 
