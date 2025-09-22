@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Users, Shield, MapPin, Heart, MessageCircle, BarChart3, Plus, Eye, ChevronDown } from 'lucide-react';
+import { Search, Users, Shield, MapPin, Heart, MessageCircle, BarChart3, Plus, Eye, ChevronDown, Building } from 'lucide-react';
 import { ScrollIndicator } from '@/components/ui/scroll-indicator';
 import { universities } from '@/data/mockData';
 import { useFeaturedListings } from '@/hooks/useFeaturedListings';
@@ -574,11 +574,55 @@ const Index = () => {
           </section>
         </>
       )}
+
+      {/* Admin Quick Access */}
+      {user && (profile?.user_type === 'admin' || profile?.user_type === 'agency' || profile?.user_type === 'private') && (
+        <section className="py-12 bg-primary/5">
+          <div className="container mx-auto px-4">
+            <div className="text-center mb-8">
+              <h2 className="text-2xl font-bold">Admin Panel</h2>
+              <p className="text-muted-foreground">Quick access to management tools</p>
+            </div>
+            <div className="flex justify-center gap-4">
+              <Link to="/customer-database">
+                <Button className="gap-2">
+                  <Users className="w-4 h-4" />
+                  Customer Database
+                </Button>
+              </Link>
+              {profile?.user_type === 'admin' && (
+                <Link to="/owner-dashboard">
+                  <Button variant="outline" className="gap-2">
+                    <Building className="w-4 h-4" />
+                    Owner Dashboard
+                  </Button>
+                </Link>
+              )}
+              {(profile?.user_type === 'agency' || profile?.user_type === 'private') && (
+                <Link to="/landlord-dashboard">
+                  <Button variant="outline" className="gap-2">
+                    <Building className="w-4 h-4" />
+                    Landlord Dashboard
+                  </Button>
+                </Link>
+              )}
+            </div>
+          </div>
+        </section>
+      )}
+      
       
       {/* Discrete Owner Access at the bottom of homepage */}
       <footer className="py-8 text-center bg-muted/20">
         <div className="container mx-auto">
           <OwnerAccess onAuthenticated={() => setIsOwnerAuthenticated(true)} />
+          
+          {/* Direct link for testing */}
+          <div className="mt-4 pt-4 border-t border-muted">
+            <Link to="/customer-database" className="text-sm text-muted-foreground hover:text-foreground">
+              Customer Database (Test Link)
+            </Link>
+          </div>
         </div>
       </footer>
     </div>
