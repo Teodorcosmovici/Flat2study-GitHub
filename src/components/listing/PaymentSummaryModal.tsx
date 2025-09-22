@@ -73,10 +73,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   <span>One-time service fee</span>
                   <span>{formatPrice(serviceFee)}</span>
                 </div>
-                <div className="flex justify-between text-xs text-muted-foreground">
-                  <span>Through our platform</span>
-                  <ArrowRight className="h-3 w-3" />
-                </div>
               </div>
             </CollapsibleContent>
           </Collapsible>
