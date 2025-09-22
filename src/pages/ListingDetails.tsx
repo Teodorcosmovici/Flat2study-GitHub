@@ -60,6 +60,11 @@ export default function ListingDetails() {
   const isMobile = useIsMobile();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
+  const [selectedDates, setSelectedDates] = useState<{
+    checkIn: Date;
+    checkOut: Date;
+    persons: number;
+  } | null>(null);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [translatedDescription, setTranslatedDescription] = useState('');
   const [isDescriptionTranslated, setIsDescriptionTranslated] = useState(false);
@@ -603,7 +608,8 @@ export default function ListingDetails() {
             <div className="lg:sticky lg:top-24 space-y-4">
               <UnplacesBookingWidget
                 listing={listing}
-                onBookingRequest={() => {
+                onBookingRequest={(data) => {
+                  setSelectedDates(data);
                   toast({
                     title: "Booking request sent!",
                     description: "The landlord will respond within 24 hours.",
@@ -611,39 +617,42 @@ export default function ListingDetails() {
                 }}
               />
               
-              {/* Payment Summary Box */}
-              <Card className="bg-muted/30">
-                <CardContent className="p-4">
-                  <div className="text-sm text-muted-foreground mb-2">
-                    If and only after the landlord approves
-                  </div>
-                  <div className="text-sm font-medium mb-3">You'll pay through our platform:</div>
-                  
-                  <div className="space-y-2 text-sm">
-                    <div className="flex justify-between">
-                      <span>First rental payment</span>
-                      <span>{formatPrice(listing.rentMonthlyEur)}</span>
+              {/* Payment Summary Box - Only show when dates are selected */}
+              {selectedDates && (
+                <Card className="bg-muted/30">
+                  <CardContent className="p-4">
+                    <div className="text-sm text-muted-foreground mb-2">
+                      If and only after the landlord approves
                     </div>
-                    <div className="flex justify-between">
-                      <span>One-time service fee</span>
-                      <span>{formatPrice(Math.round(listing.rentMonthlyEur * 0.4))}</span>
+                    <div className="text-sm font-medium mb-3">You'll pay through our platform:</div>
+                    
+                    <div className="space-y-2 text-sm">
+                      <div className="flex justify-between">
+                        <span>First rental payment</span>
+                        <span>{formatPrice(listing.rentMonthlyEur)}</span>
+                      </div>
+                      <div className="flex justify-between">
+                        <span>One-time service fee</span>
+                        <span>{formatPrice(Math.round(listing.rentMonthlyEur * 0.4))}</span>
+                      </div>
+                      <div className="flex justify-between font-semibold border-t pt-2">
+                        <span>Total</span>
+                        <span>{formatPrice(listing.rentMonthlyEur + Math.round(listing.rentMonthlyEur * 0.4))}</span>
+                      </div>
                     </div>
-                    <div className="flex justify-between font-semibold border-t pt-2">
-                      <span>Total</span>
-                      <span>{formatPrice(listing.rentMonthlyEur + Math.round(listing.rentMonthlyEur * 0.4))}</span>
-                    </div>
-                  </div>
-                  
-                  <PaymentSummaryModal 
-                    rentMonthlyEur={listing.rentMonthlyEur}
-                    depositEur={listing.depositEur}
-                  >
-                    <Button variant="link" className="p-0 h-auto text-xs mt-2">
-                      Review price details →
-                    </Button>
-                  </PaymentSummaryModal>
-                </CardContent>
-              </Card>
+                    
+                    <PaymentSummaryModal 
+                      rentMonthlyEur={listing.rentMonthlyEur}
+                      depositEur={listing.depositEur}
+                      selectedDates={selectedDates}
+                    >
+                      <Button variant="link" className="p-0 h-auto text-xs mt-2">
+                        Review price details →
+                      </Button>
+                    </PaymentSummaryModal>
+                  </CardContent>
+                </Card>
+              )}
             </div>
           </div>
         </div>

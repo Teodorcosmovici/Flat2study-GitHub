@@ -18,12 +18,18 @@ import { ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
 interface PaymentSummaryModalProps {
   rentMonthlyEur: number;
   depositEur?: number;
+  selectedDates?: {
+    checkIn: Date;
+    checkOut: Date;
+    persons: number;
+  };
   children: React.ReactNode;
 }
 
 export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   rentMonthlyEur,
   depositEur = 0,
+  selectedDates,
   children
 }) => {
   const formatPrice = (price: number) => {
@@ -145,17 +151,44 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
             </CollapsibleTrigger>
             <CollapsibleContent className="px-4 pb-4">
               <div className="space-y-2 text-sm mt-3">
-                {Array.from({ length: 12 }, (_, i) => {
-                  const date = new Date();
-                  date.setMonth(date.getMonth() + i);
-                  const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                  return (
-                    <div key={i} className="flex justify-between">
-                      <span>{monthName}</span>
-                      <span>{formatPrice(rentMonthlyEur)}</span>
-                    </div>
-                  );
-                })}
+                {selectedDates ? (
+                  // Show months based on selected dates
+                  (() => {
+                    const months = [];
+                    const startDate = new Date(selectedDates.checkIn);
+                    const endDate = new Date(selectedDates.checkOut);
+                    const currentMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                    
+                    while (currentMonth < endDate) {
+                      const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                      const isFirstMonth = currentMonth.getMonth() === startDate.getMonth() && currentMonth.getFullYear() === startDate.getFullYear();
+                      
+                      months.push(
+                        <div key={currentMonth.getTime()} className="flex justify-between">
+                          <span>{monthName} {isFirstMonth && <span className="text-xs text-green-600">(already paid)</span>}</span>
+                          <span className={isFirstMonth ? "text-green-600" : ""}>{formatPrice(rentMonthlyEur)}</span>
+                        </div>
+                      );
+                      
+                      currentMonth.setMonth(currentMonth.getMonth() + 1);
+                    }
+                    
+                    return months;
+                  })()
+                ) : (
+                  // Default 12 months view when no dates selected
+                  Array.from({ length: 12 }, (_, i) => {
+                    const date = new Date();
+                    date.setMonth(date.getMonth() + i);
+                    const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                    return (
+                      <div key={i} className="flex justify-between">
+                        <span>{monthName}</span>
+                        <span>{formatPrice(rentMonthlyEur)}</span>
+                      </div>
+                    );
+                  })
+                )}
               </div>
             </CollapsibleContent>
           </Collapsible>
