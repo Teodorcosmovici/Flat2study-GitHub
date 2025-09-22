@@ -168,6 +168,11 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
         .select('*')
         .order('created_at', { ascending: false });
 
+      // Get total users from auth.users table (all registered email addresses)
+      const { count: totalUsersCount } = await supabase
+        .from('profiles')
+        .select('user_id', { count: 'exact', head: true });
+
       const { data: listings } = await supabase
         .from('listings')
         .select('*')
@@ -181,7 +186,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
       const activeAgencies = profiles?.filter(p => p.user_type === 'agency').length || 0;
 
       setStats({
-        totalUsers: profiles?.length || 0,
+        totalUsers: totalUsersCount || 0,
         totalListings: listings?.length || 0,
         totalMessages: messages?.length || 0,
         activeAgencies,
@@ -231,6 +236,21 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
       day: 'numeric',
       year: 'numeric'
     });
+  };
+
+  const formatTimeSpent = (seconds: number) => {
+    if (!seconds || seconds === 0) return '0s';
+    
+    const minutes = Math.floor(seconds / 60);
+    const remainingSeconds = Math.round(seconds % 60);
+    
+    if (minutes === 0) {
+      return `${remainingSeconds}s`;
+    } else if (remainingSeconds === 0) {
+      return `${minutes}m`;
+    } else {
+      return `${minutes}m ${remainingSeconds}s`;
+    }
   };
 
   const toggleUserExpansion = (userId: string) => {
@@ -548,7 +568,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
                 <div className="flex items-center justify-between">
                   <div>
                     <p className="text-sm font-medium text-muted-foreground">Avg. Time on Page</p>
-                    <div className="text-2xl font-bold">{analytics.avg_time_per_page}s</div>
+                    <div className="text-2xl font-bold">{formatTimeSpent(analytics.avg_time_per_page || 0)}</div>
                   </div>
                   <Calendar className="h-8 w-8 text-primary" />
                 </div>
@@ -671,7 +691,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
                       <div key={index} className="flex items-center justify-between p-3 border rounded-lg">
                         <div className="flex-1">
                           <h4 className="font-medium">{page.page}</h4>
-                          <p className="text-sm text-muted-foreground">Avg. time: {page.avg_time}s</p>
+                          <p className="text-sm text-muted-foreground">Avg. time: {formatTimeSpent(page.avg_time || 0)}</p>
                         </div>
                         <Badge variant="secondary">{page.views} views</Badge>
                       </div>
