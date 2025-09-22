@@ -31,8 +31,8 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
 
   const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstPaymentTotal = rentMonthlyEur + serviceFee;
-  const afterBookingTotal = depositEur + 150 + 120; // Security deposit + Admin fee + Cleaning fee
-  const monthlyTotal = rentMonthlyEur + 70; // Monthly rent + Fixed bills fee
+  const afterBookingTotal = depositEur + 120; // Security deposit + Cleaning fee
+  const monthlyTotal = rentMonthlyEur + 70; // Monthly rent + Electricity + Gas
 
   return (
     <Dialog>
@@ -90,10 +90,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                 <span>{formatPrice(depositEur)}</span>
               </div>
               <div className="flex justify-between">
-                <span>Admin fee</span>
-                <span>{formatPrice(150)}</span>
-              </div>
-              <div className="flex justify-between">
                 <span>Cleaning fee</span>
                 <span>{formatPrice(120)}</span>
               </div>
@@ -114,8 +110,12 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                 </div>
               </div>
               <div className="flex justify-between">
-                <span>Fixed bills fee</span>
-                <span>{formatPrice(70)}</span>
+                <span>Electricity</span>
+                <span>{formatPrice(35)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Gas</span>
+                <span>{formatPrice(35)}</span>
               </div>
               
               <div className="flex justify-between font-semibold border-t pt-2">
@@ -125,7 +125,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
             </div>
           </div>
 
-          {/* Monthly rent */}
+          {/* Monthly rent breakdown */}
           <div>
             <div className="flex items-center justify-between mb-3">
               <span className="font-medium">Monthly rent</span>
@@ -136,8 +136,18 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
               </div>
             </div>
             
-            <div className="text-right">
-              <span className="text-2xl font-bold">{formatPrice(monthlyTotal)}</span>
+            <div className="space-y-2 text-sm">
+              {Array.from({ length: 12 }, (_, i) => {
+                const date = new Date();
+                date.setMonth(date.getMonth() + i);
+                const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                return (
+                  <div key={i} className="flex justify-between">
+                    <span>{monthName}</span>
+                    <span>{formatPrice(rentMonthlyEur)}</span>
+                  </div>
+                );
+              })}
             </div>
           </div>
 

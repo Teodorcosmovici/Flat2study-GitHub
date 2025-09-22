@@ -93,13 +93,18 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
             }
           }}
           disabled={(date) => {
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            
             // Disable past dates
-            if (date < new Date()) return true;
+            if (date < today) return true;
             
             // Disable unavailable dates
             const isUnavailable = unavailableDates.some(unavailableDate => 
               date.toDateString() === unavailableDate.toDateString()
             );
+            
+            if (isUnavailable) return true;
             
             // If we're selecting an end date and there are unavailable dates in between
             if (selectedRange.from && !selectedRange.to && date > selectedRange.from) {
@@ -114,7 +119,7 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
               }
             }
             
-            return isUnavailable;
+            return false;
           }}
           className="w-full"
         />
