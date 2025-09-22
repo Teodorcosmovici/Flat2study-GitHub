@@ -36,7 +36,7 @@ export const HowToBook: React.FC = () => {
     {
       icon: <Key className="h-6 w-6" />,
       title: "Move in",
-      description: "Arrange your move-in date, key collection and anything else directly with your Landlord. As an extra security step, we will only transfer the first month's rent to the Landlord 48 hours after you move in, unless you contact us with a problem.",
+      description: "Arrange your move-in date, key collection and anything else directly with your Landlord. As an extra security step, we will only transfer the first month's rent to the Landlord 24 hours after you move in, unless you contact us with a problem.",
       highlighted: false
     }
   ];
