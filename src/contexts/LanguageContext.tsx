@@ -29,6 +29,7 @@ const translations = {
     'header.logIn': 'Log In',
     'header.start': 'Start',
     'header.account': 'Account',
+    'header.landlord': "I'm a landlord",
     
     // Languages
     'language.english': 'English',
@@ -437,6 +438,7 @@ const translations = {
     'header.logIn': 'Accedi',
     'header.start': 'Inizia',
     'header.account': 'Account',
+    'header.landlord': 'Sono un proprietario',
     
     // Languages
     'language.english': 'Inglese',

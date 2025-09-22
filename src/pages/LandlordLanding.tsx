@@ -1,6 +1,6 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
-import { Shield, Globe, Star, Calendar, Euro, Headphones, CheckCircle } from 'lucide-react';
+import { Shield, Globe, Star, Calendar, Euro, Headphones, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
@@ -75,6 +75,16 @@ export default function LandlordLanding() {
 
   return (
     <div className="min-h-screen bg-background">
+      {/* Back Home Button */}
+      <div className="absolute top-4 left-4 z-10">
+        <Link to="/">
+          <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
+            <ArrowLeft className="h-4 w-4 mr-2" />
+            Back Home
+          </Button>
+        </Link>
+      </div>
+
       {/* Hero Section */}
       <section className="hero-gradient text-white py-20 px-4">
         <div className="container mx-auto max-w-6xl">
@@ -94,7 +104,7 @@ export default function LandlordLanding() {
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/signup/private">
-                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6">
+                  <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-lg px-8 py-6 animate-pulse hover:animate-none">
                     List with us
                   </Button>
                 </Link>
@@ -259,7 +269,7 @@ export default function LandlordLanding() {
             Join thousands of landlords already maximizing their rental income with verified student tenants.
           </p>
           <Link to="/signup/private">
-            <Button size="lg" className="hero-gradient text-white text-lg px-12 py-6">
+            <Button size="lg" className="hero-gradient text-white text-lg px-12 py-6 animate-pulse hover:animate-none">
               Start listing for free
             </Button>
           </Link>

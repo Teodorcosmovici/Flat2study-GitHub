@@ -174,7 +174,7 @@ export default function Header() {
                       : 'text-white hover:text-white/80 hover:bg-white/10'
                   }`}
                 >
-                  <span className="text-xs md:text-sm">I'm a landlord</span>
+                  <span className="text-xs md:text-sm">{t('header.landlord')}</span>
                 </Button>
               </Link>
 
