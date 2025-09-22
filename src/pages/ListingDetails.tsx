@@ -623,8 +623,17 @@ export default function ListingDetails() {
                     
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
-                        <span>First rental payment</span>
-                        <span>{formatPrice(listing.rentMonthlyEur)}</span>
+                        <span>
+                          First rental payment
+                          {selectedDates && selectedDates.checkIn.getDate() > 15 && ' (half month)'}
+                        </span>
+                        <span>
+                          {formatPrice(
+                            selectedDates && selectedDates.checkIn.getDate() > 15 
+                              ? Math.round(listing.rentMonthlyEur / 2)
+                              : listing.rentMonthlyEur
+                          )}
+                        </span>
                       </div>
                       <div className="flex justify-between">
                         <span>One-time service fee</span>
@@ -632,7 +641,14 @@ export default function ListingDetails() {
                       </div>
                       <div className="flex justify-between font-semibold border-t pt-2">
                         <span>Total</span>
-                        <span>{formatPrice(listing.rentMonthlyEur + Math.round(listing.rentMonthlyEur * 0.4))}</span>
+                        <span>
+                          {formatPrice(
+                            (selectedDates && selectedDates.checkIn.getDate() > 15 
+                              ? Math.round(listing.rentMonthlyEur / 2)
+                              : listing.rentMonthlyEur) + 
+                            Math.round(listing.rentMonthlyEur * 0.4)
+                          )}
+                        </span>
                       </div>
                     </div>
                     
