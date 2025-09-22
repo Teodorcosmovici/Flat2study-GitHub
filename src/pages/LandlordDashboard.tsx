@@ -59,11 +59,16 @@ export const LandlordDashboard = () => {
   };
 
   useEffect(() => {
-    if (profile?.user_type !== 'private') {
+    // Only redirect if we have a profile and it's definitely not private
+    if (profile && profile.user_type !== 'private') {
       navigate('/');
       return;
     }
-    fetchDashboardData();
+    
+    // Only fetch data if we have a profile
+    if (profile) {
+      fetchDashboardData();
+    }
 
     // Set up real-time subscription for listings updates
     const channel = supabase
