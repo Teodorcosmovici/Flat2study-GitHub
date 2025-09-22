@@ -596,7 +596,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
               <div className="flex items-center justify-between">
                 <div>
                   <p className="text-sm font-medium text-muted-foreground">Total Users</p>
-                  <div className="text-2xl font-bold">{stats.totalUsers}</div>
+                  <div className="text-2xl font-bold">{analytics?.total_registered_users || stats.totalUsers}</div>
                 </div>
                 <Users className="h-8 w-8 text-primary" />
               </div>
