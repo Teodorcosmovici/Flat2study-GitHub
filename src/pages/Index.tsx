@@ -571,40 +571,6 @@ const Index = () => {
       )}
 
       {/* Admin Quick Access */}
-      {user && (profile?.user_type === 'admin' || profile?.user_type === 'agency' || profile?.user_type === 'private') && (
-        <section className="py-12 bg-primary/5">
-          <div className="container mx-auto px-4">
-            <div className="text-center mb-8">
-              <h2 className="text-2xl font-bold">Admin Panel</h2>
-              <p className="text-muted-foreground">Quick access to management tools</p>
-            </div>
-            <div className="flex justify-center gap-4">
-              <Link to="/customer-database">
-                <Button className="gap-2">
-                  <Users className="w-4 h-4" />
-                  Customer Database
-                </Button>
-              </Link>
-              {profile?.user_type === 'admin' && (
-                <Link to="/owner-dashboard">
-                  <Button variant="outline" className="gap-2">
-                    <Building className="w-4 h-4" />
-                    Owner Dashboard
-                  </Button>
-                </Link>
-              )}
-              {(profile?.user_type === 'agency' || profile?.user_type === 'private') && (
-                <Link to="/landlord-dashboard">
-                  <Button variant="outline" className="gap-2">
-                    <Building className="w-4 h-4" />
-                    Landlord Dashboard
-                  </Button>
-                </Link>
-              )}
-            </div>
-          </div>
-        </section>
-      )}
       
       
       {/* Discrete Owner Access at the bottom of homepage */}
