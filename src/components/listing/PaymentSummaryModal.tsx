@@ -212,9 +212,9 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                           <span>
                             {monthName} 
                             {isFirstMonth && <span className="text-xs text-green-600">(already paid)</span>}
-                            {isProrated && <span className="text-xs text-orange-600">(prorated)</span>}
+                            {isProrated && !isFirstMonth && <span className="text-xs text-orange-600">(prorated)</span>}
                           </span>
-                          <span className={isFirstMonth ? "text-green-600" : ""}>{formatPrice(monthlyRent)}</span>
+                          <span className={isFirstMonth ? "text-green-600" : ""}>{formatPrice(isFirstMonth ? 0 : monthlyRent)}</span>
                         </div>
                       );
                       
