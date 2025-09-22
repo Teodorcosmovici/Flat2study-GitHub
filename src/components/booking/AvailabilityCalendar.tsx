@@ -97,9 +97,24 @@ export const AvailabilityCalendar: React.FC<AvailabilityCalendarProps> = ({
             if (date < new Date()) return true;
             
             // Disable unavailable dates
-            return unavailableDates.some(unavailableDate => 
+            const isUnavailable = unavailableDates.some(unavailableDate => 
               date.toDateString() === unavailableDate.toDateString()
             );
+            
+            // If we're selecting an end date and there are unavailable dates in between
+            if (selectedRange.from && !selectedRange.to && date > selectedRange.from) {
+              const daysBetween = Math.ceil((date.getTime() - selectedRange.from.getTime()) / (1000 * 60 * 60 * 24));
+              for (let i = 1; i < daysBetween; i++) {
+                const checkDate = new Date(selectedRange.from.getTime() + i * 24 * 60 * 60 * 1000);
+                if (unavailableDates.some(unavailableDate => 
+                  checkDate.toDateString() === unavailableDate.toDateString()
+                )) {
+                  return true; // Disable if there's an unavailable date in between
+                }
+              }
+            }
+            
+            return isUnavailable;
           }}
           className="w-full"
         />

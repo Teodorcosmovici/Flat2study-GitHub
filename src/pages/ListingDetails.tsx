@@ -439,21 +439,13 @@ export default function ListingDetails() {
                     )}
                   </div>
 
-                  {/* Amenities preview */}
-                  {listing.amenities.length > 0 && (
-                    <div className="flex items-center space-x-2">
-                      <Wifi className="h-5 w-5 text-muted-foreground" />
-                      <span>{listing.amenities.slice(0, 3).join(', ')} {listing.amenities.length > 3 && `+${listing.amenities.length - 3} more`}</span>
-                    </div>
-                  )}
-                  
-                  {/* Gender preference for shared rooms */}
-                  {listing.type === 'room' && (
-                    <div className="flex items-center space-x-2">
-                      <Users className="h-5 w-5 text-muted-foreground" />
-                      <span>Mixed gender housemates</span>
-                    </div>
-                  )}
+                   {/* Gender preference for shared rooms */}
+                   {listing.type === 'room' && (
+                     <div className="flex items-center space-x-2">
+                       <Users className="h-5 w-5 text-muted-foreground" />
+                       <span>Mixed gender housemates</span>
+                     </div>
+                   )}
 
                   {/* Availability */}
                   {listing.availabilityDate && (

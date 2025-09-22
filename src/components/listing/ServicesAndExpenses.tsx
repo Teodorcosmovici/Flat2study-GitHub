@@ -77,6 +77,21 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
+        {/* Security Deposit */}
+        <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+          <div className="flex justify-between items-start">
+            <div className="flex-1">
+              <h5 className="font-medium text-blue-900">Security deposit</h5>
+              <p className="text-sm text-blue-700 mt-1">
+                Refundable payment to be made directly to Landlord, which should be refunded if you meet all the rental conditions with our platform
+              </p>
+            </div>
+            <div className="text-right ml-4">
+              <span className="font-semibold text-blue-900">{formatPrice(depositEur || 0)}</span>
+            </div>
+          </div>
+        </div>
+
         {/* Fixed Monthly Bills */}
         <div>
           <h4 className="font-medium mb-4">Fixed Monthly Bills</h4>
@@ -96,7 +111,9 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
                   ) : (
                     <>
                       <XCircle className="h-4 w-4 text-red-600" />
-                      <span className="text-red-600 text-sm">Not included in the price</span>
+                      <span className="text-red-600 text-sm">
+                        Not included - Est. {formatPrice(utility.price)}/month
+                      </span>
                     </>
                   )}
                 </div>
@@ -105,45 +122,6 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
           </div>
         </div>
 
-        {/* Other fees */}
-        <div>
-          <h4 className="font-medium mb-4">Other fees</h4>
-          <div className="space-y-4">
-            {additionalFees.map((fee, index) => (
-              <div key={index} className="border rounded-lg p-4">
-                <div className="flex justify-between items-start mb-2">
-                  <div className="flex-1">
-                    <h5 className="font-medium">{fee.name}</h5>
-                    <p className="text-sm text-muted-foreground mt-1">{fee.description}</p>
-                    {fee.note && (
-                      <p className="text-xs text-muted-foreground mt-2 italic">
-                        Note from landlord: {fee.note}
-                      </p>
-                    )}
-                  </div>
-                  <div className="text-right ml-4">
-                    <span className="font-semibold">{formatPrice(fee.price)}</span>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-        </div>
-
-        {/* Rental Conditions */}
-        <div className="border-t pt-6">
-          <h4 className="font-medium mb-4">Rental Conditions</h4>
-          <div className="space-y-3">
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Minimum stay 125 nights</span>
-            </div>
-            <div className="flex items-center gap-2">
-              <Calendar className="h-4 w-4 text-muted-foreground" />
-              <span className="text-sm">Short term penalty: Under 153 days €80</span>
-            </div>
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

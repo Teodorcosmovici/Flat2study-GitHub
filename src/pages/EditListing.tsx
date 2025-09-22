@@ -54,6 +54,23 @@ export default function EditListing() {
     internet: 'included' as 'included' | number
   });
 
+  // Generate title based on property type
+  const generateTitle = (type: string, bedrooms?: string, bathrooms?: string) => {
+    switch (type) {
+      case 'entire_property':
+        const bedroomCount = bedrooms || '1';
+        const bathroomCount = bathrooms || '1';
+        return `${bedroomCount} bedroom${parseInt(bedroomCount) > 1 ? 's' : ''}, ${bathroomCount} bathroom${parseInt(bathroomCount) > 1 ? 's' : ''} apartment`;
+      case 'studio':
+        const studioBathrooms = bathrooms || '1';
+        return `Studio with ${studioBathrooms} bathroom${parseInt(studioBathrooms) > 1 ? 's' : ''}`;
+      case 'room_shared':
+        return 'Room in shared apartment';
+      default:
+        return 'Rental property';
+    }
+  };
+
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -200,7 +217,11 @@ export default function EditListing() {
         depositAmount = parseInt(formData.rentAmount) * multiplier;
       }
 
+      // Generate title based on current form data
+      const title = generateTitle(formData.type, formData.bedrooms, formData.bathrooms);
+
       const listingData = {
+        title: title,
         address_line: formData.addressLine || null,
         type: formData.type === 'entire_property' ? 'apartment' : formData.type === 'studio' ? 'studio' : 'room',
         description: formData.description || null,

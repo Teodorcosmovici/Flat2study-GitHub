@@ -42,11 +42,15 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
       const monthName = date.toLocaleDateString('en-US', { month: 'short' });
       const year = date.getFullYear();
       
+      // Mock availability - in real implementation, this would come from availability data
+      // For demo: make some months unavailable (e.g., every 4th month)
+      const available = i % 4 !== 3;
+      
       months.push({
         month: monthName,
         year: year,
         price: rentMonthlyEur,
-        available: true
+        available: available
       });
     }
     
