@@ -11,7 +11,7 @@ import { geocodeAllListings } from '@/utils/geocoding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search as SearchIcon, Grid, Map, MapPin } from 'lucide-react';
+import { Search as SearchIcon, Grid, Map, MapPin, Home } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
@@ -280,8 +280,21 @@ export default function Search() {
       
       {/* Search Section */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b">
+        {/* Return Home Button */}
+        <div className="container pt-4 pb-2">
+          <Button
+            variant="outline"
+            size="sm"
+            onClick={() => navigate('/')}
+            className="mb-2"
+          >
+            <Home className="h-4 w-4 mr-2" />
+            Return Home
+          </Button>
+        </div>
+        
         {/* Search Bar */}
-        <div className="container py-4 pb-2">
+        <div className="container pb-2">
           {isMobile ? (
             <div className="relative">
               <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
