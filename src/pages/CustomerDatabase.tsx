@@ -53,6 +53,7 @@ export default function CustomerDatabase() {
   const fetchCustomers = async () => {
     try {
       setLoading(true);
+      console.log('Starting to fetch customers...');
 
       // Fetch all student profiles with activity data
       const { data: profiles, error: profilesError } = await supabase
@@ -61,41 +62,76 @@ export default function CustomerDatabase() {
         .eq('user_type', 'student')
         .order('created_at', { ascending: false });
 
-      if (profilesError) throw profilesError;
+      console.log('Profiles query result:', { profiles, profilesError });
+
+      if (profilesError) {
+        console.error('Error fetching profiles:', profilesError);
+        throw profilesError;
+      }
+
+      if (!profiles || profiles.length === 0) {
+        console.log('No student profiles found');
+        setCustomers([]);
+        setFilteredCustomers([]);
+        setLoading(false);
+        return;
+      }
+
+      console.log(`Found ${profiles.length} student profiles`);
 
       // Fetch activity data for each customer
-      const customersWithActivity = await Promise.all(
-        profiles.map(async (profile) => {
+      const customersWithActivity = [];
+      
+      for (const profile of profiles) {
+        try {
+          console.log(`Processing profile: ${profile.full_name} (${profile.email})`);
+          
           // Get message count
-          const { count: messageCount } = await supabase
+          const { count: messageCount, error: messageError } = await supabase
             .from('messages')
             .select('*', { count: 'exact', head: true })
             .eq('sender_id', profile.user_id);
 
+          if (messageError) {
+            console.warn('Error fetching message count:', messageError);
+          }
+
           // Get favorites count
-          const { count: favoritesCount } = await supabase
+          const { count: favoritesCount, error: favoritesError } = await supabase
             .from('favorites')
             .select('*', { count: 'exact', head: true })
             .eq('user_id', profile.user_id);
 
+          if (favoritesError) {
+            console.warn('Error fetching favorites count:', favoritesError);
+          }
+
           // Get unique inquiries count (distinct listings they've messaged about)
-          const { data: inquiries } = await supabase
+          const { data: inquiries, error: inquiriesError } = await supabase
             .from('messages')
             .select('listing_id')
             .eq('sender_id', profile.user_id);
 
+          if (inquiriesError) {
+            console.warn('Error fetching inquiries:', inquiriesError);
+          }
+
           const uniqueInquiries = new Set(inquiries?.map(m => m.listing_id) || []).size;
 
           // Get last activity (most recent message)
-          const { data: lastMessage } = await supabase
+          const { data: lastMessage, error: lastMessageError } = await supabase
             .from('messages')
             .select('created_at')
             .eq('sender_id', profile.user_id)
             .order('created_at', { ascending: false })
             .limit(1)
-            .single();
+            .maybeSingle(); // Use maybeSingle instead of single to avoid errors when no data
 
-          return {
+          if (lastMessageError) {
+            console.warn('Error fetching last message:', lastMessageError);
+          }
+
+          const customerData = {
             id: profile.id,
             user_id: profile.user_id,
             full_name: profile.full_name || 'Anonymous Student',
@@ -108,8 +144,27 @@ export default function CustomerDatabase() {
             total_favorites: favoritesCount || 0,
             total_inquiries: uniqueInquiries
           };
-        })
-      );
+          
+          customersWithActivity.push(customerData);
+          console.log(`Added customer: ${customerData.full_name}`);
+        } catch (profileError) {
+          console.error(`Error processing profile ${profile.full_name}:`, profileError);
+          // Still add the basic profile info even if activity data fails
+          customersWithActivity.push({
+            id: profile.id,
+            user_id: profile.user_id,
+            full_name: profile.full_name || 'Anonymous Student',
+            email: profile.email || '',
+            phone: profile.phone,
+            university: profile.university,
+            created_at: profile.created_at,
+            last_active: undefined,
+            total_messages: 0,
+            total_favorites: 0,
+            total_inquiries: 0
+          });
+        }
+      }
 
       setCustomers(customersWithActivity);
       setFilteredCustomers(customersWithActivity);
@@ -200,9 +255,10 @@ export default function CustomerDatabase() {
     return (
       <div className="min-h-screen bg-gradient-to-br from-background to-background/50 p-6">
         <div className="max-w-7xl mx-auto">
-          <div className="animate-pulse space-y-6">
-            <div className="h-8 bg-gray-200 rounded w-1/4"></div>
-            <div className="h-64 bg-gray-200 rounded"></div>
+          <div className="text-center py-12">
+            <div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary mx-auto mb-4"></div>
+            <p className="text-lg">Loading customer database...</p>
+            <p className="text-sm text-muted-foreground">This may take a moment...</p>
           </div>
         </div>
       </div>
