@@ -9,18 +9,6 @@ export default function LandlordLanding() {
 
   const features = [
     {
-      icon: Shield,
-      title: "Guaranteed monthly payments",
-      description: "Get your rent on time every month with our secure payment system and tenant verification process.",
-      highlight: true
-    },
-    {
-      icon: Globe,
-      title: "Worldwide visibility",
-      description: "Reach thousands of international students looking for quality accommodation across Europe and beyond.",
-      highlight: false
-    },
-    {
       icon: Star,
       title: "Quality tenants",
       description: "Access verified student tenants with guaranteed first payments. You always choose whether to accept or not.",
