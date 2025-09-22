@@ -40,6 +40,30 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
     }).format(price);
   };
 
+  const calculateProratedRent = (date: Date, isFirstMonth: boolean, isLastMonth: boolean, totalDays: number) => {
+    if (!isFirstMonth && !isLastMonth) return rentMonthlyEur;
+    
+    const daysInMonth = new Date(date.getFullYear(), date.getMonth() + 1, 0).getDate();
+    let daysToCharge = daysInMonth;
+    
+    if (isFirstMonth && selectedDates) {
+      const startDay = selectedDates.checkIn.getDate();
+      daysToCharge = daysInMonth - startDay + 1;
+    }
+    
+    if (isLastMonth && selectedDates) {
+      const endDay = selectedDates.checkOut.getDate();
+      daysToCharge = endDay;
+    }
+    
+    // If partial month is less than 15 days, charge half rent
+    if (daysToCharge < 15) {
+      return Math.round(rentMonthlyEur / 2);
+    }
+    
+    return rentMonthlyEur;
+  };
+
   const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstPaymentTotal = rentMonthlyEur + serviceFee;
   const afterBookingTotal = depositEur + 120 + 35 + 35; // Security deposit + Cleaning fee + Electricity + Gas
@@ -158,19 +182,32 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                     const startDate = new Date(selectedDates.checkIn);
                     const endDate = new Date(selectedDates.checkOut);
                     const currentMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+                    const totalStayDays = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
                     
+                    let monthIndex = 0;
                     while (currentMonth < endDate) {
                       const monthName = currentMonth.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
                       const isFirstMonth = currentMonth.getMonth() === startDate.getMonth() && currentMonth.getFullYear() === startDate.getFullYear();
+                      const nextMonth = new Date(currentMonth);
+                      nextMonth.setMonth(nextMonth.getMonth() + 1);
+                      const isLastMonth = nextMonth >= endDate;
+                      
+                      const monthlyRent = calculateProratedRent(currentMonth, isFirstMonth, isLastMonth, totalStayDays);
+                      const isProrated = monthlyRent !== rentMonthlyEur;
                       
                       months.push(
                         <div key={currentMonth.getTime()} className="flex justify-between">
-                          <span>{monthName} {isFirstMonth && <span className="text-xs text-green-600">(already paid)</span>}</span>
-                          <span className={isFirstMonth ? "text-green-600" : ""}>{formatPrice(rentMonthlyEur)}</span>
+                          <span>
+                            {monthName} 
+                            {isFirstMonth && <span className="text-xs text-green-600">(already paid)</span>}
+                            {isProrated && <span className="text-xs text-orange-600">(prorated)</span>}
+                          </span>
+                          <span className={isFirstMonth ? "text-green-600" : ""}>{formatPrice(monthlyRent)}</span>
                         </div>
                       );
                       
                       currentMonth.setMonth(currentMonth.getMonth() + 1);
+                      monthIndex++;
                     }
                     
                     return months;

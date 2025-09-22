@@ -51,6 +51,51 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     return Math.ceil(diffTime / (1000 * 60 * 60 * 24));
   };
 
+  const calculateTotalRent = () => {
+    if (!checkIn || !checkOut) return listing.rentMonthlyEur;
+    
+    let totalRent = 0;
+    const startDate = new Date(checkIn);
+    const endDate = new Date(checkOut);
+    const currentMonth = new Date(startDate.getFullYear(), startDate.getMonth(), 1);
+    
+    let monthIndex = 0;
+    while (currentMonth < endDate) {
+      const nextMonth = new Date(currentMonth);
+      nextMonth.setMonth(nextMonth.getMonth() + 1);
+      const isFirstMonth = monthIndex === 0;
+      const isLastMonth = nextMonth >= endDate;
+      
+      let monthlyRent = listing.rentMonthlyEur;
+      
+      if (isFirstMonth || isLastMonth) {
+        const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
+        let daysToCharge = daysInMonth;
+        
+        if (isFirstMonth) {
+          const startDay = startDate.getDate();
+          daysToCharge = daysInMonth - startDay + 1;
+        }
+        
+        if (isLastMonth) {
+          const endDay = endDate.getDate();
+          daysToCharge = endDay;
+        }
+        
+        // If partial month is less than 15 days, charge half rent
+        if (daysToCharge < 15) {
+          monthlyRent = Math.round(listing.rentMonthlyEur / 2);
+        }
+      }
+      
+      totalRent += monthlyRent;
+      currentMonth.setMonth(currentMonth.getMonth() + 1);
+      monthIndex++;
+    }
+    
+    return totalRent;
+  };
+
   const handleCheckInSelect = (date: Date | undefined) => {
     if (!date) return;
     setCheckIn(date);
@@ -213,7 +258,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
             </div>
             <div className="flex justify-between text-sm">
               <span>Monthly rent:</span>
-              <span>{formatPrice(listing.rentMonthlyEur)}</span>
+              <span>{formatPrice(calculateTotalRent())}</span>
             </div>
             {listing.depositEur > 0 && (
               <div className="flex justify-between text-sm">
@@ -223,7 +268,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
             )}
             <div className="flex justify-between font-semibold pt-2 border-t">
               <span>Total:</span>
-              <span>{formatPrice(listing.rentMonthlyEur + (listing.depositEur || 0))}</span>
+              <span>{formatPrice(calculateTotalRent() + (listing.depositEur || 0))}</span>
             </div>
           </div>
         )}
