@@ -8,6 +8,11 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
+import { 
+  Collapsible,
+  CollapsibleContent,
+  CollapsibleTrigger,
+} from '@/components/ui/collapsible';
 import { ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
 
 interface PaymentSummaryModalProps {
@@ -44,112 +49,116 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           <DialogTitle>Payment summary</DialogTitle>
         </DialogHeader>
         
-        <div className="space-y-6">
+        <div className="space-y-4">
           {/* When your booking is accepted */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
+          <Collapsible defaultOpen>
+            <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
               <span className="font-medium">When your booking is accepted</span>
               <div className="flex items-center gap-2">
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Through our platform</span>
-                <ChevronDown className="h-4 w-4" />
+                <span className="text-sm font-semibold">{formatPrice(firstPaymentTotal)}</span>
+                <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
               </div>
-            </div>
-            
-            <div className="space-y-2 text-sm">
-              <div className="flex justify-between">
-                <span>First rental payment</span>
-                <span>{formatPrice(rentMonthlyEur)}</span>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pb-4">
+              <div className="space-y-2 text-sm mt-3">
+                <div className="flex justify-between">
+                  <span>First rental payment</span>
+                  <span>{formatPrice(rentMonthlyEur)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>One-time service fee</span>
+                  <span>{formatPrice(serviceFee)}</span>
+                </div>
+                <div className="flex justify-between text-xs text-muted-foreground">
+                  <span>Through our platform</span>
+                  <ArrowRight className="h-3 w-3" />
+                </div>
               </div>
-              <div className="flex justify-between">
-                <span>One-time service fee</span>
-                <span>{formatPrice(serviceFee)}</span>
-              </div>
-              <div className="flex justify-between font-semibold border-t pt-2">
-                <span>Total</span>
-                <span>{formatPrice(firstPaymentTotal)}</span>
-              </div>
-            </div>
-          </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* After booking is confirmed */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
               <span className="font-medium">After booking is confirmed</span>
               <div className="flex items-center gap-2">
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">To landlord</span>
-                <ChevronDown className="h-4 w-4" />
+                <span className="text-sm font-semibold">{formatPrice(afterBookingTotal)}</span>
+                <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
               </div>
-            </div>
-            
-            <div className="space-y-2 text-sm">
-              <div className="text-xs font-medium text-muted-foreground mb-2">One-time payments</div>
-              <div className="flex justify-between">
-                <span>Security deposit</span>
-                <span>{formatPrice(depositEur)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Cleaning fee</span>
-                <span>{formatPrice(120)}</span>
-              </div>
-              
-              <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
-              <div className="flex justify-between items-center">
-                <span>Water</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-green-600 text-xs">Included</span>
-                  <CheckCircle className="h-3 w-3 text-green-600" />
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pb-4">
+              <div className="space-y-2 text-sm mt-3">
+                <div className="text-xs font-medium text-muted-foreground mb-2">One-time payments</div>
+                <div className="flex justify-between">
+                  <span>Security deposit</span>
+                  <span>{formatPrice(depositEur)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Cleaning fee</span>
+                  <span>{formatPrice(120)}</span>
+                </div>
+                
+                <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
+                <div className="flex justify-between items-center">
+                  <span>Water</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600 text-xs">Included</span>
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                  </div>
+                </div>
+                <div className="flex justify-between items-center">
+                  <span>Internet</span>
+                  <div className="flex items-center gap-1">
+                    <span className="text-green-600 text-xs">Included</span>
+                    <CheckCircle className="h-3 w-3 text-green-600" />
+                  </div>
+                </div>
+                <div className="flex justify-between">
+                  <span>Electricity</span>
+                  <span>{formatPrice(35)}</span>
+                </div>
+                <div className="flex justify-between">
+                  <span>Gas</span>
+                  <span>{formatPrice(35)}</span>
+                </div>
+                
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>To landlord</span>
+                  <ArrowRight className="h-3 w-3" />
                 </div>
               </div>
-              <div className="flex justify-between items-center">
-                <span>Internet</span>
-                <div className="flex items-center gap-1">
-                  <span className="text-green-600 text-xs">Included</span>
-                  <CheckCircle className="h-3 w-3 text-green-600" />
-                </div>
-              </div>
-              <div className="flex justify-between">
-                <span>Electricity</span>
-                <span>{formatPrice(35)}</span>
-              </div>
-              <div className="flex justify-between">
-                <span>Gas</span>
-                <span>{formatPrice(35)}</span>
-              </div>
-              
-              <div className="flex justify-between font-semibold border-t pt-2">
-                <span>Total</span>
-                <span>{formatPrice(afterBookingTotal)}</span>
-              </div>
-            </div>
-          </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Monthly rent breakdown */}
-          <div>
-            <div className="flex items-center justify-between mb-3">
+          <Collapsible>
+            <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
               <span className="font-medium">Monthly rent</span>
               <div className="flex items-center gap-2">
-                <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">To landlord</span>
-                <ChevronDown className="h-4 w-4" />
+                <span className="text-sm font-semibold">{formatPrice(rentMonthlyEur)}</span>
+                <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
               </div>
-            </div>
-            
-            <div className="space-y-2 text-sm">
-              {Array.from({ length: 12 }, (_, i) => {
-                const date = new Date();
-                date.setMonth(date.getMonth() + i);
-                const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
-                return (
-                  <div key={i} className="flex justify-between">
-                    <span>{monthName}</span>
-                    <span>{formatPrice(rentMonthlyEur)}</span>
-                  </div>
-                );
-              })}
-            </div>
-          </div>
+            </CollapsibleTrigger>
+            <CollapsibleContent className="px-4 pb-4">
+              <div className="space-y-2 text-sm mt-3">
+                {Array.from({ length: 12 }, (_, i) => {
+                  const date = new Date();
+                  date.setMonth(date.getMonth() + i);
+                  const monthName = date.toLocaleDateString('en-US', { month: 'long', year: 'numeric' });
+                  return (
+                    <div key={i} className="flex justify-between">
+                      <span>{monthName}</span>
+                      <span>{formatPrice(rentMonthlyEur)}</span>
+                    </div>
+                  );
+                })}
+                <div className="flex justify-between text-xs text-muted-foreground mt-2">
+                  <span>To landlord</span>
+                  <ArrowRight className="h-3 w-3" />
+                </div>
+              </div>
+            </CollapsibleContent>
+          </Collapsible>
 
           {/* Bottom notice */}
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
