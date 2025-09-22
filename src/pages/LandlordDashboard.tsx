@@ -379,7 +379,10 @@ export const LandlordDashboard = () => {
                       <Button 
                         variant="outline" 
                         size="sm" 
-                        onClick={() => navigate(`/edit-listing/${listing.id}`)}
+                        onClick={() => {
+                          console.log('Edit button clicked for listing:', listing.id);
+                          navigate(`/edit-listing/${listing.id}`);
+                        }}
                         className="hover:bg-muted"
                       >
                         <Edit className="w-4 h-4" />

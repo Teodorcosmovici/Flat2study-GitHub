@@ -70,12 +70,13 @@ export default function EditListing() {
         .single();
 
       if (error) {
+        console.error('Error fetching listing:', error);
         toast({
           title: "Error",
-          description: "Failed to load listing",
+          description: "Failed to load listing or you don't have permission to edit this listing",
           variant: "destructive",
         });
-        navigate('/my-listings');
+        navigate('/landlord-dashboard');
         return;
       }
 
