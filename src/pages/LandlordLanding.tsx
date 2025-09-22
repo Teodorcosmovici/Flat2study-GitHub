@@ -269,7 +269,7 @@ export default function LandlordLanding() {
             Join thousands of landlords already maximizing their rental income with verified student tenants.
           </p>
           <Link to="/signup/private">
-            <Button size="lg" className="hero-gradient text-white text-2xl font-bold px-16 py-8 animate-pulse hover:animate-none shadow-2xl">
+            <Button size="lg" className="hero-gradient text-white text-2xl font-bold px-16 py-8 shadow-2xl">
               Start listing for free
             </Button>
           </Link>
