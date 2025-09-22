@@ -220,6 +220,22 @@ export const LandlordDashboard = () => {
                 Add listing
               </Button>
               
+              <Button 
+                variant="outline" 
+                onClick={() => navigate('/')}
+              >
+                <Home className="w-4 h-4 mr-2" />
+                Back to Home
+              </Button>
+              
+              <Button 
+                variant="outline" 
+                onClick={handleLogout}
+              >
+                <LogOut className="w-4 h-4 mr-2" />
+                Logout
+              </Button>
+              
               <Avatar className="h-8 w-8">
                 <AvatarFallback>
                   {profile?.full_name?.charAt(0) || user?.email?.charAt(0) || 'U'}
