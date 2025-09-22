@@ -563,12 +563,6 @@ export default function ListingDetails() {
                         Cancellations within 7 days of move-in are subject to a cancellation fee.
                       </p>
                     </div>
-                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
-                      <p className="text-sm text-orange-700">
-                        <strong>Early termination:</strong> If you leave before your minimum stay period, 
-                        a penalty of €80 applies for stays under 153 days.
-                      </p>
-                    </div>
                   </div>
                 </CardContent>
               </Card>
