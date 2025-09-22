@@ -367,14 +367,24 @@ export const LandlordDashboard = () => {
                     <span className="text-muted-foreground">-</span>
                   </div>
                   <div className="col-span-1">
-                    <Button 
-                      variant="outline" 
-                      size="sm" 
-                      onClick={() => navigate(`/edit-listing/${listing.id}`)}
-                      className="hover:bg-muted"
-                    >
-                      <Edit className="w-4 h-4" />
-                    </Button>
+                    <div className="flex gap-2">
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => navigate(`/listing/${listing.id}`)}
+                        className="hover:bg-muted"
+                      >
+                        <Eye className="w-4 h-4" />
+                      </Button>
+                      <Button 
+                        variant="outline" 
+                        size="sm" 
+                        onClick={() => navigate(`/edit-listing/${listing.id}`)}
+                        className="hover:bg-muted"
+                      >
+                        <Edit className="w-4 h-4" />
+                      </Button>
+                    </div>
                   </div>
                 </div>
               ))}
