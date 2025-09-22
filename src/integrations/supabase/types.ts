@@ -473,6 +473,7 @@ export type Database = {
           listing_id: string
           message: string
           read_at: string | null
+          reminder_sent_at: string | null
           replied_at: string | null
           sender_id: string
           sender_name: string
@@ -488,6 +489,7 @@ export type Database = {
           listing_id: string
           message: string
           read_at?: string | null
+          reminder_sent_at?: string | null
           replied_at?: string | null
           sender_id: string
           sender_name: string
@@ -503,6 +505,7 @@ export type Database = {
           listing_id?: string
           message?: string
           read_at?: string | null
+          reminder_sent_at?: string | null
           replied_at?: string | null
           sender_id?: string
           sender_name?: string
