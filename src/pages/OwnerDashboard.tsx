@@ -26,6 +26,39 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 
+interface Conversation {
+  listing_id: string;
+  listing_title: string;
+  listing_images: string[];
+  listing_rent_monthly_eur: number;
+  listing_city: string;
+  listing_address_line: string;
+  agency_id: string;
+  agency_name: string;
+  agency_phone: string;
+  agency_email: string;
+  student_sender_id: string;
+  student_name: string;
+  last_message_id: string;
+  last_message_content: string;
+  last_message_created_at: string;
+  message_count: number;
+  messages?: Message[];
+}
+
+interface Message {
+  id: string;
+  message: string;
+  sender_name: string;
+  sender_phone: string;
+  sender_university: string;
+  created_at: string;
+  read_at: string;
+  listing_id: string;
+  agency_id: string;
+  sender_id: string;
+}
+
 
 interface PendingListing {
   id: string;
@@ -64,6 +97,8 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
   const [selectedListing, setSelectedListing] = useState<PendingListing | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [analytics, setAnalytics] = useState<any>(null);
+  const [conversations, setConversations] = useState<Conversation[]>([]);
+  const [selectedConversation, setSelectedConversation] = useState<Conversation | null>(null);
   const [loading, setLoading] = useState(true);
   const [showAllUsers, setShowAllUsers] = useState(false);
   const [expandedUsers, setExpandedUsers] = useState<Set<string>>(new Set());
@@ -76,6 +111,7 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
     fetchDashboardData();
     fetchPendingListings();
     fetchAnalytics();
+    fetchConversations();
   }, [dateRange]);
 
   const fetchPendingListings = async () => {
@@ -250,6 +286,46 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
       return `${minutes}m`;
     } else {
       return `${minutes}m ${remainingSeconds}s`;
+    }
+  };
+
+  const fetchConversations = async () => {
+    try {
+      const { data, error } = await supabase.rpc('get_all_conversations_for_owner');
+
+      if (error) {
+        console.error('Error fetching conversations:', error);
+      } else {
+        console.log('Conversations data:', data);
+        // Convert the data to match our interface
+        const conversations = (data || []).map((conv: any) => ({
+          ...conv,
+          listing_images: Array.isArray(conv.listing_images) 
+            ? conv.listing_images.map((img: any) => String(img))
+            : []
+        }));
+        setConversations(conversations);
+      }
+    } catch (error) {
+      console.error('Error fetching conversations:', error);
+    }
+  };
+
+  const fetchConversationMessages = async (conversation: Conversation) => {
+    try {
+      const { data, error } = await supabase.rpc('get_conversation_messages_for_owner', {
+        p_listing_id: conversation.listing_id,
+        p_student_sender_id: conversation.student_sender_id
+      });
+
+      if (error) {
+        console.error('Error fetching conversation messages:', error);
+      } else {
+        const conversationWithMessages = { ...conversation, messages: data || [] };
+        setSelectedConversation(conversationWithMessages);
+      }
+    } catch (error) {
+      console.error('Error fetching conversation messages:', error);
     }
   };
 
@@ -948,56 +1024,133 @@ const OwnerDashboard = ({ onLogout }: OwnerDashboardProps) => {
           </CardContent>
         </Card>
 
-        {/* Recent Messages */}
+        {/* Conversations Dashboard */}
         <Card className="mt-8">
           <CardHeader>
-            <CardTitle className="flex items-center gap-2">
-              <MessageCircle className="h-5 w-5" />
-              Recent Messages
-            </CardTitle>
+            <div className="flex justify-between items-center">
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                All Conversations ({conversations.length})
+              </CardTitle>
+              <Button 
+                variant="outline" 
+                size="sm"
+                onClick={fetchConversations}
+              >
+                Refresh
+              </Button>
+            </div>
           </CardHeader>
           <CardContent>
-            <div className="space-y-4">
-              {stats.recentMessages.length > 0 ? (
-                stats.recentMessages.map((message: any, index) => (
-                  <div key={index} className="p-4 border rounded-lg bg-card hover:bg-muted/50 transition-colors">
-                    <div className="flex items-start justify-between mb-3">
-                      <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-1">
-                          <span className="font-semibold text-foreground">{message.sender_name}</span>
-                          {message.sender_phone && (
-                            <Badge variant="outline" className="text-xs">
-                              {message.sender_phone}
-                            </Badge>
+            <div className="grid lg:grid-cols-2 gap-6">
+              {/* Conversations List */}
+              <div className="space-y-4">
+                <h3 className="text-lg font-semibold">Property Conversations</h3>
+                <div className="space-y-3 max-h-96 overflow-y-auto">
+                  {conversations.length > 0 ? (
+                    conversations.map((conversation) => (
+                      <Card 
+                        key={`${conversation.listing_id}-${conversation.student_sender_id}`}
+                        className={`cursor-pointer transition-colors ${
+                          selectedConversation?.listing_id === conversation.listing_id && 
+                          selectedConversation?.student_sender_id === conversation.student_sender_id 
+                            ? 'ring-2 ring-primary' : ''
+                        }`}
+                        onClick={() => fetchConversationMessages(conversation)}
+                      >
+                        <CardContent className="p-4">
+                          <div className="flex gap-3">
+                            {conversation.listing_images && conversation.listing_images[0] && (
+                              <img
+                                src={conversation.listing_images[0]}
+                                alt={conversation.listing_title}
+                                className="w-16 h-16 object-cover rounded"
+                              />
+                            )}
+                            <div className="flex-1 space-y-1">
+                              <h4 className="font-semibold text-sm">{conversation.listing_title}</h4>
+                              <p className="text-xs text-muted-foreground">{conversation.listing_address_line}, {conversation.listing_city}</p>
+                              <p className="text-xs font-medium text-green-600">€{conversation.listing_rent_monthly_eur}/month</p>
+                              <div className="flex items-center justify-between">
+                                <div className="flex items-center gap-2">
+                                  <span className="text-xs font-medium">{conversation.student_name}</span>
+                                  <Badge variant="outline" className="text-xs">{conversation.message_count} messages</Badge>
+                                </div>
+                                <span className="text-xs text-muted-foreground">
+                                  {formatDate(conversation.last_message_created_at)}
+                                </span>
+                              </div>
+                              <p className="text-xs text-muted-foreground line-clamp-2">{conversation.last_message_content}</p>
+                            </div>
+                          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  ) : (
+                    <div className="text-center py-8 text-muted-foreground">
+                      <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                      <p>No conversations yet</p>
+                    </div>
+                  )}
+                </div>
+              </div>
+
+              {/* Conversation Messages */}
+              <div className="space-y-4">
+                {selectedConversation ? (
+                  <>
+                    <div className="border-b pb-4">
+                      <h3 className="text-lg font-semibold">{selectedConversation.listing_title}</h3>
+                      <p className="text-sm text-muted-foreground">
+                        Conversation with {selectedConversation.student_name}
+                      </p>
+                      <div className="flex gap-4 mt-2 text-xs text-muted-foreground">
+                        <span>Agency: {selectedConversation.agency_name}</span>
+                        <span>Messages: {selectedConversation.message_count}</span>
+                      </div>
+                    </div>
+                    
+                    <div className="space-y-3 max-h-96 overflow-y-auto">
+                      {selectedConversation.messages?.map((message) => (
+                        <div key={message.id} className="p-3 border rounded-lg">
+                          <div className="flex items-center justify-between mb-2">
+                            <div className="flex items-center gap-2">
+                              <span className="font-medium text-sm">{message.sender_name}</span>
+                              {message.sender_phone && (
+                                <Badge variant="outline" className="text-xs">
+                                  {message.sender_phone}
+                                </Badge>
+                              )}
+                              {message.sender_university && (
+                                <Badge variant="secondary" className="text-xs">
+                                  {message.sender_university}
+                                </Badge>
+                              )}
+                            </div>
+                            <span className="text-xs text-muted-foreground">
+                              {formatDate(message.created_at)}
+                            </span>
+                          </div>
+                          <div className="bg-muted/30 rounded-md p-3">
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
+                          </div>
+                          {message.read_at && (
+                            <div className="mt-1 text-xs text-muted-foreground">
+                              Read: {formatDate(message.read_at)}
+                            </div>
                           )}
                         </div>
-                        {message.sender_university && (
-                          <div className="text-sm text-muted-foreground mb-2">
-                            📚 {message.sender_university}
-                          </div>
-                        )}
-                      </div>
-                      <div className="text-xs text-muted-foreground flex items-center gap-1">
-                        <Calendar className="h-3 w-3" />
-                        {formatDate(message.created_at)}
-                      </div>
+                      ))}
                     </div>
-                    <div className="bg-muted/30 rounded-md p-3">
-                      <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
-                    </div>
-                    {message.conversation_id && (
-                      <div className="mt-2 text-xs text-muted-foreground">
-                        ID: {message.conversation_id}
-                      </div>
-                    )}
+                  </>
+                ) : (
+                  <div className="text-center py-12 text-muted-foreground">
+                    <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
+                    <h4 className="text-lg font-semibold mb-2">Select a conversation</h4>
+                    <p>Click on a conversation from the left panel to view the messages.</p>
                   </div>
-                ))
-              ) : (
-                <div className="text-center py-8 text-muted-foreground">
-                  <MessageCircle className="h-12 w-12 mx-auto mb-3 opacity-50" />
-                  <p>No messages yet</p>
-                </div>
-              )}
+                )}
+              </div>
             </div>
           </CardContent>
         </Card>
