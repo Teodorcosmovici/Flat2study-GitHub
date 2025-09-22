@@ -69,7 +69,7 @@ export default function LandlordLanding() {
 
   const stats = [
     { number: "50,000", label: "students in our network", sublabel: "looking for an apartment per year" },
-    { number: "5", label: "biggest universities in Milan", sublabel: "in our network" },
+    { number: "5 top Milan universities", label: "", sublabel: "in our network" },
     { number: "7 days", label: "is enough for our best listings", sublabel: "to be rented" }
   ];
 
