@@ -243,11 +243,12 @@ export const ListingWizard = () => {
           {renderStepContent()}
           
           {currentStep < STEPS.length - 1 && (
-            <div className={`flex mt-8 ${currentStep === 0 ? 'justify-end' : 'justify-between'}`}>
+            <div className="flex justify-start mt-8">
               {currentStep > 0 && (
                 <Button
                   variant="outline"
                   onClick={handleBack}
+                  className="mr-4"
                 >
                   <ChevronLeft className="w-4 h-4 mr-2" />
                   Back
