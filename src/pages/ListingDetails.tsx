@@ -539,19 +539,14 @@ export default function ListingDetails() {
                       <span className="text-sm">Valid ID or Passport</span>
                     </div>
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="text-sm">Proof of income (last 3 payslips or employment contract)</span>
-                    </div>
-                    <div className="flex items-center gap-2">
-                      <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="text-sm">Bank statements (last 3 months)</span>
-                    </div>
-                    {listing.type === 'room' && (
-                      <div className="flex items-center gap-2">
-                        <CheckCircle className="h-4 w-4 text-green-600" />
-                        <span className="text-sm">Student enrollment certificate (if applicable)</span>
+                      <div className="h-4 w-4 rounded-full border-2 border-muted-foreground flex items-center justify-center">
+                        <div className="h-1.5 w-1.5 bg-muted-foreground rounded-full"></div>
                       </div>
-                    )}
+                      <span className="text-sm">
+                        Student enrollment certificate or job offer certificate 
+                        <span className="text-muted-foreground italic ml-1">(optional but higher chance to get your booking accepted)</span>
+                      </span>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
