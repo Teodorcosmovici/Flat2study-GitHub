@@ -500,10 +500,13 @@ export default function ListingDetails() {
                     <CardTitle className="flex items-center justify-between">
                       <span>Description</span>
                       <TranslateButton 
-                        originalText={listing.description}
-                        onTranslated={setTranslatedDescription}
+                        text={listing.description}
+                        onTranslated={(translatedText) => {
+                          setTranslatedDescription(translatedText);
+                          setIsDescriptionTranslated(!isDescriptionTranslated);
+                        }}
                         isTranslated={isDescriptionTranslated}
-                        onToggleTranslation={setIsDescriptionTranslated}
+                        originalText={listing.description}
                       />
                     </CardTitle>
                   </CardHeader>
