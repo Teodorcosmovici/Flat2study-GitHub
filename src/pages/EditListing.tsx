@@ -20,6 +20,8 @@ export default function EditListing() {
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
 
+  console.log('EditListing component loaded with ID:', id, 'Profile:', profile?.id);
+
   const [formData, setFormData] = useState({
     title: { en: '', it: '' },
     type: '' as ListingType | '',
@@ -48,7 +50,9 @@ export default function EditListing() {
 
   // Handle authentication and authorization
   useEffect(() => {
-    if (!loading && (!user || profile?.user_type !== 'agency')) {
+    console.log('Auth check - User:', user, 'Profile:', profile, 'User type:', profile?.user_type, 'Loading:', loading);
+    if (!loading && (!user || (profile?.user_type !== 'agency' && profile?.user_type !== 'private'))) {
+      console.log('User not authorized for editing, redirecting to home');
       navigate('/');
     }
   }, [user, profile, loading, navigate]);
@@ -589,7 +593,7 @@ export default function EditListing() {
             >
               {isSubmitting ? 'Updating...' : 'Update Listing'}
             </Button>
-            <Link to="/my-listings">
+            <Link to="/landlord-dashboard">
               <Button type="button" variant="outline">
                 Cancel
               </Button>
