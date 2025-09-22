@@ -244,18 +244,20 @@ export const ListingWizard = () => {
           
           {currentStep < STEPS.length - 1 && (
             <div className="flex justify-between mt-8">
-              <Button
-                variant="outline"
-                onClick={handleBack}
-                disabled={currentStep === 0}
-              >
-                <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
-              </Button>
+              {currentStep > 0 && (
+                <Button
+                  variant="outline"
+                  onClick={handleBack}
+                >
+                  <ChevronLeft className="w-4 h-4 mr-2" />
+                  Back
+                </Button>
+              )}
               
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
+                className={currentStep === 0 ? "ml-auto" : ""}
               >
                 Next
                 <ChevronRight className="w-4 h-4 ml-2" />
