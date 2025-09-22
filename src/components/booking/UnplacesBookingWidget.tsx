@@ -105,22 +105,6 @@ export function UnplacesBookingWidget({ listing, onBookingRequest }: UnplacesBoo
           </div>
         </div>
 
-        {/* Person Selector */}
-        <div className="space-y-2">
-          <label className="text-sm font-medium">Number of persons</label>
-          <Select value={persons.toString()} onValueChange={(value) => setPersons(parseInt(value))}>
-            <SelectTrigger>
-              <SelectValue />
-            </SelectTrigger>
-            <SelectContent>
-              {[1, 2, 3, 4, 5, 6].map((num) => (
-                <SelectItem key={num} value={num.toString()}>
-                  {num} person{num > 1 ? 's' : ''}
-                </SelectItem>
-              ))}
-            </SelectContent>
-          </Select>
-        </div>
 
         {/* Date Selectors */}
         <div className="grid grid-cols-2 gap-3">
