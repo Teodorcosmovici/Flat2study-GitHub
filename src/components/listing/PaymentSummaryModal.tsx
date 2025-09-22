@@ -1,0 +1,155 @@
+import React from 'react';
+import { 
+  Dialog, 
+  DialogContent, 
+  DialogHeader, 
+  DialogTitle,
+  DialogTrigger 
+} from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { Badge } from '@/components/ui/badge';
+import { ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
+
+interface PaymentSummaryModalProps {
+  rentMonthlyEur: number;
+  depositEur?: number;
+  children: React.ReactNode;
+}
+
+export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
+  rentMonthlyEur,
+  depositEur = 0,
+  children
+}) => {
+  const formatPrice = (price: number) => {
+    return new Intl.NumberFormat('en-EU', {
+      style: 'currency',
+      currency: 'EUR',
+      maximumFractionDigits: 0,
+    }).format(price);
+  };
+
+  const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
+  const firstPaymentTotal = rentMonthlyEur + serviceFee;
+  const afterBookingTotal = depositEur + 150 + 120; // Security deposit + Admin fee + Cleaning fee
+  const monthlyTotal = rentMonthlyEur + 70; // Monthly rent + Fixed bills fee
+
+  return (
+    <Dialog>
+      <DialogTrigger asChild>
+        {children}
+      </DialogTrigger>
+      <DialogContent className="max-w-md">
+        <DialogHeader>
+          <DialogTitle>Payment summary</DialogTitle>
+        </DialogHeader>
+        
+        <div className="space-y-6">
+          {/* When your booking is accepted */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-medium">When your booking is accepted</span>
+              <div className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Through our platform</span>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="flex justify-between">
+                <span>First rental payment</span>
+                <span>{formatPrice(rentMonthlyEur)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>One-time service fee</span>
+                <span>{formatPrice(serviceFee)}</span>
+              </div>
+              <div className="flex justify-between font-semibold border-t pt-2">
+                <span>Total</span>
+                <span>{formatPrice(firstPaymentTotal)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* After booking is confirmed */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-medium">After booking is confirmed</span>
+              <div className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">To landlord</span>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </div>
+            
+            <div className="space-y-2 text-sm">
+              <div className="text-xs font-medium text-muted-foreground mb-2">One-time payments</div>
+              <div className="flex justify-between">
+                <span>Security deposit</span>
+                <span>{formatPrice(depositEur)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Admin fee</span>
+                <span>{formatPrice(150)}</span>
+              </div>
+              <div className="flex justify-between">
+                <span>Cleaning fee</span>
+                <span>{formatPrice(120)}</span>
+              </div>
+              
+              <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
+              <div className="flex justify-between items-center">
+                <span>Water</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-green-600 text-xs">Included</span>
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                </div>
+              </div>
+              <div className="flex justify-between items-center">
+                <span>Internet</span>
+                <div className="flex items-center gap-1">
+                  <span className="text-green-600 text-xs">Included</span>
+                  <CheckCircle className="h-3 w-3 text-green-600" />
+                </div>
+              </div>
+              <div className="flex justify-between">
+                <span>Fixed bills fee</span>
+                <span>{formatPrice(70)}</span>
+              </div>
+              
+              <div className="flex justify-between font-semibold border-t pt-2">
+                <span>Total</span>
+                <span>{formatPrice(afterBookingTotal)}</span>
+              </div>
+            </div>
+          </div>
+
+          {/* Monthly rent */}
+          <div>
+            <div className="flex items-center justify-between mb-3">
+              <span className="font-medium">Monthly rent</span>
+              <div className="flex items-center gap-2">
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">To landlord</span>
+                <ChevronDown className="h-4 w-4" />
+              </div>
+            </div>
+            
+            <div className="text-right">
+              <span className="text-2xl font-bold">{formatPrice(monthlyTotal)}</span>
+            </div>
+          </div>
+
+          {/* Bottom notice */}
+          <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
+            <CheckCircle className="h-4 w-4 text-green-600" />
+            <span className="text-sm text-green-700">
+              If you find it cheaper elsewhere, we'll refund the difference.
+            </span>
+          </div>
+        </div>
+      </DialogContent>
+    </Dialog>
+  );
+};

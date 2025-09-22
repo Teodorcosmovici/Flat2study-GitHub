@@ -23,7 +23,9 @@ import {
   Mail, 
   Building,
   ChevronLeft,
-  ChevronRight
+  ChevronRight,
+  CheckCircle,
+  ChevronDown
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SimpleMapView from '@/components/map/SimpleMapView';
@@ -34,6 +36,10 @@ import TranslateButton from '@/components/listings/TranslateButton';
 import { BookingForm } from '@/components/booking/BookingForm';
 import { ImageLightbox } from '@/components/ui/image-lightbox';
 import { UnplacesBookingWidget } from '@/components/booking/UnplacesBookingWidget';
+import { AvailabilityOverview } from '@/components/listing/AvailabilityOverview';
+import { ServicesAndExpenses } from '@/components/listing/ServicesAndExpenses';
+import { HowToBook } from '@/components/listing/HowToBook';
+import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
 
 // Helper function to get text in current language
 const getLocalizedText = (multilingualField: any, language: string, fallback: string = '') => {
@@ -115,6 +121,8 @@ export default function ListingDetails() {
         publishedAt: listingData.published_at,
         status: listingData.status as ListingStatus,
         expiresAt: listingData.expires_at,
+        minimumStayDays: listingData.minimum_stay_days,
+        maximumStayDays: listingData.maximum_stay_days,
         landlord: {
           id: listingData.agency_id,
           name: agencyProfile?.agency_name || 'Property Manager',
@@ -342,13 +350,13 @@ export default function ListingDetails() {
                           <div className="flex-1 flex flex-col gap-2 overflow-hidden">
                             {listing.images.slice(1, 4).map((image, index) => (
                               <ImageLightbox
+                                key={index + 1}
                                 images={listing.images}
                                 currentIndex={currentImageIndex}
                                 onIndexChange={setCurrentImageIndex}
                                 title={listing.title}
                               >
                                 <div 
-                                  key={index + 1}
                                   className="relative flex-1 cursor-pointer overflow-hidden rounded-lg group"
                                   onClick={() => setCurrentImageIndex(index + 1)}
                                 >
@@ -420,22 +428,40 @@ export default function ListingDetails() {
                     {listing.sizeSqm && (
                       <div className="flex items-center space-x-2">
                         <Building className="h-5 w-5 text-muted-foreground" />
-                        <span>{listing.sizeSqm}m²</span>
+                        <span>{listing.sizeSqm} m²</span>
                       </div>
                     )}
-                    <div className="flex items-center space-x-2">
-                      <Euro className="h-5 w-5 text-muted-foreground" />
-                      <span>€{listing.depositEur} deposit</span>
-                    </div>
+                    {listing.depositEur && (
+                      <div className="flex items-center space-x-2">
+                        <Euro className="h-5 w-5 text-muted-foreground" />
+                        <span>{formatPrice(listing.depositEur)} deposit</span>
+                      </div>
+                    )}
                   </div>
 
-                  {/* Financial Information */}
+                  {/* Amenities preview */}
+                  {listing.amenities.length > 0 && (
+                    <div className="flex items-center space-x-2">
+                      <Wifi className="h-5 w-5 text-muted-foreground" />
+                      <span>{listing.amenities.slice(0, 3).join(', ')} {listing.amenities.length > 3 && `+${listing.amenities.length - 3} more`}</span>
+                    </div>
+                  )}
+                  
+                  {/* Gender preference for shared rooms */}
+                  {listing.type === 'room' && (
+                    <div className="flex items-center space-x-2">
+                      <Users className="h-5 w-5 text-muted-foreground" />
+                      <span>Mixed gender housemates</span>
+                    </div>
+                  )}
 
                   {/* Availability */}
-                  <div className="flex items-center space-x-2">
-                    <Calendar className="h-5 w-5 text-muted-foreground" />
-                    <span>Available from {formatDate(listing.availabilityDate)}</span>
-                  </div>
+                  {listing.availabilityDate && (
+                    <div className="flex items-center space-x-2">
+                      <Calendar className="h-5 w-5 text-muted-foreground" />
+                      <span>Available from {formatDate(listing.availabilityDate)}</span>
+                    </div>
+                  )}
 
                   {/* Additional Info */}
                   <div className="flex flex-wrap gap-2">
@@ -450,7 +476,7 @@ export default function ListingDetails() {
                     )}
                   </div>
 
-                  {/* Amenities */}
+                  {/* Full Amenities */}
                   {listing.amenities.length > 0 && (
                     <div>
                       <h3 className="font-semibold mb-3">Amenities</h3>
@@ -464,29 +490,101 @@ export default function ListingDetails() {
                       </div>
                     </div>
                   )}
+                </CardContent>
+              </Card>
 
-                  {/* Description */}
-                  <div>
-                    <div className="flex items-center justify-between mb-3">
-                      <h3 className="font-semibold">Description</h3>
-                      {listing.description && (
-                        <TranslateButton
-                          text={listing.description}
-                          onTranslated={(translated) => {
-                            setTranslatedDescription(translated);
-                            setIsDescriptionTranslated(!isDescriptionTranslated);
-                          }}
-                          isTranslated={isDescriptionTranslated}
-                          originalText={listing.description}
-                        />
-                      )}
-                    </div>
-                    <p className="text-muted-foreground leading-relaxed">
-                      {isDescriptionTranslated ? translatedDescription : listing.description}
+              {/* Description */}
+              {listing.description && (
+                <Card>
+                  <CardHeader>
+                    <CardTitle className="flex items-center justify-between">
+                      <span>Description</span>
+                      <TranslateButton 
+                        originalText={listing.description}
+                        onTranslated={setTranslatedDescription}
+                        isTranslated={isDescriptionTranslated}
+                        onToggleTranslation={setIsDescriptionTranslated}
+                      />
+                    </CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                      {isDescriptionTranslated && translatedDescription ? translatedDescription : listing.description}
                     </p>
+                  </CardContent>
+                </Card>
+              )}
+
+              {/* Availability Overview */}
+              <AvailabilityOverview 
+                availabilityDate={listing.availabilityDate}
+                minimumStayDays={listing.minimumStayDays}
+                maximumStayDays={listing.maximumStayDays}
+                rentMonthlyEur={listing.rentMonthlyEur}
+              />
+
+              {/* Services and Expenses */}
+              <ServicesAndExpenses 
+                billsIncluded={listing.billsIncluded}
+                rentMonthlyEur={listing.rentMonthlyEur}
+                depositEur={listing.depositEur}
+              />
+
+              {/* Required Documents */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Required Documents</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-3">
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm">Valid ID or Passport</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm">Proof of income (last 3 payslips or employment contract)</span>
+                    </div>
+                    <div className="flex items-center gap-2">
+                      <CheckCircle className="h-4 w-4 text-green-600" />
+                      <span className="text-sm">Bank statements (last 3 months)</span>
+                    </div>
+                    {listing.type === 'room' && (
+                      <div className="flex items-center gap-2">
+                        <CheckCircle className="h-4 w-4 text-green-600" />
+                        <span className="text-sm">Student enrollment certificate (if applicable)</span>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
+
+              {/* Cancellation Policy */}
+              <Card>
+                <CardHeader>
+                  <CardTitle>Cancellation Policy</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <div className="space-y-4">
+                    <div>
+                      <h5 className="font-medium mb-2">Flexible cancellation</h5>
+                      <p className="text-sm text-muted-foreground">
+                        You can cancel your booking up to 7 days before move-in for a full refund. 
+                        Cancellations within 7 days of move-in are subject to a cancellation fee.
+                      </p>
+                    </div>
+                    <div className="bg-orange-50 border border-orange-200 rounded-lg p-3">
+                      <p className="text-sm text-orange-700">
+                        <strong>Early termination:</strong> If you leave before your minimum stay period, 
+                        a penalty of €80 applies for stays under 153 days.
+                      </p>
+                    </div>
+                  </div>
+                </CardContent>
+              </Card>
+
+              {/* How to Book */}
+              <HowToBook />
 
               {/* Map */}
               <Card>
@@ -510,16 +608,50 @@ export default function ListingDetails() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-6">
-              {/* Booking Widget */}
-              <UnplacesBookingWidget 
+            <div className="lg:sticky lg:top-24 space-y-4">
+              <UnplacesBookingWidget
                 listing={listing}
-                onBookingRequest={(data) => {
-                  console.log('Booking request:', data);
-                  // Handle booking request here
+                onBookingRequest={() => {
+                  toast({
+                    title: "Booking request sent!",
+                    description: "The landlord will respond within 24 hours.",
+                  });
                 }}
               />
-
+              
+              {/* Payment Summary Box */}
+              <Card className="bg-muted/30">
+                <CardContent className="p-4">
+                  <div className="text-sm text-muted-foreground mb-2">
+                    If and only after the landlord approves
+                  </div>
+                  <div className="text-sm font-medium mb-3">You'll pay through our platform:</div>
+                  
+                  <div className="space-y-2 text-sm">
+                    <div className="flex justify-between">
+                      <span>First rental payment</span>
+                      <span>{formatPrice(listing.rentMonthlyEur)}</span>
+                    </div>
+                    <div className="flex justify-between">
+                      <span>One-time service fee</span>
+                      <span>{formatPrice(Math.round(listing.rentMonthlyEur * 0.4))}</span>
+                    </div>
+                    <div className="flex justify-between font-semibold border-t pt-2">
+                      <span>Total</span>
+                      <span>{formatPrice(listing.rentMonthlyEur + Math.round(listing.rentMonthlyEur * 0.4))}</span>
+                    </div>
+                  </div>
+                  
+                  <PaymentSummaryModal 
+                    rentMonthlyEur={listing.rentMonthlyEur}
+                    depositEur={listing.depositEur}
+                  >
+                    <Button variant="link" className="p-0 h-auto text-xs mt-2">
+                      Review price details →
+                    </Button>
+                  </PaymentSummaryModal>
+                </CardContent>
+              </Card>
             </div>
           </div>
         </div>

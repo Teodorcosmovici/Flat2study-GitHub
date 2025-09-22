@@ -695,48 +695,71 @@ export default function EditListing() {
             </CardContent>
           </Card>
 
-          {/* Photos */}
+          {/* Photos Section */}
           <Card>
             <CardHeader>
               <CardTitle className="flex items-center gap-2">
                 <Camera className="h-5 w-5" />
-                Property Photos
+                Photos
               </CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              <div className="space-y-2">
-                <Label htmlFor="images">Upload Images</Label>
+              <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-6 text-center">
+                <Camera className="mx-auto h-8 w-8 text-muted-foreground mb-2" />
+                <Label htmlFor="photos" className="cursor-pointer">
+                  <Button variant="outline" disabled={uploading} asChild>
+                    <span>
+                      {uploading ? 'Uploading...' : 'Choose Photos'}
+                    </span>
+                  </Button>
+                </Label>
                 <Input
-                  id="images"
+                  id="photos"
                   type="file"
-                  accept="image/*"
                   multiple
+                  accept="image/*"
                   onChange={handleImageUpload}
+                  className="hidden"
                   disabled={uploading}
                 />
-                {uploading && <p className="text-sm text-muted-foreground">Uploading images...</p>}
+                <p className="text-sm text-muted-foreground mt-2">
+                  Select multiple photos at once. Supported formats: JPG, PNG, WebP
+                </p>
               </div>
-              
+
               {uploadedImages.length > 0 && (
-                <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                  {uploadedImages.map((image, index) => (
-                    <div key={index} className="relative">
-                      <img 
-                        src={image} 
-                        alt={`Property ${index + 1}`}
-                        className="w-full h-24 object-cover rounded-lg border"
-                      />
-                      <Button
-                        type="button"
-                        variant="destructive"
-                        size="sm"
-                        className="absolute -top-2 -right-2 h-6 w-6 p-0"
-                        onClick={() => removeImage(index)}
-                      >
-                        ×
-                      </Button>
-                    </div>
-                  ))}
+                <div>
+                  <div className="flex justify-between items-center mb-3">
+                    <p className="text-sm font-medium">
+                      Uploaded Photos ({uploadedImages.length})
+                    </p>
+                    <span className={`text-sm ${uploadedImages.length >= 4 ? 'text-green-600' : 'text-orange-600'}`}>
+                      {uploadedImages.length >= 4 ? 'Minimum requirement met' : `${4 - uploadedImages.length} more needed`}
+                    </span>
+                  </div>
+                  <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+                    {uploadedImages.map((image, index) => (
+                      <div key={index} className="relative group">
+                        <img
+                          src={image}
+                          alt={`Property ${index + 1}`}
+                          className="w-full h-32 object-cover rounded-lg"
+                        />
+                        <button
+                          type="button"
+                          onClick={() => removeImage(index)}
+                          className="absolute top-2 right-2 bg-red-500 text-white rounded-full w-6 h-6 flex items-center justify-center opacity-0 group-hover:opacity-100 transition-opacity"
+                        >
+                          ×
+                        </button>
+                        {index === 0 && (
+                          <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                            Main Photo
+                          </div>
+                        )}
+                      </div>
+                    ))}
+                  </div>
                 </div>
               )}
             </CardContent>
