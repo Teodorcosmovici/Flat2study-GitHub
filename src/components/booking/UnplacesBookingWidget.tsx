@@ -68,22 +68,18 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
       
       let monthlyRent = listing.rentMonthlyEur;
       
-      if (isFirstMonth || isLastMonth) {
-        const daysInMonth = new Date(currentMonth.getFullYear(), currentMonth.getMonth() + 1, 0).getDate();
-        let daysToCharge = daysInMonth;
-        
-        if (isFirstMonth) {
-          const startDay = startDate.getDate();
-          daysToCharge = daysInMonth - startDay + 1;
+      if (isFirstMonth) {
+        const moveInDay = startDate.getDate();
+        // If move in after 15th, charge half rent
+        if (moveInDay > 15) {
+          monthlyRent = Math.round(listing.rentMonthlyEur / 2);
         }
-        
-        if (isLastMonth) {
-          const endDay = endDate.getDate();
-          daysToCharge = endDay;
-        }
-        
-        // If partial month is less than 15 days, charge half rent
-        if (daysToCharge < 15) {
+      }
+      
+      if (isLastMonth) {
+        const moveOutDay = endDate.getDate();
+        // If move out before 15th, charge half rent
+        if (moveOutDay < 15) {
           monthlyRent = Math.round(listing.rentMonthlyEur / 2);
         }
       }
