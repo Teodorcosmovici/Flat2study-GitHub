@@ -36,15 +36,15 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
   const generateAvailabilityMonths = () => {
     const months = [];
     const startDate = new Date();
+    const availabilityStart = availabilityDate ? new Date(availabilityDate) : startDate;
     
     for (let i = 0; i < 12; i++) {
       const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
       const monthName = date.toLocaleDateString('en-US', { month: 'short' });
       const year = date.getFullYear();
       
-      // Mock availability - in real implementation, this would come from availability data
-      // For demo: make some months unavailable (e.g., every 4th month)
-      const available = i % 4 !== 3;
+      // Available if the month is after or includes the availability date
+      const available = date >= new Date(availabilityStart.getFullYear(), availabilityStart.getMonth(), 1);
       
       months.push({
         month: monthName,

@@ -77,7 +77,7 @@ export const HowToBook: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>HOW TO BOOK</CardTitle>
+        <CardTitle>How to Book</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Steps */}
@@ -113,25 +113,6 @@ export const HowToBook: React.FC = () => {
           </div>
         </div>
 
-        {/* Always with platform section */}
-        <div className="border-t pt-6">
-          <h4 className="font-semibold mb-4">ALWAYS WITH OUR PLATFORM</h4>
-          <div className="grid grid-cols-1 gap-3">
-            {guarantees.map((guarantee, index) => (
-              <div key={index} className="flex items-center justify-between p-3 border rounded-lg hover:bg-muted/50 transition-colors">
-                <div className="flex items-center gap-3">
-                  {guarantee.icon}
-                  <span className="font-medium">{guarantee.title}</span>
-                </div>
-                {guarantee.expandable && (
-                  <button className="text-primary hover:text-primary/80">
-                    <ChevronDown className="h-4 w-4" />
-                  </button>
-                )}
-              </div>
-            ))}
-          </div>
-        </div>
       </CardContent>
     </Card>
   );

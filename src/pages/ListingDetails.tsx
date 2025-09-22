@@ -97,7 +97,10 @@ export default function ListingDetails() {
       // Transform the data to match the Listing type
       const transformedListing: Listing = {
         id: listingData.id,
-        title: getLocalizedText(listingData.title_multilingual, language, listingData.title),
+        title: getLocalizedText(listingData.title_multilingual, language, 
+          listingData.type === 'room' 
+            ? `Room in a shared apartment in ${listingData.city}` 
+            : listingData.title),
         type: listingData.type as ListingType,
         description: getLocalizedText(listingData.description_multilingual, language, listingData.description),
         addressLine: listingData.address_line,
@@ -429,12 +432,6 @@ export default function ListingDetails() {
                       <div className="flex items-center space-x-2">
                         <Building className="h-5 w-5 text-muted-foreground" />
                         <span>{listing.sizeSqm} m²</span>
-                      </div>
-                    )}
-                    {listing.depositEur && (
-                      <div className="flex items-center space-x-2">
-                        <Euro className="h-5 w-5 text-muted-foreground" />
-                        <span>{formatPrice(listing.depositEur)} deposit</span>
                       </div>
                     )}
                   </div>
