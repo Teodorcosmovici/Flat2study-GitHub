@@ -91,7 +91,7 @@ export default function SignupPrivate() {
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">{t('signup.private.title')}</CardTitle>
+            <CardTitle className="text-2xl font-bold">Landlord and Property Manager Registration</CardTitle>
             <CardDescription>
               {t('signup.private.description')}
             </CardDescription>
