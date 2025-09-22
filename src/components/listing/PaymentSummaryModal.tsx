@@ -44,7 +44,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
       <DialogTrigger asChild>
         {children}
       </DialogTrigger>
-      <DialogContent className="max-w-md">
+      <DialogContent className="max-w-lg">
         <DialogHeader>
           <DialogTitle>Payment summary</DialogTitle>
         </DialogHeader>
@@ -53,7 +53,11 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           {/* When your booking is accepted */}
           <Collapsible defaultOpen>
             <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
-              <span className="font-medium">When your booking is accepted</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">When your booking is accepted</span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">Through our platform</span>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{formatPrice(firstPaymentTotal)}</span>
                 <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
@@ -80,7 +84,11 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           {/* After booking is confirmed */}
           <Collapsible>
             <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
-              <span className="font-medium">After booking is confirmed</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">After booking is confirmed</span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">To landlord</span>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{formatPrice(afterBookingTotal)}</span>
                 <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
@@ -133,7 +141,11 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           {/* Monthly rent breakdown */}
           <Collapsible>
             <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
-              <span className="font-medium">Monthly rent</span>
+              <div className="flex items-center gap-2">
+                <span className="font-medium">Monthly rent</span>
+                <ArrowRight className="h-4 w-4 text-muted-foreground" />
+                <span className="text-sm text-muted-foreground">To landlord</span>
+              </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{formatPrice(rentMonthlyEur)}</span>
                 <ChevronDown className="h-4 w-4 transition-transform data-[state=open]:rotate-180" />
