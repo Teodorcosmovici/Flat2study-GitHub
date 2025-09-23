@@ -564,19 +564,10 @@ export default function ListingDetails() {
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center gap-2 mb-2">
-                          <h5 className="font-medium">Cancellation moderate</h5>
-                          <button className="flex-shrink-0 w-4 h-4 rounded-full bg-muted flex items-center justify-center">
-                            <span className="text-xs text-muted-foreground">i</span>
-                          </button>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-3">
+                        <h5 className="font-medium mb-2">Cancellation policy</h5>
+                        <p className="text-sm text-muted-foreground">
                           Your 1st rent will be 100% refunded if you cancel up to 60 days before the contract start date or you'll get a 50% refund if you cancel up to 30 days.
                         </p>
-                        <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
-                          More about our cancellation policies
-                          <ArrowRight className="h-3 w-3" />
-                        </button>
                       </div>
                     </div>
 
@@ -587,13 +578,9 @@ export default function ListingDetails() {
                       </div>
                       <div className="flex-1">
                         <h5 className="font-medium mb-2">Fortnightly contract</h5>
-                        <p className="text-sm text-muted-foreground mb-3">
+                        <p className="text-sm text-muted-foreground">
                           A fortnightly contract refers to a contract type where you are charged per fortnight booked.
                         </p>
-                        <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
-                          More about the contract
-                          <ArrowRight className="h-3 w-3" />
-                        </button>
                       </div>
                     </div>
                   </div>
