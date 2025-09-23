@@ -11,7 +11,6 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import { Upload, Users } from 'lucide-react';
 import { MILAN_UNIVERSITIES } from '@/data/universities';
-import { countries } from '@/data/countries';
 import { Listing } from '@/types';
 import { toast } from 'sonner';
 
@@ -34,6 +33,16 @@ interface RentalApplicationFormProps {
   listing: Listing;
   onSubmit: (data: any) => void;
 }
+
+const COUNTRIES = [
+  { code: '+1', name: 'United States', flag: '🇺🇸' },
+  { code: '+39', name: 'Italy', flag: '🇮🇹' },
+  { code: '+33', name: 'France', flag: '🇫🇷' },
+  { code: '+49', name: 'Germany', flag: '🇩🇪' },
+  { code: '+34', name: 'Spain', flag: '🇪🇸' },
+  { code: '+44', name: 'United Kingdom', flag: '🇬🇧' },
+  // Add more countries as needed
+];
 
 const NATIONALITIES = [
   'Italian', 'American', 'French', 'German', 'Spanish', 'British', 'Chinese', 'Indian', 'Brazilian', 'Other'
@@ -172,9 +181,9 @@ const form = useForm<z.infer<typeof applicationSchema>>({
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent>
-                  {countries.map((country) => (
-                    <SelectItem key={country.dialCode} value={country.dialCode}>
-                      {country.flag} {country.dialCode} {country.name}
+                  {COUNTRIES.map((country) => (
+                    <SelectItem key={country.code} value={country.code}>
+                      {country.flag} {country.code}
                     </SelectItem>
                   ))}
                 </SelectContent>

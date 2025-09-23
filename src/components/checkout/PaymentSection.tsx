@@ -57,13 +57,13 @@ export function PaymentSection({
                 <span>€{listing.rentMonthlyEur}</span>
               </div>
               <div className="flex justify-between">
-                <span>One-time service fee</span>
-                <span>€99</span>
+                <span>Service fee</span>
+                <span>€{Math.round((listing.rentMonthlyEur || 0) * 0.15)}</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
                 <span>Total</span>
-                <span>€{(listing.rentMonthlyEur || 0) + 99}</span>
+                <span>€{(listing.rentMonthlyEur || 0) + Math.round((listing.rentMonthlyEur || 0) * 0.15)}</span>
               </div>
             </div>
           </div>
