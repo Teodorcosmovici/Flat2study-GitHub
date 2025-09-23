@@ -272,7 +272,7 @@ export default function SignupStudent() {
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 {t('signup.student.alreadyHaveAccount')}{' '}
-                <Link to="/auth" className="text-primary hover:underline">
+                <Link to={`/auth${window.location.search}`} className="text-primary hover:underline">
                   {t('signup.student.logInHere')}
                 </Link>
               </p>

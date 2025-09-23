@@ -7,11 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ArrowLeft, Upload, User } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function SignupPrivate() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -70,8 +71,19 @@ export default function SignupPrivate() {
       }
       setLoading(false);
     } else {
-      // Navigate to home page immediately after successful signup
-      navigate('/');
+      // Check if there's a redirect URL in search params
+      const redirectTo = searchParams.get('redirect');
+      const checkin = searchParams.get('checkin');
+      const checkout = searchParams.get('checkout');
+      const persons = searchParams.get('persons');
+      
+      if (redirectTo && checkin && checkout && persons) {
+        // Redirect to checkout with the booking parameters
+        navigate(`${redirectTo}?checkin=${checkin}&checkout=${checkout}&persons=${persons}`);
+      } else {
+        // Navigate to home page
+        navigate('/');
+      }
     }
   };
 
@@ -253,7 +265,7 @@ export default function SignupPrivate() {
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 {t('signup.student.alreadyHaveAccount')}{' '}
-                <Link to="/auth" className="text-primary hover:underline">
+                <Link to={`/auth${window.location.search}`} className="text-primary hover:underline">
                   {t('signup.student.logInHere')}
                 </Link>
               </p>

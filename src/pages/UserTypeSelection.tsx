@@ -1,12 +1,17 @@
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { ArrowLeft, Building, Home, GraduationCap } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 
 export default function UserTypeSelection() {
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { t } = useLanguage();
+
+  const getRedirectParams = () => {
+    return window.location.search;
+  };
 
   return (
     <div className="min-h-screen bg-background flex items-center justify-center p-4">
@@ -32,7 +37,7 @@ export default function UserTypeSelection() {
         <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-4xl mx-auto">
           {/* For Students */}
           <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 group flex flex-col">
-            <Link to="/signup/student" className="flex flex-col h-full">
+            <Link to={`/signup/student${getRedirectParams()}`} className="flex flex-col h-full">
               <CardHeader className="text-center pb-4 flex-1">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
                   <GraduationCap className="h-8 w-8 text-primary" />
@@ -53,7 +58,7 @@ export default function UserTypeSelection() {
 
           {/* For Landlords/Property Managers */}
           <Card className="cursor-pointer hover:shadow-lg transition-all duration-300 group flex flex-col">
-            <Link to="/signup/private" className="flex flex-col h-full">
+            <Link to={`/signup/private${getRedirectParams()}`} className="flex flex-col h-full">
               <CardHeader className="text-center pb-4 flex-1">
                 <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
                   <Home className="h-8 w-8 text-primary" />
@@ -76,7 +81,7 @@ export default function UserTypeSelection() {
         <div className="text-center mt-8">
           <p className="text-sm text-muted-foreground">
             {t('userType.alreadyAccount')}{' '}
-            <Link to="/auth" className="text-primary hover:underline font-medium">
+            <Link to={`/auth${getRedirectParams()}`} className="text-primary hover:underline font-medium">
               {t('userType.logInHere')}
             </Link>
           </p>

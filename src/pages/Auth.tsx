@@ -7,11 +7,12 @@ import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Loader2, ArrowLeft } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
 export default function Auth() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signIn, resetPassword, user, profile, loading: authLoading } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -23,15 +24,26 @@ export default function Auth() {
   const [signInEmail, setSignInEmail] = useState('');
   const [signInPassword, setSignInPassword] = useState('');
 
-  // Redirect authenticated users to homepage
+  // Redirect authenticated users to homepage or checkout
   useEffect(() => {
     console.log('Auth page - authLoading:', authLoading, 'user:', !!user);
     if (!authLoading && user) {
-      console.log('Redirecting authenticated user to homepage');
-      // Redirect immediately when user is authenticated, regardless of profile status
-      navigate('/', { replace: true });
+      console.log('Redirecting authenticated user');
+      // Check if there's a redirect URL in search params
+      const redirectTo = searchParams.get('redirect');
+      const checkin = searchParams.get('checkin');
+      const checkout = searchParams.get('checkout');
+      const persons = searchParams.get('persons');
+      
+      if (redirectTo && checkin && checkout && persons) {
+        // Redirect to checkout with the booking parameters
+        navigate(`${redirectTo}?checkin=${checkin}&checkout=${checkout}&persons=${persons}`, { replace: true });
+      } else {
+        // Navigate to home page
+        navigate('/', { replace: true });
+      }
     }
-  }, [user, authLoading, navigate]);
+  }, [user, authLoading, navigate, searchParams]);
 
   // Show loading while auth is initializing
   if (authLoading) {
@@ -200,7 +212,10 @@ export default function Auth() {
             <div className="mt-6 text-center">
               <p className="text-sm text-muted-foreground">
                 {t('auth.noAccount')}{' '}
-                <Link to="/get-started" className="text-primary hover:underline font-medium">
+                <Link 
+                  to={`/get-started${window.location.search}`} 
+                  className="text-primary hover:underline font-medium"
+                >
                   {t('auth.getStarted')}
                 </Link>
               </p>
