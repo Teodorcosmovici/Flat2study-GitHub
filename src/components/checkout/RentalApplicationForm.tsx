@@ -61,7 +61,9 @@ const YEARS = Array.from({ length: 50 }, (_, i) => (2024 - i).toString());
 export function RentalApplicationForm({ listing, onSubmit }: RentalApplicationFormProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
   const [countryOpen, setCountryOpen] = useState(false);
+  const [nationalityOpen, setNationalityOpen] = useState(false);
   const [selectedCountry, setSelectedCountry] = useState('+39');
+  const [selectedNationality, setSelectedNationality] = useState('');
   
 const form = useForm<z.infer<typeof applicationSchema>>({
     resolver: zodResolver(applicationSchema),
@@ -325,18 +327,53 @@ const form = useForm<z.infer<typeof applicationSchema>>({
           {/* Nationality */}
           <div>
             <Label htmlFor="nationality">Nationality *</Label>
-            <Select onValueChange={(value) => form.setValue('nationality', value)}>
-              <SelectTrigger>
-                <SelectValue placeholder="Select nationality" />
-              </SelectTrigger>
-              <SelectContent>
-                {NATIONALITIES.map((nationality) => (
-                  <SelectItem key={nationality} value={nationality}>
-                    {nationality}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={nationalityOpen} onOpenChange={setNationalityOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  variant="outline"
+                  role="combobox"
+                  aria-expanded={nationalityOpen}
+                  className="w-full justify-between"
+                >
+                  {selectedNationality ? (
+                    <span>{selectedNationality}</span>
+                  ) : (
+                    "Select nationality"
+                  )}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="w-full p-0">
+                <Command>
+                  <CommandInput placeholder="Search nationalities..." />
+                  <CommandList>
+                    <CommandEmpty>No nationality found.</CommandEmpty>
+                    <CommandGroup>
+                      {countries.map((country) => (
+                        <CommandItem
+                          key={country.name}
+                          value={country.name}
+                          onSelect={() => {
+                            setSelectedNationality(country.name);
+                            form.setValue('nationality', country.name);
+                            setNationalityOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={`mr-2 h-4 w-4 ${
+                              selectedNationality === country.name ? "opacity-100" : "opacity-0"
+                            }`}
+                          />
+                          <span className="flex items-center gap-2">
+                            {country.flag} {country.name}
+                          </span>
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {form.formState.errors.nationality && (
               <p className="text-sm text-destructive mt-1">
                 {form.formState.errors.nationality.message}
