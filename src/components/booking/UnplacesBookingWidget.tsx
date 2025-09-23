@@ -202,7 +202,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                   {checkIn ? format(checkIn, "dd MMM") : "Select dates"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-background border shadow-md z-50" align="start">
+              <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
                 <Calendar
                   mode="single"
                   selected={checkIn}
@@ -231,7 +231,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                   {checkOut ? format(checkOut, "dd MMM") : "Select dates"}
                 </Button>
               </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-background border shadow-md z-50" align="start">
+              <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
                 <Calendar
                   mode="single"
                   selected={checkOut}
