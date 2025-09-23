@@ -492,18 +492,21 @@ export default function ListingDetails() {
             </div>
 
             {/* Sidebar */}
-            <div className="lg:sticky lg:top-24 space-y-4">
-              <UnplacesBookingWidget listing={listing} onDatesChange={data => {
-              setSelectedDates(data);
-            }} onBookingRequest={data => {
-              toast({
-                title: "Booking request sent!",
-                description: "The landlord will respond within 24 hours."
-              });
-            }} />
+            <div className="space-y-4">
+              <div className="lg:sticky lg:top-24">
+                <UnplacesBookingWidget listing={listing} onDatesChange={data => {
+                setSelectedDates(data);
+              }} onBookingRequest={data => {
+                toast({
+                  title: "Booking request sent!",
+                  description: "The landlord will respond within 24 hours."
+                });
+              }} />
+              </div>
               
               {/* Payment Summary Box - Only show when dates are selected */}
-              {selectedDates && <Card className="bg-muted/30 sticky top-24 z-10">
+              {selectedDates && <div className="lg:sticky lg:top-80">
+                <Card className="bg-muted/30">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">
                       If and only after the landlord approves
@@ -538,7 +541,8 @@ export default function ListingDetails() {
                       </Button>
                     </PaymentSummaryModal>
                   </CardContent>
-                </Card>}
+                </Card>
+              </div>}
             </div>
           </div>
         </div>
