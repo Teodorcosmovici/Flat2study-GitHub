@@ -7,31 +7,8 @@ import { useListingTracking } from '@/hooks/useListingTracking';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-
 import { toast } from '@/hooks/use-toast';
-import { 
-  ArrowLeft, 
-  MapPin, 
-  Bed, 
-  Bath, 
-  Calendar, 
-  Euro, 
-  Wifi, 
-  Car, 
-  Users,
-  Phone, 
-  Mail, 
-  Building,
-  ChevronLeft,
-  ChevronRight,
-  CheckCircle,
-  ChevronDown,
-  ArrowRight,
-  FileText,
-  Shield,
-  Globe,
-  Heart
-} from 'lucide-react';
+import { ArrowLeft, MapPin, Bed, Bath, Calendar, Euro, Wifi, Car, Users, Phone, Mail, Building, ChevronLeft, ChevronRight, CheckCircle, ChevronDown, ArrowRight, FileText, Shield, Globe, Heart } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SimpleMapView from '@/components/map/SimpleMapView';
 import { useLanguage } from '@/contexts/LanguageContext';
@@ -54,15 +31,24 @@ const getLocalizedText = (multilingualField: any, language: string, fallback: st
   }
   return multilingualField[language] || multilingualField['en'] || fallback;
 };
-
 export default function ListingDetails() {
-  const { id } = useParams<{ id: string }>();
+  const {
+    id
+  } = useParams<{
+    id: string;
+  }>();
   const navigate = useNavigate();
-  const { user, profile } = useAuth();
-  
+  const {
+    user,
+    profile
+  } = useAuth();
+
   // Track listing view
   useListingTracking(id);
-  const { t, language } = useLanguage();
+  const {
+    t,
+    language
+  } = useLanguage();
   const isMobile = useIsMobile();
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -74,33 +60,25 @@ export default function ListingDetails() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [translatedDescription, setTranslatedDescription] = useState('');
   const [isDescriptionTranslated, setIsDescriptionTranslated] = useState(false);
-
   useEffect(() => {
     if (id) {
       fetchListing();
     }
   }, [id, language]);
-
   const fetchListing = async () => {
     try {
       // First, get basic listing from direct query since we need all fields
-      const { data: listingData, error: listingError } = await supabase
-        .from('listings')
-        .select('*, title_multilingual, description_multilingual')
-        .eq('id', id)
-        .eq('status', 'PUBLISHED')
-        .single();
-
+      const {
+        data: listingData,
+        error: listingError
+      } = await supabase.from('listings').select('*, title_multilingual, description_multilingual').eq('id', id).eq('status', 'PUBLISHED').single();
       if (listingError) throw listingError;
 
       // Get the agency profile information directly
-      const { data: agencyProfile, error: agencyError } = await supabase
-        .from('profiles')
-        .select('agency_name, phone, email')
-        .eq('id', listingData.agency_id)
-        .eq('user_type', 'agency')
-        .single();
-
+      const {
+        data: agencyProfile,
+        error: agencyError
+      } = await supabase.from('profiles').select('agency_name, phone, email').eq('id', listingData.agency_id).eq('user_type', 'agency').single();
       if (agencyError) {
         console.error('Error fetching agency profile:', agencyError);
       }
@@ -108,10 +86,7 @@ export default function ListingDetails() {
       // Transform the data to match the Listing type
       const transformedListing: Listing = {
         id: listingData.id,
-        title: getLocalizedText(listingData.title_multilingual, language, 
-          listingData.type === 'room' 
-            ? `Room in a shared apartment in ${listingData.city}` 
-            : listingData.title),
+        title: getLocalizedText(listingData.title_multilingual, language, listingData.type === 'room' ? `Room in a shared apartment in ${listingData.city}` : listingData.title),
         type: listingData.type as ListingType,
         description: getLocalizedText(listingData.description_multilingual, language, listingData.description),
         addressLine: listingData.address_line,
@@ -144,7 +119,6 @@ export default function ListingDetails() {
           email: agencyProfile?.email || ''
         }
       };
-
       setListing(transformedListing);
     } catch (error) {
       console.error('Error fetching listing:', error);
@@ -157,16 +131,13 @@ export default function ListingDetails() {
       setLoading(false);
     }
   };
-
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
       currency: 'EUR',
-      maximumFractionDigits: 0,
+      maximumFractionDigits: 0
     }).format(price);
   };
-
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
     return date.toLocaleDateString('en-GB', {
@@ -175,7 +146,6 @@ export default function ListingDetails() {
       year: 'numeric'
     });
   };
-
   const getTypeDisplayName = (type: string) => {
     const types: Record<string, string> = {
       room: t('propertyType.room'),
@@ -185,30 +155,24 @@ export default function ListingDetails() {
     };
     return types[type] || type;
   };
-
   const getAmenityIcon = (amenity: string) => {
     const icons: Record<string, React.ReactNode> = {
       'WiFi': <Wifi className="h-4 w-4" />,
       'Parking Space': <Car className="h-4 w-4" />,
-      'Shared Kitchen': <Users className="h-4 w-4" />,
+      'Shared Kitchen': <Users className="h-4 w-4" />
     };
     return icons[amenity];
   };
-
   if (loading) {
-    return (
-      <div className="min-h-screen">
+    return <div className="min-h-screen">
         <Header />
         <div className="flex items-center justify-center pt-20">
           <div className="animate-pulse text-lg">{t('listing.loadingDetails')}</div>
         </div>
-      </div>
-    );
+      </div>;
   }
-
   if (!listing) {
-    return (
-      <div className="min-h-screen">
+    return <div className="min-h-screen">
         <Header />
         <div className="flex flex-col items-center justify-center pt-20">
           <div className="text-lg text-muted-foreground mb-4">{t('listing.notFound')}</div>
@@ -217,23 +181,16 @@ export default function ListingDetails() {
             {t('listing.backToSearch')}
           </Button>
         </div>
-      </div>
-    );
+      </div>;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       <main className="pt-20 pb-12">
         <div className="container mx-auto px-4">
           {/* Back Button */}
           <div className="mb-6">
-            <Button 
-              variant="ghost" 
-              onClick={() => navigate('/search')}
-              className="flex items-center"
-            >
+            <Button variant="ghost" onClick={() => navigate('/search')} className="flex items-center">
               <ArrowLeft className="h-4 w-4 mr-2" />
               {t('listing.backToSearch')}
             </Button>
@@ -245,24 +202,11 @@ export default function ListingDetails() {
               {/* Image Gallery */}
               <Card>
                 <CardContent className="p-0">
-                  {listing.images.length > 0 ? (
-                    isMobile ? (
-                      // Mobile: Simple single image with navigation
-                      <div className="relative h-64">
-                        <ImageLightbox
-                          images={listing.images}
-                          currentIndex={currentImageIndex}
-                          onIndexChange={setCurrentImageIndex}
-                          title={listing.title}
-                        >
-                          <img 
-                            src={listing.images[currentImageIndex]}
-                            alt={listing.title}
-                            className="w-full h-full object-cover rounded-lg cursor-pointer"
-                            loading="eager"
-                            fetchPriority="high"
-                            decoding="async"
-                          />
+                  {listing.images.length > 0 ? isMobile ?
+                // Mobile: Simple single image with navigation
+                <div className="relative h-64">
+                        <ImageLightbox images={listing.images} currentIndex={currentImageIndex} onIndexChange={setCurrentImageIndex} title={listing.title}>
+                          <img src={listing.images[currentImageIndex]} alt={listing.title} className="w-full h-full object-cover rounded-lg cursor-pointer" loading="eager" fetchPriority="high" decoding="async" />
                         </ImageLightbox>
                         <Badge className="absolute top-4 left-4 bg-background/90 text-foreground">
                           {getTypeDisplayName(listing.type)}
@@ -274,52 +218,27 @@ export default function ListingDetails() {
                         </div>
 
                         {/* Navigation arrows */}
-                        {listing.images.length > 1 && (
-                          <>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCurrentImageIndex((prev) => 
-                                  prev === 0 ? listing.images.length - 1 : prev - 1
-                                );
-                              }}
-                              className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all"
-                            >
+                        {listing.images.length > 1 && <>
+                            <button onClick={e => {
+                      e.stopPropagation();
+                      setCurrentImageIndex(prev => prev === 0 ? listing.images.length - 1 : prev - 1);
+                    }} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all">
                               <ChevronLeft className="h-5 w-5" />
                             </button>
-                            <button
-                              onClick={(e) => {
-                                e.stopPropagation();
-                                setCurrentImageIndex((prev) => 
-                                  prev === listing.images.length - 1 ? 0 : prev + 1
-                                );
-                              }}
-                              className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all"
-                            >
+                            <button onClick={e => {
+                      e.stopPropagation();
+                      setCurrentImageIndex(prev => prev === listing.images.length - 1 ? 0 : prev + 1);
+                    }} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-2 rounded-full shadow-lg transition-all">
                               <ChevronRight className="h-5 w-5" />
                             </button>
-                          </>
-                        )}
-                      </div>
-                    ) : (
-                      // Desktop: 2/3 - 1/3 layout
-                      <div className="flex gap-2 h-64 md:h-96">
+                          </>}
+                      </div> :
+                // Desktop: 2/3 - 1/3 layout
+                <div className="flex gap-2 h-64 md:h-96">
                         {/* Main image - 2/3 width */}
                         <div className="flex-[2] relative">
-                          <ImageLightbox
-                            images={listing.images}
-                            currentIndex={currentImageIndex}
-                            onIndexChange={setCurrentImageIndex}
-                            title={listing.title}
-                          >
-                            <img 
-                              src={listing.images[currentImageIndex]}
-                              alt={listing.title}
-                              className="w-full h-full object-cover rounded-l-lg cursor-pointer"
-                              loading="eager"
-                              fetchPriority="high"
-                              decoding="async"
-                            />
+                          <ImageLightbox images={listing.images} currentIndex={currentImageIndex} onIndexChange={setCurrentImageIndex} title={listing.title}>
+                            <img src={listing.images[currentImageIndex]} alt={listing.title} className="w-full h-full object-cover rounded-l-lg cursor-pointer" loading="eager" fetchPriority="high" decoding="async" />
                           </ImageLightbox>
                           <Badge className="absolute top-4 left-4 bg-background/90 text-foreground">
                             {getTypeDisplayName(listing.type)}
@@ -331,76 +250,37 @@ export default function ListingDetails() {
                           </div>
 
                           {/* Navigation arrows on main image */}
-                          {listing.images.length > 1 && (
-                            <>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCurrentImageIndex((prev) => 
-                                    prev === 0 ? listing.images.length - 1 : prev - 1
-                                  );
-                                }}
-                                className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1 rounded-full shadow-lg transition-all"
-                              >
+                          {listing.images.length > 1 && <>
+                              <button onClick={e => {
+                        e.stopPropagation();
+                        setCurrentImageIndex(prev => prev === 0 ? listing.images.length - 1 : prev - 1);
+                      }} className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1 rounded-full shadow-lg transition-all">
                                 <ChevronLeft className="h-4 w-4" />
                               </button>
-                              <button
-                                onClick={(e) => {
-                                  e.stopPropagation();
-                                  setCurrentImageIndex((prev) => 
-                                    prev === listing.images.length - 1 ? 0 : prev + 1
-                                  );
-                                }}
-                                className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1 rounded-full shadow-lg transition-all"
-                              >
+                              <button onClick={e => {
+                        e.stopPropagation();
+                        setCurrentImageIndex(prev => prev === listing.images.length - 1 ? 0 : prev + 1);
+                      }} className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white p-1 rounded-full shadow-lg transition-all">
                                 <ChevronRight className="h-4 w-4" />
                               </button>
-                            </>
-                          )}
+                            </>}
                         </div>
 
                         {/* Image thumbnails - 1/3 width */}
-                        {listing.images.length > 1 && (
-                          <div className="flex-1 flex flex-col gap-2 overflow-hidden">
-                            {listing.images.slice(1, 4).map((image, index) => (
-                              <ImageLightbox
-                                key={index + 1}
-                                images={listing.images}
-                                currentIndex={currentImageIndex}
-                                onIndexChange={setCurrentImageIndex}
-                                title={listing.title}
-                              >
-                                <div 
-                                  className="relative flex-1 cursor-pointer overflow-hidden rounded-lg group"
-                                  onClick={() => setCurrentImageIndex(index + 1)}
-                                >
-                                  <img 
-                                    src={image}
-                                    alt={`${listing.title} - Thumbnail ${index + 2}`}
-                                    className={`w-full h-full object-cover transition-all group-hover:brightness-110 ${
-                                      currentImageIndex === index + 1 ? 'ring-2 ring-primary' : ''
-                                    }`}
-                                    loading="lazy"
-                                    decoding="async"
-                                  />
+                        {listing.images.length > 1 && <div className="flex-1 flex flex-col gap-2 overflow-hidden">
+                            {listing.images.slice(1, 4).map((image, index) => <ImageLightbox key={index + 1} images={listing.images} currentIndex={currentImageIndex} onIndexChange={setCurrentImageIndex} title={listing.title}>
+                                <div className="relative flex-1 cursor-pointer overflow-hidden rounded-lg group" onClick={() => setCurrentImageIndex(index + 1)}>
+                                  <img src={image} alt={`${listing.title} - Thumbnail ${index + 2}`} className={`w-full h-full object-cover transition-all group-hover:brightness-110 ${currentImageIndex === index + 1 ? 'ring-2 ring-primary' : ''}`} loading="lazy" decoding="async" />
                                   {/* Show +X more overlay on last thumbnail if there are more images */}
-                                  {index === 2 && listing.images.length > 4 && (
-                                    <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
+                                  {index === 2 && listing.images.length > 4 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
                                       +{listing.images.length - 4} more
-                                    </div>
-                                  )}
+                                    </div>}
                                 </div>
-                              </ImageLightbox>
-                            ))}
-                          </div>
-                        )}
-                      </div>
-                    )
-                  ) : (
-                    <div className="w-full h-64 md:h-96 bg-muted rounded-lg flex items-center justify-center">
+                              </ImageLightbox>)}
+                          </div>}
+                      </div> : <div className="w-full h-64 md:h-96 bg-muted rounded-lg flex items-center justify-center">
                       <div className="text-muted-foreground">No images available</div>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
               </Card>
 
@@ -430,87 +310,61 @@ export default function ListingDetails() {
                 <CardContent className="space-y-6">
                   {/* Basic Info */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {listing.bedrooms > 0 && (
-                      <div className="flex items-center space-x-2">
+                    {listing.bedrooms > 0 && <div className="flex items-center space-x-2">
                         <Bed className="h-5 w-5 text-muted-foreground" />
                         <span>{listing.bedrooms} bedroom{listing.bedrooms > 1 ? 's' : ''}</span>
-                      </div>
-                    )}
-                    {listing.bathrooms > 0 && (
-                      <div className="flex items-center space-x-2">
+                      </div>}
+                    {listing.bathrooms > 0 && <div className="flex items-center space-x-2">
                         <Bath className="h-5 w-5 text-muted-foreground" />
                         <span>{listing.bathrooms} bathroom{listing.bathrooms > 1 ? 's' : ''}</span>
-                      </div>
-                    )}
-                    {listing.sizeSqm && (
-                      <div className="flex items-center space-x-2">
+                      </div>}
+                    {listing.sizeSqm && <div className="flex items-center space-x-2">
                         <Building className="h-5 w-5 text-muted-foreground" />
                         <span>{listing.sizeSqm} m²</span>
-                      </div>
-                    )}
+                      </div>}
                   </div>
 
                    {/* Gender preference for shared rooms */}
-                   {listing.type === 'room' && (
-                     <div className="flex items-center space-x-2">
+                   {listing.type === 'room' && <div className="flex items-center space-x-2">
                        <Users className="h-5 w-5 text-muted-foreground" />
                        <span>Mixed gender housemates</span>
-                     </div>
-                   )}
+                     </div>}
 
                   {/* Availability */}
-                  {listing.availabilityDate && (
-                    <div className="flex items-center space-x-2">
+                  {listing.availabilityDate && <div className="flex items-center space-x-2">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
                       <span>Available from {formatDate(listing.availabilityDate)}</span>
-                    </div>
-                  )}
+                    </div>}
 
                   {/* Additional Info */}
                   <div className="flex flex-wrap gap-2">
-                    {listing.furnished && (
-                      <Badge variant="secondary">Furnished</Badge>
-                    )}
-                    {listing.billsIncluded && (
-                      <Badge variant="secondary">Bills Included</Badge>
-                    )}
-                    {listing.floor && (
-                      <Badge variant="secondary">Floor {listing.floor}</Badge>
-                    )}
+                    {listing.furnished && <Badge variant="secondary">Furnished</Badge>}
+                    {listing.billsIncluded && <Badge variant="secondary">Bills Included</Badge>}
+                    {listing.floor && <Badge variant="secondary">Floor {listing.floor}</Badge>}
                   </div>
 
                   {/* Full Amenities */}
-                  {listing.amenities.length > 0 && (
-                    <div>
+                  {listing.amenities.length > 0 && <div>
                       <h3 className="font-semibold mb-3">Amenities</h3>
                       <div className="flex flex-wrap gap-2">
-                        {listing.amenities.map((amenity) => (
-                          <Badge key={amenity} variant="outline" className="flex items-center space-x-1">
+                        {listing.amenities.map(amenity => <Badge key={amenity} variant="outline" className="flex items-center space-x-1">
                             {getAmenityIcon(amenity)}
                             <span>{amenity}</span>
-                          </Badge>
-                        ))}
+                          </Badge>)}
                       </div>
-                    </div>
-                  )}
+                    </div>}
                 </CardContent>
               </Card>
 
               {/* Description */}
-              {listing.description && (
-                <Card>
+              {listing.description && <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
                       <span>Description</span>
-                      <TranslateButton 
-                        text={listing.description}
-                        onTranslated={(translatedText) => {
-                          setTranslatedDescription(translatedText);
-                          setIsDescriptionTranslated(!isDescriptionTranslated);
-                        }}
-                        isTranslated={isDescriptionTranslated}
-                        originalText={listing.description}
-                      />
+                      <TranslateButton text={listing.description} onTranslated={translatedText => {
+                    setTranslatedDescription(translatedText);
+                    setIsDescriptionTranslated(!isDescriptionTranslated);
+                  }} isTranslated={isDescriptionTranslated} originalText={listing.description} />
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
@@ -518,23 +372,13 @@ export default function ListingDetails() {
                       {isDescriptionTranslated && translatedDescription ? translatedDescription : listing.description}
                     </p>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
 
               {/* Availability Overview */}
-              <AvailabilityOverview 
-                availabilityDate={listing.availabilityDate}
-                minimumStayDays={listing.minimumStayDays}
-                maximumStayDays={listing.maximumStayDays}
-                rentMonthlyEur={listing.rentMonthlyEur}
-              />
+              <AvailabilityOverview availabilityDate={listing.availabilityDate} minimumStayDays={listing.minimumStayDays} maximumStayDays={listing.maximumStayDays} rentMonthlyEur={listing.rentMonthlyEur} />
 
               {/* Services and Expenses */}
-              <ServicesAndExpenses 
-                billsIncluded={listing.billsIncluded}
-                rentMonthlyEur={listing.rentMonthlyEur}
-                depositEur={listing.depositEur}
-              />
+              <ServicesAndExpenses billsIncluded={listing.billsIncluded} rentMonthlyEur={listing.rentMonthlyEur} depositEur={listing.depositEur} />
 
               {/* Required Documents */}
               <Card>
@@ -600,7 +444,7 @@ export default function ListingDetails() {
               {/* Why rent with Flat2stdy */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Why rent with Flat2stdy</CardTitle>
+                  <CardTitle>Why rent with Flat2stdy ?</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -649,22 +493,17 @@ export default function ListingDetails() {
 
             {/* Sidebar */}
             <div className="lg:sticky lg:top-24 space-y-4">
-              <UnplacesBookingWidget
-                listing={listing}
-                onDatesChange={(data) => {
-                  setSelectedDates(data);
-                }}
-                onBookingRequest={(data) => {
-                  toast({
-                    title: "Booking request sent!",
-                    description: "The landlord will respond within 24 hours.",
-                  });
-                }}
-              />
+              <UnplacesBookingWidget listing={listing} onDatesChange={data => {
+              setSelectedDates(data);
+            }} onBookingRequest={data => {
+              toast({
+                title: "Booking request sent!",
+                description: "The landlord will respond within 24 hours."
+              });
+            }} />
               
               {/* Payment Summary Box - Only show when dates are selected */}
-              {selectedDates && (
-                <Card className="bg-muted/30">
+              {selectedDates && <Card className="bg-muted/30">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">
                       If and only after the landlord approves
@@ -678,11 +517,7 @@ export default function ListingDetails() {
                           {selectedDates && selectedDates.checkIn.getDate() > 15 && ' (half month)'}
                         </span>
                         <span>
-                          {formatPrice(
-                            selectedDates && selectedDates.checkIn.getDate() > 15 
-                              ? Math.round(listing.rentMonthlyEur / 2)
-                              : listing.rentMonthlyEur
-                          )}
+                          {formatPrice(selectedDates && selectedDates.checkIn.getDate() > 15 ? Math.round(listing.rentMonthlyEur / 2) : listing.rentMonthlyEur)}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -692,32 +527,21 @@ export default function ListingDetails() {
                       <div className="flex justify-between font-semibold border-t pt-2">
                         <span>Total</span>
                         <span>
-                          {formatPrice(
-                            (selectedDates && selectedDates.checkIn.getDate() > 15 
-                              ? Math.round(listing.rentMonthlyEur / 2)
-                              : listing.rentMonthlyEur) + 
-                            Math.round(listing.rentMonthlyEur * 0.4)
-                          )}
+                          {formatPrice((selectedDates && selectedDates.checkIn.getDate() > 15 ? Math.round(listing.rentMonthlyEur / 2) : listing.rentMonthlyEur) + Math.round(listing.rentMonthlyEur * 0.4))}
                         </span>
                       </div>
                     </div>
                     
-                    <PaymentSummaryModal 
-                      rentMonthlyEur={listing.rentMonthlyEur}
-                      depositEur={listing.depositEur}
-                      selectedDates={selectedDates}
-                    >
+                    <PaymentSummaryModal rentMonthlyEur={listing.rentMonthlyEur} depositEur={listing.depositEur} selectedDates={selectedDates}>
                       <Button variant="link" className="p-0 h-auto text-xs mt-2">
                         Review price details →
                       </Button>
                     </PaymentSummaryModal>
                   </CardContent>
-                </Card>
-              )}
+                </Card>}
             </div>
           </div>
         </div>
       </main>
-    </div>
-  );
+    </div>;
 }
