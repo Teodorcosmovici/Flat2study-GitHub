@@ -252,7 +252,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           onClick={handleSelectDates}
           disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
         >
-          {loading ? 'Loading...' : 'Select dates'}
+          {loading ? 'Loading...' : 'Continue > >'}
         </Button>
 
         {/* Availability Note */}
