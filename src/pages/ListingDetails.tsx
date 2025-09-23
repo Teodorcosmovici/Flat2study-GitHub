@@ -27,7 +27,10 @@ import {
   CheckCircle,
   ChevronDown,
   ArrowRight,
-  FileText
+  FileText,
+  Shield,
+  Globe,
+  Heart
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SimpleMapView from '@/components/map/SimpleMapView';
@@ -42,6 +45,7 @@ import { AvailabilityOverview } from '@/components/listing/AvailabilityOverview'
 import { ServicesAndExpenses } from '@/components/listing/ServicesAndExpenses';
 import { HowToBook } from '@/components/listing/HowToBook';
 import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
+import { LocationMapDialog } from '@/components/listing/LocationMapDialog';
 
 // Helper function to get text in current language
 const getLocalizedText = (multilingualField: any, language: string, fallback: string = '') => {
@@ -406,9 +410,12 @@ export default function ListingDetails() {
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-2xl mb-2">{listing.title}</CardTitle>
-                      <div className="flex items-center text-muted-foreground mb-2">
-                        <MapPin className="h-4 w-4 mr-1" />
-                        <span>{listing.addressLine}, {listing.city}, {listing.country}</span>
+                      <div className="flex items-center justify-between text-muted-foreground mb-2">
+                        <div className="flex items-center">
+                          <MapPin className="h-4 w-4 mr-1" />
+                          <span>{listing.addressLine}, {listing.city}, {listing.country}</span>
+                        </div>
+                        <LocationMapDialog listing={listing} />
                       </div>
                     </div>
                     <div className="text-right">
@@ -590,22 +597,51 @@ export default function ListingDetails() {
               {/* How to Book */}
               <HowToBook />
 
-              {/* Map */}
+              {/* Why rent with Flat2stdy */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Location</CardTitle>
+                  <CardTitle>Why rent with Flat2stdy</CardTitle>
                 </CardHeader>
-                <CardContent className="p-0">
-                  <div className="p-6 pb-0">
-                    <p className="text-muted-foreground text-sm mb-4">
-                      📍 {listing.addressLine}, {listing.city}
-                    </p>
-                  </div>
-                  <div className="p-6">
-                    <SimpleMapView 
-                      listings={[listing]}
-                      className="h-80 w-full overflow-hidden rounded-lg relative z-0"
-                    />
+                <CardContent>
+                  <div className="space-y-6">
+                    {/* Safe arrival */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <Shield className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium mb-2">Safe arrival</h5>
+                        <p className="text-sm text-muted-foreground">
+                          If your property isn't as listed, report it within 24 hours of your move-in. We'll freeze your payment and help resolve the issue fast.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Stress-free housing */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <Globe className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium mb-2">Stress-free housing</h5>
+                        <p className="text-sm text-muted-foreground">
+                          Book your stay online effortlessly with Flat2study from anywhere in the world.
+                        </p>
+                      </div>
+                    </div>
+
+                    {/* Full support */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <Heart className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium mb-2">Full support</h5>
+                        <p className="text-sm text-muted-foreground">
+                          We're here for you every step of the way, from booking through to check-out.
+                        </p>
+                      </div>
+                    </div>
                   </div>
                 </CardContent>
               </Card>
