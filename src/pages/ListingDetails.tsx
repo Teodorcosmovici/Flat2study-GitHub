@@ -503,7 +503,7 @@ export default function ListingDetails() {
             }} />
               
               {/* Payment Summary Box - Only show when dates are selected */}
-              {selectedDates && <Card className="bg-muted/30">
+              {selectedDates && <Card className="bg-muted/30 sticky top-24 z-10">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">
                       If and only after the landlord approves
