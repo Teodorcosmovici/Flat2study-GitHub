@@ -151,47 +151,6 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
             <p className="text-xs text-muted-foreground">
               Includes one month rent in advance and the Flat2study fee.
             </p>
-            
-            <Collapsible open={showPriceDetails} onOpenChange={setShowPriceDetails}>
-              <CollapsibleTrigger asChild>
-                <Button variant="outline" className="w-full">
-                  Review other future payments
-                  <ArrowRight className="h-4 w-4 ml-2" />
-                </Button>
-              </CollapsibleTrigger>
-              <CollapsibleContent className="mt-4 space-y-2">
-                <div className="flex justify-between text-sm">
-                  <span>First rental payment</span>
-                  <span>{formatPrice(firstMonthPayment)}</span>
-                </div>
-                <div className="flex justify-between text-sm">
-                  <span>One-time service fee</span>
-                  <span>{formatPrice(serviceFee)}</span>
-                </div>
-                <Separator />
-                <div className="flex justify-between font-medium">
-                  <span>Total</span>
-                  <span>{formatPrice(total)}</span>
-                </div>
-                <p className="text-xs text-muted-foreground mt-2">
-                  You will be charged if, and only if, the landlord approves your request.
-                </p>
-                
-                <PaymentSummaryModal
-                  rentMonthlyEur={monthlyRate}
-                  depositEur={listing.depositEur}
-                  selectedDates={{
-                    checkIn: checkInDate,
-                    checkOut: checkOutDate,
-                    persons
-                  }}
-                >
-                  <Button variant="link" className="h-auto p-0 text-primary">
-                    Review price details <ArrowRight className="h-3 w-3 ml-1" />
-                  </Button>
-                </PaymentSummaryModal>
-              </CollapsibleContent>
-            </Collapsible>
           </div>
         </CardContent>
       </Card>
