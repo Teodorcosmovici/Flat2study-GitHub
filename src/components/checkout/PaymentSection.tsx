@@ -1,7 +1,10 @@
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
-import { CreditCard } from 'lucide-react';
+import { CreditCard, Loader2 } from 'lucide-react';
 import { Listing } from '@/types';
+import { supabase } from '@/integrations/supabase/client';
+import { toast } from 'sonner';
+import { useState } from 'react';
 
 interface PaymentSectionProps {
   listing: Listing;
@@ -20,6 +23,8 @@ export function PaymentSection({
   persons, 
   onPaymentSuccess 
 }: PaymentSectionProps) {
+  const [loading, setLoading] = useState(false);
+  
   // Align amounts with the "Review price details" modal
   const monthlyRate = listing.rentMonthlyEur || 0;
   const serviceFee = Math.round(monthlyRate * 0.4); // 40%
@@ -27,17 +32,43 @@ export function PaymentSection({
   const firstMonthRent = moveInDay > 15 ? Math.round(monthlyRate / 2) : monthlyRate; // half month if move-in after 15th
   const totalToAuthorize = firstMonthRent + serviceFee;
   
-  const handlePayment = () => {
-    // Simulate payment processing
-    setTimeout(() => {
-      onPaymentSuccess({
-        paymentId: 'payment_' + Date.now(),
-        amount: totalToAuthorize,
-        currency: 'EUR',
-        status: 'completed',
-        timestamp: new Date().toISOString(),
+  const handlePayment = async () => {
+    try {
+      setLoading(true);
+      
+      // Call the create-rental-payment edge function
+      const { data, error } = await supabase.functions.invoke('create-rental-payment', {
+        body: {
+          listingId: listing.id,
+          landlordId: listing.landlord.id,
+          checkInDate: checkInDate.toISOString().split('T')[0],
+          checkOutDate: checkOutDate.toISOString().split('T')[0],
+          firstMonthRent,
+          serviceFee,
+          totalAmount: totalToAuthorize,
+          applicationData
+        }
       });
-    }, 2000);
+
+      if (error) {
+        console.error('Error creating payment session:', error);
+        toast.error('Failed to create payment session');
+        return;
+      }
+
+      if (data?.url) {
+        // Redirect to Stripe Checkout
+        window.open(data.url, '_blank');
+        toast.success('Redirecting to secure payment...');
+      } else {
+        throw new Error('No checkout URL received');
+      }
+    } catch (error) {
+      console.error('Payment error:', error);
+      toast.error('Failed to process payment request');
+    } finally {
+      setLoading(false);
+    }
   };
 
   return (
@@ -89,30 +120,13 @@ export function PaymentSection({
             </div>
           </div>
 
-          {/* Fake Payment Form */}
+          {/* Stripe Secure Checkout */}
           <div className="space-y-4">
-            <div className="grid grid-cols-1 gap-4">
-              <div>
-                <label className="text-sm font-medium">Card Number</label>
-                <div className="mt-1 p-3 border rounded-md bg-muted/30">
-                  <span className="text-muted-foreground">**** **** **** 1234</span>
-                </div>
-              </div>
-              
-              <div className="grid grid-cols-2 gap-4">
-                <div>
-                  <label className="text-sm font-medium">Expiry Date</label>
-                  <div className="mt-1 p-3 border rounded-md bg-muted/30">
-                    <span className="text-muted-foreground">MM/YY</span>
-                  </div>
-                </div>
-                <div>
-                  <label className="text-sm font-medium">CVV</label>
-                  <div className="mt-1 p-3 border rounded-md bg-muted/30">
-                    <span className="text-muted-foreground">***</span>
-                  </div>
-                </div>
-              </div>
+            <div className="bg-blue-50 border border-blue-200 rounded-lg p-4">
+              <h4 className="font-medium text-blue-800 mb-2">Secure Payment</h4>
+              <p className="text-sm text-blue-700">
+                Your payment will be processed securely through Stripe. You'll be redirected to a secure payment page where you can enter your card details.
+              </p>
             </div>
           </div>
 
@@ -126,8 +140,19 @@ export function PaymentSection({
             </ul>
           </div>
 
-          <Button onClick={handlePayment} className="w-full h-12 text-base">
-            Submit Application & Authorize Payment
+          <Button 
+            onClick={handlePayment} 
+            disabled={loading}
+            className="w-full h-12 text-base"
+          >
+            {loading ? (
+              <>
+                <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                Creating secure payment...
+              </>
+            ) : (
+              'Submit Application & Authorize Payment'
+            )}
           </Button>
         </div>
       </CardContent>

@@ -24,6 +24,8 @@ import EditListing from "./pages/EditListing";
 import MyBookings from "./pages/MyBookings";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import CustomerDatabase from "./pages/CustomerDatabase";
+import PaymentSuccess from "./pages/PaymentSuccess";
+import PaymentCanceled from "./pages/PaymentCanceled";
 
 // Lazy load Checkout to avoid bundle size issues
 import { lazy, Suspense } from "react";
@@ -61,6 +63,8 @@ const AppRoutes = () => {
       <Route path="/my-bookings" element={<MyBookings />} />
       <Route path="/owner-dashboard" element={<OwnerDashboard />} />
       <Route path="/customer-database" element={<CustomerDatabase />} />
+      <Route path="/payment-success" element={<PaymentSuccess />} />
+      <Route path="/payment-canceled" element={<PaymentCanceled />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

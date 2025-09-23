@@ -11,3 +11,9 @@ verify_jwt = false
 
 [functions.send-reminder-notification]
 verify_jwt = false
+
+[functions.create-rental-payment]
+verify_jwt = true
+
+[functions.verify-rental-payment]
+verify_jwt = false
