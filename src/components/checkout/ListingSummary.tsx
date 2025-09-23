@@ -191,7 +191,7 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
       {/* Why Book with Flat2study */}
       <Card>
         <CardHeader>
-          <h3 className="font-medium">WITH THIS PROPERTY</h3>
+          <h3 className="font-medium">With flat2study</h3>
         </CardHeader>
         <CardContent className="p-4 pt-0">
           <div className="space-y-4">
