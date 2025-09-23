@@ -135,7 +135,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
             </CollapsibleTrigger>
             <CollapsibleContent className="px-4 pb-4">
               <div className="space-y-2 text-sm mt-3">
-                <div className="text-xs font-medium text-muted-foreground mb-2">One-time payments</div>
+                <div className="text-xs font-medium text-muted-foreground mb-2">One-time payment</div>
                 <div className="flex justify-between">
                   <span>Security deposit</span>
                   <span>{formatPrice(depositEur)}</span>
