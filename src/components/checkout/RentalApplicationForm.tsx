@@ -127,14 +127,6 @@ const form = useForm<z.infer<typeof applicationSchema>>({
           This way we and the owner can get to know you and get in touch with you. 
           We will contact you at this address.
         </p>
-        
-        {/* Fake stats to encourage applications */}
-        <div className="bg-purple-50 border border-purple-200 rounded-lg p-3 mt-4">
-          <div className="flex items-center gap-2 text-purple-700">
-            <Users className="h-4 w-4" />
-            <span className="font-medium text-sm">7 REQUESTS SENT FOR THIS PROPERTY!</span>
-          </div>
-        </div>
       </CardHeader>
       
       <CardContent>
