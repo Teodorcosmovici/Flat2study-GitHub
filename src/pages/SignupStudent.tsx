@@ -10,12 +10,13 @@ import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Loader2, ArrowLeft, Check, ChevronsUpDown } from 'lucide-react';
-import { Link, useNavigate } from 'react-router-dom';
+import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 import { countries, getPriorityCountries, getOtherCountries } from '@/data/countries';
 
 export default function SignupStudent() {
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const [searchParams] = useSearchParams();
   const { signUp } = useAuth();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
@@ -72,8 +73,19 @@ export default function SignupStudent() {
       }
       setLoading(false);
     } else {
-      // Navigate to home page immediately after successful signup
-      navigate('/');
+      // Check if there's a redirect URL in search params
+      const redirectTo = searchParams.get('redirect');
+      const checkin = searchParams.get('checkin');
+      const checkout = searchParams.get('checkout');
+      const persons = searchParams.get('persons');
+      
+      if (redirectTo && checkin && checkout && persons) {
+        // Redirect to checkout with the booking parameters
+        navigate(`${redirectTo}?checkin=${checkin}&checkout=${checkout}&persons=${persons}`);
+      } else {
+        // Navigate to home page
+        navigate('/');
+      }
     }
   };
 

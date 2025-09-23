@@ -25,6 +25,15 @@ import MyBookings from "./pages/MyBookings";
 import OwnerDashboard from "./pages/OwnerDashboard";
 import CustomerDatabase from "./pages/CustomerDatabase";
 
+// Lazy load Checkout to avoid bundle size issues
+import { lazy, Suspense } from "react";
+const Checkout = lazy(() => import("./pages/Checkout"));
+const CheckoutLazy = () => (
+  <Suspense fallback={<div className="min-h-screen bg-background flex items-center justify-center"><div className="animate-spin rounded-full h-12 w-12 border-b-2 border-primary"></div></div>}>
+    <Checkout />
+  </Suspense>
+);
+
 const queryClient = new QueryClient();
 
 const AppRoutes = () => {
@@ -48,6 +57,7 @@ const AppRoutes = () => {
       <Route path="/favorites" element={<Favorites />} />
       <Route path="/profile" element={<Profile />} />
       <Route path="/listing/:id" element={<ListingDetails />} />
+      <Route path="/checkout/:id" element={<CheckoutLazy />} />
       <Route path="/my-bookings" element={<MyBookings />} />
       <Route path="/owner-dashboard" element={<OwnerDashboard />} />
       <Route path="/customer-database" element={<CustomerDatabase />} />

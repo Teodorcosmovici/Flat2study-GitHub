@@ -9,6 +9,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { cn } from '@/lib/utils';
 import { useAvailability } from '@/hooks/useAvailability';
 import { Listing } from '@/types';
+import { useNavigate } from 'react-router-dom';
 
 interface UnplacesBookingWidgetProps {
   listing: Listing;
@@ -25,6 +26,7 @@ interface UnplacesBookingWidgetProps {
 }
 
 export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange }: UnplacesBookingWidgetProps) {
+  const navigate = useNavigate();
   const [persons, setPersons] = useState(1);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
@@ -126,13 +128,12 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
       return; // Don't submit if dates are invalid
     }
     
-    if (onBookingRequest) {
-      onBookingRequest({
-        checkIn,
-        checkOut,
-        persons
-      });
-    }
+    // Format dates for URL
+    const checkinFormatted = checkIn.toISOString().split('T')[0];
+    const checkoutFormatted = checkOut.toISOString().split('T')[0];
+    
+    // Navigate to checkout page
+    navigate(`/checkout/${listing.id}?checkin=${checkinFormatted}&checkout=${checkoutFormatted}&persons=${persons}`);
   };
 
   const isDateDisabled = (date: Date) => {
