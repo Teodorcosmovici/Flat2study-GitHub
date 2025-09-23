@@ -20,13 +20,19 @@ export function PaymentSection({
   persons, 
   onPaymentSuccess 
 }: PaymentSectionProps) {
+  // Align amounts with the "Review price details" modal
+  const monthlyRate = listing.rentMonthlyEur || 0;
+  const serviceFee = Math.round(monthlyRate * 0.4); // 40%
+  const moveInDay = checkInDate.getDate();
+  const firstMonthRent = moveInDay > 15 ? Math.round(monthlyRate / 2) : monthlyRate; // half month if move-in after 15th
+  const totalToAuthorize = firstMonthRent + serviceFee;
   
-    const handlePayment = () => {
+  const handlePayment = () => {
     // Simulate payment processing
     setTimeout(() => {
       onPaymentSuccess({
         paymentId: 'payment_' + Date.now(),
-        amount: (listing.rentMonthlyEur || 0) + Math.round((listing.rentMonthlyEur || 0) * 0.15),
+        amount: totalToAuthorize,
         currency: 'EUR',
         status: 'completed',
         timestamp: new Date().toISOString(),
@@ -54,16 +60,16 @@ export function PaymentSection({
             <div className="space-y-2 text-sm">
               <div className="flex justify-between">
                 <span>First month rent</span>
-                <span>€{listing.rentMonthlyEur}</span>
+                <span>€{firstMonthRent}</span>
               </div>
               <div className="flex justify-between">
                 <span>Service fee</span>
-                <span>€{Math.round((listing.rentMonthlyEur || 0) * 0.15)}</span>
+                <span>€{serviceFee}</span>
               </div>
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
                 <span>Total</span>
-                <span>€{(listing.rentMonthlyEur || 0) + Math.round((listing.rentMonthlyEur || 0) * 0.15)}</span>
+                <span>€{totalToAuthorize}</span>
               </div>
             </div>
           </div>
