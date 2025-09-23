@@ -257,7 +257,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
 
         {/* Availability Note */}
         <p className="text-xs text-muted-foreground text-center">
-          Available from {listing.availabilityDate ? format(new Date(listing.availabilityDate), 'dd MMM yyyy') : 'immediately'}
+          Nothing will be charged now
         </p>
       </CardContent>
     </Card>
