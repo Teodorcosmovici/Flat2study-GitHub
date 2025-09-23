@@ -80,7 +80,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstMonthRent = calculateFirstMonthPayment();
   const firstPaymentTotal = firstMonthRent + serviceFee;
-  const afterBookingTotal = depositEur + 120 + 35 + 35; // Security deposit + Cleaning fee + Electricity + Gas
+  const afterBookingTotal = depositEur + 35 + 35; // Security deposit + Electricity + Gas
 
   return (
     <Dialog>
@@ -139,10 +139,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                 <div className="flex justify-between">
                   <span>Security deposit</span>
                   <span>{formatPrice(depositEur)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>Cleaning fee</span>
-                  <span>{formatPrice(120)}</span>
                 </div>
                 
                 <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
