@@ -100,8 +100,8 @@ serve(async (req) => {
       customer_email: customerId ? undefined : user.email,
       line_items: lineItems,
       mode: "payment",
-      success_url: `${req.headers.get("origin")}/payment-success?session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${req.headers.get("origin")}/payment-canceled`,
+      success_url: `${req.headers.get("origin")}/checkout/${listingId}?checkin=${checkInDate}&checkout=${checkOutDate}&persons=1&step=3&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${req.headers.get("origin")}/checkout/${listingId}?checkin=${checkInDate}&checkout=${checkOutDate}&persons=1&step=2`,
       metadata: {
         listingId,
         landlordId,

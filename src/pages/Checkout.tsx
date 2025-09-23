@@ -8,6 +8,7 @@ import { Progress } from '@/components/ui/progress';
 import { RentalApplicationForm } from '@/components/checkout/RentalApplicationForm';
 import { PaymentSection } from '@/components/checkout/PaymentSection';
 import { CheckInSection } from '@/components/checkout/CheckInSection';
+import { CheckCircle, Home } from 'lucide-react';
 import { ListingSummary } from '@/components/checkout/ListingSummary';
 import { supabase } from '@/integrations/supabase/client';
 import { Listing } from '@/types';
@@ -24,11 +25,12 @@ export default function Checkout() {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { user } = useAuth();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(searchParams.get('step') ? parseInt(searchParams.get('step')!) : 1);
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
   const [applicationData, setApplicationData] = useState<any>(null);
   const [bookingData, setBookingData] = useState<any>(null);
+  const [paymentVerified, setPaymentVerified] = useState(false);
 
   // Get dates from URL params
   const checkInDate = searchParams.get('checkin');
@@ -43,7 +45,13 @@ export default function Checkout() {
     }
 
     fetchListing();
-  }, [id, user]);
+
+    // Check for payment success
+    const sessionId = searchParams.get('session_id');
+    if (sessionId && currentStep === 3) {
+      verifyPayment(sessionId);
+    }
+  }, [id, user, searchParams, currentStep]);
 
   const fetchListing = async () => {
     if (!id) return;
@@ -106,6 +114,31 @@ export default function Checkout() {
       navigate('/');
     } finally {
       setLoading(false);
+    }
+  };
+
+  const verifyPayment = async (sessionId: string) => {
+    try {
+      const { data, error } = await supabase.functions.invoke('verify-rental-payment', {
+        body: { sessionId }
+      });
+
+      if (error) {
+        console.error('Error verifying payment:', error);
+        toast.error('Failed to verify payment');
+        return;
+      }
+
+      if (data?.success) {
+        setBookingData(data.booking);
+        setPaymentVerified(true);
+        toast.success('Payment confirmed! Your rental application has been submitted.');
+      } else {
+        toast.error('Payment verification failed');
+      }
+    } catch (error) {
+      console.error('Payment verification error:', error);
+      toast.error('Failed to verify payment');
     }
   };
 
@@ -216,7 +249,65 @@ export default function Checkout() {
               />
             )}
             
-            {currentStep === 3 && (
+            {currentStep === 3 && paymentVerified && bookingData && (
+              <Card>
+                <CardHeader className="text-center">
+                  <div className="h-16 w-16 bg-green-100 rounded-full flex items-center justify-center mx-auto mb-4">
+                    <CheckCircle className="h-8 w-8 text-green-600" />
+                  </div>
+                  <CardTitle className="text-xl text-green-600">Application Submitted!</CardTitle>
+                </CardHeader>
+                
+                <CardContent className="space-y-6">
+                  <div className="text-center">
+                    <h3 className="font-semibold mb-2">Your rental application has been submitted</h3>
+                    <p className="text-muted-foreground">
+                      The landlord has been notified and will review your application. You'll receive updates via email.
+                    </p>
+                  </div>
+
+                  {bookingData && (
+                    <div className="bg-muted/50 rounded-lg p-4">
+                      <h4 className="font-medium mb-2">Booking Details</h4>
+                      <div className="space-y-1 text-sm">
+                        <div className="flex justify-between">
+                          <span>Booking ID:</span>
+                          <span className="font-mono">{bookingData.id.slice(0, 8)}...</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Check-in:</span>
+                          <span>{new Date(bookingData.check_in_date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Check-out:</span>
+                          <span>{new Date(bookingData.check_out_date).toLocaleDateString()}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Amount Paid:</span>
+                          <span>€{bookingData.total_amount}</span>
+                        </div>
+                        <div className="flex justify-between">
+                          <span>Status:</span>
+                          <span className="capitalize text-green-600">{bookingData.status}</span>
+                        </div>
+                      </div>
+                    </div>
+                  )}
+
+                  <div className="space-y-3">
+                    <Button onClick={() => navigate('/my-bookings')} className="w-full">
+                      View My Bookings
+                    </Button>
+                    <Button onClick={() => navigate('/')} variant="outline" className="w-full">
+                      <Home className="mr-2 h-4 w-4" />
+                      Return Home
+                    </Button>
+                  </div>
+                </CardContent>
+              </Card>
+            )}
+
+            {currentStep === 3 && !paymentVerified && (
               <CheckInSection
                 listing={listing}
                 bookingData={bookingData}
