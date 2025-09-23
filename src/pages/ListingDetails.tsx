@@ -25,7 +25,9 @@ import {
   ChevronLeft,
   ChevronRight,
   CheckCircle,
-  ChevronDown
+  ChevronDown,
+  ArrowRight,
+  FileText
 } from 'lucide-react';
 import Header from '@/components/layout/Header';
 import SimpleMapView from '@/components/map/SimpleMapView';
@@ -549,19 +551,50 @@ export default function ListingDetails() {
                 </CardContent>
               </Card>
 
-              {/* Cancellation Policy */}
+              {/* Contract */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Cancellation Policy</CardTitle>
+                  <CardTitle>Contract</CardTitle>
                 </CardHeader>
                 <CardContent>
-                  <div className="space-y-4">
-                    <div>
-                      <h5 className="font-medium mb-2">Flexible cancellation</h5>
-                      <p className="text-sm text-muted-foreground">
-                        You can cancel your booking up to 7 days before move-in for a full refund. 
-                        Cancellations within 7 days of move-in are subject to a cancellation fee.
-                      </p>
+                  <div className="space-y-6">
+                    {/* Cancellation Policy */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <Calendar className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center gap-2 mb-2">
+                          <h5 className="font-medium">Cancellation moderate</h5>
+                          <button className="flex-shrink-0 w-4 h-4 rounded-full bg-muted flex items-center justify-center">
+                            <span className="text-xs text-muted-foreground">i</span>
+                          </button>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          Your 1st rent will be 100% refunded if you cancel up to 60 days before the contract start date or you'll get a 50% refund if you cancel up to 30 days.
+                        </p>
+                        <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
+                          More about our cancellation policies
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
+                      </div>
+                    </div>
+
+                    {/* Fortnightly Contract */}
+                    <div className="flex gap-3">
+                      <div className="flex-shrink-0 mt-1">
+                        <FileText className="h-5 w-5 text-muted-foreground" />
+                      </div>
+                      <div className="flex-1">
+                        <h5 className="font-medium mb-2">Fortnightly contract</h5>
+                        <p className="text-sm text-muted-foreground mb-3">
+                          A fortnightly contract refers to a contract type where you are charged per fortnight booked.
+                        </p>
+                        <button className="text-sm text-primary hover:text-primary/80 flex items-center gap-1">
+                          More about the contract
+                          <ArrowRight className="h-3 w-3" />
+                        </button>
+                      </div>
                     </div>
                   </div>
                 </CardContent>
