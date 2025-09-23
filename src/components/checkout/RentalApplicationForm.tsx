@@ -8,8 +8,10 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
-import { Upload, Users } from 'lucide-react';
+import { Upload, Users, Check, ChevronsUpDown } from 'lucide-react';
 import { MILAN_UNIVERSITIES } from '@/data/universities';
 import { countries, getPriorityCountries, getOtherCountries } from '@/data/countries';
 import { Listing } from '@/types';
@@ -58,6 +60,8 @@ const YEARS = Array.from({ length: 50 }, (_, i) => (2024 - i).toString());
 
 export function RentalApplicationForm({ listing, onSubmit }: RentalApplicationFormProps) {
   const [uploadedFile, setUploadedFile] = useState<File | null>(null);
+  const [countryOpen, setCountryOpen] = useState(false);
+  const [selectedCountry, setSelectedCountry] = useState('+39');
   
 const form = useForm<z.infer<typeof applicationSchema>>({
     resolver: zodResolver(applicationSchema),
@@ -75,6 +79,9 @@ const form = useForm<z.infer<typeof applicationSchema>>({
       message: '',
     }
   });
+
+  const allCountries = [...getPriorityCountries(), ...getOtherCountries()];
+  const selectedCountryData = allCountries.find(c => c.dialCode === selectedCountry);
 
   const handleFileUpload = (event: React.ChangeEvent<HTMLInputElement>) => {
     const file = event.target.files?.[0];
@@ -167,24 +174,77 @@ const form = useForm<z.infer<typeof applicationSchema>>({
           <div>
             <Label>Telephone (with country code) *</Label>
             <div className="flex gap-2">
-              <Select onValueChange={(value) => form.setValue('countryCode', value)} defaultValue="+39">
-                <SelectTrigger className="w-32">
-                  <SelectValue />
-                </SelectTrigger>
-                <SelectContent>
-                  {getPriorityCountries().map((country) => (
-                    <SelectItem key={country.dialCode} value={country.dialCode}>
-                      {country.flag} {country.dialCode}
-                    </SelectItem>
-                  ))}
-                  <SelectItem disabled value="separator">────── Other Countries ──────</SelectItem>
-                  {getOtherCountries().map((country) => (
-                    <SelectItem key={country.dialCode} value={country.dialCode}>
-                      {country.flag} {country.dialCode}
-                    </SelectItem>
-                  ))}
-                </SelectContent>
-              </Select>
+              <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    role="combobox"
+                    aria-expanded={countryOpen}
+                    className="w-32 justify-between"
+                  >
+                    {selectedCountryData ? (
+                      <span className="flex items-center gap-1">
+                        {selectedCountryData.flag} {selectedCountryData.dialCode}
+                      </span>
+                    ) : (
+                      "Select..."
+                    )}
+                    <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-[280px] p-0">
+                  <Command>
+                    <CommandInput placeholder="Search countries..." />
+                    <CommandList>
+                      <CommandEmpty>No country found.</CommandEmpty>
+                      <CommandGroup heading="Popular Countries">
+                        {getPriorityCountries().map((country) => (
+                          <CommandItem
+                            key={country.dialCode}
+                            value={`${country.name} ${country.dialCode}`}
+                            onSelect={() => {
+                              setSelectedCountry(country.dialCode);
+                              form.setValue('countryCode', country.dialCode);
+                              setCountryOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={`mr-2 h-4 w-4 ${
+                                selectedCountry === country.dialCode ? "opacity-100" : "opacity-0"
+                              }`}
+                            />
+                            <span className="flex items-center gap-2">
+                              {country.flag} {country.name} ({country.dialCode})
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                      <CommandGroup heading="Other Countries">
+                        {getOtherCountries().map((country) => (
+                          <CommandItem
+                            key={country.dialCode}
+                            value={`${country.name} ${country.dialCode}`}
+                            onSelect={() => {
+                              setSelectedCountry(country.dialCode);
+                              form.setValue('countryCode', country.dialCode);
+                              setCountryOpen(false);
+                            }}
+                          >
+                            <Check
+                              className={`mr-2 h-4 w-4 ${
+                                selectedCountry === country.dialCode ? "opacity-100" : "opacity-0"
+                              }`}
+                            />
+                            <span className="flex items-center gap-2">
+                              {country.flag} {country.name} ({country.dialCode})
+                            </span>
+                          </CommandItem>
+                        ))}
+                      </CommandGroup>
+                    </CommandList>
+                  </Command>
+                </PopoverContent>
+              </Popover>
               <Input
                 {...form.register('phone')}
                 placeholder="Your phone number"
