@@ -43,7 +43,7 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
   const dailyRate = monthlyRate / 30; // Approximate daily rate
   
   const firstMonthPayment = monthlyRate;
-  const serviceFee = Math.round(monthlyRate * 0.15); // 15% service fee
+  const serviceFee = Math.round(monthlyRate * 0.4); // 40% service fee
   const total = firstMonthPayment + serviceFee;
 
   const nextImage = () => {
