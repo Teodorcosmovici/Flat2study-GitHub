@@ -95,34 +95,31 @@ serve(async (req) => {
     let updatedBooking;
 
     if (landlordResponse === 'approved') {
-      // Capture the payment
-      logStep("Attempting to capture payment", { paymentIntentId: booking.payment_authorization_id });
+      // Approve the booking but don't capture payment yet - manual capture required
+      logStep("Approving booking without capturing payment", { paymentIntentId: booking.payment_authorization_id });
       
-      const paymentIntent = await stripe.paymentIntents.capture(booking.payment_authorization_id);
-      
-      if (paymentIntent.status === 'succeeded') {
-        // Update booking to confirmed
-        const { data: updated, error: updateError } = await supabaseClient
-          .from('bookings')
-          .update({
-            landlord_response: 'approved',
-            payment_status: 'captured',
-            status: 'confirmed',
-            updated_at: new Date().toISOString()
-          })
-          .eq('id', bookingId)
-          .select()
-          .single();
+      // Update booking to approved (awaiting manual payment capture)
+      const { data: updated, error: updateError } = await supabaseClient
+        .from('bookings')
+        .update({
+          landlord_response: 'approved',
+          payment_status: 'approved_awaiting_capture', // New status for manual capture
+          status: 'approved_awaiting_payment',
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', bookingId)
+        .select()
+        .single();
 
-        if (updateError) {
-          throw new Error(`Failed to update booking: ${updateError.message}`);
-        }
-
-        updatedBooking = updated;
-        logStep("Payment captured and booking confirmed", { paymentIntentId: paymentIntent.id });
-      } else {
-        throw new Error(`Payment capture failed: ${paymentIntent.status}`);
+      if (updateError) {
+        throw new Error(`Failed to update booking: ${updateError.message}`);
       }
+
+      updatedBooking = updated;
+      logStep("Booking approved, awaiting manual payment capture", { 
+        bookingId: updatedBooking.id,
+        paymentIntentId: booking.payment_authorization_id 
+      });
     } else {
       // Declined - cancel the payment intent
       logStep("Declining booking and cancelling payment", { paymentIntentId: booking.payment_authorization_id });
