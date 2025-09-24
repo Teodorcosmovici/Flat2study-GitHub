@@ -140,8 +140,41 @@ export type Database = {
         }
         Relationships: []
       }
+      booking_notifications: {
+        Row: {
+          booking_id: string
+          created_at: string | null
+          id: string
+          notification_type: string
+          sent_at: string | null
+        }
+        Insert: {
+          booking_id: string
+          created_at?: string | null
+          id?: string
+          notification_type: string
+          sent_at?: string | null
+        }
+        Update: {
+          booking_id?: string
+          created_at?: string | null
+          id?: string
+          notification_type?: string
+          sent_at?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "booking_notifications_booking_id_fkey"
+            columns: ["booking_id"]
+            isOneToOne: false
+            referencedRelation: "bookings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       bookings: {
         Row: {
+          authorization_expires_at: string | null
           check_in_date: string
           check_out_date: string
           contract_signed_at: string | null
@@ -149,8 +182,12 @@ export type Database = {
           created_at: string
           id: string
           landlord_id: string
+          landlord_response: string | null
+          landlord_response_due_at: string | null
           listing_id: string
           monthly_rent: number
+          payment_authorization_id: string | null
+          payment_status: string | null
           security_deposit: number
           status: string
           stripe_payment_intent_id: string | null
@@ -159,6 +196,7 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          authorization_expires_at?: string | null
           check_in_date: string
           check_out_date: string
           contract_signed_at?: string | null
@@ -166,8 +204,12 @@ export type Database = {
           created_at?: string
           id?: string
           landlord_id: string
+          landlord_response?: string | null
+          landlord_response_due_at?: string | null
           listing_id: string
           monthly_rent: number
+          payment_authorization_id?: string | null
+          payment_status?: string | null
           security_deposit: number
           status?: string
           stripe_payment_intent_id?: string | null
@@ -176,6 +218,7 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          authorization_expires_at?: string | null
           check_in_date?: string
           check_out_date?: string
           contract_signed_at?: string | null
@@ -183,8 +226,12 @@ export type Database = {
           created_at?: string
           id?: string
           landlord_id?: string
+          landlord_response?: string | null
+          landlord_response_due_at?: string | null
           listing_id?: string
           monthly_rent?: number
+          payment_authorization_id?: string | null
+          payment_status?: string | null
           security_deposit?: number
           status?: string
           stripe_payment_intent_id?: string | null
@@ -900,6 +947,10 @@ export type Database = {
       get_user_profile_type: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      handle_expired_authorizations: {
+        Args: Record<PropertyKey, never>
+        Returns: undefined
       }
       has_contact_access: {
         Args: { requester_user_id: string; target_profile_id: string }
