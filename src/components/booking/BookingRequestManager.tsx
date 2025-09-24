@@ -86,7 +86,7 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
 
       toast.success(
         response === 'approved' 
-          ? 'Booking approved and payment captured!' 
+          ? 'Booking approved! Payment will need to be captured manually from admin dashboard.' 
           : 'Booking declined and payment cancelled.'
       );
 
@@ -106,7 +106,7 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
     const isExpired = now > deadline;
 
     if (request.landlord_response === 'approved') {
-      return <Badge variant="secondary" className="bg-green-100 text-green-800">Approved</Badge>;
+      return <Badge variant="secondary" className="bg-green-100 text-green-800">Approved (Manual Capture Needed)</Badge>;
     }
     if (request.landlord_response === 'declined') {
       return <Badge variant="secondary" className="bg-red-100 text-red-800">Declined</Badge>;

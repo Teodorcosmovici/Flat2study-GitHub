@@ -7,6 +7,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { ContactRequestsManager } from '@/components/contact/ContactRequestsManager';
 import { BookingRequestManager } from '@/components/booking/BookingRequestManager';
+import { AdminPaymentCapture } from '@/components/admin/AdminPaymentCapture';
 import { 
   Users, 
   Building, 
@@ -431,6 +432,11 @@ const OwnerDashboard = () => {
       </header>
 
       <div className="container mx-auto px-4 py-8">
+        {/* Admin Payment Capture Section */}
+        <div className="mb-8">
+          <AdminPaymentCapture />
+        </div>
+
         {/* Booking Requests Section */}
         <div className="mb-8">
           <BookingRequestManager landlordId="current-landlord-id" />

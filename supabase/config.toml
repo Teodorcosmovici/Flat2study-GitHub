@@ -26,3 +26,6 @@ verify_jwt = true
 
 [functions.verify-payment-authorization]
 verify_jwt = false
+
+[functions.manual-capture-payment]
+verify_jwt = true
