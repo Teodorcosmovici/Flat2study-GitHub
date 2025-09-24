@@ -122,7 +122,7 @@ Deno.serve(async (req) => {
           listing_id: listing.id,
           address: `${listing.address_line}, ${listing.city}, ${listing.country}`,
           success: false,
-          error: error.message
+          error: error instanceof Error ? error.message : String(error)
         })
       }
     }
@@ -138,8 +138,9 @@ Deno.serve(async (req) => {
 
   } catch (error) {
     console.error('Error in geocode-all-listings function:', error)
+    const errorMessage = error instanceof Error ? error.message : String(error);
     return new Response(
-      JSON.stringify({ error: error.message }),
+      JSON.stringify({ error: errorMessage }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
