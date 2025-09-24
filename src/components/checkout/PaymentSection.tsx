@@ -36,8 +36,8 @@ export function PaymentSection({
     try {
       setLoading(true);
       
-      // Call the create-rental-payment edge function
-      const { data, error } = await supabase.functions.invoke('create-rental-payment', {
+      // Call the create-payment-authorization edge function
+      const { data, error } = await supabase.functions.invoke('create-payment-authorization', {
         body: {
           listingId: listing.id,
           landlordId: listing.landlord.id,
@@ -51,21 +51,27 @@ export function PaymentSection({
       });
 
       if (error) {
-        console.error('Error creating payment session:', error);
-        toast.error('Failed to create payment session');
+        console.error('Error creating payment authorization:', error);
+        toast.error('Failed to create payment authorization');
         return;
       }
 
-      if (data?.url) {
-        // Redirect to Stripe Checkout
-        window.open(data.url, '_blank');
-        toast.success('Redirecting to secure payment...');
+      if (data?.clientSecret) {
+        // Payment authorization created successfully
+        toast.success('Payment authorized! Landlord will be notified.');
+        
+        onPaymentSuccess({
+          clientSecret: data.clientSecret,
+          bookingId: data.bookingId,
+          paymentIntentId: data.paymentIntentId,
+          landlordResponseDeadline: data.landlordResponseDeadline
+        });
       } else {
-        throw new Error('No checkout URL received');
+        throw new Error('No payment authorization received');
       }
     } catch (error) {
-      console.error('Payment error:', error);
-      toast.error('Failed to process payment request');
+      console.error('Payment authorization error:', error);
+      toast.error('Failed to process payment authorization');
     } finally {
       setLoading(false);
     }

@@ -17,3 +17,12 @@ verify_jwt = true
 
 [functions.verify-rental-payment]
 verify_jwt = false
+
+[functions.create-payment-authorization]
+verify_jwt = true
+
+[functions.capture-payment]
+verify_jwt = true
+
+[functions.verify-payment-authorization]
+verify_jwt = false
