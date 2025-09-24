@@ -26,6 +26,8 @@ import {
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { blurPhoneNumber, blurEmailAddress, blurContactInfo } from '@/utils/contactBlur';
+import { PlatformCommunicationNotice } from '@/components/communication/PlatformCommunicationNotice';
 
 interface Conversation {
   listing_id: string;
@@ -1220,20 +1222,22 @@ const OwnerDashboard = () => {
                       </div>
                     </div>
                     
+                    <PlatformCommunicationNotice variant="compact" className="mb-3" />
+                    
                     <div className="space-y-3 max-h-96 overflow-y-auto">
                       {selectedConversation.messages?.map((message) => (
                         <div key={message.id} className="p-3 border rounded-lg">
                           <div className="flex items-center justify-between mb-2">
                             <div className="flex items-center gap-2">
                               <span className="font-medium text-sm">{message.sender_name}</span>
-                              {message.sender_phone && (
+                               {message.sender_phone && (
                                 <Badge variant="outline" className="text-xs">
-                                  {message.sender_phone}
+                                  📱 {blurPhoneNumber(message.sender_phone)}
                                 </Badge>
                               )}
-                              {message.sender_university && (
+                               {message.sender_university && (
                                 <Badge variant="secondary" className="text-xs">
-                                  {message.sender_university}
+                                  🎓 {message.sender_university}
                                 </Badge>
                               )}
                             </div>
@@ -1242,7 +1246,7 @@ const OwnerDashboard = () => {
                             </span>
                           </div>
                           <div className="bg-muted/30 rounded-md p-3">
-                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{message.message}</p>
+                            <p className="text-sm leading-relaxed whitespace-pre-wrap">{blurContactInfo(message.message)}</p>
                           </div>
                           {message.read_at && (
                             <div className="mt-1 text-xs text-muted-foreground">

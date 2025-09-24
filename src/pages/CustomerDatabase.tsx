@@ -8,6 +8,8 @@ import { Search, Download, Filter, Mail, Phone, GraduationCap, Calendar, Message
 import { toast } from "sonner";
 import { useAuth } from "@/hooks/useAuth";
 import { useNavigate } from "react-router-dom";
+import { blurPhoneNumber, blurEmailAddress } from "@/utils/contactBlur";
+import { PlatformCommunicationNotice } from "@/components/communication/PlatformCommunicationNotice";
 
 interface CustomerData {
   id: string;
@@ -214,9 +216,9 @@ export default function CustomerDatabase() {
     const csvContent = [
       ['Name', 'Email', 'Phone', 'University', 'Joined Date', 'Last Active', 'Messages', 'Favorites', 'Inquiries'],
       ...filteredCustomers.map(customer => [
-        customer.full_name,
-        customer.email,
-        customer.phone || '',
+         customer.full_name,
+         blurEmailAddress(customer.email),
+         blurPhoneNumber(customer.phone) || '',
         customer.university || '',
         new Date(customer.created_at).toLocaleDateString(),
         customer.last_active ? new Date(customer.last_active).toLocaleDateString() : 'Never',
@@ -281,6 +283,9 @@ export default function CustomerDatabase() {
             Export CSV
           </Button>
         </div>
+
+        {/* Communication Notice */}
+        <PlatformCommunicationNotice />
 
         {/* Stats Cards */}
         <div className="grid grid-cols-1 md:grid-cols-4 gap-4">
@@ -420,15 +425,15 @@ export default function CustomerDatabase() {
                         <td className="p-3">
                           <div className="space-y-1">
                             <div className="flex items-center gap-2 text-sm">
-                              <Mail className="w-3 h-3" />
-                              {customer.email}
-                            </div>
-                            {customer.phone && (
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Phone className="w-3 h-3" />
-                                {customer.phone}
-                              </div>
-                            )}
+                               <Mail className="w-3 h-3" />
+                               📧 {blurEmailAddress(customer.email)}
+                             </div>
+                             {customer.phone && (
+                               <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                 <Phone className="w-3 h-3" />
+                                 📱 {blurPhoneNumber(customer.phone)}
+                               </div>
+                             )}
                           </div>
                         </td>
                         <td className="p-3">

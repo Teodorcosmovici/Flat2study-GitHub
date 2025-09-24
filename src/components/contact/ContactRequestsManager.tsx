@@ -6,6 +6,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
 import { toast } from '@/hooks/use-toast';
 import { CheckCircle, XCircle, Clock, User, MessageSquare, Calendar } from 'lucide-react';
+import { blurEmailAddress } from '@/utils/contactBlur';
 
 interface ContactRequest {
   id: string;
@@ -202,7 +203,7 @@ export const ContactRequestsManager: React.FC = () => {
                     </Badge>
                   </div>
                   <p className="text-sm text-muted-foreground">
-                    {request.requester_profile?.email}
+                    📧 {blurEmailAddress(request.requester_profile?.email)}
                   </p>
                 </div>
                 {getStatusBadge(request.status)}
