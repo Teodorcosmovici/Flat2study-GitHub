@@ -505,22 +505,6 @@ export default function ListingDetails() {
               }} />
               </div>
 
-              {/* Contact Information Card */}
-              <Card>
-                <CardHeader>
-                  <CardTitle className="text-lg">Contact Property Owner</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <ContactInfo
-                    profileId={listing.landlord.id}
-                    name={listing.landlord.name}
-                    phone={listing.landlord.phone}
-                    email={listing.landlord.email}
-                    listingId={listing.id}
-                    isOwner={user && listing.landlord.id === profile?.id}
-                  />
-                </CardContent>
-              </Card>
               
               {/* Payment Summary Box - Only show when dates are selected */}
               {selectedDates && <div className="lg:sticky lg:top-[400px] lg:z-20">
