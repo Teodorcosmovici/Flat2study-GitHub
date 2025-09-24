@@ -194,6 +194,53 @@ export type Database = {
         }
         Relationships: []
       }
+      contact_access_requests: {
+        Row: {
+          approved_by: string | null
+          created_at: string
+          expires_at: string | null
+          id: string
+          listing_id: string | null
+          reason: string
+          requester_id: string
+          status: string
+          target_profile_id: string
+          updated_at: string
+        }
+        Insert: {
+          approved_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          listing_id?: string | null
+          reason: string
+          requester_id: string
+          status?: string
+          target_profile_id: string
+          updated_at?: string
+        }
+        Update: {
+          approved_by?: string | null
+          created_at?: string
+          expires_at?: string | null
+          id?: string
+          listing_id?: string | null
+          reason?: string
+          requester_id?: string
+          status?: string
+          target_profile_id?: string
+          updated_at?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "contact_access_requests_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       credit_transactions: {
         Row: {
           agency_id: string
@@ -853,6 +900,10 @@ export type Database = {
       get_user_profile_type: {
         Args: Record<PropertyKey, never>
         Returns: string
+      }
+      has_contact_access: {
+        Args: { requester_user_id: string; target_profile_id: string }
+        Returns: boolean
       }
       user_has_sent_messages_to_any_listing: {
         Args: Record<PropertyKey, never>

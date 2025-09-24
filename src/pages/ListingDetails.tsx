@@ -23,6 +23,7 @@ import { ServicesAndExpenses } from '@/components/listing/ServicesAndExpenses';
 import { HowToBook } from '@/components/listing/HowToBook';
 import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
 import { LocationMapDialog } from '@/components/listing/LocationMapDialog';
+import { ContactInfo } from '@/components/contact/ContactInfo';
 
 // Helper function to get text in current language
 const getLocalizedText = (multilingualField: any, language: string, fallback: string = '') => {
@@ -494,7 +495,7 @@ export default function ListingDetails() {
             {/* Sidebar */}
             <div className="space-y-4">
               <div className="lg:sticky lg:top-24">
-                <UnplacesBookingWidget listing={listing} onDatesChange={data => {
+                 <UnplacesBookingWidget listing={listing} onDatesChange={data => {
                 setSelectedDates(data);
               }} onBookingRequest={data => {
                 toast({
@@ -503,6 +504,23 @@ export default function ListingDetails() {
                 });
               }} />
               </div>
+
+              {/* Contact Information Card */}
+              <Card>
+                <CardHeader>
+                  <CardTitle className="text-lg">Contact Property Owner</CardTitle>
+                </CardHeader>
+                <CardContent>
+                  <ContactInfo
+                    profileId={listing.landlord.id}
+                    name={listing.landlord.name}
+                    phone={listing.landlord.phone}
+                    email={listing.landlord.email}
+                    listingId={listing.id}
+                    isOwner={user && listing.landlord.id === profile?.id}
+                  />
+                </CardContent>
+              </Card>
               
               {/* Payment Summary Box - Only show when dates are selected */}
               {selectedDates && <div className="lg:sticky lg:top-[400px] lg:z-20">

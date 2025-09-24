@@ -5,6 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { ContactRequestsManager } from '@/components/contact/ContactRequestsManager';
 import { 
   Users, 
   Building, 
@@ -612,6 +613,11 @@ const OwnerDashboard = () => {
               </div>
             </CardContent>
           </Card>
+        </div>
+
+        {/* Contact Requests Section */}
+        <div className="mb-8">
+          <ContactRequestsManager />
         </div>
 
         {/* Website Analytics Stats */}
