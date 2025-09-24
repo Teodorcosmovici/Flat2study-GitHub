@@ -56,18 +56,12 @@ export function PaymentSection({
         return;
       }
 
-      if (data?.clientSecret) {
-        // Payment authorization created successfully
-        toast.success('Payment authorized! Landlord will be notified.');
-        
-        onPaymentSuccess({
-          clientSecret: data.clientSecret,
-          bookingId: data.bookingId,
-          paymentIntentId: data.paymentIntentId,
-          landlordResponseDeadline: data.landlordResponseDeadline
-        });
+      if (data?.checkoutUrl) {
+        // Redirect to Stripe Checkout
+        window.open(data.checkoutUrl, '_blank');
+        toast.success('Redirecting to secure payment...');
       } else {
-        throw new Error('No payment authorization received');
+        throw new Error('No checkout URL received');
       }
     } catch (error) {
       console.error('Payment authorization error:', error);

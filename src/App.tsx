@@ -26,6 +26,8 @@ import OwnerDashboard from "./pages/OwnerDashboard";
 import CustomerDatabase from "./pages/CustomerDatabase";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
+import CheckoutSuccess from "./pages/checkout/Success";
+import CheckoutCancel from "./pages/checkout/Cancel";
 
 // Lazy load Checkout to avoid bundle size issues
 import { lazy, Suspense } from "react";
@@ -65,6 +67,8 @@ const AppRoutes = () => {
       <Route path="/customer-database" element={<CustomerDatabase />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-canceled" element={<PaymentCanceled />} />
+      <Route path="/checkout/success" element={<CheckoutSuccess />} />
+      <Route path="/checkout/cancel" element={<CheckoutCancel />} />
       {/* ADD ALL CUSTOM ROUTES ABOVE THE CATCH-ALL "*" ROUTE */}
       <Route path="*" element={<NotFound />} />
     </Routes>

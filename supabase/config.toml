@@ -29,3 +29,6 @@ verify_jwt = false
 
 [functions.manual-capture-payment]
 verify_jwt = true
+
+[functions.create-booking-from-checkout]
+verify_jwt = false

@@ -77,13 +77,40 @@ serve(async (req) => {
       logStep("New Stripe customer created", { customerId });
     }
 
-    // Create payment intent with manual capture
-    const paymentIntent = await stripe.paymentIntents.create({
-      amount: Math.round(totalAmount * 100), // Convert to cents
-      currency: "eur",
+    // Create Stripe Checkout session with manual capture
+    const origin = req.headers.get("origin") || "http://localhost:3000";
+    const session = await stripe.checkout.sessions.create({
       customer: customerId,
-      capture_method: "manual", // This is key - payment will be authorized but not captured
-      payment_method_types: ["card"],
+      line_items: [
+        {
+          price_data: {
+            currency: "eur",
+            product_data: {
+              name: `Rental Application Authorization`,
+              description: `Authorization for listing ${listingId} - First month rent and service fee`,
+            },
+            unit_amount: Math.round(totalAmount * 100), // Convert to cents
+          },
+          quantity: 1,
+        },
+      ],
+      mode: "payment",
+      payment_intent_data: {
+        capture_method: "manual", // This is key - payment will be authorized but not captured
+        metadata: {
+          listingId,
+          landlordId,
+          userId: user.id,
+          checkInDate,
+          checkOutDate,
+          firstMonthRent: firstMonthRent.toString(),
+          serviceFee: serviceFee.toString(),
+          type: "rental_authorization"
+        },
+        description: `Rental authorization for listing ${listingId}`,
+      },
+      success_url: `${origin}/checkout/success?session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout/cancel`,
       metadata: {
         listingId,
         landlordId,
@@ -92,53 +119,15 @@ serve(async (req) => {
         checkOutDate,
         firstMonthRent: firstMonthRent.toString(),
         serviceFee: serviceFee.toString(),
-        type: "rental_authorization"
-      },
-      description: `Rental authorization for listing ${listingId}`,
+        totalAmount: totalAmount.toString(),
+      }
     });
 
-    logStep("Payment intent created", { paymentIntentId: paymentIntent.id });
-
-    // Create booking record with authorization tracking
-    const landlordResponseDeadline = new Date();
-    landlordResponseDeadline.setHours(landlordResponseDeadline.getHours() + 24);
-
-    const bookingData = {
-      listing_id: listingId,
-      tenant_id: user.id,
-      landlord_id: landlordId,
-      check_in_date: checkInDate,
-      check_out_date: checkOutDate,
-      monthly_rent: firstMonthRent,
-      security_deposit: serviceFee, // Using service fee as deposit
-      total_amount: totalAmount,
-      payment_authorization_id: paymentIntent.id,
-      payment_status: 'pending',
-      authorization_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days from now (Stripe default)
-      landlord_response_due_at: landlordResponseDeadline,
-      status: 'pending_payment'
-    };
-
-    logStep("Creating booking record", bookingData);
-
-    const { data: booking, error: bookingError } = await supabaseClient
-      .from('bookings')
-      .insert(bookingData)
-      .select()
-      .single();
-
-    if (bookingError) {
-      logStep("Booking creation error", { error: bookingError });
-      throw new Error(`Failed to create booking: ${bookingError.message}`);
-    }
-
-    logStep("Booking created successfully", { bookingId: booking.id });
+    logStep("Checkout session created", { sessionId: session.id });
 
     return new Response(JSON.stringify({ 
-      clientSecret: paymentIntent.client_secret,
-      bookingId: booking.id,
-      paymentIntentId: paymentIntent.id,
-      landlordResponseDeadline: landlordResponseDeadline.toISOString()
+      checkoutUrl: session.url,
+      sessionId: session.id
     }), {
       headers: { ...corsHeaders, "Content-Type": "application/json" },
       status: 200,
