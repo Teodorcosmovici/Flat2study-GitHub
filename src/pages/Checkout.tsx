@@ -263,7 +263,7 @@ export default function Checkout() {
                   <div className="text-center">
                     <h3 className="font-semibold mb-2">Your rental application has been submitted</h3>
                     <p className="text-muted-foreground">
-                      The landlord has been notified and will review your application. You'll receive updates via email.
+                      The landlord has been notified and will review your application. Nothing has been charged for now. You'll receive updates via email.
                     </p>
                   </div>
 
@@ -287,10 +287,10 @@ export default function Checkout() {
                           <span>Amount Paid:</span>
                           <span>€{bookingData.total_amount}</span>
                         </div>
-                        <div className="flex justify-between">
-                          <span>Status:</span>
-                          <span className="capitalize text-green-600">{bookingData.status}</span>
-                        </div>
+                         <div className="flex justify-between">
+                           <span>Status:</span>
+                           <span className="capitalize text-green-600">{bookingData.status.replace('_', ' ')}</span>
+                         </div>
                       </div>
                     </div>
                   )}
