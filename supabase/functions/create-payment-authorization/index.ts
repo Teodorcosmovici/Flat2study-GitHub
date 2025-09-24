@@ -109,8 +109,8 @@ serve(async (req) => {
         },
         description: `Rental authorization for listing ${listingId}`,
       },
-      success_url: `${origin}/checkout/${listingId}?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&persons=${applicationData?.persons || 1}&session_id={CHECKOUT_SESSION_ID}`,
-      cancel_url: `${origin}/checkout/${listingId}?checkInDate=${checkInDate}&checkOutDate=${checkOutDate}&persons=${applicationData?.persons || 1}`,
+      success_url: `${origin}/checkout/${listingId}?checkin=${checkInDate}&checkout=${checkOutDate}&persons=${applicationData?.persons || 1}&session_id={CHECKOUT_SESSION_ID}`,
+      cancel_url: `${origin}/checkout/${listingId}?checkin=${checkInDate}&checkout=${checkOutDate}&persons=${applicationData?.persons || 1}`,
       metadata: {
         listingId,
         landlordId,
