@@ -48,7 +48,7 @@ export default function Checkout() {
 
     // Check for payment success
     const sessionId = searchParams.get('session_id');
-    if (sessionId && currentStep === 3) {
+    if (sessionId && !paymentVerified) {
       verifyPayment(sessionId);
     }
   }, [id, user, searchParams, currentStep]);
@@ -119,7 +119,7 @@ export default function Checkout() {
 
   const verifyPayment = async (sessionId: string) => {
     try {
-      const { data, error } = await supabase.functions.invoke('verify-rental-payment', {
+      const { data, error } = await supabase.functions.invoke('create-booking-from-checkout', {
         body: { sessionId }
       });
 
@@ -132,7 +132,8 @@ export default function Checkout() {
       if (data?.success) {
         setBookingData(data.booking);
         setPaymentVerified(true);
-        toast.success('Payment confirmed! Your rental application has been submitted.');
+        setCurrentStep(3); // Move to step 3 after successful authorization
+        toast.success('Payment authorized! Your rental application has been submitted.');
       } else {
         toast.error('Payment verification failed');
       }

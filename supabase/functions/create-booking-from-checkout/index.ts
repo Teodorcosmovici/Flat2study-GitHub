@@ -53,13 +53,14 @@ serve(async (req) => {
       paymentIntentId: session.payment_intent?.id 
     });
 
-    if (session.payment_status !== 'paid') {
-      throw new Error(`Payment not completed. Status: ${session.payment_status}`);
+    // Check if payment was authorized (for manual capture, payment_status is 'unpaid' but payment_intent is 'requires_capture')
+    if (session.payment_status !== 'unpaid') {
+      throw new Error(`Payment not authorized. Status: ${session.payment_status}`);
     }
 
     const paymentIntent = session.payment_intent as any;
     if (!paymentIntent || paymentIntent.status !== 'requires_capture') {
-      throw new Error(`Invalid payment intent status: ${paymentIntent?.status}`);
+      throw new Error(`Payment intent not authorized. Status: ${paymentIntent?.status}`);
     }
 
     // Extract metadata
