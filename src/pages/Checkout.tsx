@@ -289,7 +289,7 @@ export default function Checkout() {
                         </div>
                          <div className="flex justify-between">
                            <span>Status:</span>
-                           <span className="capitalize text-green-600">{bookingData.status.replace('_', ' ')}</span>
+                           <span className="capitalize text-green-600">{bookingData.status.replace(/_/g, ' ')}</span>
                          </div>
                       </div>
                     </div>
