@@ -4,6 +4,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { usePageTracking } from "@/hooks/usePageTracking";
+import { WhatsAppChatButton } from "@/components/ui/whatsapp-chat-button";
 
 import Index from "./pages/Index";
 import Search from "./pages/Search";
@@ -83,6 +84,7 @@ const App = () => (
       
       <BrowserRouter>
         <AppRoutes />
+        <WhatsAppChatButton />
       </BrowserRouter>
     </TooltipProvider>
   </QueryClientProvider>
