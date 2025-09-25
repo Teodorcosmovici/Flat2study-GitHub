@@ -5,6 +5,7 @@ import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { ChatButton } from "@/components/ui/whatsapp-chat-button";
+import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
 
 import Index from "./pages/Index";
 import Search from "./pages/Search";
@@ -83,6 +84,7 @@ const App = () => (
       <Sonner />
       
       <BrowserRouter>
+        <ImpersonationBanner />
         <AppRoutes />
         <ChatButton />
       </BrowserRouter>

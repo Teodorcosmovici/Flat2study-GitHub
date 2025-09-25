@@ -10,6 +10,7 @@ import { CheckCircle, XCircle, Clock, Eye, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
+import { UserImpersonation } from '@/components/admin/UserImpersonation';
 
 interface PendingListing {
   id: string;
@@ -138,6 +139,10 @@ export const AdminDashboard = () => {
           <TabsTrigger value="support">
             <MessageSquare className="w-4 h-4 mr-2" />
             Support Messages
+          </TabsTrigger>
+          <TabsTrigger value="impersonation">
+            <Eye className="w-4 h-4 mr-2" />
+            User Impersonation
           </TabsTrigger>
         </TabsList>
 
@@ -285,10 +290,14 @@ export const AdminDashboard = () => {
           </div>
         </TabsContent>
 
-        <TabsContent value="support">
-          <SupportMessagesManager />
-        </TabsContent>
-      </Tabs>
+            <TabsContent value="support">
+              <SupportMessagesManager />
+            </TabsContent>
+            
+            <TabsContent value="impersonation">
+              <UserImpersonation />
+            </TabsContent>
+          </Tabs>
     </div>
   );
 };
