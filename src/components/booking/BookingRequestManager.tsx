@@ -2,7 +2,8 @@ import { useState, useEffect } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { Clock, CheckCircle, XCircle, Calendar, Euro, User, MapPin } from 'lucide-react';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
+import { Clock, CheckCircle, XCircle, Calendar, Euro, User, MapPin, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { formatDistanceToNow } from 'date-fns';
@@ -184,6 +185,8 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
     );
   }
 
+  const latestRequest = requests[0]; // Get the most recent request
+
   return (
     <div className="space-y-4">
       <div className="flex items-center justify-between">
@@ -193,121 +196,145 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
         </Button>
       </div>
 
-      {requests.map((request) => {
-        const now = new Date();
-        const deadline = new Date(request.landlord_response_due_at);
-        const isExpired = now > deadline;
-        const canRespond = !request.landlord_response && !isExpired && request.payment_status === 'authorized';
-
-        return (
-          <Card key={request.id} className="overflow-hidden">
-            <CardHeader className="pb-3">
-              <div className="flex items-start justify-between">
-                <div className="space-y-1">
-                  <CardTitle className="text-lg">{request.listing_title}</CardTitle>
-                  <div className="flex items-center gap-4 text-sm text-muted-foreground">
-                    <div className="flex items-center gap-1">
-                      <MapPin className="h-4 w-4" />
-                      {request.listing_address}
-                    </div>
-                  </div>
-                </div>
-                {getStatusBadge(request)}
-              </div>
-            </CardHeader>
-
-            <CardContent className="space-y-4">
-              {/* Tenant Information */}
-              <div className="bg-muted/30 rounded-lg p-4">
-                <h4 className="font-medium mb-2 flex items-center gap-2">
-                  <User className="h-4 w-4" />
-                  Tenant Information
-                </h4>
-                <div className="grid grid-cols-2 gap-4 text-sm">
-                  <div>
-                    <span className="text-muted-foreground">Name:</span>
-                    <p className="font-medium">{request.tenant_name}</p>
-                  </div>
-                  <div>
-                    <span className="text-muted-foreground">Email:</span>
-                    <p className="font-medium">{request.tenant_email}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Booking Details */}
-              <div className="grid grid-cols-2 gap-4">
-                <div className="space-y-2">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Calendar className="h-4 w-4" />
-                    Dates
-                  </h4>
-                  <div className="text-sm">
-                    <p><span className="text-muted-foreground">Check-in:</span> {new Date(request.check_in_date).toLocaleDateString()}</p>
-                    <p><span className="text-muted-foreground">Check-out:</span> {new Date(request.check_out_date).toLocaleDateString()}</p>
-                  </div>
-                </div>
-
-                <div className="space-y-2">
-                  <h4 className="font-medium flex items-center gap-2">
-                    <Euro className="h-4 w-4" />
-                    Payment
-                  </h4>
-                  <div className="text-sm">
-                    <p><span className="text-muted-foreground">Monthly rent:</span> €{request.monthly_rent}</p>
-                    <p><span className="text-muted-foreground">Total authorized:</span> €{request.total_amount}</p>
-                  </div>
-                </div>
-              </div>
-
-              {/* Timing Information */}
-              <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
-                <div className="flex items-center gap-2 text-sm">
-                  <Clock className="h-4 w-4 text-blue-600" />
-                  <span className="font-medium text-blue-800">
-                    {canRespond ? 'Response needed: ' : ''}
-                    {getTimeRemaining(request.landlord_response_due_at)}
-                  </span>
-                </div>
-                {canRespond && (
-                  <p className="text-xs text-blue-700 mt-1">
-                    Payment will be captured if approved, or cancelled if declined/expired.
-                  </p>
+      <Accordion type="single" collapsible className="w-full">
+        <AccordionItem value="booking-requests" className="border rounded-lg">
+          <AccordionTrigger className="px-4 py-3 hover:no-underline">
+            <div className="flex items-center justify-between w-full mr-4">
+              <div className="flex items-center gap-3">
+                <span className="font-medium">
+                  {requests.length > 0 ? `${requests.length} Booking Request${requests.length > 1 ? 's' : ''}` : 'No Booking Requests'}
+                </span>
+                {latestRequest && (
+                  <Badge variant="outline" className="text-xs">
+                    Latest: {formatDistanceToNow(new Date(latestRequest.created_at))} ago
+                  </Badge>
                 )}
               </div>
+            </div>
+          </AccordionTrigger>
+          
+          <AccordionContent className="px-4 pb-4">
+            {/* Show latest request preview when collapsed, all requests when expanded */}
+            <div className="space-y-4">
+              {requests.map((request, index) => {
+                const now = new Date();
+                const deadline = new Date(request.landlord_response_due_at);
+                const isExpired = now > deadline;
+                const canRespond = !request.landlord_response && !isExpired && request.payment_status === 'authorized';
 
-              {/* Action Buttons */}
-              {canRespond && (
-                <div className="flex gap-3 pt-2">
-                  <Button
-                    onClick={() => handleResponse(request.id, 'approved')}
-                    disabled={actionLoading === request.id}
-                    className="flex-1 bg-green-600 hover:bg-green-700"
-                  >
-                    <CheckCircle className="h-4 w-4 mr-2" />
-                    {actionLoading === request.id ? 'Processing...' : 'Approve & Capture Payment'}
-                  </Button>
-                  <Button
-                    variant="destructive"
-                    onClick={() => handleResponse(request.id, 'declined')}
-                    disabled={actionLoading === request.id}
-                    className="flex-1"
-                  >
-                    <XCircle className="h-4 w-4 mr-2" />
-                    {actionLoading === request.id ? 'Processing...' : 'Decline'}
-                  </Button>
-                </div>
-              )}
+                return (
+                  <Card key={request.id} className="overflow-hidden">
+                    <CardHeader className="pb-3">
+                      <div className="flex items-start justify-between">
+                        <div className="space-y-1">
+                          <CardTitle className="text-lg">{request.listing_title}</CardTitle>
+                          <div className="flex items-center gap-4 text-sm text-muted-foreground">
+                            <div className="flex items-center gap-1">
+                              <MapPin className="h-4 w-4" />
+                              {request.listing_address}
+                            </div>
+                          </div>
+                        </div>
+                        {getStatusBadge(request)}
+                      </div>
+                    </CardHeader>
 
-              {request.landlord_response && (
-                <div className="text-sm text-muted-foreground">
-                  Responded: {new Date(request.created_at).toLocaleDateString()}
-                </div>
-              )}
-            </CardContent>
-          </Card>
-        );
-      })}
+                    <CardContent className="space-y-4">
+                      {/* Tenant Information */}
+                      <div className="bg-muted/30 rounded-lg p-4">
+                        <h4 className="font-medium mb-2 flex items-center gap-2">
+                          <User className="h-4 w-4" />
+                          Tenant Information
+                        </h4>
+                        <div className="grid grid-cols-2 gap-4 text-sm">
+                          <div>
+                            <span className="text-muted-foreground">Name:</span>
+                            <p className="font-medium">{request.tenant_name}</p>
+                          </div>
+                          <div>
+                            <span className="text-muted-foreground">Email:</span>
+                            <p className="font-medium">{request.tenant_email}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Booking Details */}
+                      <div className="grid grid-cols-2 gap-4">
+                        <div className="space-y-2">
+                          <h4 className="font-medium flex items-center gap-2">
+                            <Calendar className="h-4 w-4" />
+                            Dates
+                          </h4>
+                          <div className="text-sm">
+                            <p><span className="text-muted-foreground">Check-in:</span> {new Date(request.check_in_date).toLocaleDateString()}</p>
+                            <p><span className="text-muted-foreground">Check-out:</span> {new Date(request.check_out_date).toLocaleDateString()}</p>
+                          </div>
+                        </div>
+
+                        <div className="space-y-2">
+                          <h4 className="font-medium flex items-center gap-2">
+                            <Euro className="h-4 w-4" />
+                            Payment
+                          </h4>
+                          <div className="text-sm">
+                            <p><span className="text-muted-foreground">Monthly rent:</span> €{request.monthly_rent}</p>
+                            <p><span className="text-muted-foreground">Total authorized:</span> €{request.total_amount}</p>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Timing Information */}
+                      <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
+                        <div className="flex items-center gap-2 text-sm">
+                          <Clock className="h-4 w-4 text-blue-600" />
+                          <span className="font-medium text-blue-800">
+                            {canRespond ? 'Response needed: ' : ''}
+                            {getTimeRemaining(request.landlord_response_due_at)}
+                          </span>
+                        </div>
+                        {canRespond && (
+                          <p className="text-xs text-blue-700 mt-1">
+                            Payment will be captured if approved, or cancelled if declined/expired.
+                          </p>
+                        )}
+                      </div>
+
+                      {/* Action Buttons */}
+                      {canRespond && (
+                        <div className="flex gap-3 pt-2">
+                          <Button
+                            onClick={() => handleResponse(request.id, 'approved')}
+                            disabled={actionLoading === request.id}
+                            className="flex-1 bg-green-600 hover:bg-green-700"
+                          >
+                            <CheckCircle className="h-4 w-4 mr-2" />
+                            {actionLoading === request.id ? 'Processing...' : 'Approve & Capture Payment'}
+                          </Button>
+                          <Button
+                            variant="destructive"
+                            onClick={() => handleResponse(request.id, 'declined')}
+                            disabled={actionLoading === request.id}
+                            className="flex-1"
+                          >
+                            <XCircle className="h-4 w-4 mr-2" />
+                            {actionLoading === request.id ? 'Processing...' : 'Decline'}
+                          </Button>
+                        </div>
+                      )}
+
+                      {request.landlord_response && (
+                        <div className="text-sm text-muted-foreground">
+                          Responded: {new Date(request.created_at).toLocaleDateString()}
+                        </div>
+                      )}
+                    </CardContent>
+                  </Card>
+                );
+              })}
+            </div>
+          </AccordionContent>
+        </AccordionItem>
+      </Accordion>
     </div>
   );
 }
