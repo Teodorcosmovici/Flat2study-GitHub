@@ -3,9 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
+import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, Phone, Clock, CheckCheck, Reply } from 'lucide-react';
+import { MessageCircle, Phone, Clock, CheckCheck, Reply, ChevronDown, ChevronUp } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface SupportMessage {
@@ -25,6 +26,7 @@ export const SupportMessagesManager: React.FC = () => {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminNotes, setAdminNotes] = useState<{ [key: string]: string }>({});
+  const [expandedMessages, setExpandedMessages] = useState<{ [key: string]: boolean }>({});
   const { toast } = useToast();
 
   useEffect(() => {
@@ -119,6 +121,13 @@ export const SupportMessagesManager: React.FC = () => {
     }
   };
 
+  const toggleMessageExpansion = (messageId: string) => {
+    setExpandedMessages(prev => ({
+      ...prev,
+      [messageId]: !prev[messageId]
+    }));
+  };
+
   if (loading) {
     return (
       <div className="space-y-4">
@@ -157,89 +166,125 @@ export const SupportMessagesManager: React.FC = () => {
       ) : (
         <div className="space-y-4">
           {messages.map((message) => (
-            <Card key={message.id} className={message.status === 'unread' ? 'border-primary' : ''}>
-              <CardHeader>
-                <div className="flex items-start justify-between">
-                  <div className="space-y-1">
-                    <CardTitle className="text-lg">{message.sender_name}</CardTitle>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Phone className="h-4 w-4" />
-                      <span>{message.country_code} {message.phone_number}</span>
+            <Collapsible 
+              key={message.id} 
+              open={expandedMessages[message.id] || false}
+              onOpenChange={() => toggleMessageExpansion(message.id)}
+            >
+              <Card className={message.status === 'unread' ? 'border-primary' : ''}>
+                <CollapsibleTrigger asChild>
+                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+                    <div className="flex items-start justify-between">
+                      <div className="space-y-1">
+                        <div className="flex items-center gap-2">
+                          <CardTitle className="text-lg">{message.sender_name}</CardTitle>
+                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                            <Phone className="h-4 w-4" />
+                            <span className="font-mono">{message.country_code} {message.phone_number}</span>
+                          </div>
+                        </div>
+                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                          <Clock className="h-4 w-4" />
+                          <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground line-clamp-2">
+                          {message.message}
+                        </p>
+                      </div>
+                      <div className="flex items-center gap-2">
+                        {getStatusBadge(message.status)}
+                        {expandedMessages[message.id] ? (
+                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
+                        ) : (
+                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
+                        )}
+                      </div>
                     </div>
-                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                      <Clock className="h-4 w-4" />
-                      <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
+                  </CardHeader>
+                </CollapsibleTrigger>
+                
+                <CollapsibleContent>
+                  <CardContent>
+                    <div className="space-y-4">
+                      <div>
+                        <h4 className="font-medium mb-2">Full Message:</h4>
+                        <p className="text-sm bg-muted p-3 rounded-lg whitespace-pre-wrap">{message.message}</p>
+                      </div>
+
+                      <div>
+                        <h4 className="font-medium mb-2">Contact Information:</h4>
+                        <div className="bg-accent/20 p-3 rounded-lg space-y-1">
+                          <div className="flex items-center gap-2 text-sm">
+                            <span className="font-medium">Name:</span>
+                            <span>{message.sender_name}</span>
+                          </div>
+                          <div className="flex items-center gap-2 text-sm">
+                            <Phone className="h-4 w-4" />
+                            <span className="font-medium">Phone:</span>
+                            <span className="font-mono">{message.country_code} {message.phone_number}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {message.admin_notes && (
+                        <div>
+                          <h4 className="font-medium mb-2">Admin Notes:</h4>
+                          <p className="text-sm bg-accent/20 p-3 rounded-lg">{message.admin_notes}</p>
+                        </div>
+                      )}
+
+                      <div className="space-y-2">
+                        <h4 className="font-medium">Admin Notes:</h4>
+                        <Textarea
+                          placeholder="Add admin notes..."
+                          value={adminNotes[message.id] || message.admin_notes || ''}
+                          onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
+                          className="min-h-[80px]"
+                        />
+                      </div>
+
+                      <div className="flex gap-2 flex-wrap">
+                        {message.status === 'unread' && (
+                          <Button
+                            variant="outline"
+                            size="sm"
+                            onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
+                          >
+                            <CheckCheck className="h-4 w-4 mr-2" />
+                            Mark as Read
+                          </Button>
+                        )}
+                        
+                        <Button
+                          variant="default"
+                          size="sm"
+                          onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
+                        >
+                          <Reply className="h-4 w-4 mr-2" />
+                          Mark as Replied
+                        </Button>
+
+                        {adminNotes[message.id] !== (message.admin_notes || '') && (
+                          <Button
+                            variant="secondary"
+                            size="sm"
+                            onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
+                          >
+                            Save Notes
+                          </Button>
+                        )}
+                      </div>
+
+                      {message.replied_at && (
+                        <div className="text-sm text-muted-foreground bg-green-50 dark:bg-green-950/20 p-2 rounded">
+                          ✅ Replied {formatDistanceToNow(new Date(message.replied_at))} ago
+                        </div>
+                      )}
                     </div>
-                  </div>
-                  <div className="flex items-center gap-2">
-                    {getStatusBadge(message.status)}
-                  </div>
-                </div>
-              </CardHeader>
-              
-              <CardContent>
-                <div className="space-y-4">
-                  <div>
-                    <h4 className="font-medium mb-2">Message:</h4>
-                    <p className="text-sm bg-muted p-3 rounded-lg">{message.message}</p>
-                  </div>
-
-                  {message.admin_notes && (
-                    <div>
-                      <h4 className="font-medium mb-2">Admin Notes:</h4>
-                      <p className="text-sm bg-accent/20 p-3 rounded-lg">{message.admin_notes}</p>
-                    </div>
-                  )}
-
-                  <div className="space-y-2">
-                    <Textarea
-                      placeholder="Add admin notes..."
-                      value={adminNotes[message.id] || message.admin_notes || ''}
-                      onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
-                      className="min-h-[80px]"
-                    />
-                  </div>
-
-                  <div className="flex gap-2">
-                    {message.status === 'unread' && (
-                      <Button
-                        variant="outline"
-                        size="sm"
-                        onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
-                      >
-                        <CheckCheck className="h-4 w-4 mr-2" />
-                        Mark as Read
-                      </Button>
-                    )}
-                    
-                    <Button
-                      variant="default"
-                      size="sm"
-                      onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
-                    >
-                      <Reply className="h-4 w-4 mr-2" />
-                      Mark as Replied
-                    </Button>
-
-                    {adminNotes[message.id] !== (message.admin_notes || '') && (
-                      <Button
-                        variant="secondary"
-                        size="sm"
-                        onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
-                      >
-                        Save Notes
-                      </Button>
-                    )}
-                  </div>
-
-                  {message.replied_at && (
-                    <div className="text-sm text-muted-foreground">
-                      Replied {formatDistanceToNow(new Date(message.replied_at))} ago
-                    </div>
-                  )}
-                </div>
-              </CardContent>
-            </Card>
+                  </CardContent>
+                </CollapsibleContent>
+              </Card>
+            </Collapsible>
           ))}
         </div>
       )}
