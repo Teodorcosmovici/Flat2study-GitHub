@@ -299,11 +299,19 @@ export default function ListingDetails() {
                         <LocationMapDialog listing={listing} />
                       </div>
                     </div>
-                    <div className="text-right">
+                    <div className="text-right space-y-2">
                       <div className="text-3xl font-bold text-price">
                         {formatPrice(listing.rentMonthlyEur)}
                       </div>
                       <div className="text-sm text-muted-foreground">per month</div>
+                      <ContactInfo 
+                        profileId={listing.landlord.id}
+                        name={listing.landlord.name}
+                        phone={listing.landlord.phone}
+                        email={listing.landlord.email}
+                        listingId={listing.id}
+                        isOwner={user?.id === listing.landlord.id}
+                      />
                     </div>
                   </div>
                 </CardHeader>

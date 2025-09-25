@@ -74,12 +74,13 @@ export default function ListingCard({
   };
 
   return (
-    <div 
-      className={`listing-card ${isHovered ? 'scale-[1.02] border-primary/20' : ''} ${className}`}
-      onMouseEnter={() => onHover?.(listing.id)}
-      onMouseLeave={() => onHover?.(null)}
-      onClick={() => onClick?.(listing.id)}
-    >
+    <Link to={`/listing/${listing.id}`} className="block">
+      <div 
+        className={`listing-card ${isHovered ? 'scale-[1.02] border-primary/20' : ''} ${className} cursor-pointer`}
+        onMouseEnter={() => onHover?.(listing.id)}
+        onMouseLeave={() => onHover?.(null)}
+        onClick={() => onClick?.(listing.id)}
+      >
       {/* Image Gallery */}
       <div className="relative h-64 md:h-96 overflow-hidden">
         {listing.images.length > 0 && (
@@ -293,18 +294,17 @@ export default function ListingCard({
             >
               <Map className="h-4 w-4" />
             </Button>
-            <Link to={`/listing/${listing.id}`}>
-              <Button 
-                size="sm" 
-                className="hero-gradient text-white border-0 hover:opacity-90"
-                onClick={(e) => e.stopPropagation()}
-              >
-                View Details
-              </Button>
-            </Link>
+            <Button 
+              size="sm" 
+              className="hero-gradient text-white border-0 hover:opacity-90"
+              onClick={(e) => e.stopPropagation()}
+            >
+              View Details
+            </Button>
           </div>
         </div>
       </div>
     </div>
+    </Link>
   );
 }
