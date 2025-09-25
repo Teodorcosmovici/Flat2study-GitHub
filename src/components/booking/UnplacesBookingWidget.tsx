@@ -1,11 +1,12 @@
 import { useState } from 'react';
 import { format } from 'date-fns';
-import { CalendarIcon, Users } from 'lucide-react';
+import { CalendarIcon, Users, Lightbulb } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from '@/components/ui/calendar';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
+import { Alert, AlertDescription } from '@/components/ui/alert';
 import { cn } from '@/lib/utils';
 import { useAvailability } from '@/hooks/useAvailability';
 import { Listing } from '@/types';
@@ -32,6 +33,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   const [checkOut, setCheckOut] = useState<Date>();
   const [showCheckInCalendar, setShowCheckInCalendar] = useState(false);
   const [showCheckOutCalendar, setShowCheckOutCalendar] = useState(false);
+  const [showRecommendation, setShowRecommendation] = useState(true);
 
   const { availability, loading } = useAvailability(listing.id);
 
@@ -107,6 +109,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     if (!date) return;
     setCheckIn(date);
     setShowCheckInCalendar(false);
+    setShowRecommendation(true); // Reset recommendation when date changes
     
     // If check-out is before or same as check-in, clear it
     if (checkOut && checkOut <= date) {
@@ -176,6 +179,54 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     const oneMonthLater = new Date(checkIn);
     oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
     return date < oneMonthLater;
+  };
+
+  const getDateRecommendation = () => {
+    if (!checkIn) return null;
+    
+    const date = checkIn.getDate();
+    const month = checkIn.getMonth();
+    const year = checkIn.getFullYear();
+    
+    // Check if within 6 days before mid-month (9th-15th)
+    if (date >= 10 && date <= 15) {
+      const firstOfMonth = new Date(year, month, 1);
+      const savings = Math.round(listing.rentMonthlyEur / 2);
+      return {
+        type: 'mid-month',
+        recommendedDate: format(firstOfMonth, "MMMM dd yyyy"),
+        savings: formatPrice(savings),
+        message: `If you select ${format(firstOfMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
+      };
+    }
+    
+    // Check if within 6 days before month-end (25th-31st)
+    const lastDayOfMonth = new Date(year, month + 1, 0).getDate();
+    if (date >= 25 && date <= lastDayOfMonth) {
+      const firstOfNextMonth = new Date(year, month + 1, 1);
+      const savings = Math.round(listing.rentMonthlyEur / 2);
+      return {
+        type: 'month-end',
+        recommendedDate: format(firstOfNextMonth, "MMMM dd yyyy"),
+        savings: formatPrice(savings),
+        message: `If you select ${format(firstOfNextMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
+      };
+    }
+    
+    return null;
+  };
+
+  const recommendation = getDateRecommendation();
+
+  const handleDismissRecommendation = () => {
+    setShowRecommendation(false);
+  };
+
+  const handleChangeDates = () => {
+    setCheckIn(undefined);
+    setCheckOut(undefined);
+    setShowRecommendation(true);
+    onDatesChange?.(null);
   };
 
   return (
@@ -255,6 +306,35 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </div>
         </div>
 
+        {/* Date Recommendation Alert */}
+        {recommendation && showRecommendation && (
+          <Alert className="bg-green-50 border-green-200 text-green-800">
+            <Lightbulb className="h-4 w-4" />
+            <AlertDescription className="flex flex-col space-y-3">
+              <p className="text-sm">
+                {recommendation.message}
+              </p>
+              <div className="flex space-x-2">
+                <Button
+                  variant="ghost"
+                  size="sm"
+                  onClick={handleDismissRecommendation}
+                  className="text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
+                >
+                  I'm ok with my dates
+                </Button>
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={handleChangeDates}
+                  className="border-green-300 text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
+                >
+                  Change dates
+                </Button>
+              </div>
+            </AlertDescription>
+          </Alert>
+        )}
 
         {/* Select Dates Button */}
         <Button 
