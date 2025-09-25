@@ -45,20 +45,26 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
     
     const moveInDay = selectedDates.checkIn.getDate();
     
-    // If move in after 15th, charge half rent for first month
+    // If move in after 15th, charge full rent for first month (mid-month rent is paid in second month)
     if (moveInDay > 15) {
-      return Math.round(rentMonthlyEur / 2);
+      return rentMonthlyEur; // Full month
     }
     
     return rentMonthlyEur;
   };
 
-  const calculateProratedRent = (date: Date, isFirstMonth: boolean, isLastMonth: boolean) => {
+  const calculateProratedRent = (date: Date, isFirstMonth: boolean, isLastMonth: boolean, monthIndex: number) => {
     if (!selectedDates) return rentMonthlyEur;
     
     if (isFirstMonth) {
       const moveInDay = selectedDates.checkIn.getDate();
-      // If move in after 15th, charge half rent
+      // If move in after 15th, charge full rent for first month
+      return rentMonthlyEur;
+    }
+    
+    if (monthIndex === 1) { // Second month
+      const moveInDay = selectedDates.checkIn.getDate();
+      // If moved in after 15th, charge half rent for second month
       if (moveInDay > 15) {
         return Math.round(rentMonthlyEur / 2);
       }
@@ -109,7 +115,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
             <CollapsibleContent className="px-4 pb-4">
               <div className="space-y-2 text-sm mt-3">
                 <div className="flex justify-between">
-                  <span>First rental payment{selectedDates && selectedDates.checkIn.getDate() > 15 ? ' (half month)' : ''}</span>
+                  <span>First rental payment (full month)</span>
                   <span>{formatPrice(firstMonthRent)}</span>
                 </div>
                 <div className="flex justify-between">
@@ -200,7 +206,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                       nextMonth.setMonth(nextMonth.getMonth() + 1);
                       const isLastMonth = nextMonth >= endDate;
                       
-                      const monthlyRent = calculateProratedRent(currentMonth, isFirstMonth, isLastMonth);
+                      const monthlyRent = calculateProratedRent(currentMonth, isFirstMonth, isLastMonth, monthIndex);
                       const isProrated = monthlyRent !== rentMonthlyEur;
                       
                       months.push(

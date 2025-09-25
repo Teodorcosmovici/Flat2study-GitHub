@@ -66,13 +66,22 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
       const nextMonth = new Date(currentMonth);
       nextMonth.setMonth(nextMonth.getMonth() + 1);
       const isFirstMonth = monthIndex === 0;
+      const isSecondMonth = monthIndex === 1;
       const isLastMonth = nextMonth >= endDate;
       
       let monthlyRent = listing.rentMonthlyEur;
       
       if (isFirstMonth) {
         const moveInDay = startDate.getDate();
-        // If move in after 15th, charge half rent
+        // If move in after 15th, charge full rent for first month, half rent for second month
+        if (moveInDay > 15) {
+          monthlyRent = listing.rentMonthlyEur; // Full month
+        }
+      }
+      
+      if (isSecondMonth) {
+        const moveInDay = startDate.getDate();
+        // If moved in after 15th, charge half rent for second month
         if (moveInDay > 15) {
           monthlyRent = Math.round(listing.rentMonthlyEur / 2);
         }

@@ -29,7 +29,7 @@ export function PaymentSection({
   const monthlyRate = listing.rentMonthlyEur || 0;
   const serviceFee = Math.round(monthlyRate * 0.4); // 40%
   const moveInDay = checkInDate.getDate();
-  const firstMonthRent = moveInDay > 15 ? Math.round(monthlyRate / 2) : monthlyRate; // half month if move-in after 15th
+  const firstMonthRent = monthlyRate; // Always full month for first payment
   const totalToAuthorize = firstMonthRent + serviceFee;
   
   const handlePayment = async () => {
