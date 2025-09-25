@@ -121,18 +121,16 @@ serve(async (req) => {
         paymentIntentId: booking.payment_authorization_id 
       });
     } else {
-      // Declined - cancel the payment intent
-      logStep("Declining booking and cancelling payment", { paymentIntentId: booking.payment_authorization_id });
-      
-      await stripe.paymentIntents.cancel(booking.payment_authorization_id);
-      
-      // Update booking to declined
+      // Declined - do NOT cancel the payment intent; leave authorization for manual handling
+      logStep("Declining booking without cancelling payment", { paymentIntentId: booking.payment_authorization_id });
+
+      // Update booking to declined; keep payment_status as 'authorized' for manual cancellation
       const { data: updated, error: updateError } = await supabaseClient
         .from('bookings')
         .update({
           landlord_response: 'declined',
-          payment_status: 'cancelled',
           status: 'cancelled',
+          // keep payment_status as is (authorized)
           updated_at: new Date().toISOString()
         })
         .eq('id', bookingId)
@@ -144,7 +142,7 @@ serve(async (req) => {
       }
 
       updatedBooking = updated;
-      logStep("Payment cancelled and booking declined");
+      logStep("Booking declined; payment authorization left intact for manual action");
     }
 
     return new Response(JSON.stringify({ 

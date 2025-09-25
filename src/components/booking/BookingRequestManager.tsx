@@ -113,7 +113,7 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
       toast.success(
         response === 'approved' 
           ? 'Booking approved! Payment will need to be captured manually from admin dashboard.' 
-          : 'Booking declined and payment cancelled.'
+          : 'Booking declined. Payment authorization remains; cancel it manually in admin.'
       );
 
       // Refresh the requests list
