@@ -469,12 +469,6 @@ export const LandlordDashboard = () => {
                 <p className="text-muted-foreground mb-4">
                   Once you receive booking requests, you can see them here.
                 </p>
-                <p className="text-muted-foreground">
-                  Want to increase your chances of getting booking requests? 
-                  <Button variant="link" className="text-blue-500 p-0 ml-1">
-                    Promote your listings!
-                  </Button>
-                </p>
               </div>
             ) : (
               <div className="space-y-6">
