@@ -14,6 +14,42 @@ export type Database = {
   }
   public: {
     Tables: {
+      admin_impersonation_sessions: {
+        Row: {
+          admin_ip_address: unknown | null
+          admin_user_id: string
+          created_at: string
+          ended_at: string | null
+          id: string
+          impersonated_user_id: string
+          reason: string | null
+          session_token: string
+          started_at: string
+        }
+        Insert: {
+          admin_ip_address?: unknown | null
+          admin_user_id: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          impersonated_user_id: string
+          reason?: string | null
+          session_token?: string
+          started_at?: string
+        }
+        Update: {
+          admin_ip_address?: unknown | null
+          admin_user_id?: string
+          created_at?: string
+          ended_at?: string | null
+          id?: string
+          impersonated_user_id?: string
+          reason?: string | null
+          session_token?: string
+          started_at?: string
+        }
+        Relationships: []
+      }
       agency_credits: {
         Row: {
           agency_id: string
@@ -878,6 +914,10 @@ export type Database = {
         }
         Returns: boolean
       }
+      end_impersonation: {
+        Args: { token: string }
+        Returns: boolean
+      }
       generate_conversation_id: {
         Args: { p_listing_id: string; p_student_id: string }
         Returns: string
@@ -934,6 +974,15 @@ export type Database = {
           sender_name: string
           sender_phone: string
           sender_university: string
+        }[]
+      }
+      get_current_impersonation: {
+        Args: Record<PropertyKey, never>
+        Returns: {
+          admin_user_id: string
+          impersonated_user_id: string
+          session_token: string
+          started_at: string
         }[]
       }
       get_current_user_profile: {
@@ -1050,6 +1099,10 @@ export type Database = {
       has_contact_access: {
         Args: { requester_user_id: string; target_profile_id: string }
         Returns: boolean
+      }
+      start_impersonation: {
+        Args: { reason_text?: string; target_user_id: string }
+        Returns: string
       }
       user_has_sent_messages_to_any_listing: {
         Args: Record<PropertyKey, never>
