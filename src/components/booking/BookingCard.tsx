@@ -3,19 +3,21 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
-import { Calendar, MapPin, Euro, Clock } from 'lucide-react';
+import { Calendar, MapPin, Euro, Clock, X } from 'lucide-react';
 import { Booking } from '@/types/booking';
 import { format } from 'date-fns';
 
 interface BookingCardProps {
   booking: Booking;
   onStatusUpdate?: (bookingId: string, status: string) => void;
+  onCancelRequest?: (bookingId: string) => void;
   userRole?: 'tenant' | 'landlord';
 }
 
 export const BookingCard: React.FC<BookingCardProps> = ({
   booking,
   onStatusUpdate,
+  onCancelRequest,
   userRole = 'tenant'
 }) => {
   const getStatusColor = (status: string) => {
@@ -34,6 +36,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   };
 
   const canUpdateStatus = userRole === 'landlord' && booking.status === 'pending';
+  const canCancelRequest = userRole === 'tenant' && ['pending', 'confirmed'].includes(booking.status);
 
   return (
     <Card className="w-full">
@@ -107,6 +110,20 @@ export const BookingCard: React.FC<BookingCardProps> = ({
               onClick={() => onStatusUpdate?.(booking.id, 'cancelled')}
             >
               Decline
+            </Button>
+          </div>
+        )}
+
+        {canCancelRequest && (
+          <div className="pt-4">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => onCancelRequest?.(booking.id)}
+              className="w-full border-red-200 text-red-600 hover:bg-red-50"
+            >
+              <X className="w-4 h-4 mr-2" />
+              Cancel Rental Request
             </Button>
           </div>
         )}
