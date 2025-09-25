@@ -1,5 +1,6 @@
 import { useState, useEffect, useMemo } from 'react';
 import { useAuth } from '@/hooks/useAuth';
+import { useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -106,6 +107,7 @@ interface CancellationRequest {
 
 const OwnerDashboard = () => {
   const { user, profile } = useAuth();
+  const navigate = useNavigate();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalListings: 0,
@@ -133,8 +135,14 @@ const OwnerDashboard = () => {
 
   useEffect(() => {
     // Only admin users can access this dashboard
-    if (profile?.user_type !== 'admin') {
+    if (profile && profile.user_type !== 'admin') {
       console.log('User is not admin, redirecting...');
+      navigate('/');
+      return;
+    }
+    
+    // Don't fetch data if profile is not loaded or user is not admin
+    if (!profile || profile.user_type !== 'admin') {
       return;
     }
     
@@ -143,7 +151,7 @@ const OwnerDashboard = () => {
     fetchAnalytics();
     fetchConversations();
     fetchCancellationRequests();
-  }, [dateRange, profile]);
+  }, [dateRange, profile, navigate]);
 
   const fetchCancellationRequests = async () => {
     try {
@@ -552,6 +560,31 @@ const OwnerDashboard = () => {
             <h2 className="text-2xl font-bold mb-4">Conversations</h2>
             <p className="text-muted-foreground">Messaging system has been removed</p>
           </div>
+        </div>
+      </div>
+    );
+  }
+
+  // Show loading only if profile is still loading
+  if (!profile) {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary mx-auto mb-4"></div>
+          <p>Loading dashboard...</p>
+        </div>
+      </div>
+    );
+  }
+
+  // If user is not admin, show access denied message instead of infinite loading
+  if (profile.user_type !== 'admin') {
+    return (
+      <div className="min-h-screen bg-background flex items-center justify-center">
+        <div className="text-center">
+          <h1 className="text-2xl font-bold mb-4">Access Denied</h1>
+          <p className="text-muted-foreground mb-4">You need admin privileges to access this dashboard.</p>
+          <Button onClick={() => navigate('/')}>Go Home</Button>
         </div>
       </div>
     );
