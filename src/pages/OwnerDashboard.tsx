@@ -1,4 +1,5 @@
 import { useState, useEffect, useMemo } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -104,6 +105,7 @@ interface CancellationRequest {
 }
 
 const OwnerDashboard = () => {
+  const { user, profile } = useAuth();
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalListings: 0,
@@ -130,12 +132,18 @@ const OwnerDashboard = () => {
   const [cancellationRequests, setCancellationRequests] = useState<CancellationRequest[]>([]);
 
   useEffect(() => {
+    // Only admin users can access this dashboard
+    if (profile?.user_type !== 'admin') {
+      console.log('User is not admin, redirecting...');
+      return;
+    }
+    
     fetchDashboardData();
     fetchPendingListings();
     fetchAnalytics();
     fetchConversations();
     fetchCancellationRequests();
-  }, [dateRange]);
+  }, [dateRange, profile]);
 
   const fetchCancellationRequests = async () => {
     try {
