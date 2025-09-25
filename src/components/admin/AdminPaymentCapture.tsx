@@ -38,23 +38,36 @@ export function AdminPaymentCapture() {
     try {
       const { data, error } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          listings!inner(title, address_line, city),
-          profiles!tenant_id(full_name, email)
-        `)
+        .select('*')
         .eq('payment_status', 'approved_awaiting_capture')
         .eq('status', 'approved_awaiting_payment')
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formattedBookings = data.map((booking: any) => ({
-        ...booking,
-        listing_title: booking.listings?.title || 'Untitled Listing',
-        listing_address: `${booking.listings?.address_line || ''}, ${booking.listings?.city || ''}`.trim(),
-        tenant_name: booking.profiles?.full_name || 'Unknown',
-        tenant_email: booking.profiles?.email || ''
+      // Get additional data separately
+      const formattedBookings = await Promise.all(data.map(async (booking: any) => {
+        // Get listing info
+        const { data: listing } = await supabase
+          .from('listings')
+          .select('title, address_line, city')
+          .eq('id', booking.listing_id)
+          .single();
+
+        // Get tenant info
+        const { data: tenant } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('user_id', booking.tenant_id)
+          .single();
+
+        return {
+          ...booking,
+          listing_title: listing?.title || 'Untitled Listing',
+          listing_address: `${listing?.address_line || ''}, ${listing?.city || ''}`.trim(),
+          tenant_name: tenant?.full_name || 'Unknown',
+          tenant_email: tenant?.email || ''
+        };
       }));
 
       setApprovedBookings(formattedBookings);

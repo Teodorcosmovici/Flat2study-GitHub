@@ -42,25 +42,49 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
 
   const fetchBookingRequests = async () => {
     try {
+      // Get current user profile to get landlord ID
+      const { data: profile } = await supabase
+        .from('profiles')
+        .select('id')
+        .eq('user_id', landlordId)
+        .single();
+
+      if (!profile) {
+        throw new Error('Profile not found');
+      }
+
       const { data, error } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          listings!inner(title, address_line, city),
-          profiles!tenant_id(full_name, email)
-        `)
-        .eq('landlord_id', landlordId)
+        .select('*')
+        .eq('landlord_id', profile.id)
         .in('payment_status', ['authorized', 'pending'])
         .order('created_at', { ascending: false });
 
       if (error) throw error;
 
-      const formattedRequests = data.map((booking: any) => ({
-        ...booking,
-        listing_title: booking.listings?.title || 'Untitled Listing',
-        listing_address: `${booking.listings?.address_line || ''}, ${booking.listings?.city || ''}`.trim(),
-        tenant_name: booking.profiles?.full_name || 'Unknown',
-        tenant_email: booking.profiles?.email || ''
+      // Get additional data separately
+      const formattedRequests = await Promise.all(data.map(async (booking: any) => {
+        // Get listing info
+        const { data: listing } = await supabase
+          .from('listings')
+          .select('title, address_line, city')
+          .eq('id', booking.listing_id)
+          .single();
+
+        // Get tenant info
+        const { data: tenant } = await supabase
+          .from('profiles')
+          .select('full_name, email')
+          .eq('user_id', booking.tenant_id)
+          .single();
+
+        return {
+          ...booking,
+          listing_title: listing?.title || 'Untitled Listing',
+          listing_address: `${listing?.address_line || ''}, ${listing?.city || ''}`.trim(),
+          tenant_name: tenant?.full_name || 'Unknown',
+          tenant_email: tenant?.email || ''
+        };
       }));
 
       setRequests(formattedRequests);

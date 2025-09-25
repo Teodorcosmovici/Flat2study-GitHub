@@ -631,7 +631,7 @@ const OwnerDashboard = () => {
 
         {/* Booking Requests Section */}
         <div className="mb-8">
-          <BookingRequestManager landlordId="current-landlord-id" />
+          <BookingRequestManager landlordId={user?.id || ''} />
         </div>
 
         {/* Cancellation Requests Section */}
