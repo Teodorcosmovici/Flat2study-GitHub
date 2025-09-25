@@ -218,23 +218,43 @@ const OwnerDashboard = () => {
 
   const handleCancellationRequestDone = async (requestId: string) => {
     try {
-      const { error } = await supabase
-        .from('cancellation_requests')
-        .update({ 
-          status: 'reviewed',
-          reviewed_at: new Date().toISOString(),
-          reviewed_by: 'admin' // You could track the actual admin user if needed
-        })
-        .eq('id', requestId);
+      // Find the request to get the booking ID
+      const request = cancellationRequests.find(req => req.id === requestId);
+      if (!request) {
+        throw new Error('Cancellation request not found');
+      }
 
-      if (error) throw error;
+      // Update both the cancellation request and the booking status
+      const [cancellationError, bookingError] = await Promise.all([
+        supabase
+          .from('cancellation_requests')
+          .update({ 
+            status: 'reviewed',
+            reviewed_at: new Date().toISOString(),
+            reviewed_by: 'admin' // You could track the actual admin user if needed
+          })
+          .eq('id', requestId)
+          .then(result => result.error),
+        
+        supabase
+          .from('bookings')
+          .update({ 
+            status: 'cancelled',
+            updated_at: new Date().toISOString()
+          })
+          .eq('id', request.booking_id)
+          .then(result => result.error)
+      ]);
+
+      if (cancellationError) throw cancellationError;
+      if (bookingError) throw bookingError;
 
       // Remove from local state
       setCancellationRequests(prev => prev.filter(req => req.id !== requestId));
       
       toast({
         title: "Success",
-        description: "Cancellation request marked as done",
+        description: "Cancellation request processed and booking status updated",
       });
     } catch (error) {
       console.error('Error updating cancellation request:', error);
