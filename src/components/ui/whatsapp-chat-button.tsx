@@ -13,7 +13,7 @@ export const ChatButton: React.FC = () => {
         <DialogTrigger asChild>
           <Button
             size="icon"
-            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 animate-pulse hover:animate-none group"
+            className="h-14 w-14 rounded-full bg-primary hover:bg-primary/90 shadow-lg hover:shadow-xl transition-all duration-300 group"
             aria-label="Chat with support"
           >
             <MessageCircle className="h-6 w-6 text-primary-foreground group-hover:scale-110 transition-transform duration-200" />
