@@ -7,6 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
+import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
 import { BookingRequestManager } from '@/components/booking/BookingRequestManager';
 import { AdminPaymentCapture } from '@/components/admin/AdminPaymentCapture';
@@ -636,133 +637,141 @@ const OwnerDashboard = () => {
 
         {/* Cancellation Requests Section */}
         <div className="mb-8">
-          <div className="flex justify-between items-center mb-6">
-            <div>
-              <h2 className="text-2xl font-bold">Cancellation Requests</h2>
-              <p className="text-muted-foreground">Manage tenant booking cancellation requests</p>
-            </div>
-            <Badge variant="outline" className="text-orange-600">
-              {cancellationRequests.length} Pending
-            </Badge>
-          </div>
+          <Accordion type="single" collapsible className="w-full">
+            <AccordionItem value="cancellation-requests" className="border rounded-lg">
+              <AccordionTrigger className="px-4 py-3 hover:no-underline">
+                <div className="flex items-center justify-between w-full mr-4">
+                  <div className="flex items-center gap-3">
+                    <span className="font-medium text-xl">Cancellation Requests</span>
+                    <p className="text-muted-foreground text-sm">Manage tenant booking cancellation requests</p>
+                  </div>
+                  <Badge variant="outline" className="text-orange-600">
+                    {cancellationRequests.length} Pending
+                  </Badge>
+                </div>
+              </AccordionTrigger>
 
-          <div className="space-y-4">
-            {cancellationRequests.length === 0 ? (
-              <Card>
-                <CardContent className="p-12 text-center">
-                  <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
-                  <h4 className="text-lg font-semibold mb-2">No pending cancellation requests</h4>
-                  <p className="text-muted-foreground">
-                    All cancellation requests have been processed.
-                  </p>
-                </CardContent>
-              </Card>
-            ) : (
-              cancellationRequests.map((request) => (
-                <Card key={request.id} className="border-l-4 border-l-orange-500">
-                  <CardContent className="p-6">
-                    <div className="flex gap-6">
-                      {/* Property Image */}
-                      <div className="flex-shrink-0">
-                        {request.images[0] && (
-                          <img
-                            src={request.images[0]}
-                            alt={request.listing_title}
-                            className="w-24 h-24 object-cover rounded-lg"
-                          />
-                        )}
-                      </div>
-
-                      {/* Main Content */}
-                      <div className="flex-1 space-y-4">
-                        <div className="flex justify-between items-start">
-                          <div>
-                            <h3 className="text-lg font-semibold">{request.listing_title}</h3>
-                            <p className="text-muted-foreground">{request.address_line}</p>
-                            <p className="text-sm font-medium text-green-600 mt-1">
-                              €{request.monthly_rent}/month
-                            </p>
-                            <p className="text-xs text-muted-foreground/70 font-mono mt-1">
-                              Listing ID: {request.listing_id}
-                            </p>
-                          </div>
-                          <Badge variant="outline" className="text-orange-600">
-                            <Clock className="h-3 w-3 mr-1" />
-                            Pending Review
-                          </Badge>
-                        </div>
-
-                        {/* Tenant Information */}
-                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-                          <div>
-                            <h4 className="font-medium mb-2">Tenant Information</h4>
-                            <div className="space-y-1 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">Name:</span>
-                                <span>{request.tenant_name}</span>
-                              </div>
-                              <div className="flex items-center gap-2">
-                                <Mail className="h-4 w-4" />
-                                <span>{request.tenant_email}</span>
-                              </div>
-                              {request.tenant_phone && (
-                                <div className="flex items-center gap-2">
-                                  <Phone className="h-4 w-4" />
-                                  <span>{blurPhoneNumber(request.tenant_phone)}</span>
-                                </div>
+              <AccordionContent className="px-4 pb-4">
+                <div className="space-y-4">
+                  {cancellationRequests.length === 0 ? (
+                    <Card>
+                      <CardContent className="p-12 text-center">
+                        <CheckCircle className="mx-auto h-12 w-12 text-green-500 mb-4" />
+                        <h4 className="text-lg font-semibold mb-2">No pending cancellation requests</h4>
+                        <p className="text-muted-foreground">
+                          All cancellation requests have been processed.
+                        </p>
+                      </CardContent>
+                    </Card>
+                  ) : (
+                    cancellationRequests.map((request) => (
+                      <Card key={request.id} className="border-l-4 border-l-orange-500">
+                        <CardContent className="p-6">
+                          <div className="flex gap-6">
+                            {/* Property Image */}
+                            <div className="flex-shrink-0">
+                              {request.images[0] && (
+                                <img
+                                  src={request.images[0]}
+                                  alt={request.listing_title}
+                                  className="w-24 h-24 object-cover rounded-lg"
+                                />
                               )}
                             </div>
-                          </div>
 
-                          <div>
-                            <h4 className="font-medium mb-2">Booking Details</h4>
-                            <div className="space-y-1 text-sm text-muted-foreground">
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                <span>Check-in: {new Date(request.check_in_date).toLocaleDateString()}</span>
+                            {/* Main Content */}
+                            <div className="flex-1 space-y-4">
+                              <div className="flex justify-between items-start">
+                                <div>
+                                  <h3 className="text-lg font-semibold">{request.listing_title}</h3>
+                                  <p className="text-muted-foreground">{request.address_line}</p>
+                                  <p className="text-sm font-medium text-green-600 mt-1">
+                                    €{request.monthly_rent}/month
+                                  </p>
+                                  <p className="text-xs text-muted-foreground/70 font-mono mt-1">
+                                    Listing ID: {request.listing_id}
+                                  </p>
+                                </div>
+                                <Badge variant="outline" className="text-orange-600">
+                                  <Clock className="h-3 w-3 mr-1" />
+                                  Pending Review
+                                </Badge>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <Calendar className="h-4 w-4" />
-                                <span>Check-out: {new Date(request.check_out_date).toLocaleDateString()}</span>
+
+                              {/* Tenant Information */}
+                              <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
+                                <div>
+                                  <h4 className="font-medium mb-2">Tenant Information</h4>
+                                  <div className="space-y-1 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">Name:</span>
+                                      <span>{request.tenant_name}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Mail className="h-4 w-4" />
+                                      <span>{request.tenant_email}</span>
+                                    </div>
+                                    {request.tenant_phone && (
+                                      <div className="flex items-center gap-2">
+                                        <Phone className="h-4 w-4" />
+                                        <span>{blurPhoneNumber(request.tenant_phone)}</span>
+                                      </div>
+                                    )}
+                                  </div>
+                                </div>
+
+                                <div>
+                                  <h4 className="font-medium mb-2">Booking Details</h4>
+                                  <div className="space-y-1 text-sm text-muted-foreground">
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4" />
+                                      <span>Check-in: {new Date(request.check_in_date).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <Calendar className="h-4 w-4" />
+                                      <span>Check-out: {new Date(request.check_out_date).toLocaleDateString()}</span>
+                                    </div>
+                                    <div className="flex items-center gap-2">
+                                      <span className="font-medium">Total Amount:</span>
+                                      <span>€{request.total_amount}</span>
+                                    </div>
+                                  </div>
+                                </div>
                               </div>
-                              <div className="flex items-center gap-2">
-                                <span className="font-medium">Total Amount:</span>
-                                <span>€{request.total_amount}</span>
+
+                              {/* Cancellation Reason */}
+                              <div>
+                                <h4 className="font-medium mb-2">Cancellation Reason</h4>
+                                <div className="bg-muted/50 p-3 rounded-lg">
+                                  <p className="text-sm text-muted-foreground">
+                                    {request.reason || 'No reason provided'}
+                                  </p>
+                                </div>
+                              </div>
+
+                              {/* Request Details */}
+                              <div className="flex items-center justify-between pt-2 border-t">
+                                <div className="text-xs text-muted-foreground">
+                                  <span>Requested: {formatDate(request.created_at)}</span>
+                                </div>
+                                <Button
+                                  onClick={() => handleCancellationRequestDone(request.id)}
+                                  className="bg-green-600 hover:bg-green-700"
+                                >
+                                  <CheckCircle className="h-4 w-4 mr-2" />
+                                  Mark as Done
+                                </Button>
                               </div>
                             </div>
                           </div>
-                        </div>
-
-                        {/* Cancellation Reason */}
-                        <div>
-                          <h4 className="font-medium mb-2">Cancellation Reason</h4>
-                          <div className="bg-muted/50 p-3 rounded-lg">
-                            <p className="text-sm text-muted-foreground">
-                              {request.reason || 'No reason provided'}
-                            </p>
-                          </div>
-                        </div>
-
-                        {/* Request Details */}
-                        <div className="flex items-center justify-between pt-2 border-t">
-                          <div className="text-xs text-muted-foreground">
-                            <span>Requested: {formatDate(request.created_at)}</span>
-                          </div>
-                          <Button
-                            onClick={() => handleCancellationRequestDone(request.id)}
-                            className="bg-green-600 hover:bg-green-700"
-                          >
-                            <CheckCircle className="h-4 w-4 mr-2" />
-                            Mark as Done
-                          </Button>
-                        </div>
-                      </div>
-                    </div>
-                  </CardContent>
-                </Card>
-              ))
-            )}
-          </div>
+                        </CardContent>
+                      </Card>
+                    ))
+                  )}
+                </div>
+              </AccordionContent>
+            </AccordionItem>
+          </Accordion>
         </div>
         {/* Pending Listings Review Section */}
         <div className="mb-8">
