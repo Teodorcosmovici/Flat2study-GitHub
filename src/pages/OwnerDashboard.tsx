@@ -636,7 +636,7 @@ const OwnerDashboard = () => {
                               </div>
                               <div className="flex items-center gap-2">
                                 <Mail className="h-4 w-4" />
-                                <span>{blurEmailAddress(request.tenant_email)}</span>
+                                <span>{request.tenant_email}</span>
                               </div>
                               {request.tenant_phone && (
                                 <div className="flex items-center gap-2">
