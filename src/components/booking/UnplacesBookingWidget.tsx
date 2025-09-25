@@ -182,7 +182,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   };
 
   const getDateRecommendation = () => {
-    if (!checkIn) return null;
+    if (!checkIn || !checkOut) return null;
     
     const date = checkIn.getDate();
     const month = checkIn.getMonth();
@@ -190,13 +190,13 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     
     // Check if within 6 days before mid-month (9th-15th)
     if (date >= 10 && date <= 15) {
-      const firstOfMonth = new Date(year, month, 1);
+      const sixteenthOfMonth = new Date(year, month, 16);
       const savings = Math.round(listing.rentMonthlyEur / 2);
       return {
         type: 'mid-month',
-        recommendedDate: format(firstOfMonth, "MMMM dd yyyy"),
+        recommendedDate: sixteenthOfMonth,
         savings: formatPrice(savings),
-        message: `If you select ${format(firstOfMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
+        message: `If you select ${format(sixteenthOfMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
       };
     }
     
@@ -207,7 +207,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
       const savings = Math.round(listing.rentMonthlyEur / 2);
       return {
         type: 'month-end',
-        recommendedDate: format(firstOfNextMonth, "MMMM dd yyyy"),
+        recommendedDate: firstOfNextMonth,
         savings: formatPrice(savings),
         message: `If you select ${format(firstOfNextMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
       };
@@ -223,10 +223,17 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   };
 
   const handleChangeDates = () => {
-    setCheckIn(undefined);
-    setCheckOut(undefined);
-    setShowRecommendation(true);
-    onDatesChange?.(null);
+    if (recommendation?.recommendedDate) {
+      setCheckIn(recommendation.recommendedDate);
+      setCheckOut(undefined);
+      setShowRecommendation(false);
+      onDatesChange?.(null);
+    } else {
+      setCheckIn(undefined);
+      setCheckOut(undefined);
+      setShowRecommendation(true);
+      onDatesChange?.(null);
+    }
   };
 
   return (
