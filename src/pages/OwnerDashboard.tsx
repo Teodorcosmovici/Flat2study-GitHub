@@ -245,7 +245,7 @@ const OwnerDashboard = () => {
         supabase
           .from('cancellation_requests')
           .update({ 
-            status: 'reviewed',
+            status: 'approved',
             reviewed_at: new Date().toISOString(),
             reviewed_by: user?.id
           })
