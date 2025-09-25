@@ -26,6 +26,7 @@ interface Listing {
   published_at: string;
   bedrooms: number;
   bathrooms: number;
+  booking_requests_count?: number;
 }
 
 interface Booking {
@@ -98,7 +99,7 @@ export const LandlordDashboard = () => {
     if (!profile) return;
 
     try {
-      // Fetch listings
+      // Fetch listings with booking request counts
       const { data: listingsData, error: listingsError } = await supabase
         .from('listings')
         .select('*')
@@ -107,10 +108,24 @@ export const LandlordDashboard = () => {
 
       if (listingsError) throw listingsError;
 
-      setListings((listingsData || []).map(listing => ({
-        ...listing,
-        images: Array.isArray(listing.images) ? listing.images.map(img => String(img)) : []
-      })));
+      // For each listing, count booking requests
+      const listingsWithCounts = await Promise.all(
+        (listingsData || []).map(async (listing) => {
+          const { count } = await supabase
+            .from('bookings')
+            .select('*', { count: 'exact', head: true })
+            .eq('listing_id', listing.id)
+            .eq('payment_status', 'authorized');
+          
+          return {
+            ...listing,
+            images: Array.isArray(listing.images) ? listing.images.map(img => String(img)) : [],
+            booking_requests_count: count || 0
+          };
+        })
+      );
+
+      setListings(listingsWithCounts);
       
       // Skip bookings for now due to database relationship issues
       setBookings([]);
@@ -127,16 +142,17 @@ export const LandlordDashboard = () => {
   };
 
   const getStatusBadge = (status: string, reviewStatus: string) => {
-    if (reviewStatus === 'pending_review') {
-      return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Unpublished</Badge>;
-    }
-    if (reviewStatus === 'rejected') {
-      return <Badge variant="destructive">Rejected</Badge>;
+    if (status === 'RENTED') {
+      return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">Rented</Badge>;
     }
     if (status === 'PUBLISHED') {
       return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Published</Badge>;
     }
-    return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Unpublished</Badge>;
+    if (reviewStatus === 'rejected') {
+      return <Badge variant="destructive">Rejected</Badge>;
+    }
+    // Default for DRAFT, pending_review, etc.
+    return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Pending</Badge>;
   };
 
   const handleDeleteListing = async (listingId: string) => {
@@ -304,7 +320,7 @@ export const LandlordDashboard = () => {
             {/* Listings Table */}
             <div className="bg-card rounded-lg border">
               {/* Table Header */}
-              <div className="grid grid-cols-11 gap-4 p-4 border-b bg-muted/20 rounded-t-lg font-medium text-sm text-muted-foreground">
+              <div className="grid grid-cols-10 gap-4 p-4 border-b bg-muted/20 rounded-t-lg font-medium text-sm text-muted-foreground">
                 <div className="col-span-1">
                   <input type="checkbox" className="rounded" />
                 </div>
@@ -312,13 +328,12 @@ export const LandlordDashboard = () => {
                 <div className="col-span-1">PRICE</div>
                 <div className="col-span-2">VERIFICATION</div>
                 <div className="col-span-2">TENANTS INTERESTED</div>
-                <div className="col-span-1">SCORE</div>
                 <div className="col-span-1">ACTIONS</div>
               </div>
 
               {/* Table Content */}
-              {listings.filter(listing => listing.status !== 'RENTED').map((listing) => (
-                <div key={listing.id} className="grid grid-cols-11 gap-4 p-4 border-b hover:bg-muted/5">
+              {listings.map((listing) => (
+                <div key={listing.id} className="grid grid-cols-10 gap-4 p-4 border-b hover:bg-muted/5">
                   <div className="col-span-1">
                     <input type="checkbox" className="rounded" />
                   </div>
@@ -346,25 +361,14 @@ export const LandlordDashboard = () => {
                     <span className="font-medium">€{listing.rent_monthly_eur}</span>
                   </div>
                   <div className="col-span-2">
-                    <div className="flex items-center gap-2">
-                      {listing.review_status === 'approved' ? (
-                        <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">
-                          Draft →
-                        </Badge>
-                      ) : (
-                        <Badge variant="outline" className="text-orange-600 border-orange-200">
-                          Draft →
-                        </Badge>
-                      )}
-                    </div>
+                    {getStatusBadge(listing.status, listing.review_status)}
                   </div>
                   <div className="col-span-2">
-                    <Badge variant="outline" className="text-orange-600 border-orange-200">
-                      Draft →
-                    </Badge>
-                  </div>
-                  <div className="col-span-1">
-                    <span className="text-muted-foreground">-</span>
+                    <div className="flex items-center gap-1">
+                      <MessageSquare className="w-4 h-4 text-muted-foreground" />
+                      <span className="font-medium">{listing.booking_requests_count || 0}</span>
+                      <span className="text-sm text-muted-foreground">requests</span>
+                    </div>
                   </div>
                   <div className="col-span-1">
                     <div className="flex gap-2">
@@ -392,7 +396,7 @@ export const LandlordDashboard = () => {
                 </div>
               ))}
 
-              {listings.filter(listing => listing.status !== 'RENTED').length === 0 && (
+              {listings.length === 0 && (
                 <div className="p-12 text-center">
                   <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
                   <h3 className="text-lg font-semibold mb-2">No listings yet</h3>
