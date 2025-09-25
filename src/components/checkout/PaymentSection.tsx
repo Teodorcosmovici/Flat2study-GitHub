@@ -5,6 +5,7 @@ import { Listing } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 import { useState } from 'react';
+import { useAuth } from '@/hooks/useAuth';
 
 interface PaymentSectionProps {
   listing: Listing;
@@ -23,6 +24,7 @@ export function PaymentSection({
   persons, 
   onPaymentSuccess 
 }: PaymentSectionProps) {
+  const { user } = useAuth();
   const [loading, setLoading] = useState(false);
   
   // Align amounts with the "Review price details" modal
@@ -35,6 +37,12 @@ export function PaymentSection({
   const handlePayment = async () => {
     try {
       setLoading(true);
+      
+      // Check if user is authenticated
+      if (!user) {
+        toast.error('Please log in to continue with payment');
+        return;
+      }
       
       // Call the create-payment-authorization edge function
       const { data, error } = await supabase.functions.invoke('create-payment-authorization', {
@@ -142,7 +150,7 @@ export function PaymentSection({
 
           <Button 
             onClick={handlePayment} 
-            disabled={loading}
+            disabled={loading || !user}
             className="w-full h-12 text-base"
           >
             {loading ? (
