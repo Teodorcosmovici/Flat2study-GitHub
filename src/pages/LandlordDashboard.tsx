@@ -47,6 +47,7 @@ export const LandlordDashboard = () => {
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookingRequests, setBookingRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
   // Use the dashboard stats hook for real-time updates
@@ -127,7 +128,24 @@ export const LandlordDashboard = () => {
 
       setListings(listingsWithCounts);
       
-      // Skip bookings for now due to database relationship issues
+      // Fetch booking requests with payment_status = 'authorized'
+      const { data: bookingRequestsData, error: bookingError } = await supabase
+        .from('bookings')
+        .select(`
+          *,
+          listing:listings(title, address_line, images),
+          tenant:profiles!bookings_tenant_id_fkey(full_name, university, email, phone)
+        `)
+        .eq('landlord_id', profile.id)
+        .eq('payment_status', 'authorized')
+        .order('created_at', { ascending: false });
+
+      if (bookingError) {
+        console.error('Error fetching booking requests:', bookingError);
+      } else {
+        setBookingRequests(bookingRequestsData || []);
+      }
+      
       setBookings([]);
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -138,6 +156,36 @@ export const LandlordDashboard = () => {
       });
     } finally {
       setLoading(false);
+    }
+  };
+
+  const handleBookingResponse = async (bookingId: string, response: 'accepted' | 'refused') => {
+    try {
+      const { error } = await supabase
+        .from('bookings')
+        .update({ 
+          status: response === 'accepted' ? 'confirmed' : 'cancelled',
+          landlord_response: response,
+          updated_at: new Date().toISOString()
+        })
+        .eq('id', bookingId);
+
+      if (error) throw error;
+
+      // Refresh the booking requests
+      await fetchDashboardData();
+      
+      toast({
+        title: "Success",
+        description: `Booking request ${response} successfully`,
+      });
+    } catch (error) {
+      console.error('Error updating booking:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update booking request",
+        variant: "destructive",
+      });
     }
   };
 
@@ -414,19 +462,167 @@ export const LandlordDashboard = () => {
 
           {/* Booking Requests Tab */}
           <TabsContent value="booking-requests" className="py-6">
-            <div className="text-center py-12">
-              <MessageSquare className="mx-auto h-12 w-12 text-blue-500 mb-4" />
-              <h3 className="text-xl font-semibold mb-2">It looks like you don't have any booking requests at the moment.</h3>
-              <p className="text-muted-foreground mb-4">
-                Once you receive booking requests, you can see them here.
-              </p>
-              <p className="text-muted-foreground">
-                Want to increase your chances of getting booking requests? 
-                <Button variant="link" className="text-blue-500 p-0 ml-1">
-                  Promote your listings!
-                </Button>
-              </p>
-            </div>
+            {bookingRequests.length === 0 ? (
+              <div className="text-center py-12">
+                <MessageSquare className="mx-auto h-12 w-12 text-blue-500 mb-4" />
+                <h3 className="text-xl font-semibold mb-2">It looks like you don't have any booking requests at the moment.</h3>
+                <p className="text-muted-foreground mb-4">
+                  Once you receive booking requests, you can see them here.
+                </p>
+                <p className="text-muted-foreground">
+                  Want to increase your chances of getting booking requests? 
+                  <Button variant="link" className="text-blue-500 p-0 ml-1">
+                    Promote your listings!
+                  </Button>
+                </p>
+              </div>
+            ) : (
+              <div className="space-y-6">
+                <div className="flex justify-between items-center">
+                  <h2 className="text-3xl font-bold">{bookingRequests.length} Booking Requests</h2>
+                </div>
+
+                <div className="space-y-4">
+                  {bookingRequests.map((request) => (
+                    <Card key={request.id} className="p-6">
+                      <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                        {/* Left Column - Tenant Info */}
+                        <div className="space-y-4">
+                          <div className="flex items-center gap-3">
+                            <div className="w-12 h-12 bg-primary/10 rounded-full flex items-center justify-center">
+                              <User className="w-6 h-6 text-primary" />
+                            </div>
+                            <div>
+                              <h3 className="font-semibold text-lg">{request.tenant?.full_name}</h3>
+                              <p className="text-sm text-muted-foreground">{request.tenant?.email}</p>
+                            </div>
+                          </div>
+                          
+                          <div className="space-y-2">
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">University:</span>
+                              <span className="text-sm">{request.tenant?.university || 'Not specified'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">Phone:</span>
+                              <span className="text-sm">{request.tenant?.phone || 'Not provided'}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">Check-in:</span>
+                              <span className="text-sm">{new Date(request.check_in_date).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">Check-out:</span>
+                              <span className="text-sm">{new Date(request.check_out_date).toLocaleDateString()}</span>
+                            </div>
+                            <div className="flex justify-between">
+                              <span className="text-sm font-medium">Monthly Rent:</span>
+                              <span className="text-sm font-semibold">€{request.monthly_rent}</span>
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Middle Column - Listing Info & Application */}
+                        <div className="space-y-4">
+                          <div>
+                            <h4 className="font-medium mb-2">Property</h4>
+                            <div className="flex gap-3">
+                              {request.listing?.images?.[0] && (
+                                <img
+                                  src={request.listing.images[0]}
+                                  alt={request.listing.title}
+                                  className="w-16 h-16 object-cover rounded-lg"
+                                />
+                              )}
+                              <div>
+                                <p className="font-medium text-sm">{request.listing?.title}</p>
+                                <p className="text-xs text-muted-foreground">{request.listing?.address_line}</p>
+                              </div>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="font-medium mb-2">Application Message</h4>
+                            <div className="bg-muted/30 p-3 rounded-lg text-sm">
+                              {/* Note: The rental application message would need to be stored somewhere in the booking flow */}
+                              <p className="text-muted-foreground italic">
+                                Message content would be stored during the rental application process
+                              </p>
+                            </div>
+                          </div>
+
+                          <div>
+                            <h4 className="font-medium mb-2">Supporting Document</h4>
+                            <div className="text-sm text-muted-foreground">
+                              {/* Note: Document would need to be stored as part of the booking process */}
+                              Document upload feature needs integration with rental application form
+                            </div>
+                          </div>
+                        </div>
+
+                        {/* Right Column - Actions */}
+                        <div className="space-y-4">
+                          <div className="text-center space-y-2">
+                            <div className="text-sm text-muted-foreground">
+                              Request received: {new Date(request.created_at).toLocaleDateString()}
+                            </div>
+                            <div className="text-sm text-muted-foreground">
+                              Payment authorized until: {new Date(request.authorization_expires_at).toLocaleDateString()}
+                            </div>
+                          </div>
+
+                          {request.status === 'pending_landlord_response' ? (
+                            <div className="space-y-3">
+                              <Button 
+                                onClick={() => handleBookingResponse(request.id, 'accepted')}
+                                className="w-full bg-green-600 hover:bg-green-700"
+                              >
+                                <CheckCircle className="w-4 h-4 mr-2" />
+                                Accept Application
+                              </Button>
+                              
+                              <AlertDialog>
+                                <AlertDialogTrigger asChild>
+                                  <Button variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50">
+                                    Refuse Application
+                                  </Button>
+                                </AlertDialogTrigger>
+                                <AlertDialogContent>
+                                  <AlertDialogHeader>
+                                    <AlertDialogTitle>Refuse Application</AlertDialogTitle>
+                                    <AlertDialogDescription>
+                                      Are you sure you want to refuse this rental application? This action cannot be undone.
+                                    </AlertDialogDescription>
+                                  </AlertDialogHeader>
+                                  <AlertDialogFooter>
+                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogAction 
+                                      onClick={() => handleBookingResponse(request.id, 'refused')}
+                                      className="bg-red-600 hover:bg-red-700"
+                                    >
+                                      Refuse Application
+                                    </AlertDialogAction>
+                                  </AlertDialogFooter>
+                                </AlertDialogContent>
+                              </AlertDialog>
+                            </div>
+                          ) : (
+                            <div className="text-center">
+                              <Badge 
+                                variant={request.status === 'confirmed' ? 'default' : 'destructive'}
+                                className={request.status === 'confirmed' ? 'bg-green-100 text-green-800 border-green-200' : ''}
+                              >
+                                {request.status === 'confirmed' ? 'Accepted' : 'Refused'}
+                              </Badge>
+                            </div>
+                          )}
+                        </div>
+                      </div>
+                    </Card>
+                  ))}
+                </div>
+              </div>
+            )}
           </TabsContent>
 
           {/* Confirmed Bookings Tab */}
