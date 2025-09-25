@@ -108,10 +108,6 @@ export default function ListingCard({
                   decoding="async"
                 />
                 
-                {/* Image counter */}
-                <div className="absolute top-2 right-2 bg-black/50 text-white px-2 py-1 rounded text-xs z-20">
-                  {currentImageIndex + 1}/{listing.images.length}
-                </div>
                 
                 {/* Navigation arrows */}
                 <button
