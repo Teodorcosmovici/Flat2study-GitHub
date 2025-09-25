@@ -110,13 +110,16 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
 
       if (error) throw error;
 
+      // Immediately remove the request from the local state
+      setRequests(prevRequests => prevRequests.filter(req => req.id !== bookingId));
+
       toast.success(
         response === 'approved' 
           ? 'Booking approved! Payment will need to be captured manually from admin dashboard.' 
           : 'Booking declined. Payment authorization remains; cancel it manually in admin.'
       );
 
-      // Refresh the requests list
+      // Refresh the requests list to ensure consistency
       await fetchBookingRequests();
     } catch (error) {
       console.error('Error processing booking response:', error);
