@@ -11,6 +11,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 
 import { BookingRequestManager } from '@/components/booking/BookingRequestManager';
 import { AdminPaymentCapture } from '@/components/admin/AdminPaymentCapture';
+import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { 
   Users, 
   Building, 
@@ -1057,6 +1058,11 @@ const OwnerDashboard = () => {
               </div>
             </CardContent>
           </Card>
+
+          {/* Support Messages from Chat Widget */}
+          <div className="col-span-3">
+            <SupportMessagesManager />
+          </div>
 
           <Card>
             <CardContent className="p-6">
