@@ -113,20 +113,15 @@ export const ContactInfo: React.FC<ContactInfoProps> = ({
   }
 
   return (
-    <div className="space-y-2">
-      <ContactAccessRequest
-        targetProfileId={profileId}
-        listingId={listingId}
-        landlordName={name}
-      >
-        <Button variant="outline" size="sm" className="w-full">
-          <Lock className="h-4 w-4 mr-2" />
-          Request Contact Info
-        </Button>
-      </ContactAccessRequest>
-      <p className="text-xs text-muted-foreground">
-        Contact information is protected. Send a request to the property owner.
-      </p>
-    </div>
+    <ContactAccessRequest
+      targetProfileId={profileId}
+      listingId={listingId}
+      landlordName={name}
+    >
+      <Button variant="outline" size="sm" className="w-full">
+        <Lock className="h-4 w-4 mr-2" />
+        Request Contact Info
+      </Button>
+    </ContactAccessRequest>
   );
 };
