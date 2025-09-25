@@ -48,8 +48,8 @@ export default function Checkout() {
       return;
     }
 
-    // If user is logged in, fetch listing
-    if (user) {
+    // Fetch listing when needed (on first load or after returning from Stripe)
+    if (id && !listing) {
       fetchListing();
     }
 
@@ -57,7 +57,7 @@ export default function Checkout() {
     if (sessionId && !paymentVerified) {
       verifyPayment(sessionId);
     }
-  }, [id, user, authLoading, searchParams, currentStep]);
+  }, [id, user, authLoading, searchParams, currentStep, listing]);
 
   const fetchListing = async () => {
     if (!id) return;

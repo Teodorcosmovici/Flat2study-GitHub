@@ -65,8 +65,8 @@ export function PaymentSection({
       }
 
       if (data?.checkoutUrl) {
-        // Redirect to Stripe Checkout
-        window.open(data.checkoutUrl, '_blank');
+        // Redirect to Stripe Checkout in the same tab to preserve flow
+        window.location.href = data.checkoutUrl;
         toast.success('Redirecting to secure payment...');
       } else {
         throw new Error('No checkout URL received');
