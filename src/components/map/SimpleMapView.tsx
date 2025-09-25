@@ -429,7 +429,7 @@ export default function SimpleMapView({
 
   return (
     <div className={className}>
-      <div ref={mapRef} style={{ height: '100%', width: '100%' }} />
+      <div ref={mapRef} style={{ height: '100%', width: '100%', zIndex: 0 }} />
     </div>
   );
 }
