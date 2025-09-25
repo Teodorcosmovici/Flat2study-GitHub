@@ -174,6 +174,9 @@ export type Database = {
       }
       bookings: {
         Row: {
+          application_document_type: string | null
+          application_document_url: string | null
+          application_message: string | null
           authorization_expires_at: string | null
           check_in_date: string
           check_out_date: string
@@ -196,6 +199,9 @@ export type Database = {
           updated_at: string
         }
         Insert: {
+          application_document_type?: string | null
+          application_document_url?: string | null
+          application_message?: string | null
           authorization_expires_at?: string | null
           check_in_date: string
           check_out_date: string
@@ -218,6 +224,9 @@ export type Database = {
           updated_at?: string
         }
         Update: {
+          application_document_type?: string | null
+          application_document_url?: string | null
+          application_message?: string | null
           authorization_expires_at?: string | null
           check_in_date?: string
           check_out_date?: string

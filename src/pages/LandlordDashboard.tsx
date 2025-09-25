@@ -544,19 +544,30 @@ export const LandlordDashboard = () => {
                           <div>
                             <h4 className="font-medium mb-2">Application Message</h4>
                             <div className="bg-muted/30 p-3 rounded-lg text-sm">
-                              {/* Note: The rental application message would need to be stored somewhere in the booking flow */}
-                              <p className="text-muted-foreground italic">
-                                Message content would be stored during the rental application process
-                              </p>
+                              {request.application_message ? (
+                                <p>{request.application_message}</p>
+                              ) : (
+                                <p className="text-muted-foreground italic">No message provided</p>
+                              )}
                             </div>
                           </div>
 
                           <div>
                             <h4 className="font-medium mb-2">Supporting Document</h4>
-                            <div className="text-sm text-muted-foreground">
-                              {/* Note: Document would need to be stored as part of the booking process */}
-                              Document upload feature needs integration with rental application form
-                            </div>
+                            {request.application_document_url ? (
+                              <a 
+                                href={request.application_document_url}
+                                target="_blank"
+                                rel="noopener noreferrer"
+                                className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2"
+                              >
+                                View Document ({request.application_document_type || 'PDF'})
+                              </a>
+                            ) : (
+                              <div className="text-sm text-muted-foreground">
+                                No document uploaded
+                              </div>
+                            )}
                           </div>
                         </div>
 
