@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Alert, AlertDescription } from '@/components/ui/alert';
+import { Checkbox } from '@/components/ui/checkbox';
 import { Loader2, ArrowLeft, Upload, User } from 'lucide-react';
 import { Link, useNavigate, useSearchParams } from 'react-router-dom';
 
@@ -27,6 +28,8 @@ export default function SignupPrivate() {
   const [codiceFiscale, setCodiceFiscale] = useState('');
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
+  const [acceptedTerms, setAcceptedTerms] = useState(false);
+  const [acceptedPrivacy, setAcceptedPrivacy] = useState(false);
 
   const handleProfilePictureChange = (e: React.ChangeEvent<HTMLInputElement>) => {
     if (e.target.files && e.target.files[0]) {
@@ -48,6 +51,18 @@ export default function SignupPrivate() {
 
     if (password.length < 6) {
       setError(t('auth.passwordTooShort'));
+      setLoading(false);
+      return;
+    }
+
+    if (!acceptedTerms) {
+      setError('You must accept the Terms of Use to continue');
+      setLoading(false);
+      return;
+    }
+
+    if (!acceptedPrivacy) {
+      setError('You must accept the Privacy Policy to continue');
       setLoading(false);
       return;
     }
@@ -256,7 +271,56 @@ export default function SignupPrivate() {
                 />
               </div>
 
-              <Button type="submit" className="w-full" disabled={loading}>
+              {/* Terms and Privacy acceptance */}
+              <div className="space-y-3">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms"
+                    checked={acceptedTerms}
+                    onCheckedChange={(checked) => setAcceptedTerms(checked as boolean)}
+                    className="mt-1"
+                  />
+                  <div className="text-sm">
+                    <Label htmlFor="terms" className="cursor-pointer">
+                      I accept the{' '}
+                      <a 
+                        href="/TERMS_OF_USE.docx" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Terms of Use
+                      </a>
+                      {' '}*
+                    </Label>
+                  </div>
+                </div>
+                
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="privacy"
+                    checked={acceptedPrivacy}
+                    onCheckedChange={(checked) => setAcceptedPrivacy(checked as boolean)}
+                    className="mt-1"
+                  />
+                  <div className="text-sm">
+                    <Label htmlFor="privacy" className="cursor-pointer">
+                      I accept the{' '}
+                      <a 
+                        href="/Privacy_Notice.docx" 
+                        target="_blank" 
+                        rel="noopener noreferrer"
+                        className="text-primary hover:underline"
+                      >
+                        Privacy Policy
+                      </a>
+                      {' '}*
+                    </Label>
+                  </div>
+                </div>
+              </div>
+
+              <Button type="submit" className="w-full" disabled={loading || !acceptedTerms || !acceptedPrivacy}>
                 {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
                 {t('signup.private.createAccount')}
               </Button>
