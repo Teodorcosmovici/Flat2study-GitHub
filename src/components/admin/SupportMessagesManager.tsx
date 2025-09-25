@@ -6,7 +6,7 @@ import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, Phone, Clock, CheckCheck, Reply, ChevronDown, ChevronUp } from 'lucide-react';
+import { MessageCircle, Phone, Clock, CheckCheck, Reply, ChevronDown, ChevronUp, User } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
 
 interface SupportMessage {
@@ -26,7 +26,7 @@ export const SupportMessagesManager: React.FC = () => {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [loading, setLoading] = useState(true);
   const [adminNotes, setAdminNotes] = useState<{ [key: string]: string }>({});
-  const [expandedMessages, setExpandedMessages] = useState<{ [key: string]: boolean }>({});
+  const [sectionExpanded, setSectionExpanded] = useState(false);
   const { toast } = useToast();
 
   useEffect(() => {
@@ -121,173 +121,162 @@ export const SupportMessagesManager: React.FC = () => {
     }
   };
 
-  const toggleMessageExpansion = (messageId: string) => {
-    setExpandedMessages(prev => ({
-      ...prev,
-      [messageId]: !prev[messageId]
-    }));
-  };
+  const unreadCount = messages.filter(m => m.status === 'unread').length;
 
   if (loading) {
     return (
-      <div className="space-y-4">
-        <h2 className="text-2xl font-bold mb-4">Support Messages</h2>
-        <div className="animate-pulse space-y-4">
-          {[...Array(3)].map((_, i) => (
-            <Card key={i}>
-              <CardContent className="p-6">
-                <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
-                <div className="h-4 bg-muted rounded w-full mb-2"></div>
+      <Card>
+        <CardHeader>
+          <CardTitle className="flex items-center gap-2">
+            <MessageCircle className="h-5 w-5" />
+            Support Messages
+          </CardTitle>
+        </CardHeader>
+        <CardContent>
+          <div className="animate-pulse space-y-4">
+            {[...Array(3)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <div className="h-4 bg-muted rounded w-1/4"></div>
+                <div className="h-4 bg-muted rounded w-full"></div>
                 <div className="h-4 bg-muted rounded w-3/4"></div>
-              </CardContent>
-            </Card>
-          ))}
-        </div>
-      </div>
+              </div>
+            ))}
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 
   return (
-    <div className="space-y-4">
-      <div className="flex items-center gap-2 mb-6">
-        <MessageCircle className="h-6 w-6" />
-        <h2 className="text-2xl font-bold">Support Messages</h2>
-        <Badge variant="outline">{messages.length} total</Badge>
-      </div>
-
-      {messages.length === 0 ? (
-        <Card>
-          <CardContent className="p-8 text-center">
-            <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
-            <p className="text-muted-foreground">Support messages will appear here when users contact you.</p>
-          </CardContent>
-        </Card>
-      ) : (
-        <div className="space-y-4">
-          {messages.map((message) => (
-            <Collapsible 
-              key={message.id} 
-              open={expandedMessages[message.id] || false}
-              onOpenChange={() => toggleMessageExpansion(message.id)}
-            >
-              <Card className={message.status === 'unread' ? 'border-primary' : ''}>
-                <CollapsibleTrigger asChild>
-                  <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
-                    <div className="flex items-start justify-between">
-                      <div className="space-y-1">
-                        <div className="flex items-center gap-2">
-                          <CardTitle className="text-lg">{message.sender_name}</CardTitle>
-                          <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                            <Phone className="h-4 w-4" />
-                            <span className="font-mono">{message.country_code} {message.phone_number}</span>
+    <Card>
+      <Collapsible open={sectionExpanded} onOpenChange={setSectionExpanded}>
+        <CollapsibleTrigger asChild>
+          <CardHeader className="cursor-pointer hover:bg-muted/50 transition-colors">
+            <div className="flex items-center justify-between">
+              <CardTitle className="flex items-center gap-2">
+                <MessageCircle className="h-5 w-5" />
+                Support Messages from Chat Widget
+                <Badge variant="outline">{messages.length} total</Badge>
+                {unreadCount > 0 && (
+                  <Badge variant="destructive">{unreadCount} unread</Badge>
+                )}
+              </CardTitle>
+              {sectionExpanded ? (
+                <ChevronUp className="h-4 w-4 text-muted-foreground" />
+              ) : (
+                <ChevronDown className="h-4 w-4 text-muted-foreground" />
+              )}
+            </div>
+          </CardHeader>
+        </CollapsibleTrigger>
+        
+        <CollapsibleContent>
+          <CardContent>
+            {messages.length === 0 ? (
+              <div className="text-center py-8">
+                <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
+                <p className="text-muted-foreground">Support messages will appear here when users contact you.</p>
+              </div>
+            ) : (
+              <div className="space-y-4">
+                {messages.map((message) => (
+                  <Card key={message.id} className={`${message.status === 'unread' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                    <CardContent className="p-4">
+                      <div className="space-y-3">
+                        {/* Message Header */}
+                        <div className="flex items-start justify-between">
+                          <div className="space-y-1">
+                            <div className="flex items-center gap-2">
+                              <User className="h-4 w-4 text-muted-foreground" />
+                              <span className="font-medium">{message.sender_name}</span>
+                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                <Phone className="h-3 w-3" />
+                                <span className="font-mono">{message.country_code} {message.phone_number}</span>
+                              </div>
+                            </div>
+                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                              <Clock className="h-3 w-3" />
+                              <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
+                            </div>
                           </div>
+                          {getStatusBadge(message.status)}
                         </div>
-                        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                          <Clock className="h-4 w-4" />
-                          <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground line-clamp-2">
-                          {message.message}
-                        </p>
-                      </div>
-                      <div className="flex items-center gap-2">
-                        {getStatusBadge(message.status)}
-                        {expandedMessages[message.id] ? (
-                          <ChevronUp className="h-4 w-4 text-muted-foreground" />
-                        ) : (
-                          <ChevronDown className="h-4 w-4 text-muted-foreground" />
-                        )}
-                      </div>
-                    </div>
-                  </CardHeader>
-                </CollapsibleTrigger>
-                
-                <CollapsibleContent>
-                  <CardContent>
-                    <div className="space-y-4">
-                      <div>
-                        <h4 className="font-medium mb-2">Full Message:</h4>
-                        <p className="text-sm bg-muted p-3 rounded-lg whitespace-pre-wrap">{message.message}</p>
-                      </div>
 
-                      <div>
-                        <h4 className="font-medium mb-2">Contact Information:</h4>
-                        <div className="bg-accent/20 p-3 rounded-lg space-y-1">
-                          <div className="flex items-center gap-2 text-sm">
-                            <span className="font-medium">Name:</span>
-                            <span>{message.sender_name}</span>
-                          </div>
-                          <div className="flex items-center gap-2 text-sm">
-                            <Phone className="h-4 w-4" />
-                            <span className="font-medium">Phone:</span>
-                            <span className="font-mono">{message.country_code} {message.phone_number}</span>
-                          </div>
-                        </div>
-                      </div>
-
-                      {message.admin_notes && (
+                        {/* Message Content */}
                         <div>
-                          <h4 className="font-medium mb-2">Admin Notes:</h4>
-                          <p className="text-sm bg-accent/20 p-3 rounded-lg">{message.admin_notes}</p>
+                          <p className="text-sm bg-muted/50 p-3 rounded-lg whitespace-pre-wrap border">
+                            {message.message}
+                          </p>
                         </div>
-                      )}
 
-                      <div className="space-y-2">
-                        <h4 className="font-medium">Admin Notes:</h4>
-                        <Textarea
-                          placeholder="Add admin notes..."
-                          value={adminNotes[message.id] || message.admin_notes || ''}
-                          onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
-                          className="min-h-[80px]"
-                        />
-                      </div>
-
-                      <div className="flex gap-2 flex-wrap">
-                        {message.status === 'unread' && (
-                          <Button
-                            variant="outline"
-                            size="sm"
-                            onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
-                          >
-                            <CheckCheck className="h-4 w-4 mr-2" />
-                            Mark as Read
-                          </Button>
+                        {/* Admin Notes */}
+                        {message.admin_notes && (
+                          <div>
+                            <h4 className="text-sm font-medium mb-1">Admin Notes:</h4>
+                            <p className="text-sm bg-accent/20 p-2 rounded border">{message.admin_notes}</p>
+                          </div>
                         )}
-                        
-                        <Button
-                          variant="default"
-                          size="sm"
-                          onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
-                        >
-                          <Reply className="h-4 w-4 mr-2" />
-                          Mark as Replied
-                        </Button>
 
-                        {adminNotes[message.id] !== (message.admin_notes || '') && (
-                          <Button
-                            variant="secondary"
-                            size="sm"
-                            onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
-                          >
-                            Save Notes
-                          </Button>
-                        )}
-                      </div>
-
-                      {message.replied_at && (
-                        <div className="text-sm text-muted-foreground bg-green-50 dark:bg-green-950/20 p-2 rounded">
-                          ✅ Replied {formatDistanceToNow(new Date(message.replied_at))} ago
+                        {/* Admin Notes Input */}
+                        <div className="space-y-2">
+                          <label className="text-sm font-medium">Admin Notes:</label>
+                          <Textarea
+                            placeholder="Add admin notes..."
+                            value={adminNotes[message.id] || message.admin_notes || ''}
+                            onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
+                            className="min-h-[60px] text-sm"
+                          />
                         </div>
-                      )}
-                    </div>
-                  </CardContent>
-                </CollapsibleContent>
-              </Card>
-            </Collapsible>
-          ))}
-        </div>
-      )}
-    </div>
+
+                        {/* Action Buttons */}
+                        <div className="flex gap-2 flex-wrap">
+                          {message.status === 'unread' && (
+                            <Button
+                              variant="outline"
+                              size="sm"
+                              onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
+                            >
+                              <CheckCheck className="h-3 w-3 mr-1" />
+                              Mark as Read
+                            </Button>
+                          )}
+                          
+                          <Button
+                            variant="default"
+                            size="sm"
+                            onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
+                          >
+                            <Reply className="h-3 w-3 mr-1" />
+                            Mark as Replied
+                          </Button>
+
+                          {adminNotes[message.id] !== (message.admin_notes || '') && (
+                            <Button
+                              variant="secondary"
+                              size="sm"
+                              onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
+                            >
+                              Save Notes
+                            </Button>
+                          )}
+                        </div>
+
+                        {/* Reply Status */}
+                        {message.replied_at && (
+                          <div className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-800">
+                            ✅ Replied {formatDistanceToNow(new Date(message.replied_at))} ago
+                          </div>
+                        )}
+                      </div>
+                    </CardContent>
+                  </Card>
+                ))}
+              </div>
+            )}
+          </CardContent>
+        </CollapsibleContent>
+      </Collapsible>
+    </Card>
   );
 };
