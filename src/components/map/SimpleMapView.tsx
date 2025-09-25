@@ -93,7 +93,7 @@ export default function SimpleMapView({
     
     // Add zoom control with custom position
     L.control.zoom({
-      position: 'bottomright'
+      position: 'topleft'
     }).addTo(mapInstanceRef.current);
     
     // Add tile layer
