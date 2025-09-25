@@ -546,13 +546,6 @@ const Index = () => {
       <footer className="py-8 text-center bg-muted/20">
         <div className="container mx-auto">
           <OwnerAccess onAuthenticated={() => setIsOwnerAuthenticated(true)} />
-          
-          {/* Direct link for testing */}
-          <div className="mt-4 pt-4 border-t border-muted">
-            <Link to="/customer-database" className="text-sm text-muted-foreground hover:text-foreground">
-              Customer Database (Test Link)
-            </Link>
-          </div>
         </div>
       </footer>
     </div>
