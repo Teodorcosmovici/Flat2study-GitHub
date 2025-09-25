@@ -112,16 +112,5 @@ export const ContactInfo: React.FC<ContactInfoProps> = ({
     );
   }
 
-  return (
-    <ContactAccessRequest
-      targetProfileId={profileId}
-      listingId={listingId}
-      landlordName={name}
-    >
-      <Button variant="outline" size="sm" className="w-full">
-        <Lock className="h-4 w-4 mr-2" />
-        Request Contact Info
-      </Button>
-    </ContactAccessRequest>
-  );
+  return null;
 };
