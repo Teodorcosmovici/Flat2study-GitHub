@@ -36,7 +36,7 @@ export const BookingCard: React.FC<BookingCardProps> = ({
   };
 
   const canUpdateStatus = userRole === 'landlord' && booking.status === 'pending';
-  const canCancelRequest = userRole === 'tenant' && ['pending', 'confirmed'].includes(booking.status);
+  const canCancelRequest = userRole === 'tenant' && ['pending_landlord_response', 'pending_payment', 'confirmed'].includes(booking.status);
 
   return (
     <Card className="w-full">
