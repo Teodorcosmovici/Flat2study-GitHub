@@ -59,6 +59,7 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
         .select('*')
         .eq('landlord_id', profile.id)
         .in('payment_status', ['authorized', 'pending'])
+        .is('landlord_response', null) // Only show requests without a response
         .order('created_at', { ascending: false });
 
       if (error) throw error;
