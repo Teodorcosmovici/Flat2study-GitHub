@@ -130,7 +130,7 @@ export const AdminDashboard = () => {
         </Badge>
       </div>
 
-      <Tabs defaultValue="pending" className="space-y-6">
+      <Tabs defaultValue="support" className="space-y-6">
         <TabsList>
           <TabsTrigger value="pending">
             <Clock className="w-4 h-4 mr-2" />
