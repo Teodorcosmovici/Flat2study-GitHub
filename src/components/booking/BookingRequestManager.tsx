@@ -39,6 +39,23 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
 
   useEffect(() => {
     fetchBookingRequests();
+    
+    // Set up real-time subscription for booking updates
+    const subscription = supabase
+      .channel('booking-updates')
+      .on('postgres_changes', {
+        event: 'UPDATE',
+        schema: 'public',
+        table: 'bookings'
+      }, () => {
+        // Refresh requests when any booking is updated
+        fetchBookingRequests();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, [landlordId]);
 
   const fetchBookingRequests = async () => {
