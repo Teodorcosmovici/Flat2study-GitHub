@@ -9,6 +9,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { CheckCircle, XCircle, Clock, Eye, MessageSquare } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 
 interface PendingListing {
   id: string;
@@ -133,6 +134,10 @@ export const AdminDashboard = () => {
           <TabsTrigger value="pending">
             <Clock className="w-4 h-4 mr-2" />
             Pending Reviews ({pendingListings.length})
+          </TabsTrigger>
+          <TabsTrigger value="support">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Support Messages
           </TabsTrigger>
         </TabsList>
 
@@ -278,6 +283,10 @@ export const AdminDashboard = () => {
               )}
             </div>
           </div>
+        </TabsContent>
+
+        <TabsContent value="support">
+          <SupportMessagesManager />
         </TabsContent>
       </Tabs>
     </div>

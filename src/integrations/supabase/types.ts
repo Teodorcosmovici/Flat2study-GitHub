@@ -797,6 +797,48 @@ export type Database = {
         }
         Relationships: []
       }
+      support_messages: {
+        Row: {
+          admin_notes: string | null
+          country_code: string
+          created_at: string
+          id: string
+          message: string
+          phone_number: string
+          replied_at: string | null
+          sender_name: string | null
+          status: string
+          updated_at: string
+          user_id: string | null
+        }
+        Insert: {
+          admin_notes?: string | null
+          country_code: string
+          created_at?: string
+          id?: string
+          message: string
+          phone_number: string
+          replied_at?: string | null
+          sender_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Update: {
+          admin_notes?: string | null
+          country_code?: string
+          created_at?: string
+          id?: string
+          message?: string
+          phone_number?: string
+          replied_at?: string | null
+          sender_name?: string | null
+          status?: string
+          updated_at?: string
+          user_id?: string | null
+        }
+        Relationships: []
+      }
     }
     Views: {
       [_ in never]: never
