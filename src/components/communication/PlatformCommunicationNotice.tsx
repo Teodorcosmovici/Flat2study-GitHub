@@ -1,6 +1,7 @@
 import React from 'react';
 import { Alert, AlertDescription } from '@/components/ui/alert';
 import { Shield, MessageCircle } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PlatformCommunicationNoticeProps {
   variant?: 'default' | 'compact';
@@ -11,11 +12,12 @@ export const PlatformCommunicationNotice: React.FC<PlatformCommunicationNoticePr
   variant = 'default',
   className = ''
 }) => {
+  const { t } = useLanguage();
   if (variant === 'compact') {
     return (
       <div className={`flex items-center gap-2 text-xs text-muted-foreground bg-muted/30 p-2 rounded ${className}`}>
         <Shield className="h-3 w-3" />
-        <span>For your safety, all communications must happen through our platform</span>
+        <span>{t('platform.communication.compact')}</span>
       </div>
     );
   }
@@ -26,9 +28,7 @@ export const PlatformCommunicationNotice: React.FC<PlatformCommunicationNoticePr
       <AlertDescription className="flex items-center gap-2">
         <MessageCircle className="h-4 w-4" />
         <span>
-          <strong>Platform Communication Policy:</strong> For your safety and security, 
-          all communications between tenants and landlords must happen through our platform. 
-          Contact information is protected and blurred for privacy.
+          <strong>{t('platform.communication.policy')}</strong> {t('platform.communication.message')}
         </span>
       </AlertDescription>
     </Alert>

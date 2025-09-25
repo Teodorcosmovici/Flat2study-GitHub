@@ -420,6 +420,23 @@ const translations = {
     'filters.sort': 'Sort',
     'filters.types': 'types',
     'filters.amenitiesCount': 'amenities',
+    
+    // 404 Page
+    'notFound.title': '404',
+    'notFound.message': 'Oops! Page not found',
+    'notFound.returnHome': 'Return to Home',
+    
+    // Checkout Cancel
+    'checkout.cancelled.title': 'Payment Cancelled',
+    'checkout.cancelled.message': 'Your payment was cancelled. No charges have been made to your card.',
+    'checkout.cancelled.subtitle': 'You can try again or continue browsing other properties.',
+    'checkout.cancelled.tryAgain': 'Try Again',
+    'checkout.cancelled.browseProperties': 'Browse Properties',
+    
+    // Platform Communication
+    'platform.communication.compact': 'For your safety, all communications must happen through our platform',
+    'platform.communication.policy': 'Platform Communication Policy:',
+    'platform.communication.message': 'For your safety and security, all communications between tenants and landlords must happen through our platform. Contact information is protected and blurred for privacy.',
   },
   it: {
     // Header
@@ -824,6 +841,23 @@ const translations = {
     'filters.sort': 'Ordina',
     'filters.types': 'tipi',
     'filters.amenitiesCount': 'servizi',
+    
+    // 404 Page
+    'notFound.title': '404',
+    'notFound.message': 'Ops! Pagina non trovata',
+    'notFound.returnHome': 'Torna alla Home',
+    
+    // Checkout Cancel
+    'checkout.cancelled.title': 'Pagamento Annullato',
+    'checkout.cancelled.message': 'Il tuo pagamento è stato annullato. Non è stato addebitato nulla sulla tua carta.',
+    'checkout.cancelled.subtitle': 'Puoi riprovare o continuare a navigare tra le altre proprietà.',
+    'checkout.cancelled.tryAgain': 'Riprova',
+    'checkout.cancelled.browseProperties': 'Sfoglia Proprietà',
+    
+    // Platform Communication
+    'platform.communication.compact': 'Per la tua sicurezza, tutte le comunicazioni devono avvenire attraverso la nostra piattaforma',
+    'platform.communication.policy': 'Politica di Comunicazione della Piattaforma:',
+    'platform.communication.message': 'Per la tua sicurezza e protezione, tutte le comunicazioni tra inquilini e proprietari devono avvenire attraverso la nostra piattaforma. Le informazioni di contatto sono protette e sfocate per la privacy.',
   }
 };
 
