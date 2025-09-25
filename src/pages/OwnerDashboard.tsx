@@ -94,6 +94,7 @@ interface CancellationRequest {
   check_out_date: string;
   monthly_rent: number;
   total_amount: number;
+  listing_id: string;
   listing_title: string;
   address_line: string;
   images: string[];
@@ -172,6 +173,7 @@ const OwnerDashboard = () => {
             check_out_date: bookingResult.data?.check_out_date || '',
             monthly_rent: bookingResult.data?.monthly_rent || 0,
             total_amount: bookingResult.data?.total_amount || 0,
+            listing_id: bookingResult.data?.listing_id || '',
             listing_title: listingData?.title || 'Unknown Property',
             address_line: listingData?.address_line || '',
             images: listingData?.images || [],
@@ -192,6 +194,7 @@ const OwnerDashboard = () => {
             check_out_date: '',
             monthly_rent: 0,
             total_amount: 0,
+            listing_id: '',
             listing_title: 'Error loading data',
             address_line: '',
             images: [],
@@ -617,6 +620,9 @@ const OwnerDashboard = () => {
                             <p className="text-muted-foreground">{request.address_line}</p>
                             <p className="text-sm font-medium text-green-600 mt-1">
                               €{request.monthly_rent}/month
+                            </p>
+                            <p className="text-xs text-muted-foreground/70 font-mono mt-1">
+                              Listing ID: {request.listing_id}
                             </p>
                           </div>
                           <Badge variant="outline" className="text-orange-600">
