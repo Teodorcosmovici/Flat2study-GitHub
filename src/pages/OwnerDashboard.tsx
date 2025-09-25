@@ -247,7 +247,7 @@ const OwnerDashboard = () => {
           .update({ 
             status: 'reviewed',
             reviewed_at: new Date().toISOString(),
-            reviewed_by: 'admin' // You could track the actual admin user if needed
+            reviewed_by: user?.id
           })
           .eq('id', requestId)
           .then(result => result.error),
