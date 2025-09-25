@@ -100,37 +100,6 @@ export default function LandlordLanding() {
             </div>
             <div className="hidden lg:block">
               <div className="relative">
-                <div className="bg-white/10 backdrop-blur-sm rounded-2xl p-8 shadow-2xl">
-                  <div className="space-y-6">
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                        <CheckCircle className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Property Listed</h3>
-                        <p className="text-white/70 text-sm">Your listing is now live</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                        <Star className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Student Applications</h3>
-                        <p className="text-white/70 text-sm">3 verified applications received</p>
-                      </div>
-                    </div>
-                    <div className="flex items-center space-x-4">
-                      <div className="w-12 h-12 bg-white/20 rounded-full flex items-center justify-center">
-                        <Euro className="w-6 h-6 text-white" />
-                      </div>
-                      <div>
-                        <h3 className="font-semibold">Monthly Income</h3>
-                        <p className="text-white/70 text-sm">€1,200 guaranteed payment</p>
-                      </div>
-                    </div>
-                  </div>
-                </div>
               </div>
             </div>
           </div>
