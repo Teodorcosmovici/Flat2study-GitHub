@@ -84,12 +84,17 @@ export default function SimpleMapView({
 
     // Initialize map
     mapInstanceRef.current = L.map(mapRef.current, {
-      zoomControl: true,
+      zoomControl: false,
       scrollWheelZoom: true,
       doubleClickZoom: false,
       boxZoom: false,
       keyboard: false
     }).setView([45.4642, 9.1900], 13);
+    
+    // Add zoom control with custom position
+    L.control.zoom({
+      position: 'bottomright'
+    }).addTo(mapInstanceRef.current);
     
     // Add tile layer
     L.tileLayer('https://{s}.tile.openstreetmap.org/{z}/{x}/{y}.png', {
