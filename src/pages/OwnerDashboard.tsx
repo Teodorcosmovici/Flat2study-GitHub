@@ -83,6 +83,25 @@ interface PendingListing {
   };
 }
 
+interface CancellationRequest {
+  id: string;
+  booking_id: string;
+  tenant_id: string;
+  reason: string;
+  status: string;
+  created_at: string;
+  check_in_date: string;
+  check_out_date: string;
+  monthly_rent: number;
+  total_amount: number;
+  listing_title: string;
+  address_line: string;
+  images: string[];
+  tenant_name: string;
+  tenant_email: string;
+  tenant_phone: string;
+}
+
 const OwnerDashboard = () => {
   const [stats, setStats] = useState({
     totalUsers: 0,
@@ -107,13 +126,122 @@ const OwnerDashboard = () => {
   const [emailDomainFilter, setEmailDomainFilter] = useState<string>('all');
   const [dateRange, setDateRange] = useState({ start: 30, end: 0 }); // last 30 days
   const [showConversations, setShowConversations] = useState(false);
+  const [cancellationRequests, setCancellationRequests] = useState<CancellationRequest[]>([]);
 
   useEffect(() => {
     fetchDashboardData();
     fetchPendingListings();
     fetchAnalytics();
     fetchConversations();
+    fetchCancellationRequests();
   }, [dateRange]);
+
+  const fetchCancellationRequests = async () => {
+    try {
+      // Fetch cancellation requests
+      const { data: requests, error: reqError } = await supabase
+        .from('cancellation_requests')
+        .select('*')
+        .eq('status', 'pending')
+        .order('created_at', { ascending: false });
+
+      if (reqError) throw reqError;
+
+      // Fetch additional data for each request
+      const enrichedRequests = await Promise.all((requests || []).map(async (request) => {
+        try {
+          const [bookingResult, profileResult] = await Promise.all([
+            supabase.from('bookings').select('check_in_date, check_out_date, monthly_rent, total_amount, listing_id').eq('id', request.booking_id).single(),
+            supabase.from('profiles').select('full_name, email, phone').eq('user_id', request.tenant_id).single()
+          ]);
+
+          let listingData = null;
+          if (bookingResult.data?.listing_id) {
+            const listingResult = await supabase.from('listings').select('title, address_line, images').eq('id', bookingResult.data.listing_id).single();
+            listingData = listingResult.data;
+          }
+
+          return {
+            id: request.id,
+            booking_id: request.booking_id,
+            tenant_id: request.tenant_id,
+            reason: request.reason || '',
+            status: request.status,
+            created_at: request.created_at,
+            check_in_date: bookingResult.data?.check_in_date || '',
+            check_out_date: bookingResult.data?.check_out_date || '',
+            monthly_rent: bookingResult.data?.monthly_rent || 0,
+            total_amount: bookingResult.data?.total_amount || 0,
+            listing_title: listingData?.title || 'Unknown Property',
+            address_line: listingData?.address_line || '',
+            images: listingData?.images || [],
+            tenant_name: profileResult.data?.full_name || 'Unknown Tenant',
+            tenant_email: profileResult.data?.email || '',
+            tenant_phone: profileResult.data?.phone || ''
+          } as CancellationRequest;
+        } catch (itemError) {
+          console.error('Error processing request:', itemError);
+          return {
+            id: request.id,
+            booking_id: request.booking_id,
+            tenant_id: request.tenant_id,
+            reason: request.reason || '',
+            status: request.status,
+            created_at: request.created_at,
+            check_in_date: '',
+            check_out_date: '',
+            monthly_rent: 0,
+            total_amount: 0,
+            listing_title: 'Error loading data',
+            address_line: '',
+            images: [],
+            tenant_name: 'Error loading data',
+            tenant_email: '',
+            tenant_phone: ''
+          } as CancellationRequest;
+        }
+      }));
+
+      setCancellationRequests(enrichedRequests);
+    } catch (error) {
+      console.error('Error fetching cancellation requests:', error);
+      toast({
+        title: "Error",
+        description: "Failed to load cancellation requests",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleCancellationRequestDone = async (requestId: string) => {
+    try {
+      const { error } = await supabase
+        .from('cancellation_requests')
+        .update({ 
+          status: 'reviewed',
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: 'admin' // You could track the actual admin user if needed
+        })
+        .eq('id', requestId);
+
+      if (error) throw error;
+
+      // Remove from local state
+      setCancellationRequests(prev => prev.filter(req => req.id !== requestId));
+      
+      toast({
+        title: "Success",
+        description: "Cancellation request marked as done",
+      });
+    } catch (error) {
+      console.error('Error updating cancellation request:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update cancellation request",
+        variant: "destructive",
+      });
+    }
+  };
 
   const fetchPendingListings = async () => {
     try {
