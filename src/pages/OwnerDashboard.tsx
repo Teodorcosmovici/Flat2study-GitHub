@@ -5,7 +5,7 @@ import { Badge } from '@/components/ui/badge';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Textarea } from '@/components/ui/textarea';
-import { ContactRequestsManager } from '@/components/contact/ContactRequestsManager';
+
 import { BookingRequestManager } from '@/components/booking/BookingRequestManager';
 import { AdminPaymentCapture } from '@/components/admin/AdminPaymentCapture';
 import { 
@@ -756,10 +756,6 @@ const OwnerDashboard = () => {
           </Card>
         </div>
 
-        {/* Contact Requests Section */}
-        <div className="mb-8">
-          <ContactRequestsManager />
-        </div>
 
         {/* Website Analytics Stats */}
         {analytics && (
