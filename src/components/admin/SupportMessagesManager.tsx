@@ -172,15 +172,15 @@ export const SupportMessagesManager: React.FC = () => {
         
         <CollapsibleContent>
           <CardContent>
-            {messages.length === 0 ? (
+            {messages.filter(m => m.status !== 'replied').length === 0 ? (
               <div className="text-center py-8">
                 <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
-                <p className="text-muted-foreground">Support messages will appear here when users contact you.</p>
+                <h3 className="text-lg font-semibold mb-2">No pending messages</h3>
+                <p className="text-muted-foreground">All messages have been handled or no messages received yet.</p>
               </div>
             ) : (
               <div className="space-y-4">
-                {messages.map((message) => (
+                {messages.filter(m => m.status !== 'replied').map((message) => (
                   <Card key={message.id} className={`${message.status === 'unread' ? 'border-primary bg-primary/5' : 'border-border'}`}>
                     <CardContent className="p-4">
                       <div className="space-y-3">
