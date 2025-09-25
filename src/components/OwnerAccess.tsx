@@ -2,8 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Eye, EyeOff, User } from 'lucide-react';
-import { Link } from 'react-router-dom';
+import { Eye, EyeOff } from 'lucide-react';
 
 interface OwnerAccessProps {
   onAuthenticated: () => void;
@@ -77,15 +76,6 @@ const OwnerAccess = ({ onAuthenticated }: OwnerAccessProps) => {
           <Button type="submit" className="w-full">
             Access Dashboard
           </Button>
-          
-          <div className="border-t pt-4 mt-4">
-            <Button variant="outline" className="w-full" asChild>
-              <Link to="/customer-database" className="flex items-center justify-center">
-                <User className="h-4 w-4 mr-2" />
-                Customer Database
-              </Link>
-            </Button>
-          </div>
         </form>
       </DialogContent>
     </Dialog>

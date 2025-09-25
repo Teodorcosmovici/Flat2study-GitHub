@@ -145,7 +145,14 @@ export default function Header() {
                       </Link>
                     </DropdownMenuItem>
                   )}
-                  
+                  {(profile?.user_type === 'agency' || profile?.user_type === 'private') && (
+                    <DropdownMenuItem asChild>
+                      <Link to="/customer-database" className="flex items-center">
+                        <User className="h-4 w-4 mr-2" />
+                        Customer Database
+                      </Link>
+                    </DropdownMenuItem>
+                  )}
                   {profile?.user_type === 'admin' && (
                     <>
                       <DropdownMenuItem asChild>
@@ -160,7 +167,12 @@ export default function Header() {
                           Owner Dashboard
                         </Link>
                       </DropdownMenuItem>
-                      
+                      <DropdownMenuItem asChild>
+                        <Link to="/customer-database" className="flex items-center">
+                          <User className="h-4 w-4 mr-2" />
+                          Customer Database
+                        </Link>
+                      </DropdownMenuItem>
                     </>
                   )}
                   <DropdownMenuSeparator />
