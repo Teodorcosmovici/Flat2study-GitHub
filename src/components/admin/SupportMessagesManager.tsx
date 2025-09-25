@@ -3,10 +3,10 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Button } from '@/components/ui/button';
 import { Textarea } from '@/components/ui/textarea';
-import { MessageCircle, Phone, User, Clock, Check, MessageSquare } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
-import { toast } from '@/hooks/use-toast';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import { useToast } from '@/hooks/use-toast';
+import { MessageCircle, Phone, Clock, CheckCheck, Reply } from 'lucide-react';
+import { formatDistanceToNow } from 'date-fns';
 
 interface SupportMessage {
   id: string;
@@ -16,19 +16,35 @@ interface SupportMessage {
   message: string;
   status: 'unread' | 'read' | 'replied';
   created_at: string;
-  admin_notes?: string;
-  user_id?: string;
+  updated_at: string;
+  replied_at: string | null;
+  admin_notes: string | null;
 }
 
 export const SupportMessagesManager: React.FC = () => {
   const [messages, setMessages] = useState<SupportMessage[]>([]);
   const [loading, setLoading] = useState(true);
-  const [selectedMessage, setSelectedMessage] = useState<SupportMessage | null>(null);
-  const [adminNotes, setAdminNotes] = useState('');
-  const [updating, setUpdating] = useState(false);
+  const [adminNotes, setAdminNotes] = useState<{ [key: string]: string }>({});
+  const { toast } = useToast();
 
   useEffect(() => {
     fetchMessages();
+    
+    // Set up real-time subscription
+    const subscription = supabase
+      .channel('support-messages')
+      .on('postgres_changes', {
+        event: '*',
+        schema: 'public',
+        table: 'support_messages'
+      }, () => {
+        fetchMessages();
+      })
+      .subscribe();
+
+    return () => {
+      subscription.unsubscribe();
+    };
   }, []);
 
   const fetchMessages = async () => {
@@ -39,15 +55,12 @@ export const SupportMessagesManager: React.FC = () => {
         .order('created_at', { ascending: false });
 
       if (error) throw error;
-      setMessages((data || []).map(item => ({
-        ...item,
-        status: item.status as 'unread' | 'read' | 'replied'
-      })));
+      setMessages((data || []) as SupportMessage[]);
     } catch (error) {
       console.error('Error fetching support messages:', error);
       toast({
         title: "Error",
-        description: "Failed to load support messages",
+        description: "Failed to load support messages.",
         variant: "destructive",
       });
     } finally {
@@ -55,21 +68,19 @@ export const SupportMessagesManager: React.FC = () => {
     }
   };
 
-  const updateMessageStatus = async (messageId: string, status: SupportMessage['status'], notes?: string) => {
+  const updateMessageStatus = async (messageId: string, status: 'read' | 'replied', notes?: string) => {
     try {
-      setUpdating(true);
-      
       const updateData: any = { 
         status,
         updated_at: new Date().toISOString()
       };
       
-      if (notes !== undefined) {
-        updateData.admin_notes = notes;
-      }
-      
       if (status === 'replied') {
         updateData.replied_at = new Date().toISOString();
+      }
+      
+      if (notes !== undefined) {
+        updateData.admin_notes = notes;
       }
 
       const { error } = await supabase
@@ -79,24 +90,23 @@ export const SupportMessagesManager: React.FC = () => {
 
       if (error) throw error;
 
-      await fetchMessages();
       toast({
         title: "Success",
-        description: `Message marked as ${status}`,
+        description: `Message marked as ${status}.`,
       });
+
+      fetchMessages();
     } catch (error) {
       console.error('Error updating message:', error);
       toast({
         title: "Error",
-        description: "Failed to update message",
+        description: "Failed to update message.",
         variant: "destructive",
       });
-    } finally {
-      setUpdating(false);
     }
   };
 
-  const getStatusBadge = (status: SupportMessage['status']) => {
+  const getStatusBadge = (status: string) => {
     switch (status) {
       case 'unread':
         return <Badge variant="destructive">Unread</Badge>;
@@ -105,174 +115,134 @@ export const SupportMessagesManager: React.FC = () => {
       case 'replied':
         return <Badge variant="default">Replied</Badge>;
       default:
-        return <Badge variant="outline">Unknown</Badge>;
+        return <Badge variant="outline">{status}</Badge>;
     }
-  };
-
-  const formatPhoneNumber = (countryCode: string, phoneNumber: string) => {
-    return `${countryCode} ${phoneNumber}`;
-  };
-
-  const formatDate = (dateString: string) => {
-    return new Date(dateString).toLocaleString();
   };
 
   if (loading) {
     return (
-      <Card>
-        <CardHeader>
-          <CardTitle className="flex items-center gap-2">
-            <MessageCircle className="h-5 w-5" />
-            Support Messages
-          </CardTitle>
-        </CardHeader>
-        <CardContent>
-          <div className="text-center py-8">Loading messages...</div>
-        </CardContent>
-      </Card>
+      <div className="space-y-4">
+        <h2 className="text-2xl font-bold mb-4">Support Messages</h2>
+        <div className="animate-pulse space-y-4">
+          {[...Array(3)].map((_, i) => (
+            <Card key={i}>
+              <CardContent className="p-6">
+                <div className="h-4 bg-muted rounded w-1/4 mb-2"></div>
+                <div className="h-4 bg-muted rounded w-full mb-2"></div>
+                <div className="h-4 bg-muted rounded w-3/4"></div>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      </div>
     );
   }
 
   return (
-    <Card>
-      <CardHeader>
-        <CardTitle className="flex items-center gap-2">
-          <MessageCircle className="h-5 w-5" />
-          Support Messages ({messages.length})
-        </CardTitle>
-      </CardHeader>
-      <CardContent>
-        {messages.length === 0 ? (
-          <div className="text-center py-8 text-muted-foreground">
-            No support messages yet
-          </div>
-        ) : (
-          <div className="space-y-4">
-            {messages.map((message) => (
-              <div
-                key={message.id}
-                className={`border rounded-lg p-4 transition-colors ${
-                  message.status === 'unread' ? 'bg-red-50 dark:bg-red-950/20 border-red-200' : 'bg-card'
-                }`}
-              >
-                <div className="flex items-start justify-between gap-4">
-                  <div className="flex-1 space-y-2">
-                    <div className="flex items-center gap-2 flex-wrap">
-                      <div className="flex items-center gap-1">
-                        <User className="h-4 w-4" />
-                        <span className="font-medium">{message.sender_name}</span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Phone className="h-4 w-4" />
-                        <span className="text-sm text-muted-foreground">
-                          {formatPhoneNumber(message.country_code, message.phone_number)}
-                        </span>
-                      </div>
-                      <div className="flex items-center gap-1">
-                        <Clock className="h-4 w-4" />
-                        <span className="text-sm text-muted-foreground">
-                          {formatDate(message.created_at)}
-                        </span>
-                      </div>
-                      {getStatusBadge(message.status)}
+    <div className="space-y-4">
+      <div className="flex items-center gap-2 mb-6">
+        <MessageCircle className="h-6 w-6" />
+        <h2 className="text-2xl font-bold">Support Messages</h2>
+        <Badge variant="outline">{messages.length} total</Badge>
+      </div>
+
+      {messages.length === 0 ? (
+        <Card>
+          <CardContent className="p-8 text-center">
+            <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+            <h3 className="text-lg font-semibold mb-2">No messages yet</h3>
+            <p className="text-muted-foreground">Support messages will appear here when users contact you.</p>
+          </CardContent>
+        </Card>
+      ) : (
+        <div className="space-y-4">
+          {messages.map((message) => (
+            <Card key={message.id} className={message.status === 'unread' ? 'border-primary' : ''}>
+              <CardHeader>
+                <div className="flex items-start justify-between">
+                  <div className="space-y-1">
+                    <CardTitle className="text-lg">{message.sender_name}</CardTitle>
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Phone className="h-4 w-4" />
+                      <span>{message.country_code} {message.phone_number}</span>
                     </div>
-                    
-                    <div className="bg-muted p-3 rounded text-sm">
-                      {message.message}
+                    <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                      <Clock className="h-4 w-4" />
+                      <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
                     </div>
-                    
-                    {message.admin_notes && (
-                      <div className="bg-blue-50 dark:bg-blue-950/20 p-3 rounded text-sm border border-blue-200">
-                        <strong>Admin Notes:</strong> {message.admin_notes}
-                      </div>
-                    )}
                   </div>
-                  
-                  <div className="flex flex-col gap-2">
+                  <div className="flex items-center gap-2">
+                    {getStatusBadge(message.status)}
+                  </div>
+                </div>
+              </CardHeader>
+              
+              <CardContent>
+                <div className="space-y-4">
+                  <div>
+                    <h4 className="font-medium mb-2">Message:</h4>
+                    <p className="text-sm bg-muted p-3 rounded-lg">{message.message}</p>
+                  </div>
+
+                  {message.admin_notes && (
+                    <div>
+                      <h4 className="font-medium mb-2">Admin Notes:</h4>
+                      <p className="text-sm bg-accent/20 p-3 rounded-lg">{message.admin_notes}</p>
+                    </div>
+                  )}
+
+                  <div className="space-y-2">
+                    <Textarea
+                      placeholder="Add admin notes..."
+                      value={adminNotes[message.id] || message.admin_notes || ''}
+                      onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
+                      className="min-h-[80px]"
+                    />
+                  </div>
+
+                  <div className="flex gap-2">
                     {message.status === 'unread' && (
                       <Button
-                        size="sm"
                         variant="outline"
-                        onClick={() => updateMessageStatus(message.id, 'read')}
-                        disabled={updating}
+                        size="sm"
+                        onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
                       >
-                        <Check className="h-4 w-4 mr-1" />
-                        Mark Read
+                        <CheckCheck className="h-4 w-4 mr-2" />
+                        Mark as Read
                       </Button>
                     )}
                     
-                    <Dialog>
-                      <DialogTrigger asChild>
-                        <Button
-                          size="sm"
-                          variant={message.status === 'replied' ? 'outline' : 'default'}
-                          onClick={() => {
-                            setSelectedMessage(message);
-                            setAdminNotes(message.admin_notes || '');
-                          }}
-                        >
-                          <MessageSquare className="h-4 w-4 mr-1" />
-                          {message.status === 'replied' ? 'View Notes' : 'Add Notes & Reply'}
-                        </Button>
-                      </DialogTrigger>
-                      
-                      <DialogContent className="sm:max-w-md">
-                        <DialogHeader>
-                          <DialogTitle>Message from {message.sender_name}</DialogTitle>
-                        </DialogHeader>
-                        
-                        <div className="space-y-4">
-                          <div>
-                            <h4 className="font-medium mb-2">Original Message:</h4>
-                            <div className="bg-muted p-3 rounded text-sm">
-                              {message.message}
-                            </div>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-medium mb-2">Contact:</h4>
-                            <p className="text-sm text-muted-foreground">
-                              {formatPhoneNumber(message.country_code, message.phone_number)}
-                            </p>
-                          </div>
-                          
-                          <div>
-                            <h4 className="font-medium mb-2">Admin Notes:</h4>
-                            <Textarea
-                              value={adminNotes}
-                              onChange={(e) => setAdminNotes(e.target.value)}
-                              placeholder="Add notes about this support request..."
-                              rows={4}
-                            />
-                          </div>
-                          
-                          <div className="flex gap-2">
-                            <Button
-                              variant="outline"
-                              onClick={() => updateMessageStatus(message.id, 'read', adminNotes)}
-                              disabled={updating}
-                              className="flex-1"
-                            >
-                              Save Notes
-                            </Button>
-                            <Button
-                              onClick={() => updateMessageStatus(message.id, 'replied', adminNotes)}
-                              disabled={updating}
-                              className="flex-1"
-                            >
-                              Mark as Replied
-                            </Button>
-                          </div>
-                        </div>
-                      </DialogContent>
-                    </Dialog>
+                    <Button
+                      variant="default"
+                      size="sm"
+                      onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
+                    >
+                      <Reply className="h-4 w-4 mr-2" />
+                      Mark as Replied
+                    </Button>
+
+                    {adminNotes[message.id] !== (message.admin_notes || '') && (
+                      <Button
+                        variant="secondary"
+                        size="sm"
+                        onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
+                      >
+                        Save Notes
+                      </Button>
+                    )}
                   </div>
+
+                  {message.replied_at && (
+                    <div className="text-sm text-muted-foreground">
+                      Replied {formatDistanceToNow(new Date(message.replied_at))} ago
+                    </div>
+                  )}
                 </div>
-              </div>
-            ))}
-          </div>
-        )}
-      </CardContent>
-    </Card>
+              </CardContent>
+            </Card>
+          ))}
+        </div>
+      )}
+    </div>
   );
 };
