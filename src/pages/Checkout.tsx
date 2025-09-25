@@ -24,7 +24,7 @@ export default function Checkout() {
   const { id } = useParams();
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
-  const { user } = useAuth();
+  const { user, loading: authLoading } = useAuth();
   const [currentStep, setCurrentStep] = useState(searchParams.get('step') ? parseInt(searchParams.get('step')!) : 1);
   const [listing, setListing] = useState<Listing | null>(null);
   const [loading, setLoading] = useState(true);
@@ -36,22 +36,28 @@ export default function Checkout() {
   const checkInDate = searchParams.get('checkin');
   const checkOutDate = searchParams.get('checkout');
   const persons = searchParams.get('persons') || '1';
+  const sessionId = searchParams.get('session_id');
 
   useEffect(() => {
-    // Redirect to signup if not logged in
-    if (!user) {
+    // Don't redirect if we're still loading auth or if returning from payment
+    if (authLoading) return;
+    
+    // If user is not logged in and not returning from payment, redirect to signup
+    if (!user && !sessionId) {
       navigate(`/signup/student?redirect=/checkout/${id}&checkin=${checkInDate}&checkout=${checkOutDate}&persons=${persons}`);
       return;
     }
 
-    fetchListing();
+    // If user is logged in, fetch listing
+    if (user) {
+      fetchListing();
+    }
 
-    // Check for payment success
-    const sessionId = searchParams.get('session_id');
+    // Check for payment success - this works even if user session is still loading
     if (sessionId && !paymentVerified) {
       verifyPayment(sessionId);
     }
-  }, [id, user, searchParams, currentStep]);
+  }, [id, user, authLoading, searchParams, currentStep]);
 
   const fetchListing = async () => {
     if (!id) return;
@@ -158,7 +164,7 @@ export default function Checkout() {
     return null;
   }
 
-  if (loading) {
+  if (loading || authLoading) {
     return (
       <div className="min-h-screen bg-background">
         <Header />
