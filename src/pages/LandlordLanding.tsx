@@ -3,6 +3,7 @@ import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/com
 import { Shield, Globe, Star, Calendar, Euro, Headphones, CheckCircle, ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import Header from '@/components/layout/Header';
 export default function LandlordLanding() {
   const {
     t
@@ -58,15 +59,7 @@ export default function LandlordLanding() {
     sublabel: "to be rented"
   }];
   return <div className="min-h-screen bg-background">
-      {/* Back Home Button */}
-      <div className="absolute top-4 left-4 z-10">
-        <Link to="/">
-          <Button variant="ghost" size="sm" className="text-white hover:bg-white/10">
-            <ArrowLeft className="h-4 w-4 mr-2" />
-            Back Home
-          </Button>
-        </Link>
-      </div>
+      <Header />
 
       {/* Hero Section */}
       <section className="hero-gradient text-white py-20 px-4">
