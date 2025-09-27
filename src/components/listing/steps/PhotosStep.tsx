@@ -8,6 +8,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useAuth } from '@/hooks/useAuth';
 import { useNavigate } from 'react-router-dom';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PhotosStepProps {
   data: {
@@ -20,6 +21,7 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
   const [uploading, setUploading] = useState(false);
   const { user } = useAuth();
   const navigate = useNavigate();
+  const { t } = useLanguage();
 
   const handleFileUpload = async (event: React.ChangeEvent<HTMLInputElement>) => {
     const files = event.target.files;
@@ -28,8 +30,8 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
     // Check if user is authenticated
     if (!user) {
       toast({
-        title: "Authentication required",
-        description: "Please sign in to upload photos.",
+        title: t('photos.authRequired'),
+        description: t('photos.signInToUpload'),
         variant: "destructive",
       });
       navigate('/auth');
@@ -65,14 +67,14 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
 
       updateData({ images: [...data.images, ...uploadedUrls] });
       toast({
-        title: "Photos uploaded successfully",
-        description: `${uploadedUrls.length} photo(s) added to your listing.`,
+        title: t('photos.uploadSuccess'),
+        description: `${uploadedUrls.length} ${t('photos.photosAdded')}`,
       });
     } catch (error) {
       console.error('Error uploading files:', error);
       toast({
-        title: "Upload failed",
-        description: "Failed to upload photos. Please try again.",
+        title: t('photos.uploadFailed'),
+        description: t('photos.uploadFailedDesc'),
         variant: "destructive",
       });
     } finally {
@@ -88,9 +90,9 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
   return (
     <div className="space-y-6">
       <div>
-        <Label>Property Photos *</Label>
+        <Label>{t('photos.propertyPhotos')} *</Label>
         <p className="text-sm text-muted-foreground mt-1 mb-4">
-          Upload at least 4 high-quality photos of your property. Include photos of each room, the exterior, and any special features.
+          {t('photos.uploadDescription')}
         </p>
         
         <div className="border-2 border-dashed border-muted-foreground/25 rounded-lg p-8 text-center">
@@ -99,7 +101,7 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
             <Button variant="outline" disabled={uploading} asChild>
               <span>
                 <Upload className="w-4 h-4 mr-2" />
-                {uploading ? 'Uploading...' : 'Choose Photos'}
+                {uploading ? t('photos.uploading') : t('photos.choosePhotos')}
               </span>
             </Button>
           </Label>
@@ -113,7 +115,7 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
             disabled={uploading}
           />
           <p className="text-sm text-muted-foreground mt-2">
-            Select multiple photos at once. Supported formats: JPG, PNG, WebP
+            {t('photos.formatSupport')}
           </p>
         </div>
       </div>
@@ -122,21 +124,21 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
         <div>
           <div className="flex justify-between items-center mb-4">
             <h4 className="font-medium">
-              Uploaded Photos ({data.images.length}/minimum 4)
+              {t('photos.uploadedPhotos')} ({data.images.length}/{t('photos.minimum')} 4)
             </h4>
             <span className={`text-sm ${data.images.length >= 4 ? 'text-green-600' : 'text-orange-600'}`}>
-              {data.images.length >= 4 ? 'Minimum requirement met' : `${4 - data.images.length} more needed`}
+              {data.images.length >= 4 ? t('photos.minimumMet') : `${4 - data.images.length} ${t('photos.moreNeeded')}`}
             </span>
           </div>
           
           <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
             {data.images.map((image, index) => (
               <Card key={index} className="relative group overflow-hidden">
-                <img
-                  src={image}
-                  alt={`Property photo ${index + 1}`}
-                  className="w-full h-32 object-cover"
-                />
+                 <img
+                   src={image}
+                   alt={`${t('photos.propertyPhoto')} ${index + 1}`}
+                   className="w-full h-32 object-cover"
+                 />
                 <Button
                   variant="destructive"
                   size="sm"
@@ -146,9 +148,9 @@ export const PhotosStep: React.FC<PhotosStepProps> = ({ data, updateData }) => {
                   <X className="h-3 w-3" />
                 </Button>
                 {index === 0 && (
-                  <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
-                    Main Photo
-                  </div>
+                   <div className="absolute bottom-2 left-2 bg-primary text-primary-foreground text-xs px-2 py-1 rounded">
+                     {t('photos.mainPhoto')}
+                   </div>
                 )}
               </Card>
             ))}

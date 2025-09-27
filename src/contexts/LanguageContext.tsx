@@ -486,6 +486,24 @@ const translations = {
     'createListing.no': 'No',
     'createListing.furnishedRequired': 'Only furnished properties can be listed on our platform. Please ensure your property is furnished before proceeding.',
     
+    // Photos
+    'photos.propertyPhotos': 'Property Photos',
+    'photos.uploadDescription': 'Upload at least 4 high-quality photos of your property. Include photos of each room, the exterior, and any special features.',
+    'photos.choosePhotos': 'Choose Photos',
+    'photos.uploading': 'Uploading...',
+    'photos.formatSupport': 'Select multiple photos at once. Supported formats: JPG, PNG, WebP',
+    'photos.uploadedPhotos': 'Uploaded Photos',
+    'photos.minimum': 'minimum',
+    'photos.minimumMet': 'Minimum requirement met',
+    'photos.moreNeeded': 'more needed',
+    'photos.propertyPhoto': 'Property photo',
+    'photos.mainPhoto': 'Main Photo',
+    'photos.authRequired': 'Authentication required',
+    'photos.signInToUpload': 'Please sign in to upload photos.',
+    'photos.uploadSuccess': 'Photos uploaded successfully',
+    'photos.photosAdded': 'photo(s) added to your listing.',
+    'photos.uploadFailed': 'Upload failed',
+    'photos.uploadFailedDesc': 'Failed to upload photos. Please try again.',
 
     // Amenities
     'amenities.wifi': 'WiFi',
@@ -1060,6 +1078,24 @@ const translations = {
     'createListing.no': 'No',
     'createListing.furnishedRequired': 'Solo gli immobili arredati possono essere pubblicati sulla nostra piattaforma. Assicurati che il tuo immobile sia arredato prima di continuare.',
     
+    // Photos
+    'photos.propertyPhotos': 'Foto dell\'Immobile',
+    'photos.uploadDescription': 'Carica almeno 4 foto di alta qualità della tua proprietà. Includi foto di ogni stanza, dell\'esterno e di eventuali caratteristiche speciali.',
+    'photos.choosePhotos': 'Scegli Foto',
+    'photos.uploading': 'Caricamento...',
+    'photos.formatSupport': 'Seleziona più foto contemporaneamente. Formati supportati: JPG, PNG, WebP',
+    'photos.uploadedPhotos': 'Foto Caricate',
+    'photos.minimum': 'minimo',
+    'photos.minimumMet': 'Requisito minimo soddisfatto',
+    'photos.moreNeeded': 'ancora necessarie',
+    'photos.propertyPhoto': 'Foto proprietà',
+    'photos.mainPhoto': 'Foto Principale',
+    'photos.authRequired': 'Autenticazione richiesta',
+    'photos.signInToUpload': 'Accedi per caricare le foto.',
+    'photos.uploadSuccess': 'Foto caricate con successo',
+    'photos.photosAdded': 'foto aggiunte al tuo annuncio.',
+    'photos.uploadFailed': 'Caricamento fallito',
+    'photos.uploadFailedDesc': 'Impossibile caricare le foto. Riprova.',
     
     // Amenities
     'amenities.wifi': 'WiFi',
