@@ -7,7 +7,7 @@ import { Elements, PaymentElement, useStripe, useElements } from '@stripe/react-
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from 'sonner';
 
-const stripePromise = loadStripe('pk_test_TYooMQauvdEDq54NiTphI7jx'); // Replace with your publishable key
+const stripePromise = loadStripe('pk_live_51S8dZERKknisFEsRSdE0kD4yldWOHUEP0Y16ANZu8Zm3GABjxcZvioxUjrp5WMZ7gye88V2aU13ALsTlkPHsJ42V00VMozqdY9');
 
 interface PaymentAuthorizationFormProps {
   clientSecret: string;
