@@ -477,7 +477,6 @@ const translations = {
     'createListing.listingCreated': 'Listing created successfully!',
     'createListing.propertyAddress': 'Property Address',
     'createListing.propertyAddressPlaceholder': 'Enter the full address',
-    'createListing.propertyAddressPlaceholder': 'Enter the full address',
     'createListing.addressLine2': 'Address Line 2 (Optional)',
     'createListing.addressLine2Placeholder': 'Apartment, suite, unit, building, floor, etc.',
     'createListing.postcode': 'Postcode',
@@ -487,7 +486,7 @@ const translations = {
     'createListing.no': 'No',
     'createListing.furnishedRequired': 'Only furnished properties can be listed on our platform. Please ensure your property is furnished before proceeding.',
     
-    
+
     // Amenities
     'amenities.wifi': 'WiFi',
     'amenities.kitchen': 'Kitchen',
@@ -1054,7 +1053,6 @@ const translations = {
     'createListing.propertyAddressPlaceholder': 'Inserisci l\'indirizzo completo',
     'createListing.addressLine2': 'Indirizzo Riga 2 (Opzionale)',
     'createListing.addressLine2Placeholder': 'Appartamento, scala, piano, edificio, ecc.',
-    'createListing.postcode': 'Codice Postale',
     'createListing.postcode': 'Codice Postale',
     'createListing.postcodePlaceholder': 'Inserisci il codice postale',
     'createListing.isFurnished': 'L\'immobile è arredato?',
