@@ -117,7 +117,7 @@ export default function EditListing() {
       setFormData({
         addressLine: data.address_line || '',
         addressLine2: '', // Not stored in current schema
-        postcode: '', // Not stored in current schema
+        postcode: data.postcode || '',
         type: data.type === 'apartment' ? 'entire_property' : data.type === 'studio' ? 'studio' : 'room_shared',
         bedrooms: data.bedrooms?.toString() || '',
         bathrooms: data.bathrooms?.toString() || '',
@@ -126,11 +126,25 @@ export default function EditListing() {
         housematesGender: (data.housemates_gender as 'male' | 'female' | 'mixed') || '',
         sizeSqm: data.size_sqm?.toString() || '',
         description: data.description || '',
-        amenities: Array.isArray(data.amenities) ? data.amenities.filter(item => typeof item === 'string') as string[] : [],
-        rules: [], // Not stored in current schema
-        rentBasis: 'monthly', // Default
+        amenities: Array.isArray(data.amenities) 
+          ? data.amenities
+              .filter(item => typeof item === 'string' && item.toLowerCase() !== 'pet friendly') as string[]
+          : [],
+        rules: Array.isArray(data.house_rules) 
+          ? data.house_rules.filter(item => typeof item === 'string') as string[]
+          : [],
+        rentBasis: 'monthly', // Default - could be calculated from deposit/rent ratio
         rentAmount: data.rent_monthly_eur?.toString() || '',
-        deposit: '1_month', // Default
+        deposit: data.deposit_eur && data.rent_monthly_eur 
+          ? (() => {
+              const ratio = data.deposit_eur / data.rent_monthly_eur;
+              if (ratio <= 1.2) return '1_month';
+              if (ratio <= 1.7) return '1.5_months';
+              if (ratio <= 2.2) return '2_months';
+              if (ratio <= 3.2) return '3_months';
+              return 'none';
+            })()
+          : '1_month',
         minStayMonths: data.minimum_stay_days ? Math.round(data.minimum_stay_days / 30).toString() : '',
         maxStayMonths: data.maximum_stay_days ? Math.round(data.maximum_stay_days / 30).toString() : '',
         availableFrom: data.availability_date || '',
@@ -242,7 +256,7 @@ export default function EditListing() {
         total_bathrooms: formData.totalBathrooms ? parseInt(formData.totalBathrooms) : null,
         housemates_gender: formData.housematesGender || null,
         size_sqm: formData.sizeSqm ? parseInt(formData.sizeSqm) : null,
-        amenities: formData.amenities,
+        amenities: formData.amenities.filter(item => item.toLowerCase() !== 'pet friendly'),
         house_rules: formData.rules,
         availability_date: formData.availableFrom || null,
         minimum_stay_days: formData.minStayMonths ? parseInt(formData.minStayMonths) * 30 : null,
