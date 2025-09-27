@@ -51,6 +51,7 @@ export interface Listing {
   lng: number;
   rentMonthlyEur: number;
   depositEur: number;
+  landlordAdminFee?: number;
   billsIncluded: boolean;
   furnished: boolean;
   bedrooms: number;
