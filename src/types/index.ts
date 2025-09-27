@@ -61,6 +61,7 @@ export interface Listing {
   floor?: string;
   sizeSqm?: number;
   amenities: string[];
+  houseRules?: string[];
   availabilityDate: string;
   images: string[];
   videoUrl?: string;

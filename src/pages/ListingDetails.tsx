@@ -107,6 +107,7 @@ export default function ListingDetails() {
         floor: listingData.floor,
         sizeSqm: listingData.size_sqm,
         amenities: Array.isArray(listingData.amenities) ? listingData.amenities.map(item => String(item)) : [],
+        houseRules: Array.isArray(listingData.house_rules) ? listingData.house_rules.map(item => String(item)) : [],
         availabilityDate: listingData.availability_date,
         images: Array.isArray(listingData.images) ? listingData.images.map(item => String(item)) : [],
         videoUrl: listingData.video_url,
@@ -366,10 +367,17 @@ export default function ListingDetails() {
                   </div>
 
                    {/* Gender preference for shared rooms */}
-                   {listing.type === 'room' && <div className="flex items-center space-x-2">
+                   {listing.type === 'room' && listing.housematesGender && (
+                     <div className="flex items-center space-x-2">
                        <Users className="h-5 w-5 text-muted-foreground" />
-                       <span>Mixed gender housemates</span>
-                     </div>}
+                       <span>
+                         {listing.housematesGender === 'mixed' 
+                           ? 'Mixed gender housemates'
+                           : `${listing.housematesGender.charAt(0).toUpperCase() + listing.housematesGender.slice(1)} housemates only`
+                         }
+                       </span>
+                     </div>
+                   )}
 
                   {/* Availability */}
                   {listing.availabilityDate && <div className="flex items-center space-x-2">
@@ -454,6 +462,21 @@ export default function ListingDetails() {
                         <span className="text-muted-foreground italic ml-1">(optional but higher chance to get your booking accepted)</span>
                       </span>
                     </div>
+                    
+                    {/* House Rules */}
+                    {Array.isArray(listing.houseRules) && listing.houseRules.length > 0 && (
+                      <div className="mt-4">
+                        <h4 className="font-medium mb-2">House Rules</h4>
+                        <div className="space-y-2">
+                          {listing.houseRules.map((rule: string, index: number) => (
+                            <div key={index} className="flex items-start gap-2">
+                              <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
+                              <span className="text-sm">{rule}</span>
+                            </div>
+                          ))}
+                        </div>
+                      </div>
+                    )}
                   </div>
                 </CardContent>
               </Card>
