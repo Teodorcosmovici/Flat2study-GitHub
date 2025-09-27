@@ -10,53 +10,53 @@ export default function LandlordLanding() {
   } = useLanguage();
   const features = [{
     icon: Star,
-    title: "Quality tenants",
-    description: "Access verified student tenants with guaranteed first payments. You always choose whether to accept or not.",
+    title: t('landlord.features.qualityTenants'),
+    description: t('landlord.features.qualityTenantsDesc'),
     highlight: true
   }, {
     icon: Calendar,
-    title: "Online viewings and bookings",
-    description: "Save time with virtual tours and direct online bookings. No more endless property showings.",
+    title: t('landlord.features.onlineBookings'),
+    description: t('landlord.features.onlineBookingsDesc'),
     highlight: false
   }, {
     icon: Euro,
-    title: "We only charge you if you rent out",
-    description: "Pay only when successful - a small percentage of the total contract value once rented, never before.",
+    title: t('landlord.features.payOnSuccess'),
+    description: t('landlord.features.payOnSuccessDesc'),
     highlight: true
   }, {
     icon: Headphones,
-    title: "Personalised service",
-    description: "Get expert support from our multilingual team at your disposal to help you at all times.",
+    title: t('landlord.features.personalService'),
+    description: t('landlord.features.personalServiceDesc'),
     highlight: false
   }];
   const steps = [{
     number: "1",
-    title: "List your property for free",
-    description: "Create your listing with photos and details. No upfront costs.",
+    title: t('landlord.steps.step1.title'),
+    description: t('landlord.steps.step1.desc'),
     bgColor: "bg-primary/10"
   }, {
     number: "2",
-    title: "Accept booking requests",
-    description: "Review verified student applications and choose your ideal tenant.",
+    title: t('landlord.steps.step2.title'),
+    description: t('landlord.steps.step2.desc'),
     bgColor: "bg-accent/20"
   }, {
     number: "3",
-    title: "Receive payments",
-    description: "Get secure monthly rent payments directly to your account.",
+    title: t('landlord.steps.step3.title'),
+    description: t('landlord.steps.step3.desc'),
     bgColor: "bg-secondary/20"
   }];
   const stats = [{
-    number: "50,000",
-    label: "students in our network",
-    sublabel: "looking for an apartment per year"
+    number: t('landlord.stats.students'),
+    label: t('landlord.stats.studentsLabel'),
+    sublabel: t('landlord.stats.studentsSubLabel')
   }, {
-    number: "5 top Milan universities",
-    label: "",
-    sublabel: "in our network"
+    number: t('landlord.stats.universities'),
+    label: t('landlord.stats.universitiesLabel'),
+    sublabel: t('landlord.stats.universitiesSubLabel')
   }, {
-    number: "7 days",
-    label: "is enough for our best listings",
-    sublabel: "to be rented"
+    number: t('landlord.stats.days'),
+    label: t('landlord.stats.daysLabel'),
+    sublabel: t('landlord.stats.daysSubLabel')
   }];
   return <div className="min-h-screen bg-background">
       <Header />
@@ -68,25 +68,25 @@ export default function LandlordLanding() {
             <div>
               <div className="mb-6">
                 <span className="text-sm font-medium bg-white/20 px-3 py-1 rounded-full">
-                  FLAT2STUDY LANDLORDS
+                  {t('landlord.hero.badge')}
                 </span>
               </div>
               <h1 className="text-4xl md:text-5xl lg:text-6xl font-bold mb-6 leading-tight">
-                Maximize your profitability with our 
-                <span className="block">medium-term renting</span>
+                {t('landlord.hero.title1')} 
+                <span className="block">{t('landlord.hero.title2')}</span>
               </h1>
               <p className="text-lg md:text-xl mb-8 text-white/90 leading-relaxed">
-                Your property always booked, secured and generating constant income with verified international students.
+                {t('landlord.hero.subtitle')}
               </p>
               <div className="flex flex-col sm:flex-row gap-4">
                 <Link to="/signup/private">
                   <Button size="lg" className="bg-white text-primary hover:bg-white/90 text-2xl font-bold px-12 py-8 animate-pulse hover:animate-none shadow-2xl">
-                    List with us
+                    {t('landlord.hero.listWithUs')}
                   </Button>
                 </Link>
                 <Link to="/auth">
                   <Button variant="ghost" size="lg" className="text-white border-white hover:bg-white/10 text-lg px-8 py-6">
-                    Log in
+                    {t('landlord.hero.logIn')}
                   </Button>
                 </Link>
               </div>
@@ -122,13 +122,13 @@ export default function LandlordLanding() {
       <section className="py-16 px-4 bg-muted/30">
         <div className="container mx-auto max-w-4xl text-center">
           <p className="text-sm font-medium text-muted-foreground mb-4">
-            NOT YOUR USUAL REAL ESTATE AD
+            {t('landlord.cta.notUsual')}
           </p>
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
-            Everything you need to maximise your earnings
+            {t('landlord.cta.title')}
           </h2>
           <p className="text-lg text-muted-foreground mb-12">
-            High ad visibility. Qualified tenants. Stress-free renting.
+            {t('landlord.cta.subtitle')}
           </p>
         </div>
       </section>
@@ -159,7 +159,7 @@ export default function LandlordLanding() {
         <div className="container mx-auto max-w-6xl">
           <div className="text-center mb-12">
             <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              Three simple steps
+              {t('landlord.steps.title')}
             </h2>
           </div>
           
@@ -183,8 +183,7 @@ export default function LandlordLanding() {
               <div className="text-center space-y-4">
                 <p className="text-muted-foreground">You will receive complete information about your potential tenants. Once a request is accepted,  the tenant pays the first month rental and the deposit..</p>
                 <p className="text-muted-foreground">
-                  Within 48 hours of your tenant's arrival, we will transfer you the 
-                  first rental payment minus our service fee.
+                  {t('landlord.steps.additionalInfo2')}
                 </p>
               </div>
             </div>
@@ -196,12 +195,12 @@ export default function LandlordLanding() {
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto max-w-4xl text-center">
           <h2 className="text-3xl md:text-4xl font-bold mb-6 text-foreground">
-            Ready to start earning?
+            {t('landlord.finalCta.title')}
           </h2>
-          <p className="text-lg text-muted-foreground mb-8">Join thousands olandlords already maximizing their rental income with verified student tenants.</p>
+          <p className="text-lg text-muted-foreground mb-8">{t('landlord.finalCta.subtitle')}</p>
           <Link to="/signup/private">
             <Button size="lg" className="hero-gradient text-white text-2xl font-bold px-16 py-8 shadow-2xl">
-              Start listing for free
+              {t('landlord.finalCta.startListing')}
             </Button>
           </Link>
         </div>
