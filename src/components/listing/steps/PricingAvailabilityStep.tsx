@@ -8,7 +8,6 @@ import { Info } from 'lucide-react';
 
 interface PricingAvailabilityStepProps {
   data: {
-    rent_basis: 'daily' | 'semi_monthly' | 'monthly';
     rent_amount: number;
     deposit: 'none' | '1_month' | '1.5_months' | '2_months' | '3_months';
     min_stay_months?: number;
@@ -21,28 +20,6 @@ interface PricingAvailabilityStepProps {
 export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = ({ data, updateData }) => {
   return (
     <div className="space-y-6">
-      <div>
-        <Label>Rent Basis *</Label>
-        <RadioGroup
-          value={data.rent_basis}
-          onValueChange={(value) => updateData({ rent_basis: value })}
-          className="mt-2"
-        >
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="daily" id="daily" />
-            <Label htmlFor="daily">Daily Basis</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="semi_monthly" id="semi_monthly" />
-            <Label htmlFor="semi_monthly">Semi-Monthly Basis (Every 2 weeks)</Label>
-          </div>
-          <div className="flex items-center space-x-2">
-            <RadioGroupItem value="monthly" id="monthly" />
-            <Label htmlFor="monthly">Monthly Basis</Label>
-          </div>
-        </RadioGroup>
-      </div>
-
       <div>
         <Label htmlFor="rent_amount">
           Rent Amount (EUR) - Per Month *
