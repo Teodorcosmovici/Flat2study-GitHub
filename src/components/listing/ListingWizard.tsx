@@ -44,6 +44,7 @@ interface ListingData {
   rent_basis: 'daily' | 'semi_monthly' | 'monthly';
   rent_amount: number;
   deposit: 'none' | '1_month' | '1.5_months' | '2_months' | '3_months';
+  landlord_admin_fee?: number;
   min_stay_months?: number;
   max_stay_months?: number;
   available_from: string;
@@ -178,6 +179,7 @@ export const ListingWizard = () => {
           lng: 0, // You'll need to geocode the address
           rent_monthly_eur: Math.round(monthly_rent),
           deposit_eur: Math.round(deposit_amount),
+          landlord_admin_fee: listingData.landlord_admin_fee || null,
           bills_included: listingData.electricityIncluded && listingData.gasIncluded && listingData.waterIncluded && listingData.internetIncluded,
           electricity_included: listingData.electricityIncluded,
           electricity_cost_eur: listingData.electricityCostEur,

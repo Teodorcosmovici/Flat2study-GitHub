@@ -43,6 +43,7 @@ export default function EditListing() {
     rentBasis: 'monthly' as 'daily' | 'semi_monthly' | 'monthly',
     rentAmount: '',
     deposit: '1_month' as 'none' | '1_month' | '1.5_months' | '2_months' | '3_months',
+    landlordAdminFee: '',
     minStayMonths: '',
     maxStayMonths: '',
     availableFrom: '',
@@ -145,6 +146,7 @@ export default function EditListing() {
               return 'none';
             })()
           : '1_month',
+        landlordAdminFee: data.landlord_admin_fee?.toString() || '',
         minStayMonths: data.minimum_stay_days ? Math.round(data.minimum_stay_days / 30).toString() : '',
         maxStayMonths: data.maximum_stay_days ? Math.round(data.maximum_stay_days / 30).toString() : '',
         availableFrom: data.availability_date || '',
