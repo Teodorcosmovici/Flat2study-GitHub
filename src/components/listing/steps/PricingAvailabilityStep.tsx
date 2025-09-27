@@ -10,6 +10,7 @@ interface PricingAvailabilityStepProps {
   data: {
     rent_amount: number;
     deposit: 'none' | '1_month' | '1.5_months' | '2_months' | '3_months';
+    landlord_admin_fee?: number;
     min_stay_months?: number;
     max_stay_months?: number;
     available_from: string;
@@ -62,6 +63,25 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
             </AlertDescription>
           </Alert>
         )}
+      </div>
+
+      <div>
+        <Label htmlFor="landlord_admin_fee">
+          Landlord Admin Fee (EUR) - Optional
+        </Label>
+        <Input
+          id="landlord_admin_fee"
+          type="number"
+          min="0"
+          step="1"
+          value={data.landlord_admin_fee || ''}
+          onChange={(e) => updateData({ landlord_admin_fee: parseFloat(e.target.value) || undefined })}
+          placeholder="Enter admin fee amount"
+          className="mt-1"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Optional one-time fee charged to tenants (e.g., application processing fee)
+        </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">

@@ -18,6 +18,7 @@ import { ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
 interface PaymentSummaryModalProps {
   rentMonthlyEur: number;
   depositEur?: number;
+  landlordAdminFee?: number;
   selectedDates?: {
     checkIn: Date;
     checkOut: Date;
@@ -29,6 +30,7 @@ interface PaymentSummaryModalProps {
 export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   rentMonthlyEur,
   depositEur = 0,
+  landlordAdminFee = 0,
   selectedDates,
   children
 }) => {
@@ -86,7 +88,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstMonthRent = calculateFirstMonthPayment();
   const firstPaymentTotal = firstMonthRent + serviceFee;
-  const afterBookingTotal = depositEur + 35 + 35; // Security deposit + Electricity + Gas
+  const afterBookingTotal = depositEur + landlordAdminFee + 35 + 35; // Security deposit + Admin fee + Electricity + Gas
 
   return (
     <Dialog>
@@ -146,6 +148,12 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   <span>Security deposit</span>
                   <span>{formatPrice(depositEur)}</span>
                 </div>
+                {landlordAdminFee > 0 && (
+                  <div className="flex justify-between">
+                    <span>Landlord admin fee</span>
+                    <span>{formatPrice(landlordAdminFee)}</span>
+                  </div>
+                )}
                 
                 <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
                 <div className="flex justify-between items-center">
