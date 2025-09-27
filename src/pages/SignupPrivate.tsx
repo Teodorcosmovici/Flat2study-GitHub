@@ -56,13 +56,13 @@ export default function SignupPrivate() {
     }
 
     if (!acceptedTerms) {
-      setError('You must accept the Terms of Use to continue');
+      setError(t('signup.private.termsError'));
       setLoading(false);
       return;
     }
 
     if (!acceptedPrivacy) {
-      setError('You must accept the Privacy Policy to continue');
+      setError(t('signup.private.privacyError'));
       setLoading(false);
       return;
     }
@@ -118,7 +118,7 @@ export default function SignupPrivate() {
 
         <Card>
           <CardHeader className="text-center">
-            <CardTitle className="text-2xl font-bold">Landlord and Property Manager Registration</CardTitle>
+            <CardTitle className="text-2xl font-bold">{t('signup.private.title')}</CardTitle>
             <CardDescription>
               {t('signup.private.description')}
             </CardDescription>
@@ -282,16 +282,16 @@ export default function SignupPrivate() {
                   />
                   <div className="text-sm">
                     <Label htmlFor="terms" className="cursor-pointer">
-                      I accept the{' '}
+                      {t('signup.private.termsAccept')}{' '}
                       <a 
                         href="/TERMS_OF_USE.docx" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >
-                        Terms of Use
+                        {t('signup.private.termsOfUse')}
                       </a>
-                      {' '}*
+                      {' '}{t('signup.private.required')}
                     </Label>
                   </div>
                 </div>
@@ -305,16 +305,16 @@ export default function SignupPrivate() {
                   />
                   <div className="text-sm">
                     <Label htmlFor="privacy" className="cursor-pointer">
-                      I accept the{' '}
+                      {t('signup.private.privacyAccept')}{' '}
                       <a 
                         href="/Privacy_Notice.docx" 
                         target="_blank" 
                         rel="noopener noreferrer"
                         className="text-primary hover:underline"
                       >
-                        Privacy Policy
+                        {t('signup.private.privacyPolicy')}
                       </a>
-                      {' '}*
+                      {' '}{t('signup.private.required')}
                     </Label>
                   </div>
                 </div>

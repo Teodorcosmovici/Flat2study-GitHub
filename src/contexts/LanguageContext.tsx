@@ -180,12 +180,19 @@ const translations = {
     'signup.realtor.createAccount': 'Create Realtor Account',
     
     // Signup Private
-    'signup.private.title': 'Private Individual Registration',
+    'signup.private.title': 'Landlord and Property Manager Registration',
     'signup.private.description': 'Create your account to start listing your property',
     'signup.private.birthDate': 'Birth Date',
     'signup.private.codiceFiscale': 'Codice Fiscale',
     'signup.private.codiceFiscalePlaceholder': 'RSSMRA80A01H501Z',
     'signup.private.createAccount': 'Create Account',
+    'signup.private.termsAccept': 'I accept the',
+    'signup.private.termsOfUse': 'Terms of Use',
+    'signup.private.privacyAccept': 'I accept the',
+    'signup.private.privacyPolicy': 'Privacy Policy',
+    'signup.private.required': '*',
+    'signup.private.termsError': 'You must accept the Terms of Use to continue',
+    'signup.private.privacyError': 'You must accept the Privacy Policy to continue',
     
     // Universities
     'university.bocconi': 'Bocconi University',
@@ -647,12 +654,19 @@ const translations = {
     'signup.realtor.createAccount': 'Crea Account Agente',
     
     // Signup Private
-    'signup.private.title': 'Registrazione Privato',
-    'signup.private.description': 'Crea il tuo account per iniziare a pubblicare la tua proprietà',
-    'signup.private.birthDate': 'Data di Nascita',
-    'signup.private.codiceFiscale': 'Codice Fiscale',
-    'signup.private.codiceFiscalePlaceholder': 'RSSMRA80A01H501Z',
-    'signup.private.createAccount': 'Crea Account',
+     'signup.private.title': 'Registrazione Proprietario e Property Manager',
+     'signup.private.description': 'Crea il tuo account per iniziare a pubblicare la tua proprietà',
+     'signup.private.birthDate': 'Data di Nascita',
+     'signup.private.codiceFiscale': 'Codice Fiscale',
+     'signup.private.codiceFiscalePlaceholder': 'RSSMRA80A01H501Z',
+     'signup.private.createAccount': 'Crea Account',
+     'signup.private.termsAccept': 'Accetto i',
+     'signup.private.termsOfUse': 'Termini di Utilizzo',
+     'signup.private.privacyAccept': 'Accetto l\'',
+     'signup.private.privacyPolicy': 'Informativa sulla Privacy',
+     'signup.private.required': '*',
+     'signup.private.termsError': 'Devi accettare i Termini di Utilizzo per continuare',
+     'signup.private.privacyError': 'Devi accettare l\'Informativa sulla Privacy per continuare',
     
     // Universities
     'university.bocconi': 'Università Bocconi',
