@@ -25,7 +25,7 @@ export default function SignupPrivate() {
   const [phone, setPhone] = useState('');
   const [email, setEmail] = useState('');
   const [birthDate, setBirthDate] = useState('');
-  const [codiceFiscale, setCodiceFiscale] = useState('');
+  
   const [password, setPassword] = useState('');
   const [confirmPassword, setConfirmPassword] = useState('');
   const [acceptedTerms, setAcceptedTerms] = useState(false);
@@ -72,7 +72,6 @@ export default function SignupPrivate() {
       user_type: 'private',
       phone,
       birth_date: birthDate,
-      codice_fiscale: codiceFiscale,
       profile_picture: profilePicture ? profilePicture.name : null
     };
 
@@ -233,18 +232,6 @@ export default function SignupPrivate() {
                 />
               </div>
 
-              <div className="space-y-2">
-                <Label htmlFor="codice-fiscale">{t('signup.private.codiceFiscale')}</Label>
-                <Input
-                  id="codice-fiscale"
-                  type="text"
-                  placeholder={t('signup.private.codiceFiscalePlaceholder')}
-                  value={codiceFiscale}
-                  onChange={(e) => setCodiceFiscale(e.target.value.toUpperCase())}
-                  maxLength={16}
-                  required
-                />
-              </div>
 
               <div className="space-y-2">
                 <Label htmlFor="password">{t('auth.password')}</Label>
