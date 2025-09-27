@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
@@ -18,6 +19,8 @@ interface UtilityCostsStepProps {
 }
 
 export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, updateData }) => {
+  const { t } = useLanguage();
+  
   const updateUtility = (utility: string, value: 'included' | 'estimate') => {
     const includedField = `${utility}Included`;
     const costField = `${utility}CostEur`;
@@ -55,13 +58,13 @@ export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, update
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="included" id={`${utility}-included`} />
           <Label htmlFor={`${utility}-included`} className="font-normal">
-            Included in rent
+            {t('createListing.included')}
           </Label>
         </div>
         <div className="flex items-center space-x-2">
           <RadioGroupItem value="estimate" id={`${utility}-estimate`} />
           <Label htmlFor={`${utility}-estimate`} className="font-normal">
-            Estimate monthly cost
+            {t('createListing.estimate')}
           </Label>
         </div>
       </RadioGroup>
@@ -74,7 +77,7 @@ export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, update
             step="5"
             value={cost}
             onChange={(e) => updateUtilityCost(utility, parseFloat(e.target.value) || 0)}
-            placeholder="Monthly cost in EUR"
+            placeholder={t('createListing.estimatedCost')}
             className="w-48"
           />
         </div>
@@ -85,17 +88,17 @@ export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, update
   return (
     <div className="space-y-6">
       <div>
-        <h3 className="text-lg font-medium mb-2">Utility Costs</h3>
+        <h3 className="text-lg font-medium mb-2">{t('createListing.utilityCosts')}</h3>
         <p className="text-sm text-muted-foreground mb-6">
-          Specify whether utilities are included in the rent or provide estimated monthly costs.
+          {t('createListing.utilityCostsDescription')}
         </p>
       </div>
 
       <div className="space-y-4">
-        {renderUtilitySection('electricity', 'Electricity', data.electricityIncluded, data.electricityCostEur)}
-        {renderUtilitySection('gas', 'Gas', data.gasIncluded, data.gasCostEur)}
-        {renderUtilitySection('water', 'Water', data.waterIncluded, data.waterCostEur)}
-        {renderUtilitySection('internet', 'Internet', data.internetIncluded, data.internetCostEur)}
+        {renderUtilitySection('electricity', t('createListing.electricity'), data.electricityIncluded, data.electricityCostEur)}
+        {renderUtilitySection('gas', t('createListing.gas'), data.gasIncluded, data.gasCostEur)}
+        {renderUtilitySection('water', t('createListing.water'), data.waterIncluded, data.waterCostEur)}
+        {renderUtilitySection('internet', t('createListing.internet'), data.internetIncluded, data.internetCostEur)}
       </div>
     </div>
   );
