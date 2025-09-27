@@ -159,6 +159,7 @@ export const ListingWizard = () => {
           type: listingData.type === 'entire_property' ? 'apartment' : listingData.type === 'studio' ? 'studio' : 'room',
           description: listingData.description,
           address_line: listingData.address_line,
+          postcode: listingData.postcode,
           city: 'City', // You might want to extract this from address
           country: 'Country', // You might want to extract this from address
           lat: 0, // You'll need to geocode the address
@@ -169,8 +170,12 @@ export const ListingWizard = () => {
           furnished: listingData.furnished,
           bedrooms: listingData.bedrooms || (listingData.type === 'studio' ? 0 : 1),
           bathrooms: listingData.bathrooms,
+          total_bedrooms: listingData.total_bedrooms,
+          total_bathrooms: listingData.total_bathrooms,
+          housemates_gender: listingData.housemates_gender,
           size_sqm: listingData.size_sqm,
           amenities: listingData.amenities,
+          house_rules: listingData.rules,
           availability_date: listingData.available_from,
           images: listingData.images,
           status: 'DRAFT', // Set to DRAFT initially

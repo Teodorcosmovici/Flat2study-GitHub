@@ -512,6 +512,8 @@ export type Database = {
           expires_at: string | null
           floor: string | null
           furnished: boolean | null
+          house_rules: Json | null
+          housemates_gender: string | null
           id: string
           images: Json | null
           instant_booking: boolean | null
@@ -521,6 +523,7 @@ export type Database = {
           lng: number
           maximum_stay_days: number | null
           minimum_stay_days: number | null
+          postcode: string | null
           price_history: Json | null
           published_at: string | null
           rent_monthly_eur: number | null
@@ -532,6 +535,8 @@ export type Database = {
           status: string | null
           title: string | null
           title_multilingual: Json | null
+          total_bathrooms: number | null
+          total_bedrooms: number | null
           type: string | null
           updated_at: string | null
           video_url: string | null
@@ -559,6 +564,8 @@ export type Database = {
           expires_at?: string | null
           floor?: string | null
           furnished?: boolean | null
+          house_rules?: Json | null
+          housemates_gender?: string | null
           id?: string
           images?: Json | null
           instant_booking?: boolean | null
@@ -568,6 +575,7 @@ export type Database = {
           lng: number
           maximum_stay_days?: number | null
           minimum_stay_days?: number | null
+          postcode?: string | null
           price_history?: Json | null
           published_at?: string | null
           rent_monthly_eur?: number | null
@@ -579,6 +587,8 @@ export type Database = {
           status?: string | null
           title?: string | null
           title_multilingual?: Json | null
+          total_bathrooms?: number | null
+          total_bedrooms?: number | null
           type?: string | null
           updated_at?: string | null
           video_url?: string | null
@@ -606,6 +616,8 @@ export type Database = {
           expires_at?: string | null
           floor?: string | null
           furnished?: boolean | null
+          house_rules?: Json | null
+          housemates_gender?: string | null
           id?: string
           images?: Json | null
           instant_booking?: boolean | null
@@ -615,6 +627,7 @@ export type Database = {
           lng?: number
           maximum_stay_days?: number | null
           minimum_stay_days?: number | null
+          postcode?: string | null
           price_history?: Json | null
           published_at?: string | null
           rent_monthly_eur?: number | null
@@ -626,6 +639,8 @@ export type Database = {
           status?: string | null
           title?: string | null
           title_multilingual?: Json | null
+          total_bathrooms?: number | null
+          total_bedrooms?: number | null
           type?: string | null
           updated_at?: string | null
           video_url?: string | null
