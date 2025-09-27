@@ -3,6 +3,7 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, Clock, MapPin, Home, Euro, Calendar, Zap } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ReviewStepProps {
   data: any;
@@ -10,23 +11,25 @@ interface ReviewStepProps {
 }
 
 export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
+  const { t } = useLanguage();
+  
   const formatDeposit = () => {
-    if (data.deposit === 'none') return 'No deposit required';
-    return `${data.deposit.replace('_', ' ').replace('months', 'month(s) rent')}`;
+    if (data.deposit === 'none') return t('review.noDepositRequired');
+    return `${data.deposit.replace('_', ' ').replace('months', t('review.monthsRent'))}`;
   };
 
   const formatRent = () => {
-    const basis = data.rent_basis === 'semi_monthly' ? 'every 2 weeks' : 
-                  data.rent_basis === 'daily' ? 'per day' : 'per month';
+    const basis = data.rent_basis === 'semi_monthly' ? t('review.every2Weeks') : 
+                  data.rent_basis === 'daily' ? t('review.perDay') : t('review.perMonth');
     return `€${data.rent_amount} ${basis}`;
   };
 
   const formatUtilities = () => {
     const utilities = [
-      { name: 'Electricity', value: data.electricity },
-      { name: 'Gas', value: data.gas },
-      { name: 'Water', value: data.water },
-      { name: 'Internet', value: data.internet }
+      { name: t('review.electricity'), value: data.electricity },
+      { name: t('review.gas'), value: data.gas },
+      { name: t('review.water'), value: data.water },
+      { name: t('review.internet'), value: data.internet }
     ];
 
     const included = utilities.filter(u => u.value === 'included').map(u => u.name);
@@ -42,9 +45,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
       <div className="text-center space-y-4">
         <CheckCircle className="mx-auto h-16 w-16 text-green-500" />
         <div>
-          <h2 className="text-2xl font-bold">Review Your Listing</h2>
+          <h2 className="text-2xl font-bold">{t('review.reviewYourListing')}</h2>
           <p className="text-muted-foreground">
-            Please review all information before submitting your listing for approval.
+            {t('review.reviewDescription')}
           </p>
         </div>
       </div>
@@ -55,17 +58,17 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <MapPin className="h-5 w-5" />
-              Property Location
+              {t('review.propertyLocation')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p><strong>Address:</strong> {data.address_line}</p>
-              {data.address_line2 && <p><strong>Address Line 2:</strong> {data.address_line2}</p>}
-              <p><strong>Postcode:</strong> {data.postcode}</p>
+              <p><strong>{t('review.address')}:</strong> {data.address_line}</p>
+              {data.address_line2 && <p><strong>{t('review.addressLine2')}:</strong> {data.address_line2}</p>}
+              <p><strong>{t('review.postcode')}:</strong> {data.postcode}</p>
               <div className="flex items-center gap-2">
                 <Badge variant={data.furnished ? "default" : "destructive"}>
-                  {data.furnished ? "Furnished" : "Unfurnished"}
+                  {data.furnished ? t('review.furnished') : t('review.unfurnished')}
                 </Badge>
               </div>
             </div>
@@ -77,20 +80,20 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Home className="h-5 w-5" />
-              Property Details
+              {t('review.propertyDetails')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-2 gap-4">
               <div>
-                <p><strong>Type:</strong> {data.type.replace('_', ' ').toUpperCase()}</p>
-                <p><strong>Size:</strong> {data.size_sqm} sqm</p>
-                <p><strong>Bathrooms:</strong> {data.bathrooms}</p>
+                <p><strong>{t('review.type')}:</strong> {data.type.replace('_', ' ').toUpperCase()}</p>
+                <p><strong>{t('review.size')}:</strong> {data.size_sqm} sqm</p>
+                <p><strong>{t('review.bathrooms')}:</strong> {data.bathrooms}</p>
               </div>
               <div>
-                {data.bedrooms && <p><strong>Bedrooms:</strong> {data.bedrooms}</p>}
-                {data.total_bedrooms && <p><strong>Total Bedrooms:</strong> {data.total_bedrooms}</p>}
-                {data.housemates_gender && <p><strong>Housemates:</strong> {data.housemates_gender}</p>}
+                {data.bedrooms && <p><strong>{t('review.bedrooms')}:</strong> {data.bedrooms}</p>}
+                {data.total_bedrooms && <p><strong>{t('review.totalBedrooms')}:</strong> {data.total_bedrooms}</p>}
+                {data.housemates_gender && <p><strong>{t('review.housemates')}:</strong> {data.housemates_gender}</p>}
               </div>
             </div>
           </CardContent>
@@ -101,16 +104,16 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Euro className="h-5 w-5" />
-              Pricing & Terms
+              {t('review.pricingTerms')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-2">
-              <p><strong>Rent:</strong> {formatRent()}</p>
-              <p><strong>Deposit:</strong> {formatDeposit()}</p>
-              {data.min_stay_months && <p><strong>Minimum Stay:</strong> {data.min_stay_months} month(s)</p>}
-              {data.max_stay_months && <p><strong>Maximum Stay:</strong> {data.max_stay_months} month(s)</p>}
-              <p><strong>Available From:</strong> {new Date(data.available_from).toLocaleDateString()}</p>
+              <p><strong>{t('review.rent')}:</strong> {formatRent()}</p>
+              <p><strong>{t('review.deposit')}:</strong> {formatDeposit()}</p>
+              {data.min_stay_months && <p><strong>{t('review.minimumStay')}:</strong> {data.min_stay_months} {t('review.months')}</p>}
+              {data.max_stay_months && <p><strong>{t('review.maximumStay')}:</strong> {data.max_stay_months} {t('review.months')}</p>}
+              <p><strong>{t('review.availableFrom')}:</strong> {new Date(data.available_from).toLocaleDateString()}</p>
             </div>
           </CardContent>
         </Card>
@@ -120,14 +123,14 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
           <CardHeader>
             <CardTitle className="flex items-center gap-2">
               <Zap className="h-5 w-5" />
-              Utilities
+              {t('review.utilities')}
             </CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-3">
               {utils.included.length > 0 && (
                 <div>
-                  <p className="font-medium text-green-600 mb-1">Included in rent:</p>
+                  <p className="font-medium text-green-600 mb-1">{t('review.includedInRent')}:</p>
                   <div className="flex flex-wrap gap-1">
                     {utils.included.map((util) => (
                       <Badge key={util} variant="secondary">{util}</Badge>
@@ -138,7 +141,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
               
               {utils.estimated.length > 0 && (
                 <div>
-                  <p className="font-medium text-orange-600 mb-1">Estimated monthly costs:</p>
+                  <p className="font-medium text-orange-600 mb-1">{t('review.estimatedMonthlyCosts')}:</p>
                   <div className="space-y-1">
                     {utils.estimated.map((util) => (
                       <p key={util.name} className="text-sm">
@@ -155,18 +158,18 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
         {/* Amenities & Rules */}
         <Card>
           <CardHeader>
-            <CardTitle>Amenities & Rules</CardTitle>
+            <CardTitle>{t('review.amenitiesRules')}</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="space-y-4">
               <div>
-                <p className="font-medium mb-2">Description:</p>
+                <p className="font-medium mb-2">{t('review.description')}:</p>
                 <p className="text-sm text-muted-foreground">{data.description}</p>
               </div>
               
               {data.amenities.length > 0 && (
                 <div>
-                  <p className="font-medium mb-2">Amenities:</p>
+                  <p className="font-medium mb-2">{t('review.amenities')}:</p>
                   <div className="flex flex-wrap gap-1">
                     {data.amenities.map((amenity: string) => (
                       <Badge key={amenity} variant="outline">{amenity}</Badge>
@@ -177,7 +180,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
               
               {data.rules.length > 0 && (
                 <div>
-                  <p className="font-medium mb-2">House Rules:</p>
+                  <p className="font-medium mb-2">{t('review.houseRules')}:</p>
                   <div className="flex flex-wrap gap-1">
                     {data.rules.map((rule: string) => (
                       <Badge key={rule} variant="outline">{rule}</Badge>
@@ -192,7 +195,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
         {/* Photos */}
         <Card>
           <CardHeader>
-            <CardTitle>Photos ({data.images.length})</CardTitle>
+            <CardTitle>{t('review.photos')} ({data.images.length})</CardTitle>
           </CardHeader>
           <CardContent>
             <div className="grid grid-cols-4 gap-2">
@@ -200,13 +203,13 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
                 <img
                   key={index}
                   src={image}
-                  alt={`Property photo ${index + 1}`}
+                  alt={`${t('review.propertyPhoto')} ${index + 1}`}
                   className="w-full h-20 object-cover rounded"
                 />
               ))}
               {data.images.length > 8 && (
                 <div className="w-full h-20 bg-muted rounded flex items-center justify-center text-sm">
-                  +{data.images.length - 8} more
+                  +{data.images.length - 8} {t('review.more')}
                 </div>
               )}
             </div>
@@ -220,10 +223,9 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
           <div className="flex items-start gap-3">
             <Clock className="h-5 w-5 text-blue-600 mt-0.5" />
             <div>
-              <h3 className="font-medium text-blue-900">Ready to Submit</h3>
+              <h3 className="font-medium text-blue-900">{t('review.readyToSubmit')}</h3>
               <p className="text-sm text-blue-700 mt-1">
-                During the next 24 hours, our Trust & Safety department will review your listing. 
-                If everything is correct, it will appear on the website automatically.
+                {t('review.submissionInfo')}
               </p>
             </div>
           </div>
@@ -232,7 +234,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
 
       <div className="flex justify-center">
         <Button onClick={onSubmit} size="lg" className="px-8">
-          Submit for Review
+          {t('review.submitForReview')}
         </Button>
       </div>
     </div>
