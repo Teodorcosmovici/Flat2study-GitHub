@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -18,10 +19,11 @@ interface PropertyDetailsStepProps {
 }
 
 export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, updateData }) => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-6">
       <div>
-        <Label>Property Type *</Label>
+        <Label>{t('createListing.propertyType')} *</Label>
         <RadioGroup
           value={data.type}
           onValueChange={(value) => updateData({ type: value })}
@@ -29,15 +31,15 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
         >
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="entire_property" id="entire_property" />
-            <Label htmlFor="entire_property">Entire Property</Label>
+            <Label htmlFor="entire_property">{t('createListing.entireProperty')}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="studio" id="studio" />
-            <Label htmlFor="studio">Studio</Label>
+            <Label htmlFor="studio">{t('createListing.studio')}</Label>
           </div>
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="room_shared" id="room_shared" />
-            <Label htmlFor="room_shared">Room in a Shared Property</Label>
+            <Label htmlFor="room_shared">{t('createListing.roomShared')}</Label>
           </div>
         </RadioGroup>
       </div>
@@ -45,7 +47,7 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
       {data.type === 'entire_property' && (
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="bedrooms">Number of Bedrooms *</Label>
+            <Label htmlFor="bedrooms">{t('createListing.numberOfBedrooms')} *</Label>
             <Input
               id="bedrooms"
               type="number"
@@ -56,7 +58,7 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
             />
           </div>
           <div>
-            <Label htmlFor="bathrooms">Number of Bathrooms *</Label>
+            <Label htmlFor="bathrooms">{t('createListing.numberOfBathrooms')} *</Label>
             <Input
               id="bathrooms"
               type="number"
@@ -71,7 +73,7 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
 
       {data.type === 'studio' && (
         <div>
-          <Label htmlFor="bathrooms">Number of Bathrooms *</Label>
+          <Label htmlFor="bathrooms">{t('createListing.numberOfBathrooms')} *</Label>
           <Input
             id="bathrooms"
             type="number"
@@ -87,7 +89,7 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
         <>
           <div className="grid grid-cols-2 gap-4">
             <div>
-              <Label htmlFor="total_bedrooms">Total Bedrooms in Apartment *</Label>
+              <Label htmlFor="total_bedrooms">{t('createListing.totalBedroomsInApartment')} *</Label>
               <Input
                 id="total_bedrooms"
                 type="number"
@@ -98,7 +100,7 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
               />
             </div>
             <div>
-              <Label htmlFor="total_bathrooms">Total Bathrooms in Apartment *</Label>
+              <Label htmlFor="total_bathrooms">{t('createListing.totalBathroomsInApartment')} *</Label>
               <Input
                 id="total_bathrooms"
                 type="number"
@@ -111,18 +113,18 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
           </div>
           
           <div>
-            <Label>Housemates Gender *</Label>
+            <Label>{t('createListing.housematesGender')} *</Label>
             <Select 
               value={data.housemates_gender} 
               onValueChange={(value) => updateData({ housemates_gender: value })}
             >
               <SelectTrigger className="mt-1">
-                <SelectValue placeholder="Select housemates gender preference" />
+                <SelectValue placeholder={t('createListing.selectHousematesGender')} />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="male">Male only</SelectItem>
-                <SelectItem value="female">Female only</SelectItem>
-                <SelectItem value="mixed">Mixed</SelectItem>
+                <SelectItem value="male">{t('createListing.maleOnly')}</SelectItem>
+                <SelectItem value="female">{t('createListing.femaleOnly')}</SelectItem>
+                <SelectItem value="mixed">{t('createListing.mixed')}</SelectItem>
               </SelectContent>
             </Select>
           </div>
@@ -130,14 +132,14 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
       )}
 
       <div>
-        <Label htmlFor="size_sqm">Full Property Size (sqm) *</Label>
+        <Label htmlFor="size_sqm">{t('createListing.fullPropertySize')} *</Label>
         <Input
           id="size_sqm"
           type="number"
           min="1"
           value={data.size_sqm || ''}
           onChange={(e) => updateData({ size_sqm: parseInt(e.target.value) || 0 })}
-          placeholder="Enter size in square meters"
+          placeholder={t('createListing.enterSizeSquareMeters')}
           className="mt-1"
         />
       </div>
