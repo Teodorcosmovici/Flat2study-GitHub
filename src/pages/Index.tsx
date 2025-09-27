@@ -86,7 +86,7 @@ const Index = () => {
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
             {user && profile ? 
-              (isStudent ? t('home.heroSubtitleStudent') : 'Manage your property listings') : 
+              (isStudent ? t('home.heroSubtitleStudent') : t('home.heroSubtitleRealtor')) : 
               t('home.heroSubtitle')
             }
           </p>
