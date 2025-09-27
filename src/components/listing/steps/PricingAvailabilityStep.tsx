@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -19,11 +20,13 @@ interface PricingAvailabilityStepProps {
 }
 
 export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = ({ data, updateData }) => {
+  const { t } = useLanguage();
+  
   return (
     <div className="space-y-6">
       <div>
         <Label htmlFor="rent_amount">
-          Rent Amount (EUR) - Per Month *
+          {t('createListing.rentAmount')} *
         </Label>
         <Input
           id="rent_amount"
@@ -32,26 +35,26 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
           step="1"
           value={data.rent_amount || ''}
           onChange={(e) => updateData({ rent_amount: parseFloat(e.target.value) || 0 })}
-          placeholder="Enter rent amount"
+          placeholder={t('createListing.enterRentAmount')}
           className="mt-1"
         />
       </div>
 
       <div>
-        <Label>Security Deposit *</Label>
+        <Label>{t('createListing.securityDeposit')} *</Label>
         <Select 
           value={data.deposit} 
           onValueChange={(value) => updateData({ deposit: value })}
         >
           <SelectTrigger className="mt-1">
-            <SelectValue placeholder="Select deposit amount" />
+            <SelectValue placeholder={t('createListing.selectDepositAmount')} />
           </SelectTrigger>
           <SelectContent>
-            <SelectItem value="none">No deposit required</SelectItem>
-            <SelectItem value="1_month">1 month rent</SelectItem>
-            <SelectItem value="1.5_months">1.5 months rent</SelectItem>
-            <SelectItem value="2_months">2 months rent</SelectItem>
-            <SelectItem value="3_months">3 months rent</SelectItem>
+            <SelectItem value="none">{t('createListing.noDepositRequired')}</SelectItem>
+            <SelectItem value="1_month">{t('createListing.oneMonthRent')}</SelectItem>
+            <SelectItem value="1.5_months">{t('createListing.oneAndHalfMonthsRent')}</SelectItem>
+            <SelectItem value="2_months">{t('createListing.twoMonthsRent')}</SelectItem>
+            <SelectItem value="3_months">{t('createListing.threeMonthsRent')}</SelectItem>
           </SelectContent>
         </Select>
         
@@ -59,7 +62,7 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
           <Alert className="mt-3">
             <Info className="h-4 w-4" />
             <AlertDescription>
-              Properties without security deposit have +30% more bookings on average.
+              {t('createListing.depositBonus')}
             </AlertDescription>
           </Alert>
         )}
@@ -67,7 +70,7 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
 
       <div>
         <Label htmlFor="landlord_admin_fee">
-          Landlord Admin Fee (EUR) - Optional
+          {t('createListing.landlordAdminFee')}
         </Label>
         <Input
           id="landlord_admin_fee"
@@ -76,46 +79,46 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
           step="1"
           value={data.landlord_admin_fee || ''}
           onChange={(e) => updateData({ landlord_admin_fee: parseFloat(e.target.value) || undefined })}
-          placeholder="Enter admin fee amount"
+          placeholder={t('createListing.enterAdminFee')}
           className="mt-1"
         />
         <p className="text-xs text-muted-foreground mt-1">
-          Optional one-time fee charged to tenants (e.g., application processing fee)
+          {t('createListing.adminFeeDescription')}
         </p>
       </div>
 
       <div className="grid grid-cols-2 gap-4">
         <div>
-          <Label htmlFor="min_stay_months">Minimum Stay (months)</Label>
+          <Label htmlFor="min_stay_months">{t('createListing.minimumStay')}</Label>
           <Input
             id="min_stay_months"
             type="number"
             min="1"
             value={data.min_stay_months || ''}
             onChange={(e) => updateData({ min_stay_months: parseInt(e.target.value) || undefined })}
-            placeholder="e.g., 1"
+            placeholder={t('createListing.minimumStayPlaceholder')}
             className="mt-1"
           />
         </div>
         <div>
-          <Label htmlFor="max_stay_months">Maximum Stay (months)</Label>
+          <Label htmlFor="max_stay_months">{t('createListing.maximumStay')}</Label>
           <Input
             id="max_stay_months"
             type="number"
             min="1"
             value={data.max_stay_months || ''}
             onChange={(e) => updateData({ max_stay_months: parseInt(e.target.value) || undefined })}
-            placeholder="Leave empty for no limit"
+            placeholder={t('createListing.maximumStayPlaceholder')}
             className="mt-1"
           />
           <p className="text-xs text-muted-foreground mt-1">
-            Leave empty for no maximum stay limit
+            {t('createListing.maximumStayDescription')}
           </p>
         </div>
       </div>
 
       <div>
-        <Label htmlFor="available_from">Available From *</Label>
+        <Label htmlFor="available_from">{t('createListing.availableFrom')} *</Label>
         <Input
           id="available_from"
           type="date"
