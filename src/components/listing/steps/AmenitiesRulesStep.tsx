@@ -1,33 +1,34 @@
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import { Checkbox } from '@/components/ui/checkbox';
 
-const AMENITIES = [
-  'WiFi Internet',
-  'Kitchen',
-  'Washing Machine',
-  'Dryer',
-  'Dishwasher',
-  'Air Conditioning',
-  'Heating',
-  'Balcony',
-  'Terrace',
-  'Garden',
-  'Parking',
-  'Elevator',
-  'Swimming Pool',
-  'Gym',
-  'Concierge',
-  'Security',
-  'TV',
-  'Desk',
-  'Wardrobe'
+const AMENITIES_KEYS = [
+  'wifi',
+  'kitchen',
+  'washingMachine',
+  'dryer',
+  'dishwasher',
+  'airConditioning',
+  'heating',
+  'balcony',
+  'terrace',
+  'garden',
+  'parking',
+  'elevator',
+  'swimmingPool',
+  'gym',
+  'concierge',
+  'security',
+  'tv',
+  'desk',
+  'wardrobe'
 ];
 
-const RULES = [
-  'No Smoking',
-  'No Pets'
+const RULES_KEYS = [
+  'noSmoking',
+  'noPets'
 ];
 
 interface AmenitiesRulesStepProps {
@@ -40,75 +41,84 @@ interface AmenitiesRulesStepProps {
 }
 
 export const AmenitiesRulesStep: React.FC<AmenitiesRulesStepProps> = ({ data, updateData }) => {
-  const handleAmenityChange = (amenity: string, checked: boolean) => {
+  const { t } = useLanguage();
+  const handleAmenityChange = (amenityKey: string, checked: boolean) => {
+    const amenityValue = t(`amenities.${amenityKey}`);
     const newAmenities = checked
-      ? [...data.amenities, amenity]
-      : data.amenities.filter(a => a !== amenity);
+      ? [...data.amenities, amenityValue]
+      : data.amenities.filter(a => a !== amenityValue);
     updateData({ amenities: newAmenities });
   };
 
-  const handleRuleChange = (rule: string, checked: boolean) => {
+  const handleRuleChange = (ruleKey: string, checked: boolean) => {
+    const ruleValue = t(`createListing.${ruleKey}`);
     const newRules = checked
-      ? [...data.rules, rule]
-      : data.rules.filter(r => r !== rule);
+      ? [...data.rules, ruleValue]
+      : data.rules.filter(r => r !== ruleValue);
     updateData({ rules: newRules });
   };
 
   return (
     <div className="space-y-8">
       <div>
-        <Label htmlFor="description">Property Description *</Label>
+        <Label htmlFor="description">{t('createListing.propertyDescription')} *</Label>
         <Textarea
           id="description"
           value={data.description}
           onChange={(e) => updateData({ description: e.target.value })}
-          placeholder="Describe your property, its location, nearby amenities, transportation links, and what makes it special..."
+          placeholder={t('createListing.propertyDescriptionPlaceholder')}
           className="mt-1 min-h-[120px]"
         />
         <p className="text-sm text-muted-foreground mt-1">
-          Minimum 50 characters ({data.description.length}/50)
+          {t('createListing.minimumCharacters')} ({data.description.length}/50)
         </p>
       </div>
 
       <div>
-        <Label>Amenities</Label>
+        <Label>{t('createListing.amenities')}</Label>
         <p className="text-sm text-muted-foreground mb-3">
-          Select all amenities available in your property
+          {t('createListing.selectAmenitiesText')}
         </p>
         <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-          {AMENITIES.map((amenity) => (
-            <div key={amenity} className="flex items-center space-x-2">
-              <Checkbox
-                id={amenity}
-                checked={data.amenities.includes(amenity)}
-                onCheckedChange={(checked) => handleAmenityChange(amenity, checked as boolean)}
-              />
-              <Label htmlFor={amenity} className="text-sm font-normal">
-                {amenity}
-              </Label>
-            </div>
-          ))}
+          {AMENITIES_KEYS.map((amenityKey) => {
+            const amenityValue = t(`amenities.${amenityKey}`);
+            return (
+              <div key={amenityKey} className="flex items-center space-x-2">
+                <Checkbox
+                  id={amenityKey}
+                  checked={data.amenities.includes(amenityValue)}
+                  onCheckedChange={(checked) => handleAmenityChange(amenityKey, checked as boolean)}
+                />
+                <Label htmlFor={amenityKey} className="text-sm font-normal">
+                  {amenityValue}
+                </Label>
+              </div>
+            );
+          })}
         </div>
       </div>
 
       <div>
-        <Label>House Rules</Label>
+        <Label>{t('createListing.houseRules')}</Label>
         <p className="text-sm text-muted-foreground mb-3">
-          Select the rules that apply to your property
+          {t('createListing.selectRulesText')}
         </p>
         <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-          {RULES.map((rule) => (
-            <div key={rule} className="flex items-center space-x-2">
-              <Checkbox
-                id={rule}
-                checked={data.rules.includes(rule)}
-                onCheckedChange={(checked) => handleRuleChange(rule, checked as boolean)}
-              />
-              <Label htmlFor={rule} className="text-sm font-normal">
-                {rule}
-              </Label>
-            </div>
-          ))}
+          {RULES_KEYS.map((ruleKey) => {
+            const ruleValue = t(`createListing.${ruleKey}`);
+            return (
+              <div key={ruleKey} className="flex items-center space-x-2">
+                <Checkbox
+                  id={ruleKey}
+                  checked={data.rules.includes(ruleValue)}
+                  onCheckedChange={(checked) => handleRuleChange(ruleKey, checked as boolean)}
+                />
+                <Label htmlFor={ruleKey} className="text-sm font-normal">
+                  {ruleValue}
+                </Label>
+              </div>
+            );
+          })}
         </div>
       </div>
     </div>
