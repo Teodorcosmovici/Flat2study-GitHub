@@ -904,7 +904,7 @@ const translations = {
     'landlord.hero.title1': 'Massimizza la tua redditività con i nostri',
     'landlord.hero.title2': 'affitti a medio termine',
     'landlord.hero.subtitle': 'La tua proprietà sempre prenotata, sicura e che genera reddito costante con studenti internazionali verificati.',
-    'landlord.hero.listWithUs': 'Elenca con noi',
+    'landlord.hero.listWithUs': 'Affitta il tuo posto con noi',
     'landlord.hero.logIn': 'Accedi',
     'landlord.stats.students': '50.000',
     'landlord.stats.studentsLabel': 'studenti nella nostra rete',
