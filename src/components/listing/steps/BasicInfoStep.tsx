@@ -11,6 +11,8 @@ interface BasicInfoStepProps {
     address_line: string;
     address_line2?: string;
     postcode: string;
+    city: string;
+    country: string;
     furnished: boolean;
   };
   updateData: (newData: any) => void;
@@ -51,6 +53,30 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }
             placeholder="Enter postcode"
             className="mt-1"
           />
+        </div>
+
+        <div className="grid grid-cols-2 gap-4">
+          <div>
+            <Label htmlFor="city">City *</Label>
+            <Input
+              id="city"
+              value={data.city}
+              onChange={(e) => updateData({ city: e.target.value })}
+              placeholder="Enter city"
+              className="mt-1"
+            />
+          </div>
+
+          <div>
+            <Label htmlFor="country">Country *</Label>
+            <Input
+              id="country"
+              value={data.country}
+              onChange={(e) => updateData({ country: e.target.value })}
+              placeholder="Enter country"
+              className="mt-1"
+            />
+          </div>
         </div>
 
         <div className="space-y-3">

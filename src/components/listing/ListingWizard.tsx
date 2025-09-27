@@ -22,6 +22,8 @@ interface ListingData {
   address_line: string;
   address_line2?: string;
   postcode: string;
+  city: string;
+  country: string;
   furnished: boolean;
   
   // Property Details
@@ -74,6 +76,8 @@ export const ListingWizard = () => {
     address_line: '',
     address_line2: '',
     postcode: '',
+    city: '',
+    country: '',
     furnished: false,
     type: 'entire_property',
     bathrooms: 1,
@@ -99,7 +103,7 @@ export const ListingWizard = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 0: // Basic Info
-        return listingData.address_line && listingData.postcode && listingData.furnished;
+        return listingData.address_line && listingData.postcode && listingData.city && listingData.country && listingData.furnished;
       case 1: // Property Details
         return listingData.bathrooms > 0 && listingData.size_sqm > 0;
       case 2: // Amenities & Rules
@@ -160,8 +164,8 @@ export const ListingWizard = () => {
           description: listingData.description,
           address_line: listingData.address_line,
           postcode: listingData.postcode,
-          city: 'City', // You might want to extract this from address
-          country: 'Country', // You might want to extract this from address
+          city: listingData.city,
+          country: listingData.country,
           lat: 0, // You'll need to geocode the address
           lng: 0, // You'll need to geocode the address
           rent_monthly_eur: Math.round(monthly_rent),
