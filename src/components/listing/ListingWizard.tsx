@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
@@ -64,17 +65,18 @@ interface ListingData {
 }
 
 const STEPS = [
-  'Basic Information',
-  'Property Details', 
-  'Amenities & Rules',
-  'Pricing & Availability',
-  'Utility Costs',
-  'Photos',
-  'Review'
+  'createListing.basicInfo',
+  'createListing.propertyDetails', 
+  'createListing.amenitiesRules',
+  'createListing.pricingAvailability',
+  'createListing.utilityCosts',
+  'createListing.photos',
+  'createListing.review'
 ];
 
 export const ListingWizard = () => {
   const { profile } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(0);
   const [listingData, setListingData] = useState<ListingData>({
@@ -209,16 +211,16 @@ export const ListingWizard = () => {
       if (error) throw error;
 
       toast({
-        title: "Listing Submitted for Review",
-        description: "Your listing has been submitted to our admin team for review. You'll be notified once it's approved and published.",
+        title: t('createListing.submittedForReview'),
+        description: t('createListing.submittedDescription'),
       });
 
       navigate('/landlord-dashboard');
     } catch (error) {
       console.error('Error creating listing:', error);
       toast({
-        title: "Error",
-        description: "Failed to submit listing. Please try again.",
+        title: t('createListing.error'),
+        description: t('createListing.errorDescription'),
         variant: "destructive",
       });
     }
@@ -248,14 +250,14 @@ export const ListingWizard = () => {
   return (
     <div className="container mx-auto px-4 py-8 max-w-4xl">
       <div className="mb-8">
-        <h1 className="text-3xl font-bold mb-4">Create New Listing</h1>
+        <h1 className="text-3xl font-bold mb-4">{t('createListing.title')}</h1>
         <div className="mb-4">
           <div className="flex justify-between items-center mb-2">
             <span className="text-sm text-muted-foreground">
-              Step {currentStep + 1} of {STEPS.length}: {STEPS[currentStep]}
+              {t('createListing.step')} {currentStep + 1} {t('createListing.of')} {STEPS.length}: {t(STEPS[currentStep])}
             </span>
             <span className="text-sm text-muted-foreground">
-              {Math.round(((currentStep + 1) / STEPS.length) * 100)}% Complete
+              {Math.round(((currentStep + 1) / STEPS.length) * 100)}% {t('createListing.complete')}
             </span>
           </div>
           <Progress value={((currentStep + 1) / STEPS.length) * 100} />
@@ -264,7 +266,7 @@ export const ListingWizard = () => {
 
       <Card>
         <CardHeader>
-          <CardTitle>{STEPS[currentStep]}</CardTitle>
+          <CardTitle>{t(STEPS[currentStep])}</CardTitle>
         </CardHeader>
         <CardContent>
           {renderStepContent()}
@@ -276,14 +278,14 @@ export const ListingWizard = () => {
                 onClick={currentStep === 0 ? () => navigate('/landlord-dashboard') : handleBack}
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
+                {t('createListing.back')}
               </Button>
               
               <Button
                 onClick={handleNext}
                 disabled={!canProceed()}
               >
-                Next
+                {t('createListing.next')}
                 <ChevronRight className="w-4 h-4 ml-2" />
               </Button>
             </div>
@@ -296,7 +298,7 @@ export const ListingWizard = () => {
                 onClick={handleBack}
               >
                 <ChevronLeft className="w-4 h-4 mr-2" />
-                Back
+                {t('createListing.back')}
               </Button>
             </div>
           )}

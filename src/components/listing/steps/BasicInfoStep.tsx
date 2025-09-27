@@ -1,4 +1,5 @@
 import React from 'react';
+import { useLanguage } from '@/contexts/LanguageContext';
 import { Label } from '@/components/ui/label';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -19,68 +20,69 @@ interface BasicInfoStepProps {
 }
 
 export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }) => {
+  const { t } = useLanguage();
   return (
     <div className="space-y-6">
       <div className="grid gap-4">
         <div>
-          <Label htmlFor="address_line">Property Address *</Label>
+          <Label htmlFor="address_line">{t('createListing.propertyAddress')} *</Label>
           <Input
             id="address_line"
             value={data.address_line}
             onChange={(e) => updateData({ address_line: e.target.value })}
-            placeholder="Enter the full address"
+            placeholder={t('createListing.propertyAddressPlaceholder')}
             className="mt-1"
           />
         </div>
 
         <div>
-          <Label htmlFor="address_line2">Address Line 2 (Optional)</Label>
+          <Label htmlFor="address_line2">{t('createListing.addressLine2')}</Label>
           <Input
             id="address_line2"
             value={data.address_line2 || ''}
             onChange={(e) => updateData({ address_line2: e.target.value })}
-            placeholder="Apartment, suite, unit, building, floor, etc."
+            placeholder={t('createListing.addressLine2Placeholder')}
             className="mt-1"
           />
         </div>
 
         <div>
-          <Label htmlFor="postcode">Postcode *</Label>
+          <Label htmlFor="postcode">{t('createListing.postcode')} *</Label>
           <Input
             id="postcode"
             value={data.postcode}
             onChange={(e) => updateData({ postcode: e.target.value })}
-            placeholder="Enter postcode"
+            placeholder={t('createListing.postcodePlaceholder')}
             className="mt-1"
           />
         </div>
 
         <div className="grid grid-cols-2 gap-4">
           <div>
-            <Label htmlFor="city">City *</Label>
+            <Label htmlFor="city">{t('createListing.city')} *</Label>
             <Input
               id="city"
               value={data.city}
               onChange={(e) => updateData({ city: e.target.value })}
-              placeholder="Enter city"
+              placeholder={t('createListing.cityPlaceholder')}
               className="mt-1"
             />
           </div>
 
           <div>
-            <Label htmlFor="country">Country *</Label>
+            <Label htmlFor="country">{t('createListing.country')} *</Label>
             <Input
               id="country"
               value={data.country}
               onChange={(e) => updateData({ country: e.target.value })}
-              placeholder="Enter country"
+              placeholder={t('createListing.countryPlaceholder')}
               className="mt-1"
             />
           </div>
         </div>
 
         <div className="space-y-3">
-          <Label>Is the property furnished? *</Label>
+          <Label>{t('createListing.isFurnished')} *</Label>
           <div className="flex gap-4">
             <Button
               type="button"
@@ -91,7 +93,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }
                 data.furnished && "bg-primary text-primary-foreground"
               )}
             >
-              Yes
+              {t('createListing.yes')}
             </Button>
             <Button
               type="button"
@@ -102,7 +104,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }
                 !data.furnished && "border-destructive text-destructive hover:bg-destructive hover:text-destructive-foreground"
               )}
             >
-              No
+              {t('createListing.no')}
             </Button>
           </div>
           
@@ -110,7 +112,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }
             <Alert className="mt-3">
               <AlertCircle className="h-4 w-4" />
               <AlertDescription>
-                Only furnished properties can be listed on our platform. Please ensure your property is furnished before continuing.
+                {t('createListing.furnishedRequired')}
               </AlertDescription>
             </Alert>
           )}
@@ -118,7 +120,7 @@ export const BasicInfoStep: React.FC<BasicInfoStepProps> = ({ data, updateData }
       </div>
 
       <div className="text-sm text-muted-foreground">
-        <p>* Required fields</p>
+        <p>{t('createListing.requiredFields')}</p>
       </div>
     </div>
   );
