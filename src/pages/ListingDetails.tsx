@@ -372,15 +372,21 @@ export default function ListingDetails() {
                   </div>
 
                   {/* Full Amenities */}
-                  {listing.amenities.length > 0 && <div>
+                  {listing.amenities.filter((a: string) => typeof a === 'string' && a.toLowerCase() !== 'pet friendly').length > 0 && (
+                    <div>
                       <h3 className="font-semibold mb-3">Amenities</h3>
                       <div className="flex flex-wrap gap-2">
-                        {listing.amenities.map(amenity => <Badge key={amenity} variant="outline" className="flex items-center space-x-1">
-                            {getAmenityIcon(amenity)}
-                            <span>{amenity}</span>
-                          </Badge>)}
+                        {listing.amenities
+                          .filter((amenity: string) => typeof amenity === 'string' && amenity.toLowerCase() !== 'pet friendly')
+                          .map((amenity: string) => (
+                            <Badge key={amenity} variant="outline" className="flex items-center space-x-1">
+                              {getAmenityIcon(amenity)}
+                              <span>{amenity}</span>
+                            </Badge>
+                          ))}
                       </div>
-                    </div>}
+                    </div>
+                  )}
                 </CardContent>
               </Card>
 
