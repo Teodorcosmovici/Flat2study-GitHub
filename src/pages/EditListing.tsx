@@ -638,7 +638,7 @@ export default function EditListing() {
                   id="rent_amount"
                   type="number"
                   min="0"
-                  step="50"
+                  step="1"
                   value={formData.rentAmount}
                   onChange={(e) => setFormData({...formData, rentAmount: e.target.value})}
                   placeholder="Enter rent amount"

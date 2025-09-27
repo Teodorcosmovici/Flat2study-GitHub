@@ -51,7 +51,7 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
           id="rent_amount"
           type="number"
           min="0"
-          step="50"
+          step="1"
           value={data.rent_amount || ''}
           onChange={(e) => updateData({ rent_amount: parseFloat(e.target.value) || 0 })}
           placeholder="Enter rent amount"
