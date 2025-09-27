@@ -20,7 +20,6 @@ const AMENITIES = [
   'Gym',
   'Concierge',
   'Security',
-  'Pet Friendly',
   'TV',
   'Desk',
   'Wardrobe'

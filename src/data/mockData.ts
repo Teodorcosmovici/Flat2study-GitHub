@@ -251,6 +251,5 @@ export const commonAmenities = [
   'Garden',
   'Gym Access',
   'Concierge',
-  'Security',
-  'Pet Friendly'
+  'Security'
 ];
