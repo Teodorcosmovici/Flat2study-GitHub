@@ -107,8 +107,8 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
         <div>
           <h4 className="font-medium mb-4">Fixed Monthly Bills</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {utilityList.map((utility, index) => (
-              <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
+            {utilityList.map((utility) => (
+              <div key={utility.name} className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   {utility.icon}
                   <span className="font-medium">{utility.name}</span>
