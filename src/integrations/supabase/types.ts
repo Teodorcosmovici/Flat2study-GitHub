@@ -509,14 +509,20 @@ export type Database = {
           deposit_eur: number | null
           description: string | null
           description_multilingual: Json | null
+          electricity_cost_eur: number | null
+          electricity_included: boolean | null
           expires_at: string | null
           floor: string | null
           furnished: boolean | null
+          gas_cost_eur: number | null
+          gas_included: boolean | null
           house_rules: Json | null
           housemates_gender: string | null
           id: string
           images: Json | null
           instant_booking: boolean | null
+          internet_cost_eur: number | null
+          internet_included: boolean | null
           last_credit_deducted_at: string | null
           lat: number
           lease_end_date: string | null
@@ -540,6 +546,8 @@ export type Database = {
           type: string | null
           updated_at: string | null
           video_url: string | null
+          water_cost_eur: number | null
+          water_included: boolean | null
         }
         Insert: {
           address_line?: string | null
@@ -561,14 +569,20 @@ export type Database = {
           deposit_eur?: number | null
           description?: string | null
           description_multilingual?: Json | null
+          electricity_cost_eur?: number | null
+          electricity_included?: boolean | null
           expires_at?: string | null
           floor?: string | null
           furnished?: boolean | null
+          gas_cost_eur?: number | null
+          gas_included?: boolean | null
           house_rules?: Json | null
           housemates_gender?: string | null
           id?: string
           images?: Json | null
           instant_booking?: boolean | null
+          internet_cost_eur?: number | null
+          internet_included?: boolean | null
           last_credit_deducted_at?: string | null
           lat: number
           lease_end_date?: string | null
@@ -592,6 +606,8 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           video_url?: string | null
+          water_cost_eur?: number | null
+          water_included?: boolean | null
         }
         Update: {
           address_line?: string | null
@@ -613,14 +629,20 @@ export type Database = {
           deposit_eur?: number | null
           description?: string | null
           description_multilingual?: Json | null
+          electricity_cost_eur?: number | null
+          electricity_included?: boolean | null
           expires_at?: string | null
           floor?: string | null
           furnished?: boolean | null
+          gas_cost_eur?: number | null
+          gas_included?: boolean | null
           house_rules?: Json | null
           housemates_gender?: string | null
           id?: string
           images?: Json | null
           instant_booking?: boolean | null
+          internet_cost_eur?: number | null
+          internet_included?: boolean | null
           last_credit_deducted_at?: string | null
           lat?: number
           lease_end_date?: string | null
@@ -644,6 +666,8 @@ export type Database = {
           type?: string | null
           updated_at?: string | null
           video_url?: string | null
+          water_cost_eur?: number | null
+          water_included?: boolean | null
         }
         Relationships: [
           {

@@ -4,15 +4,20 @@ import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Euro, Zap, Droplet, Wifi, Flame, Calendar } from 'lucide-react';
 
 interface ServicesAndExpensesProps {
-  billsIncluded?: boolean;
   rentMonthlyEur: number;
   depositEur?: number;
+  utilities: {
+    electricity: { included: boolean; cost: number };
+    gas: { included: boolean; cost: number };
+    water: { included: boolean; cost: number };
+    internet: { included: boolean; cost: number };
+  };
 }
 
 export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
-  billsIncluded,
   rentMonthlyEur,
-  depositEur
+  depositEur,
+  utilities
 }) => {
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
@@ -22,32 +27,38 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
     }).format(price);
   };
 
-  const utilities = [
+  const utilityList = [
     {
       name: 'Water',
       icon: <Droplet className="h-4 w-4" />,
-      included: billsIncluded,
-      price: billsIncluded ? 0 : 30
+      included: utilities.water.included,
+      price: utilities.water.cost
     },
     {
       name: 'Electricity',
       icon: <Zap className="h-4 w-4" />,
-      included: billsIncluded,
-      price: billsIncluded ? 0 : 50
+      included: utilities.electricity.included,
+      price: utilities.electricity.cost
     },
     {
       name: 'Internet',
       icon: <Wifi className="h-4 w-4" />,
-      included: true,
-      price: 0
+      included: utilities.internet.included,
+      price: utilities.internet.cost
     },
     {
       name: 'Gas',
       icon: <Flame className="h-4 w-4" />,
-      included: billsIncluded,
-      price: billsIncluded ? 0 : 40
+      included: utilities.gas.included,
+      price: utilities.gas.cost
     }
   ];
+
+  // Calculate if any utilities are not included
+  const hasNonIncludedUtilities = !utilities.electricity.included || 
+                                  !utilities.gas.included || 
+                                  !utilities.water.included || 
+                                  !utilities.internet.included;
 
   const additionalFees = [
     {
@@ -64,7 +75,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
     {
       name: 'Fixed bills fee',
       description: 'Monthly fee charged for fixed bills.',
-      price: billsIncluded ? 0 : 70
+      price: hasNonIncludedUtilities ? 70 : 0
     }
   ];
 
@@ -96,7 +107,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
         <div>
           <h4 className="font-medium mb-4">Fixed Monthly Bills</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
-            {utilities.map((utility, index) => (
+            {utilityList.map((utility, index) => (
               <div key={index} className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   {utility.icon}

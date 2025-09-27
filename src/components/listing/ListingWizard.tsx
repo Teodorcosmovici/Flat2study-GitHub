@@ -49,10 +49,14 @@ interface ListingData {
   available_from: string;
   
   // Utility Costs
-  electricity: 'included' | number;
-  gas: 'included' | number;
-  water: 'included' | number;
-  internet: 'included' | number;
+  electricityIncluded: boolean;
+  electricityCostEur: number;
+  gasIncluded: boolean;
+  gasCostEur: number;
+  waterIncluded: boolean;
+  waterCostEur: number;
+  internetIncluded: boolean;
+  internetCostEur: number;
   
   // Photos
   images: string[];
@@ -89,10 +93,14 @@ export const ListingWizard = () => {
     rent_amount: 0,
     deposit: '1_month',
     available_from: '',
-    electricity: 'included',
-    gas: 'included',
-    water: 'included',
-    internet: 'included',
+    electricityIncluded: true,
+    electricityCostEur: 0,
+    gasIncluded: true,
+    gasCostEur: 0,
+    waterIncluded: true,
+    waterCostEur: 0,
+    internetIncluded: true,
+    internetCostEur: 0,
     images: []
   });
 
@@ -170,7 +178,15 @@ export const ListingWizard = () => {
           lng: 0, // You'll need to geocode the address
           rent_monthly_eur: Math.round(monthly_rent),
           deposit_eur: Math.round(deposit_amount),
-          bills_included: Object.values(listingData).every(util => util === 'included'),
+          bills_included: listingData.electricityIncluded && listingData.gasIncluded && listingData.waterIncluded && listingData.internetIncluded,
+          electricity_included: listingData.electricityIncluded,
+          electricity_cost_eur: listingData.electricityCostEur,
+          gas_included: listingData.gasIncluded,
+          gas_cost_eur: listingData.gasCostEur,
+          water_included: listingData.waterIncluded,
+          water_cost_eur: listingData.waterCostEur,
+          internet_included: listingData.internetIncluded,
+          internet_cost_eur: listingData.internetCostEur,
           furnished: listingData.furnished,
           bedrooms: listingData.bedrooms || (listingData.type === 'studio' ? 0 : 1),
           bathrooms: listingData.bathrooms,

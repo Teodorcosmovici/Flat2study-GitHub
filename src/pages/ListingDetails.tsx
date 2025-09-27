@@ -113,6 +113,25 @@ export default function ListingDetails() {
         expiresAt: listingData.expires_at,
         minimumStayDays: listingData.minimum_stay_days,
         maximumStayDays: listingData.maximum_stay_days,
+        // Utility data
+        utilities: {
+          electricity: { 
+            included: listingData.electricity_included ?? true, 
+            cost: listingData.electricity_cost_eur ?? 0 
+          },
+          gas: { 
+            included: listingData.gas_included ?? true, 
+            cost: listingData.gas_cost_eur ?? 0 
+          },
+          water: { 
+            included: listingData.water_included ?? true, 
+            cost: listingData.water_cost_eur ?? 0 
+          },
+          internet: { 
+            included: listingData.internet_included ?? true, 
+            cost: listingData.internet_cost_eur ?? 0 
+          }
+        },
         landlord: {
           id: listingData.agency_id,
           name: agencyProfile?.agency_name || 'Property Manager',
@@ -387,7 +406,16 @@ export default function ListingDetails() {
               <AvailabilityOverview availabilityDate={listing.availabilityDate} minimumStayDays={listing.minimumStayDays} maximumStayDays={listing.maximumStayDays} rentMonthlyEur={listing.rentMonthlyEur} />
 
               {/* Services and Expenses */}
-              <ServicesAndExpenses billsIncluded={listing.billsIncluded} rentMonthlyEur={listing.rentMonthlyEur} depositEur={listing.depositEur} />
+              <ServicesAndExpenses 
+                rentMonthlyEur={listing.rentMonthlyEur} 
+                depositEur={listing.depositEur}
+                utilities={listing.utilities || {
+                  electricity: { included: listing.billsIncluded, cost: 50 },
+                  gas: { included: listing.billsIncluded, cost: 40 },
+                  water: { included: listing.billsIncluded, cost: 30 },
+                  internet: { included: true, cost: 0 }
+                }}
+              />
 
               {/* Required Documents */}
               <Card>

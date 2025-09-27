@@ -48,10 +48,14 @@ export default function EditListing() {
     availableFrom: '',
     
     // Utilities
-    electricity: 'included' as 'included' | number,
-    gas: 'included' as 'included' | number,
-    water: 'included' as 'included' | number,
-    internet: 'included' as 'included' | number
+    electricityIncluded: true,
+    electricityCostEur: 0,
+    gasIncluded: true,
+    gasCostEur: 0,
+    waterIncluded: true,
+    waterCostEur: 0,
+    internetIncluded: true,
+    internetCostEur: 0
   });
 
   // Generate title based on property type
@@ -130,10 +134,14 @@ export default function EditListing() {
         minStayMonths: data.minimum_stay_days ? Math.round(data.minimum_stay_days / 30).toString() : '',
         maxStayMonths: data.maximum_stay_days ? Math.round(data.maximum_stay_days / 30).toString() : '',
         availableFrom: data.availability_date || '',
-        electricity: 'included',
-        gas: 'included',
-        water: 'included',
-        internet: 'included'
+        electricityIncluded: data.electricity_included ?? true,
+        electricityCostEur: data.electricity_cost_eur ?? 0,
+        gasIncluded: data.gas_included ?? true,
+        gasCostEur: data.gas_cost_eur ?? 0,
+        waterIncluded: data.water_included ?? true,
+        waterCostEur: data.water_cost_eur ?? 0,
+        internetIncluded: data.internet_included ?? true,
+        internetCostEur: data.internet_cost_eur ?? 0
       });
 
       setUploadedImages(Array.isArray(data.images) ? data.images.filter(item => typeof item === 'string') as string[] : []);
@@ -240,6 +248,16 @@ export default function EditListing() {
         minimum_stay_days: formData.minStayMonths ? parseInt(formData.minStayMonths) * 30 : null,
         maximum_stay_days: formData.maxStayMonths ? parseInt(formData.maxStayMonths) * 30 : null,
         images: uploadedImages,
+        // Utility costs
+        bills_included: formData.electricityIncluded && formData.gasIncluded && formData.waterIncluded && formData.internetIncluded,
+        electricity_included: formData.electricityIncluded,
+        electricity_cost_eur: formData.electricityCostEur,
+        gas_included: formData.gasIncluded,
+        gas_cost_eur: formData.gasCostEur,
+        water_included: formData.waterIncluded,
+        water_cost_eur: formData.waterCostEur,
+        internet_included: formData.internetIncluded,
+        internet_cost_eur: formData.internetCostEur,
         updated_at: new Date().toISOString()
       };
 
@@ -676,48 +694,71 @@ export default function EditListing() {
               <CardTitle>Utility Costs</CardTitle>
             </CardHeader>
             <CardContent className="space-y-4">
-              {['electricity', 'gas', 'water', 'internet'].map((utility) => (
-                <div key={utility} className="space-y-3 p-4 border rounded-lg">
-                  <Label className="text-base font-medium capitalize">{utility}</Label>
-                  <RadioGroup
-                    value={formData[utility as keyof typeof formData] === 'included' ? 'included' : 'estimate'}
-                    onValueChange={(val) => {
-                      if (val === 'included') {
-                        setFormData({...formData, [utility]: 'included'});
-                      } else {
-                        setFormData({...formData, [utility]: 0});
-                      }
-                    }}
-                  >
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="included" id={`${utility}-included`} />
-                      <Label htmlFor={`${utility}-included`} className="font-normal">
-                        Included in rent
-                      </Label>
-                    </div>
-                    <div className="flex items-center space-x-2">
-                      <RadioGroupItem value="estimate" id={`${utility}-estimate`} />
-                      <Label htmlFor={`${utility}-estimate`} className="font-normal">
-                        Estimate monthly cost
-                      </Label>
-                    </div>
-                  </RadioGroup>
-                  
-                  {formData[utility as keyof typeof formData] !== 'included' && (
-                    <div className="ml-6">
-                      <Input
-                        type="number"
-                        min="0"
-                        step="5"
-                        value={typeof formData[utility as keyof typeof formData] === 'number' ? formData[utility as keyof typeof formData] : ''}
-                        onChange={(e) => setFormData({...formData, [utility]: parseFloat(e.target.value) || 0})}
-                        placeholder="Monthly cost in EUR"
-                        className="w-48"
-                      />
-                    </div>
-                  )}
-                </div>
-              ))}
+              {[
+                { key: 'electricity', label: 'Electricity' },
+                { key: 'gas', label: 'Gas' },
+                { key: 'water', label: 'Water' },
+                { key: 'internet', label: 'Internet' }
+              ].map((utility) => {
+                const includedField = `${utility.key}Included` as keyof typeof formData;
+                const costField = `${utility.key}CostEur` as keyof typeof formData;
+                const isIncluded = formData[includedField] as boolean;
+                const cost = formData[costField] as number;
+
+                return (
+                  <div key={utility.key} className="space-y-3 p-4 border rounded-lg">
+                    <Label className="text-base font-medium">{utility.label}</Label>
+                    <RadioGroup
+                      value={isIncluded ? 'included' : 'estimate'}
+                      onValueChange={(val) => {
+                        if (val === 'included') {
+                          setFormData({
+                            ...formData,
+                            [includedField]: true,
+                            [costField]: 0
+                          });
+                        } else {
+                          setFormData({
+                            ...formData,
+                            [includedField]: false,
+                            [costField]: cost || 0
+                          });
+                        }
+                      }}
+                    >
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="included" id={`${utility.key}-included`} />
+                        <Label htmlFor={`${utility.key}-included`} className="font-normal">
+                          Included in rent
+                        </Label>
+                      </div>
+                      <div className="flex items-center space-x-2">
+                        <RadioGroupItem value="estimate" id={`${utility.key}-estimate`} />
+                        <Label htmlFor={`${utility.key}-estimate`} className="font-normal">
+                          Estimate monthly cost
+                        </Label>
+                      </div>
+                    </RadioGroup>
+                    
+                    {!isIncluded && (
+                      <div className="ml-6">
+                        <Input
+                          type="number"
+                          min="0"
+                          step="5"
+                          value={cost}
+                          onChange={(e) => setFormData({
+                            ...formData,
+                            [costField]: parseFloat(e.target.value) || 0
+                          })}
+                          placeholder="Monthly cost in EUR"
+                          className="w-48"
+                        />
+                      </div>
+                    )}
+                  </div>
+                );
+              })}
             </CardContent>
           </Card>
 

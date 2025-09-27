@@ -5,36 +5,51 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface UtilityCostsStepProps {
   data: {
-    electricity: 'included' | number;
-    gas: 'included' | number;
-    water: 'included' | number;
-    internet: 'included' | number;
+    electricityIncluded: boolean;
+    electricityCostEur: number;
+    gasIncluded: boolean;
+    gasCostEur: number;
+    waterIncluded: boolean;
+    waterCostEur: number;
+    internetIncluded: boolean;
+    internetCostEur: number;
   };
   updateData: (newData: any) => void;
 }
 
 export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, updateData }) => {
   const updateUtility = (utility: string, value: 'included' | 'estimate') => {
+    const includedField = `${utility}Included`;
+    const costField = `${utility}CostEur`;
+    
     if (value === 'included') {
-      updateData({ [utility]: 'included' });
+      updateData({ 
+        [includedField]: true,
+        [costField]: 0
+      });
     } else {
-      updateData({ [utility]: 0 });
+      updateData({ 
+        [includedField]: false,
+        [costField]: data[costField as keyof typeof data] || 0
+      });
     }
   };
 
   const updateUtilityCost = (utility: string, cost: number) => {
-    updateData({ [utility]: cost });
+    const costField = `${utility}CostEur`;
+    updateData({ [costField]: cost });
   };
 
   const renderUtilitySection = (
     utility: string,
     label: string,
-    value: 'included' | number
+    included: boolean,
+    cost: number
   ) => (
     <div key={utility} className="space-y-3 p-4 border rounded-lg">
       <Label className="text-base font-medium">{label}</Label>
       <RadioGroup
-        value={value === 'included' ? 'included' : 'estimate'}
+        value={included ? 'included' : 'estimate'}
         onValueChange={(val) => updateUtility(utility, val as 'included' | 'estimate')}
       >
         <div className="flex items-center space-x-2">
@@ -51,13 +66,13 @@ export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, update
         </div>
       </RadioGroup>
       
-      {value !== 'included' && (
+      {!included && (
         <div className="ml-6">
           <Input
             type="number"
             min="0"
             step="5"
-            value={typeof value === 'number' ? value : ''}
+            value={cost}
             onChange={(e) => updateUtilityCost(utility, parseFloat(e.target.value) || 0)}
             placeholder="Monthly cost in EUR"
             className="w-48"
@@ -77,10 +92,10 @@ export const UtilityCostsStep: React.FC<UtilityCostsStepProps> = ({ data, update
       </div>
 
       <div className="space-y-4">
-        {renderUtilitySection('electricity', 'Electricity', data.electricity)}
-        {renderUtilitySection('gas', 'Gas', data.gas)}
-        {renderUtilitySection('water', 'Water', data.water)}
-        {renderUtilitySection('internet', 'Internet', data.internet)}
+        {renderUtilitySection('electricity', 'Electricity', data.electricityIncluded, data.electricityCostEur)}
+        {renderUtilitySection('gas', 'Gas', data.gasIncluded, data.gasCostEur)}
+        {renderUtilitySection('water', 'Water', data.waterIncluded, data.waterCostEur)}
+        {renderUtilitySection('internet', 'Internet', data.internetIncluded, data.internetCostEur)}
       </div>
     </div>
   );

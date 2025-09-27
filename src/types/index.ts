@@ -72,6 +72,12 @@ export interface Listing {
   maximumStayDays?: number;
   advanceBookingDays?: number;
   priceHistory?: any[];
+  utilities?: {
+    electricity: { included: boolean; cost: number };
+    gas: { included: boolean; cost: number };
+    water: { included: boolean; cost: number };
+    internet: { included: boolean; cost: number };
+  };
 }
 
 export interface Favorite {
