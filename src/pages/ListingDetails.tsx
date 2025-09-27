@@ -101,6 +101,9 @@ export default function ListingDetails() {
         furnished: listingData.furnished,
         bedrooms: listingData.bedrooms,
         bathrooms: listingData.bathrooms,
+        totalBedrooms: listingData.total_bedrooms,
+        totalBathrooms: listingData.total_bathrooms,
+        housematesGender: listingData.housemates_gender as 'male' | 'female' | 'mixed',
         floor: listingData.floor,
         sizeSqm: listingData.size_sqm,
         amenities: Array.isArray(listingData.amenities) ? listingData.amenities.map(item => String(item)) : [],
@@ -338,14 +341,24 @@ export default function ListingDetails() {
                 <CardContent className="space-y-6">
                   {/* Basic Info */}
                   <div className="grid grid-cols-2 md:grid-cols-4 gap-4">
-                    {listing.bedrooms > 0 && <div className="flex items-center space-x-2">
+                    {(listing.totalBedrooms || listing.bedrooms > 0) && (
+                      <div className="flex items-center space-x-2">
                         <Bed className="h-5 w-5 text-muted-foreground" />
-                        <span>{listing.bedrooms} bedroom{listing.bedrooms > 1 ? 's' : ''}</span>
-                      </div>}
-                    {listing.bathrooms > 0 && <div className="flex items-center space-x-2">
+                        <span>
+                          {listing.totalBedrooms || listing.bedrooms} bedroom{(listing.totalBedrooms || listing.bedrooms) > 1 ? 's' : ''}
+                          {listing.totalBedrooms ? ' in apartment' : ''}
+                        </span>
+                      </div>
+                    )}
+                    {(listing.totalBathrooms || listing.bathrooms > 0) && (
+                      <div className="flex items-center space-x-2">
                         <Bath className="h-5 w-5 text-muted-foreground" />
-                        <span>{listing.bathrooms} bathroom{listing.bathrooms > 1 ? 's' : ''}</span>
-                      </div>}
+                        <span>
+                          {listing.totalBathrooms || listing.bathrooms} bathroom{(listing.totalBathrooms || listing.bathrooms) > 1 ? 's' : ''}
+                          {listing.totalBathrooms ? ' in apartment' : ''}
+                        </span>
+                      </div>
+                    )}
                     {listing.sizeSqm && <div className="flex items-center space-x-2">
                         <Building className="h-5 w-5 text-muted-foreground" />
                         <span>{listing.sizeSqm} m²</span>

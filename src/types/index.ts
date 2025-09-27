@@ -55,6 +55,9 @@ export interface Listing {
   furnished: boolean;
   bedrooms: number;
   bathrooms: number;
+  totalBedrooms?: number;
+  totalBathrooms?: number;
+  housematesGender?: 'male' | 'female' | 'mixed';
   floor?: string;
   sizeSqm?: number;
   amenities: string[];
