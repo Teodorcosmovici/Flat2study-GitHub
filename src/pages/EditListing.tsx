@@ -121,9 +121,9 @@ export default function EditListing() {
         type: data.type === 'apartment' ? 'entire_property' : data.type === 'studio' ? 'studio' : 'room_shared',
         bedrooms: data.bedrooms?.toString() || '',
         bathrooms: data.bathrooms?.toString() || '',
-        totalBedrooms: '', // Not stored separately
-        totalBathrooms: '', // Not stored separately
-        housematesGender: '', // Not stored in current schema
+        totalBedrooms: data.total_bedrooms?.toString() || '',
+        totalBathrooms: data.total_bathrooms?.toString() || '',
+        housematesGender: (data.housemates_gender as 'male' | 'female' | 'mixed') || '',
         sizeSqm: data.size_sqm?.toString() || '',
         description: data.description || '',
         amenities: Array.isArray(data.amenities) ? data.amenities.filter(item => typeof item === 'string') as string[] : [],
