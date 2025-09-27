@@ -616,7 +616,13 @@ export default function ListingDetails() {
                       </div>
                     </div>
                     
-                    <PaymentSummaryModal rentMonthlyEur={listing.rentMonthlyEur} depositEur={listing.depositEur} landlordAdminFee={listing.landlordAdminFee} selectedDates={selectedDates}>
+                    <PaymentSummaryModal 
+                      rentMonthlyEur={listing.rentMonthlyEur} 
+                      depositEur={listing.depositEur} 
+                      landlordAdminFee={listing.landlordAdminFee}
+                      utilities={listing.utilities}
+                      selectedDates={selectedDates}
+                    >
                       <Button variant="link" className="p-0 h-auto text-xs mt-2">
                         Review price details →
                       </Button>

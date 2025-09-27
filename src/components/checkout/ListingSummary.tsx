@@ -174,6 +174,7 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
                 rentMonthlyEur={monthlyRate}
                 depositEur={listing.depositEur}
                 landlordAdminFee={listing.landlordAdminFee}
+                utilities={listing.utilities}
                 selectedDates={{
                   checkIn: checkInDate,
                   checkOut: checkOutDate,

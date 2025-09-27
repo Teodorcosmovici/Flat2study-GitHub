@@ -19,6 +19,12 @@ interface PaymentSummaryModalProps {
   rentMonthlyEur: number;
   depositEur?: number;
   landlordAdminFee?: number;
+  utilities?: {
+    electricity: { included: boolean; cost: number };
+    gas: { included: boolean; cost: number };
+    water: { included: boolean; cost: number };
+    internet: { included: boolean; cost: number };
+  };
   selectedDates?: {
     checkIn: Date;
     checkOut: Date;
@@ -31,6 +37,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   rentMonthlyEur,
   depositEur = 0,
   landlordAdminFee = 0,
+  utilities,
   selectedDates,
   children
 }) => {
@@ -88,7 +95,16 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstMonthRent = calculateFirstMonthPayment();
   const firstPaymentTotal = firstMonthRent + serviceFee;
-  const afterBookingTotal = depositEur + landlordAdminFee + 35 + 35; // Security deposit + Admin fee + Electricity + Gas
+  
+  // Calculate monthly utilities total
+  const monthlyUtilitiesTotal = utilities ? (
+    (!utilities.electricity.included ? utilities.electricity.cost : 0) +
+    (!utilities.gas.included ? utilities.gas.cost : 0) +
+    (!utilities.water.included ? utilities.water.cost : 0) +
+    (!utilities.internet.included ? utilities.internet.cost : 0)
+  ) : 70; // fallback to old total (35+35)
+  
+  const afterBookingTotal = depositEur + landlordAdminFee + monthlyUtilitiesTotal;
 
   return (
     <Dialog>
@@ -158,25 +174,47 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                 <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
                 <div className="flex justify-between items-center">
                   <span>Water</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-green-600 text-xs">Included</span>
-                    <CheckCircle className="h-3 w-3 text-green-600" />
-                  </div>
+                  {utilities?.water.included ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-green-600 text-xs">Included</span>
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                    </div>
+                  ) : (
+                    <span>{formatPrice(utilities?.water.cost || 0)}</span>
+                  )}
                 </div>
                 <div className="flex justify-between items-center">
                   <span>Internet</span>
-                  <div className="flex items-center gap-1">
-                    <span className="text-green-600 text-xs">Included</span>
-                    <CheckCircle className="h-3 w-3 text-green-600" />
-                  </div>
+                  {utilities?.internet.included ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-green-600 text-xs">Included</span>
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                    </div>
+                  ) : (
+                    <span>{formatPrice(utilities?.internet.cost || 0)}</span>
+                  )}
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Electricity</span>
-                  <span>{formatPrice(35)}</span>
+                  {utilities?.electricity.included ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-green-600 text-xs">Included</span>
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                    </div>
+                  ) : (
+                    <span>{formatPrice(utilities?.electricity.cost || 35)}</span>
+                  )}
                 </div>
-                <div className="flex justify-between">
+                <div className="flex justify-between items-center">
                   <span>Gas</span>
-                  <span>{formatPrice(35)}</span>
+                  {utilities?.gas.included ? (
+                    <div className="flex items-center gap-1">
+                      <span className="text-green-600 text-xs">Included</span>
+                      <CheckCircle className="h-3 w-3 text-green-600" />
+                    </div>
+                  ) : (
+                    <span>{formatPrice(utilities?.gas.cost || 35)}</span>
+                  )}
                 </div>
                 
               </div>
