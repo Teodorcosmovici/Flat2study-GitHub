@@ -523,6 +523,7 @@ export type Database = {
           instant_booking: boolean | null
           internet_cost_eur: number | null
           internet_included: boolean | null
+          landlord_admin_fee: number | null
           last_credit_deducted_at: string | null
           lat: number
           lease_end_date: string | null
@@ -583,6 +584,7 @@ export type Database = {
           instant_booking?: boolean | null
           internet_cost_eur?: number | null
           internet_included?: boolean | null
+          landlord_admin_fee?: number | null
           last_credit_deducted_at?: string | null
           lat: number
           lease_end_date?: string | null
@@ -643,6 +645,7 @@ export type Database = {
           instant_booking?: boolean | null
           internet_cost_eur?: number | null
           internet_included?: boolean | null
+          landlord_admin_fee?: number | null
           last_credit_deducted_at?: string | null
           lat?: number
           lease_end_date?: string | null

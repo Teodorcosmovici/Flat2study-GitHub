@@ -252,6 +252,7 @@ export default function EditListing() {
         description: formData.description || null,
         rent_monthly_eur: formData.rentAmount ? parseInt(formData.rentAmount) : null,
         deposit_eur: depositAmount || null,
+        landlord_admin_fee: formData.landlordAdminFee ? parseInt(formData.landlordAdminFee) : null,
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
         total_bedrooms: formData.totalBedrooms ? parseInt(formData.totalBedrooms) : null,
@@ -664,6 +665,22 @@ export default function EditListing() {
                     <SelectItem value="3_months">3 months rent</SelectItem>
                   </SelectContent>
                 </Select>
+              </div>
+
+              <div className="space-y-2">
+                <Label htmlFor="landlord_admin_fee">Landlord Admin Fee (EUR) - Optional</Label>
+                <Input
+                  id="landlord_admin_fee"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={formData.landlordAdminFee}
+                  onChange={(e) => setFormData({...formData, landlordAdminFee: e.target.value})}
+                  placeholder="Enter admin fee amount"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Optional one-time fee charged to tenants (e.g., application processing fee)
+                </p>
               </div>
 
               <div className="grid grid-cols-2 gap-4">
