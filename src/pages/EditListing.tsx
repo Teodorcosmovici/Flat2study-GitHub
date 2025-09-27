@@ -146,7 +146,7 @@ export default function EditListing() {
               return 'none';
             })()
           : '1_month',
-        landlordAdminFee: data.landlord_admin_fee?.toString() || '',
+        landlordAdminFee: (data as any).landlord_admin_fee?.toString() || '',
         minStayMonths: data.minimum_stay_days ? Math.round(data.minimum_stay_days / 30).toString() : '',
         maxStayMonths: data.maximum_stay_days ? Math.round(data.maximum_stay_days / 30).toString() : '',
         availableFrom: data.availability_date || '',
