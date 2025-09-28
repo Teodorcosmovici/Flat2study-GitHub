@@ -1158,6 +1158,7 @@ const translations = {
     'review.bathrooms': 'Bagni',
     'review.bedrooms': 'Camere da Letto',
     'review.totalBedrooms': 'Totale Camere da Letto',
+    'review.totalBathrooms': 'Totale Bagni',
     'review.housemates': 'Coinquilini',
     'review.pricingTerms': 'Prezzi e Condizioni',
     'review.rent': 'Affitto',
