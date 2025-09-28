@@ -26,14 +26,14 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
 
   const formatUtilities = () => {
     const utilities = [
-      { name: t('review.electricity'), value: data.electricity },
-      { name: t('review.gas'), value: data.gas },
-      { name: t('review.water'), value: data.water },
-      { name: t('review.internet'), value: data.internet }
+      { name: t('review.electricity'), value: data.electricity, cost: data.electricity_cost_eur },
+      { name: t('review.gas'), value: data.gas, cost: data.gas_cost_eur },
+      { name: t('review.water'), value: data.water, cost: data.water_cost_eur },
+      { name: t('review.internet'), value: data.internet, cost: data.internet_cost_eur }
     ];
 
     const included = utilities.filter(u => u.value === 'included').map(u => u.name);
-    const estimated = utilities.filter(u => u.value !== 'included');
+    const estimated = utilities.filter(u => u.value !== 'included' && u.cost);
 
     return { included, estimated };
   };
@@ -145,7 +145,7 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
                   <div className="space-y-1">
                     {utils.estimated.map((util) => (
                       <p key={util.name} className="text-sm">
-                        {util.name}: €{util.value}/month
+                        {util.name}: €{util.cost}/month
                       </p>
                     ))}
                   </div>
