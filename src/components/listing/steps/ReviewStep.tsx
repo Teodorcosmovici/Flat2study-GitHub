@@ -103,7 +103,12 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
               <div>
                 <p><strong>{t('review.type')}:</strong> {data.type.replace('_', ' ').toUpperCase()}</p>
                 <p><strong>{t('review.size')}:</strong> {data.size_sqm} sqm</p>
-                <p><strong>{t('review.bathrooms')}:</strong> {data.bathrooms}</p>
+                {(data.bathrooms !== undefined && data.bathrooms !== null) && (
+                  <p><strong>{t('review.bathrooms')}:</strong> {data.bathrooms}</p>
+                )}
+                {(data.total_bathrooms !== undefined && data.total_bathrooms !== null) && (
+                  <p><strong>{t('review.totalBathrooms')}:</strong> {data.total_bathrooms}</p>
+                )}
               </div>
               <div>
                 {data.bedrooms && <p><strong>{t('review.bedrooms')}:</strong> {data.bedrooms}</p>}
