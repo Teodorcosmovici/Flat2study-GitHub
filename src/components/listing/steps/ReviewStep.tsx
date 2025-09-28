@@ -25,15 +25,30 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
   };
 
   const formatUtilities = () => {
+    const asNumber = (v: any) => {
+      if (v === null || v === undefined) return null;
+      if (typeof v === 'number') return v;
+      const n = Number(v);
+      return isNaN(n) ? null : n;
+    };
+
     const utilities = [
-      { name: t('review.electricity'), value: data.electricity, cost: data.electricity_cost_eur },
-      { name: t('review.gas'), value: data.gas, cost: data.gas_cost_eur },
-      { name: t('review.water'), value: data.water, cost: data.water_cost_eur },
-      { name: t('review.internet'), value: data.internet, cost: data.internet_cost_eur }
+      { name: t('review.electricity'), value: data.electricity, included: data.electricity_included, cost: data.electricity_cost_eur ?? data.electricity_cost },
+      { name: t('review.gas'), value: data.gas, included: data.gas_included, cost: data.gas_cost_eur ?? data.gas_cost },
+      { name: t('review.water'), value: data.water, included: data.water_included, cost: data.water_cost_eur ?? data.water_cost },
+      { name: t('review.internet'), value: data.internet, included: data.internet_included, cost: data.internet_cost_eur ?? data.internet_cost }
     ];
 
-    const included = utilities.filter(u => u.value === 'included').map(u => u.name);
-    const estimated = utilities.filter(u => u.value !== 'included' && u.cost);
+    const included = utilities
+      .filter(u => u.included === true || u.value === 'included')
+      .map(u => u.name);
+
+    const estimated = utilities
+      .map(u => {
+        const derivedCost = u.cost ?? asNumber(u.value);
+        return { name: u.name, cost: derivedCost, isIncluded: u.included === true || u.value === 'included' };
+      })
+      .filter(u => !u.isIncluded && (u.cost !== null && u.cost !== undefined));
 
     return { included, estimated };
   };
