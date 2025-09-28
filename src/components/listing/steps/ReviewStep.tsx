@@ -106,9 +106,6 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
                 {(data.bathrooms !== undefined && data.bathrooms !== null) && (
                   <p><strong>{t('review.bathrooms')}:</strong> {data.bathrooms}</p>
                 )}
-                {(data.total_bathrooms !== undefined && data.total_bathrooms !== null) && (
-                  <p><strong>{t('review.totalBathrooms')}:</strong> {data.total_bathrooms}</p>
-                )}
               </div>
               <div>
                 {data.bedrooms && <p><strong>{t('review.bedrooms')}:</strong> {data.bedrooms}</p>}
