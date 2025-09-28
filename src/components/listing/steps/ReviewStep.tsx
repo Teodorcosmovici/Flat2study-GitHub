@@ -32,23 +32,49 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
       return isNaN(n) ? null : n;
     };
 
+    const includedFlag = (boolVal: any, value: any) => {
+      if (typeof boolVal === 'boolean') return boolVal;
+      return value === 'included' || value === true || value === 'yes';
+    };
+
+    const getCost = (primary: any, secondary: any, fallbackValue: any) => {
+      const c1 = asNumber(primary);
+      if (c1 !== null) return c1;
+      const c2 = asNumber(secondary);
+      if (c2 !== null) return c2;
+      return asNumber(fallbackValue);
+    };
+
     const utilities = [
-      { name: t('review.electricity'), value: data.electricity, included: data.electricity_included, cost: data.electricity_cost_eur ?? data.electricity_cost },
-      { name: t('review.gas'), value: data.gas, included: data.gas_included, cost: data.gas_cost_eur ?? data.gas_cost },
-      { name: t('review.water'), value: data.water, included: data.water_included, cost: data.water_cost_eur ?? data.water_cost },
-      { name: t('review.internet'), value: data.internet, included: data.internet_included, cost: data.internet_cost_eur ?? data.internet_cost }
+      {
+        name: t('review.electricity'),
+        included: includedFlag(data.electricity_included ?? data.electricityIncluded, data.electricity),
+        cost: getCost(data.electricity_cost_eur ?? data.electricityCostEur, data.electricity_cost, data.electricity)
+      },
+      {
+        name: t('review.gas'),
+        included: includedFlag(data.gas_included ?? data.gasIncluded, data.gas),
+        cost: getCost(data.gas_cost_eur ?? data.gasCostEur, data.gas_cost, data.gas)
+      },
+      {
+        name: t('review.water'),
+        included: includedFlag(data.water_included ?? data.waterIncluded, data.water),
+        cost: getCost(data.water_cost_eur ?? data.waterCostEur, data.water_cost, data.water)
+      },
+      {
+        name: t('review.internet'),
+        included: includedFlag(data.internet_included ?? data.internetIncluded, data.internet),
+        cost: getCost(data.internet_cost_eur ?? data.internetCostEur, data.internet_cost, data.internet)
+      }
     ];
 
     const included = utilities
-      .filter(u => u.included === true || u.value === 'included')
+      .filter(u => u.included)
       .map(u => u.name);
 
     const estimated = utilities
-      .map(u => {
-        const derivedCost = u.cost ?? asNumber(u.value);
-        return { name: u.name, cost: derivedCost, isIncluded: u.included === true || u.value === 'included' };
-      })
-      .filter(u => !u.isIncluded && (u.cost !== null && u.cost !== undefined));
+      .filter(u => !u.included && (u.cost !== null && u.cost !== undefined))
+      .map(u => ({ name: u.name, cost: u.cost }));
 
     return { included, estimated };
   };
