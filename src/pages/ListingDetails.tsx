@@ -356,8 +356,8 @@ export default function ListingDetails() {
                       <div className="flex items-center space-x-2">
                         <Bed className="h-5 w-5 text-muted-foreground" />
                         <span>
-                          {listing.totalBedrooms || listing.bedrooms} bedroom{(listing.totalBedrooms || listing.bedrooms) > 1 ? 's' : ''}
-                          {listing.totalBedrooms ? ' in apartment' : ''}
+                          {listing.totalBedrooms || listing.bedrooms} {(listing.totalBedrooms || listing.bedrooms) > 1 ? t('listing.bedrooms') : t('listing.bedroom')}
+                          {listing.totalBedrooms ? ` ${t('listing.inApartment')}` : ''}
                         </span>
                       </div>
                     )}
@@ -365,8 +365,8 @@ export default function ListingDetails() {
                       <div className="flex items-center space-x-2">
                         <Bath className="h-5 w-5 text-muted-foreground" />
                         <span>
-                          {listing.totalBathrooms || listing.bathrooms} bathroom{(listing.totalBathrooms || listing.bathrooms) > 1 ? 's' : ''}
-                          {listing.totalBathrooms ? ' in apartment' : ''}
+                          {listing.totalBathrooms || listing.bathrooms} {(listing.totalBathrooms || listing.bathrooms) > 1 ? t('listing.bathrooms') : t('listing.bathroom')}
+                          {listing.totalBathrooms ? ` ${t('listing.inApartment')}` : ''}
                         </span>
                       </div>
                     )}
@@ -381,8 +381,8 @@ export default function ListingDetails() {
                         <Users className="h-5 w-5 text-muted-foreground" />
                         <span>
                           {listing.housematesGender === 'mixed' 
-                            ? 'Mixed gender'
-                            : `${listing.housematesGender.charAt(0).toUpperCase() + listing.housematesGender.slice(1)} only`
+                            ? t('listing.mixedGender')
+                            : `${listing.housematesGender.charAt(0).toUpperCase() + listing.housematesGender.slice(1)} ${t('listing.only')}`
                           }
                         </span>
                       </div>
@@ -393,14 +393,14 @@ export default function ListingDetails() {
                   {/* Availability */}
                   {listing.availabilityDate && <div className="flex items-center space-x-2">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <span>Available from {formatDate(listing.availabilityDate)}</span>
+                      <span>{t('listing.availableFrom')} {formatDate(listing.availabilityDate)}</span>
                     </div>}
 
                   {/* Additional Info */}
                   <div className="flex flex-wrap gap-2">
-                    {listing.furnished && <Badge variant="secondary">Furnished</Badge>}
-                    {listing.billsIncluded && <Badge variant="secondary">Bills Included</Badge>}
-                    {listing.floor && <Badge variant="secondary">Floor {listing.floor}</Badge>}
+                    {listing.furnished && <Badge variant="secondary">{t('listing.furnished')}</Badge>}
+                    {listing.billsIncluded && <Badge variant="secondary">{t('listing.billsIncluded')}</Badge>}
+                    {listing.floor && <Badge variant="secondary">{t('listing.floor')} {listing.floor}</Badge>}
                   </div>
 
                   {/* Full Amenities */}
@@ -600,9 +600,9 @@ export default function ListingDetails() {
                 <Card className="bg-muted/30">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">
-                      If and only after the landlord approves
+                      {t('listing.paymentApprovalNote')}
                     </div>
-                    <div className="text-sm font-medium mb-3">You'll pay through our platform:</div>
+                    <div className="text-sm font-medium mb-3">{t('listing.paymentPlatformNote')}</div>
                     
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">

@@ -370,6 +370,11 @@ const translations = {
     'listing.bedrooms': 'bedrooms',
     'listing.bathroom': 'bathroom',
     'listing.bathrooms': 'bathrooms',
+    'listing.inApartment': 'in apartment',
+    'listing.mixedGender': 'Mixed gender',
+    'listing.only': 'only',
+    'listing.paymentApprovalNote': 'If and only after the landlord approves',
+    'listing.paymentPlatformNote': "You'll pay through our platform:",
     'listing.messageDefault': 'Hello, I am interested in your listing. Could I have more information?',
     'listing.enterMessage': 'Enter your message...',
     
@@ -1096,6 +1101,11 @@ const translations = {
     'listing.bedrooms': 'camere da letto',
     'listing.bathroom': 'bagno',
     'listing.bathrooms': 'bagni',
+    'listing.inApartment': "nell'appartamento",
+    'listing.mixedGender': 'Genere misto',
+    'listing.only': 'solo',
+    'listing.paymentApprovalNote': 'Se e solo dopo che il proprietario approva',
+    'listing.paymentPlatformNote': 'Pagherai tramite la nostra piattaforma:',
     'listing.messageDefault': 'Ciao, sono interessato al vostro annuncio. Potreste darmi maggiori informazioni?',
     'listing.enterMessage': 'Inserisci il tuo messaggio...',
     
