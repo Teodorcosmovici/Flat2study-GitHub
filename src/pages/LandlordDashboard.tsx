@@ -136,10 +136,7 @@ export const LandlordDashboard = () => {
       // Fetch booking requests with payment_status = 'authorized'
       const { data: bookingRequestsData, error: bookingError } = await supabase
         .from('bookings')
-        .select(`
-          *,
-          listing:listings(title, address_line, images)
-        `)
+        .select('*')
         .eq('landlord_id', profile.id)
         .or('status.eq.pending_landlord_response,payment_status.eq.authorized')
         .order('created_at', { ascending: false });
@@ -148,23 +145,31 @@ export const LandlordDashboard = () => {
         console.error('Error fetching booking requests:', bookingError);
         setBookingRequests([]);
       } else {
-        // Fetch tenant details for each booking
-        const bookingsWithTenants = await Promise.all(
+        // Fetch tenant and listing details for each booking
+        const bookingsEnriched = await Promise.all(
           (bookingRequestsData || []).map(async (booking) => {
-            const { data: tenantProfile } = await supabase
-              .from('profiles')
-              .select('full_name, university, email, phone')
-              .eq('user_id', booking.tenant_id)
-              .single();
+            const [{ data: tenantProfile }, { data: listingData }] = await Promise.all([
+              supabase
+                .from('profiles')
+                .select('full_name, university, email, phone')
+                .eq('user_id', booking.tenant_id)
+                .maybeSingle(),
+              supabase
+                .from('listings')
+                .select('title, address_line, images')
+                .eq('id', booking.listing_id)
+                .maybeSingle()
+            ]);
             
             return {
               ...booking,
-              tenant: tenantProfile
+              tenant: tenantProfile || null,
+              listing: listingData || null,
             };
           })
         );
         
-        setBookingRequests(bookingsWithTenants);
+        setBookingRequests(bookingsEnriched);
       }
       
       setBookings([]);
