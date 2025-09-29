@@ -13,11 +13,13 @@ import Header from '@/components/layout/Header';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
+import { useListingTitleGenerator } from '@/utils/titleGeneration';
 
 export default function EditListing() {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
+  const generateTitle = useListingTitleGenerator();
 
   const [formData, setFormData] = useState({
     // Address fields
@@ -33,6 +35,9 @@ export default function EditListing() {
     totalBathrooms: '', // for shared rooms
     housematesGender: '' as 'male' | 'female' | 'mixed' | '',
     sizeSqm: '',
+    
+    // Generated title
+    title: '',
     
     // Description and amenities
     description: '',
@@ -59,23 +64,29 @@ export default function EditListing() {
     internetCostEur: 0
   });
 
-  // Generate title based on property type
-  const generateTitle = (type: string, bedrooms?: string, bathrooms?: string) => {
-    switch (type) {
-      case 'entire_property':
-        const bedroomCount = bedrooms || '1';
-        const bathroomCount = bathrooms || '1';
-        return `${bedroomCount} bedroom${parseInt(bedroomCount) > 1 ? 's' : ''}, ${bathroomCount} bathroom${parseInt(bathroomCount) > 1 ? 's' : ''} apartment`;
-      case 'studio':
-        const studioBathrooms = bathrooms || '1';
-        return `Studio with ${studioBathrooms} bathroom${parseInt(studioBathrooms) > 1 ? 's' : ''}`;
-      case 'room_shared':
-        return 'Room in shared apartment';
-      default:
-        return 'Rental property';
-    }
-  };
+  // Auto-generate title when relevant fields change
+  useEffect(() => {
+    const newTitle = generateTitle({
+      type: formData.type,
+      bedrooms: formData.bedrooms,
+      bathrooms: formData.bathrooms,
+      totalBedrooms: formData.totalBedrooms,
+      totalBathrooms: formData.totalBathrooms,
+      address: formData.addressLine
+    });
+    
+    setFormData(prev => ({ ...prev, title: newTitle }));
+  }, [
+    formData.type,
+    formData.bedrooms,
+    formData.bathrooms,
+    formData.totalBedrooms,
+    formData.totalBathrooms,
+    formData.addressLine,
+    generateTitle
+  ]);
 
+  // Remove the old title generation function as it's now handled by the utility
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [uploadedImages, setUploadedImages] = useState<string[]>([]);
   const [uploading, setUploading] = useState(false);
@@ -126,6 +137,7 @@ export default function EditListing() {
         totalBathrooms: data.total_bathrooms?.toString() || '',
         housematesGender: (data.housemates_gender as 'male' | 'female' | 'mixed') || '',
         sizeSqm: data.size_sqm?.toString() || '',
+        title: data.title || '',
         description: data.description || '',
         amenities: Array.isArray(data.amenities) 
           ? data.amenities
@@ -242,7 +254,7 @@ export default function EditListing() {
       }
 
       // Generate title based on current form data
-      const title = generateTitle(formData.type, formData.bedrooms, formData.bathrooms);
+      const title = formData.title || 'Rental Property';
 
       const listingData = {
         title: title,

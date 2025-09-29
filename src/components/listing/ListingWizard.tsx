@@ -1,4 +1,4 @@
-import React, { useState } from 'react';
+import React, { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { useAuth } from '@/hooks/useAuth';
@@ -8,6 +8,7 @@ import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
 import { ChevronLeft, ChevronRight } from 'lucide-react';
 import { toast } from '@/hooks/use-toast';
+import { useListingTitleGenerator } from '@/utils/titleGeneration';
 
 // Import step components
 import { BasicInfoStep } from './steps/BasicInfoStep';
@@ -35,6 +36,9 @@ interface ListingData {
   total_bathrooms?: number; // for shared rooms
   housemates_gender?: 'male' | 'female' | 'mixed';
   size_sqm: number;
+  
+  // Generated title
+  title?: string;
   
   // Amenities & Rules
   amenities: string[];
@@ -78,6 +82,7 @@ export const ListingWizard = () => {
   const { profile } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
+  const generateTitle = useListingTitleGenerator();
   const [currentStep, setCurrentStep] = useState(0);
   const [listingData, setListingData] = useState<ListingData>({
     address_line: '',
@@ -106,6 +111,28 @@ export const ListingWizard = () => {
     internetCostEur: 0,
     images: []
   });
+
+  // Auto-generate title when relevant fields change
+  useEffect(() => {
+    const newTitle = generateTitle({
+      type: listingData.type,
+      bedrooms: listingData.bedrooms,
+      bathrooms: listingData.bathrooms,
+      totalBedrooms: listingData.total_bedrooms,
+      totalBathrooms: listingData.total_bathrooms,
+      address: listingData.address_line
+    });
+    
+    setListingData(prev => ({ ...prev, title: newTitle }));
+  }, [
+    listingData.type,
+    listingData.bedrooms,
+    listingData.bathrooms,
+    listingData.total_bedrooms,
+    listingData.total_bathrooms,
+    listingData.address_line,
+    generateTitle
+  ]);
 
   const updateListingData = (newData: Partial<ListingData>) => {
     setListingData(prev => ({ ...prev, ...newData }));
@@ -170,15 +197,7 @@ export const ListingWizard = () => {
         .from('listings')
         .insert({
           agency_id: profile.id,
-          title: `${
-            listingData.type === 'studio' 
-              ? t('createListing.studio') 
-              : listingData.type === 'room_shared' 
-                ? t('createListing.roomShared')
-                : listingData.type === 'bedspace_shared'
-                  ? t('createListing.bedspaceShared')
-                  : t('createListing.entireProperty')
-          } in ${listingData.address_line}`,
+          title: listingData.title || 'Rental Property',
           type: listingData.type === 'entire_property' ? 'apartment' : listingData.type === 'studio' ? 'studio' : listingData.type === 'bedspace_shared' ? 'bedspace' : 'room',
           description: listingData.description,
           address_line: listingData.address_line,
