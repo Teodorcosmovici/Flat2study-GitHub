@@ -175,10 +175,11 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     // Ensure move out is after move in
     if (date <= checkIn) return true;
     
-    // Ensure minimum 1 month rental period
-    const oneMonthLater = new Date(checkIn);
-    oneMonthLater.setMonth(oneMonthLater.getMonth() + 1);
-    return date < oneMonthLater;
+    // Ensure minimum stay period based on landlord's setting
+    const minimumStayDays = listing.minimumStayDays || 30; // Default to 30 days if not set
+    const minimumCheckOutDate = new Date(checkIn);
+    minimumCheckOutDate.setDate(minimumCheckOutDate.getDate() + minimumStayDays);
+    return date < minimumCheckOutDate;
   };
 
   const getDateRecommendation = () => {
