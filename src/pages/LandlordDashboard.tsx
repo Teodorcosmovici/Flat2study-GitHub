@@ -178,14 +178,14 @@ export const LandlordDashboard = () => {
       await fetchDashboardData();
       
       toast({
-        title: "Success",
-        description: `Booking request ${response} successfully`,
+        title: t('dashboard.success'),
+        description: response === 'accepted' ? t('dashboard.bookingApproved') : t('dashboard.bookingDeclined'),
       });
     } catch (error) {
       console.error('Error updating booking:', error);
       toast({
-        title: "Error",
-        description: "Failed to update booking request",
+        title: t('dashboard.error'),
+        description: t('dashboard.bookingUpdateError'),
         variant: "destructive",
       });
     }
@@ -217,16 +217,16 @@ export const LandlordDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Listing deleted successfully",
+        title: t('dashboard.success'),
+        description: t('dashboard.listingDeleted'),
       });
       
       fetchDashboardData();
     } catch (error) {
       console.error('Error deleting listing:', error);
       toast({
-        title: "Error",
-        description: "Failed to delete listing",
+        title: t('dashboard.error'),
+        description: t('dashboard.deleteListingError'),
         variant: "destructive",
       });
     }
@@ -242,16 +242,16 @@ export const LandlordDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Success",
-        description: "Listing marked as rented out successfully",
+        title: t('dashboard.success'),
+        description: t('dashboard.listingMarkedRented'),
       });
       
       fetchDashboardData();
     } catch (error) {
       console.error('Error updating listing status:', error);
       toast({
-        title: "Error",
-        description: "Failed to update listing status",
+        title: t('dashboard.error'),
+        description: t('dashboard.updateListingError'),
         variant: "destructive",
       });
     }
@@ -374,11 +374,11 @@ export const LandlordDashboard = () => {
                 <div className="col-span-1">
                   <input type="checkbox" className="rounded" />
                 </div>
-                <div className="col-span-3">ADDRESS / REFERENCE</div>
-                <div className="col-span-1">PRICE</div>
-                <div className="col-span-2">VERIFICATION</div>
-                <div className="col-span-2">TENANTS INTERESTED</div>
-                <div className="col-span-1">ACTIONS</div>
+                <div className="col-span-3">{t('dashboard.addressReference')}</div>
+                <div className="col-span-1">{t('dashboard.price')}</div>
+                <div className="col-span-2">{t('dashboard.verification')}</div>
+                <div className="col-span-2">{t('dashboard.tenantsInterested')}</div>
+                <div className="col-span-1">{t('dashboard.actions')}</div>
               </div>
 
               {/* Table Content */}
@@ -399,10 +399,10 @@ export const LandlordDashboard = () => {
                       <div>
                         <h3 className="font-medium">{listing.title}</h3>
                         <p className="text-sm text-muted-foreground">
-                          {listing.bedrooms} bed, {listing.bathrooms} bath • {listing.city}
+                          {listing.bedrooms} {t('dashboard.bed')}, {listing.bathrooms} {t('dashboard.bath')} • {listing.city}
                         </p>
                         <p className="text-xs text-muted-foreground">
-                          REF {listing.id.slice(0, 8)} | Bedroom {listing.bedrooms}
+                          {t('dashboard.ref')} {listing.id.slice(0, 8)} | {t('dashboard.bedroom')} {listing.bedrooms}
                         </p>
                       </div>
                     </div>
@@ -417,7 +417,7 @@ export const LandlordDashboard = () => {
                     <div className="flex items-center gap-1">
                       <MessageSquare className="w-4 h-4 text-muted-foreground" />
                       <span className="font-medium">{listing.booking_requests_count || 0}</span>
-                      <span className="text-sm text-muted-foreground">requests</span>
+                      <span className="text-sm text-muted-foreground">{t('dashboard.requests')}</span>
                     </div>
                   </div>
                   <div className="col-span-1">
@@ -477,13 +477,13 @@ export const LandlordDashboard = () => {
               {listings.length === 0 && (
                 <div className="p-12 text-center">
                   <Building2 className="mx-auto h-12 w-12 text-muted-foreground mb-4" />
-                  <h3 className="text-lg font-semibold mb-2">No listings yet</h3>
+                  <h3 className="text-lg font-semibold mb-2">{t('dashboard.noListingsEmpty')}</h3>
                   <p className="text-muted-foreground mb-4">
-                    Create your first property listing to start attracting tenants.
+                    {t('dashboard.createFirstListingDesc')}
                   </p>
                   <Button onClick={() => navigate('/create-listing')}>
                     <Plus className="w-4 h-4 mr-2" />
-                    Create Your First Listing
+                    {t('dashboard.createYourFirstListing')}
                   </Button>
                 </div>
               )}
@@ -495,15 +495,15 @@ export const LandlordDashboard = () => {
             {bookingRequests.length === 0 ? (
               <div className="text-center py-12">
                 <MessageSquare className="mx-auto h-12 w-12 text-blue-500 mb-4" />
-                <h3 className="text-xl font-semibold mb-2">It looks like you don't have any booking requests at the moment.</h3>
+                <h3 className="text-xl font-semibold mb-2">{t('dashboard.noBookingRequestsEmpty')}</h3>
                 <p className="text-muted-foreground mb-4">
-                  Once you receive booking requests, you can see them here.
+                  {t('dashboard.onceReceiveBookingRequests')}
                 </p>
               </div>
             ) : (
               <div className="space-y-6">
                 <div className="flex justify-between items-center">
-                  <h2 className="text-3xl font-bold">{bookingRequests.length} Booking Requests</h2>
+                  <h2 className="text-3xl font-bold">{bookingRequests.length} {t('dashboard.bookingRequestsCount')}</h2>
                 </div>
 
                 <div className="space-y-4">
@@ -524,23 +524,23 @@ export const LandlordDashboard = () => {
                           
                           <div className="space-y-2">
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium">University:</span>
-                              <span className="text-sm">{request.tenant?.university || 'Not specified'}</span>
+                              <span className="text-sm font-medium">{t('dashboard.university')}:</span>
+                              <span className="text-sm">{request.tenant?.university || t('dashboard.notSpecified')}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium">Phone:</span>
-                              <span className="text-sm">{request.tenant?.phone || 'Not provided'}</span>
+                              <span className="text-sm font-medium">{t('common.phone')}:</span>
+                              <span className="text-sm">{request.tenant?.phone || t('dashboard.notProvided')}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium">Check-in:</span>
+                              <span className="text-sm font-medium">{t('dashboard.checkIn')}:</span>
                               <span className="text-sm">{new Date(request.check_in_date).toLocaleDateString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium">Check-out:</span>
+                              <span className="text-sm font-medium">{t('dashboard.checkOut')}:</span>
                               <span className="text-sm">{new Date(request.check_out_date).toLocaleDateString()}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium">Monthly Rent:</span>
+                              <span className="text-sm font-medium">{t('dashboard.monthlyRent')}:</span>
                               <span className="text-sm font-semibold">€{request.monthly_rent}</span>
                             </div>
                           </div>
@@ -566,18 +566,18 @@ export const LandlordDashboard = () => {
                           </div>
 
                           <div>
-                            <h4 className="font-medium mb-2">Application Message</h4>
+                            <h4 className="font-medium mb-2">{t('dashboard.applicationMessage')}</h4>
                             <div className="bg-muted/30 p-3 rounded-lg text-sm">
                               {request.application_message ? (
                                 <p>{request.application_message}</p>
                               ) : (
-                                <p className="text-muted-foreground italic">No message provided</p>
+                                <p className="text-muted-foreground italic">{t('dashboard.noMessageProvided')}</p>
                               )}
                             </div>
                           </div>
 
                           <div>
-                            <h4 className="font-medium mb-2">Supporting Document</h4>
+                            <h4 className="font-medium mb-2">{t('dashboard.supportingDocument')}</h4>
                             {request.application_document_url ? (
                               <a 
                                 href={request.application_document_url}
@@ -585,11 +585,11 @@ export const LandlordDashboard = () => {
                                 rel="noopener noreferrer"
                                 className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2"
                               >
-                                View Document ({request.application_document_type || 'PDF'})
+                                {t('dashboard.viewDocument')} ({request.application_document_type || 'PDF'})
                               </a>
                             ) : (
                               <div className="text-sm text-muted-foreground">
-                                No document uploaded
+                                {t('dashboard.noDocumentUploaded')}
                               </div>
                             )}
                           </div>
@@ -599,10 +599,10 @@ export const LandlordDashboard = () => {
                         <div className="space-y-4">
                           <div className="text-center space-y-2">
                             <div className="text-sm text-muted-foreground">
-                              Request received: {new Date(request.created_at).toLocaleDateString()}
+                              {t('dashboard.requestReceived')}: {new Date(request.created_at).toLocaleDateString()}
                             </div>
                             <div className="text-sm text-muted-foreground">
-                              Payment authorized until: {new Date(request.authorization_expires_at).toLocaleDateString()}
+                              {t('dashboard.paymentAuthorizedUntil')}: {new Date(request.authorization_expires_at).toLocaleDateString()}
                             </div>
                           </div>
 
@@ -613,29 +613,29 @@ export const LandlordDashboard = () => {
                                 className="w-full bg-green-600 hover:bg-green-700"
                               >
                                 <CheckCircle className="w-4 h-4 mr-2" />
-                                Accept Application
+                                {t('dashboard.acceptApplication')}
                               </Button>
                               
                               <AlertDialog>
                                 <AlertDialogTrigger asChild>
                                   <Button variant="outline" className="w-full border-red-200 text-red-600 hover:bg-red-50">
-                                    Refuse Application
+                                    {t('dashboard.refuseApplication')}
                                   </Button>
                                 </AlertDialogTrigger>
                                 <AlertDialogContent>
                                   <AlertDialogHeader>
-                                    <AlertDialogTitle>Refuse Application</AlertDialogTitle>
+                                    <AlertDialogTitle>{t('dashboard.refuseApplication')}</AlertDialogTitle>
                                     <AlertDialogDescription>
-                                      Are you sure you want to refuse this rental application? This action cannot be undone.
+                                      {t('dashboard.refuseApplicationConfirm')}
                                     </AlertDialogDescription>
                                   </AlertDialogHeader>
                                   <AlertDialogFooter>
-                                    <AlertDialogCancel>Cancel</AlertDialogCancel>
+                                    <AlertDialogCancel>{t('dashboard.cancel')}</AlertDialogCancel>
                                     <AlertDialogAction 
                                       onClick={() => handleBookingResponse(request.id, 'refused')}
                                       className="bg-red-600 hover:bg-red-700"
                                     >
-                                      Refuse Application
+                                      {t('dashboard.refuseApplication')}
                                     </AlertDialogAction>
                                   </AlertDialogFooter>
                                 </AlertDialogContent>
@@ -646,8 +646,8 @@ export const LandlordDashboard = () => {
                               <Badge 
                                 variant={request.status === 'confirmed' ? 'default' : 'destructive'}
                                 className={request.status === 'confirmed' ? 'bg-green-100 text-green-800 border-green-200' : ''}
-                              >
-                                {request.status === 'confirmed' ? 'Accepted' : 'Refused'}
+                                >
+                                {request.status === 'confirmed' ? t('dashboard.accepted') : t('dashboard.refused')}
                               </Badge>
                             </div>
                           )}
@@ -667,32 +667,32 @@ export const LandlordDashboard = () => {
           {/* Account Tab */}
           <TabsContent value="account" className="py-6">
             <div className="max-w-2xl">
-              <h2 className="text-2xl font-bold mb-6">Account Settings</h2>
+              <h2 className="text-2xl font-bold mb-6">{t('dashboard.accountSettings')}</h2>
               
               <div className="space-y-6">
                 <Card>
                   <CardHeader>
-                    <CardTitle>Profile Information</CardTitle>
+                    <CardTitle>{t('dashboard.profileInfo')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div>
-                      <label className="text-sm font-medium">Full Name</label>
+                      <label className="text-sm font-medium">{t('dashboard.fullName')}</label>
                       <Input value={profile?.full_name || ''} readOnly className="mt-1" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">Email</label>
+                      <label className="text-sm font-medium">{t('common.email')}</label>
                       <Input value={user?.email || ''} readOnly className="mt-1" />
                     </div>
                     <div>
-                      <label className="text-sm font-medium">User Type</label>
-                      <Input value="Private Landlord" readOnly className="mt-1" />
+                      <label className="text-sm font-medium">{t('dashboard.userType')}</label>
+                      <Input value={t('dashboard.privateLandlord')} readOnly className="mt-1" />
                     </div>
                   </CardContent>
                 </Card>
 
                 <Card>
                   <CardHeader>
-                    <CardTitle>Actions</CardTitle>
+                    <CardTitle>{t('dashboard.actions')}</CardTitle>
                   </CardHeader>
                   <CardContent className="space-y-4">
                     <div className="flex gap-4">
@@ -702,7 +702,7 @@ export const LandlordDashboard = () => {
                         className="flex-1"
                       >
                         <Home className="w-4 h-4 mr-2" />
-                        Back to Home
+                        {t('dashboard.backToHome')}
                       </Button>
                       <Button 
                         variant="outline" 
@@ -710,7 +710,7 @@ export const LandlordDashboard = () => {
                         className="flex-1"
                       >
                         <LogOut className="w-4 h-4 mr-2" />
-                        Logout
+                        {t('dashboard.logout')}
                       </Button>
                     </div>
                   </CardContent>
