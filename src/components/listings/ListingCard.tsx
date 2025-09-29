@@ -30,7 +30,7 @@ export default function ListingCard({
   showTranslateButton = true
 }: ListingCardProps) {
   const { isFavorited, toggleFavorite } = useFavorites();
-  const { language } = useLanguage();
+  const { language, t } = useLanguage();
   const isMobile = useIsMobile();
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showMap, setShowMap] = useState(false);
@@ -56,10 +56,11 @@ export default function ListingCard({
 
   const getTypeDisplayName = (type: string) => {
     const types: Record<string, string> = {
-      room: 'Room',
-      studio: 'Studio',
-      apartment: 'Apartment',
-      flat: 'Flat'
+      room: t('propertyType.room'),
+      bedspace: t('propertyType.bedspace'),
+      studio: t('propertyType.studio'),
+      apartment: t('propertyType.apartment'),
+      flat: t('propertyType.flat')
     };
     return types[type] || type;
   };

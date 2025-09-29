@@ -396,6 +396,7 @@ const translations = {
     
     // Property Types
     'propertyType.room': 'Room',
+    'propertyType.bedspace': 'Bedspace',
     'propertyType.studio': 'Studio',
     'propertyType.apartment': 'Apartment',
     'propertyType.flat': 'Flat',
@@ -1143,6 +1144,7 @@ const translations = {
     
     // Property Types
     'propertyType.room': 'Camera',
+    'propertyType.bedspace': 'Posto Letto',
     'propertyType.studio': 'Monolocale',
     'propertyType.apartment': 'Appartamento',
     'propertyType.flat': 'Appartamento',

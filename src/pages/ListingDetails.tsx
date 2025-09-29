@@ -183,6 +183,7 @@ export default function ListingDetails() {
   const getTypeDisplayName = (type: string) => {
     const types: Record<string, string> = {
       room: t('propertyType.room'),
+      bedspace: t('propertyType.bedspace'),
       studio: t('propertyType.studio'),
       apartment: t('propertyType.apartment'),
       flat: t('propertyType.flat')
