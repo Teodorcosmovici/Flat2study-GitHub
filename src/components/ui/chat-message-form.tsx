@@ -6,24 +6,14 @@ import { Button } from './button';
 import { Input } from './input';
 import { Textarea } from './textarea';
 import { Form, FormControl, FormField, FormItem, FormLabel, FormMessage } from './form';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from './select';
+import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from './command';
+import { Popover, PopoverContent, PopoverTrigger } from './popover';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2 } from 'lucide-react';
-
-const countries = [
-  { code: '+39', name: 'Italy', flag: '🇮🇹' },
-  { code: '+33', name: 'France', flag: '🇫🇷' },
-  { code: '+49', name: 'Germany', flag: '🇩🇪' },
-  { code: '+34', name: 'Spain', flag: '🇪🇸' },
-  { code: '+1', name: 'United States', flag: '🇺🇸' },
-  { code: '+44', name: 'United Kingdom', flag: '🇬🇧' },
-  { code: '+31', name: 'Netherlands', flag: '🇳🇱' },
-  { code: '+32', name: 'Belgium', flag: '🇧🇪' },
-  { code: '+41', name: 'Switzerland', flag: '🇨🇭' },
-  { code: '+43', name: 'Austria', flag: '🇦🇹' },
-];
+import { Loader2, Check, ChevronsUpDown } from 'lucide-react';
+import { countries, getPriorityCountries, getOtherCountries } from '@/data/countries';
+import { cn } from '@/lib/utils';
 
 const messageSchema = z.object({
   name: z.string().trim().min(1, "Name is required").max(100, "Name must be less than 100 characters"),
@@ -43,6 +33,10 @@ export const ChatMessageForm: React.FC<ChatMessageFormProps> = ({ onSuccess }) =
   const { toast } = useToast();
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [isSuccess, setIsSuccess] = useState(false);
+  const [countryOpen, setCountryOpen] = useState(false);
+
+  const priorityCountries = getPriorityCountries();
+  const otherCountries = getOtherCountries();
 
   const form = useForm<MessageFormData>({
     resolver: zodResolver(messageSchema),
@@ -128,26 +122,85 @@ export const ChatMessageForm: React.FC<ChatMessageFormProps> = ({ onSuccess }) =
           <FormField
             control={form.control}
             name="countryCode"
-            render={({ field }) => (
-              <FormItem>
-                <FormLabel>Country</FormLabel>
-                <Select onValueChange={field.onChange} defaultValue={field.value}>
-                  <FormControl>
-                    <SelectTrigger>
-                      <SelectValue placeholder="Code" />
-                    </SelectTrigger>
-                  </FormControl>
-                  <SelectContent>
-                    {countries.map((country) => (
-                      <SelectItem key={country.code} value={country.code}>
-                        {country.flag} {country.code}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
-                <FormMessage />
-              </FormItem>
-            )}
+            render={({ field }) => {
+              const selectedCountry = countries.find(c => c.dialCode === field.value);
+              
+              return (
+                <FormItem>
+                  <FormLabel>Country</FormLabel>
+                  <Popover open={countryOpen} onOpenChange={setCountryOpen}>
+                    <PopoverTrigger asChild>
+                      <FormControl>
+                        <Button
+                          variant="outline"
+                          role="combobox"
+                          aria-expanded={countryOpen}
+                          className="w-full justify-between text-left font-normal"
+                        >
+                          {selectedCountry ? (
+                            <span className="truncate">
+                              {selectedCountry.flag} {selectedCountry.dialCode}
+                            </span>
+                          ) : (
+                            "Select..."
+                          )}
+                          <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                        </Button>
+                      </FormControl>
+                    </PopoverTrigger>
+                    <PopoverContent className="w-full p-0" align="start">
+                      <Command>
+                        <CommandInput placeholder="Search countries..." />
+                        <CommandList>
+                          <CommandEmpty>No country found.</CommandEmpty>
+                          <CommandGroup heading="Popular">
+                            {priorityCountries.map((country) => (
+                              <CommandItem
+                                key={country.dialCode}
+                                value={`${country.name} ${country.dialCode}`}
+                                onSelect={() => {
+                                  field.onChange(country.dialCode);
+                                  setCountryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === country.dialCode ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {country.flag} {country.name} ({country.dialCode})
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                          <CommandGroup heading="All Countries">
+                            {otherCountries.map((country) => (
+                              <CommandItem
+                                key={country.dialCode}
+                                value={`${country.name} ${country.dialCode}`}
+                                onSelect={() => {
+                                  field.onChange(country.dialCode);
+                                  setCountryOpen(false);
+                                }}
+                              >
+                                <Check
+                                  className={cn(
+                                    "mr-2 h-4 w-4",
+                                    field.value === country.dialCode ? "opacity-100" : "opacity-0"
+                                  )}
+                                />
+                                {country.flag} {country.name} ({country.dialCode})
+                              </CommandItem>
+                            ))}
+                          </CommandGroup>
+                        </CommandList>
+                      </Command>
+                    </PopoverContent>
+                  </Popover>
+                  <FormMessage />
+                </FormItem>
+              );
+            }}
           />
 
           <FormField
