@@ -26,7 +26,9 @@ const Index = () => {
   const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
   const { listings: featuredListings, loading: listingsLoading } = useFeaturedListings(6);
   const isMobile = useIsMobile();
-  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState(false);
+  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState(() => {
+    return sessionStorage.getItem('isOwnerAuthenticated') === 'true';
+  });
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {

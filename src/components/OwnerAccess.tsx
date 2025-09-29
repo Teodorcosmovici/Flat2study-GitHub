@@ -2,7 +2,7 @@ import { useState } from 'react';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Dialog, DialogContent, DialogTrigger, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Eye, EyeOff } from 'lucide-react';
+import { Eye, EyeOff, Home } from 'lucide-react';
 
 interface OwnerAccessProps {
   onAuthenticated: () => void;
@@ -17,13 +17,21 @@ const OwnerAccess = ({ onAuthenticated }: OwnerAccessProps) => {
   const handleSubmit = (e: React.FormEvent) => {
     e.preventDefault();
     if (credentials.id === 'Flat2Study' && credentials.password === 'teodormelchior') {
+      // Store authentication state in session storage
+      sessionStorage.setItem('isOwnerAuthenticated', 'true');
       onAuthenticated();
       setIsOpen(false);
       setError('');
       setCredentials({ id: '', password: '' });
     } else {
-      setError('Invalid credentials');
+      setError('wrong password, try again');
     }
+  };
+
+  const handleBack = () => {
+    setIsOpen(false);
+    setError('');
+    setCredentials({ id: '', password: '' });
   };
 
   return (
@@ -70,7 +78,19 @@ const OwnerAccess = ({ onAuthenticated }: OwnerAccessProps) => {
           </div>
           
           {error && (
-            <p className="text-sm text-destructive text-center">{error}</p>
+            <div className="space-y-3">
+              <p className="text-sm text-destructive text-center">{error}</p>
+              <Button 
+                type="button" 
+                variant="outline" 
+                size="sm" 
+                onClick={handleBack}
+                className="w-full"
+              >
+                <Home className="h-4 w-4 mr-2" />
+                Back
+              </Button>
+            </div>
           )}
           
           <Button type="submit" className="w-full">
