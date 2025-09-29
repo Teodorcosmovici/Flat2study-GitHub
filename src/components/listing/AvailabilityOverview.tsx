@@ -150,14 +150,6 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
             </div>
           )}
           
-          {maximumStayDays && (
-            <div className="flex justify-between">
-              <span className="text-muted-foreground">Max stay:</span>
-              <span className="font-medium">
-                {maximumStayDays > 365 ? 'No maximum stay' : formatStayDuration(maximumStayDays)}
-              </span>
-            </div>
-          )}
         </div>
       </CardContent>
     </Card>
