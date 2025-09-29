@@ -246,36 +246,77 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     )}>
       <CardContent className={cn(
         "p-6 space-y-6",
-        isMobile && "p-4 space-y-4"
+        isMobile && "p-3 space-y-3"
       )}>
-        {/* Price Display */}
-        <div className="flex items-baseline justify-between">
-          <div>
-            <span className="text-2xl font-bold">{formatPrice(listing.rentMonthlyEur)}</span>
-            <span className="text-muted-foreground">/month</span>
-          </div>
-          <div className="flex items-center text-sm text-muted-foreground">
-            <Users className="h-4 w-4 mr-1" />
-            <span>{persons} person{persons > 1 ? 's' : ''}</span>
-          </div>
-        </div>
+        {/* Desktop: Full widget */}
+        {!isMobile && (
+          <>
+            {/* Price Display */}
+            <div className="flex items-baseline justify-between">
+              <div>
+                <span className="text-2xl font-bold">{formatPrice(listing.rentMonthlyEur)}</span>
+                <span className="text-muted-foreground">/month</span>
+              </div>
+              <div className="flex items-center text-sm text-muted-foreground">
+                <Users className="h-4 w-4 mr-1" />
+                <span>{persons} person{persons > 1 ? 's' : ''}</span>
+              </div>
+            </div>
 
+            {/* Date Recommendation Alert */}
+            {recommendation && showRecommendation && (
+              <Alert className="bg-green-50 border-green-200 text-green-800">
+                <Lightbulb className="h-4 w-4" />
+                <AlertDescription className="flex flex-col space-y-3">
+                  <p className="text-sm">
+                    {recommendation.message}
+                  </p>
+                  <div className="flex space-x-2">
+                    <Button
+                      variant="ghost"
+                      size="sm"
+                      onClick={handleDismissRecommendation}
+                      className="text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
+                    >
+                      I'm ok with my dates
+                    </Button>
+                    <Button
+                      variant="outline"
+                      size="sm"
+                      onClick={handleChangeDates}
+                      className="border-green-300 text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
+                    >
+                      Change dates
+                    </Button>
+                  </div>
+                </AlertDescription>
+              </Alert>
+            )}
+          </>
+        )}
 
         {/* Date Selectors */}
-        <div className="grid grid-cols-2 gap-3">
+        <div className={cn(
+          "grid grid-cols-2 gap-3",
+          isMobile && "gap-2"
+        )}>
           {/* Move In Date */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">MOVE IN</label>
+            <label className={cn(
+              "text-sm font-medium text-muted-foreground",
+              isMobile && "text-xs"
+            )}>MOVE IN</label>
             <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal h-12",
-                    !checkIn && "text-muted-foreground"
+                    !checkIn && "text-muted-foreground",
+                    isMobile && "h-10 text-sm"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
                   {checkIn ? format(checkIn, "dd MMM") : "Select dates"}
                 </Button>
               </PopoverTrigger>
@@ -294,17 +335,21 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
 
           {/* Move Out Date */}
           <div className="space-y-2">
-            <label className="text-sm font-medium text-muted-foreground">MOVE OUT</label>
+            <label className={cn(
+              "text-sm font-medium text-muted-foreground",
+              isMobile && "text-xs"
+            )}>MOVE OUT</label>
             <Popover open={showCheckOutCalendar} onOpenChange={setShowCheckOutCalendar}>
               <PopoverTrigger asChild>
                 <Button
                   variant="outline"
                   className={cn(
                     "w-full justify-start text-left font-normal h-12",
-                    !checkOut && "text-muted-foreground"
+                    !checkOut && "text-muted-foreground",
+                    isMobile && "h-10 text-sm"
                   )}
                 >
-                  <CalendarIcon className="mr-2 h-4 w-4" />
+                  <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
                   {checkOut ? format(checkOut, "dd MMM") : "Select dates"}
                 </Button>
               </PopoverTrigger>
@@ -322,8 +367,8 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </div>
         </div>
 
-        {/* Date Recommendation Alert */}
-        {recommendation && showRecommendation && (
+        {/* Desktop only: Date Recommendation Alert */}
+        {!isMobile && recommendation && showRecommendation && (
           <Alert className="bg-green-50 border-green-200 text-green-800">
             <Lightbulb className="h-4 w-4" />
             <AlertDescription className="flex flex-col space-y-3">
@@ -354,7 +399,10 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
 
         {/* Select Dates Button */}
         <Button 
-          className="w-full h-12 text-base font-medium"
+          className={cn(
+            "w-full h-12 text-base font-medium",
+            isMobile && "h-10 text-sm"
+          )}
           onClick={handleSelectDates}
           disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
         >
@@ -362,7 +410,10 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
         </Button>
 
         {/* Availability Note */}
-        <p className="text-xs text-muted-foreground text-center">
+        <p className={cn(
+          "text-xs text-muted-foreground text-center",
+          isMobile && "text-[10px]"
+        )}>
           Nothing will be charged now
         </p>
       </CardContent>
