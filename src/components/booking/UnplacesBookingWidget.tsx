@@ -246,7 +246,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     )}>
       <CardContent className={cn(
         "p-6 space-y-6",
-        isMobile && "p-2 space-y-2 pb-4"
+        isMobile && "p-2 space-y-2 pb-[calc(env(safe-area-inset-bottom)+8px)]"
       )}>
         {/* Desktop: Full widget */}
         {!isMobile && (
@@ -295,77 +295,150 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </>
         )}
 
-        {/* Date Selectors */}
-        <div className={cn(
-          "grid grid-cols-2 gap-3",
-          isMobile && "gap-2"
-        )}>
-          {/* Move In Date */}
-          <div className="space-y-2">
-            <label className={cn(
-              "text-sm font-medium text-muted-foreground",
-              isMobile && "text-xs"
-            )}>MOVE IN</label>
-            <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal h-12",
-                    !checkIn && "text-muted-foreground",
-                    isMobile && "h-10 text-sm"
-                  )}
-                >
-                  <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
-                  {checkIn ? format(checkIn, "dd MMM") : "Select dates"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
-                <Calendar
-                  mode="single"
-                  selected={checkIn}
-                  onSelect={handleCheckInSelect}
-                  disabled={isDateDisabled}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
-          </div>
+        {/* Date selectors - mobile compact vs desktop */}
+        {isMobile ? (
+          <>
+            <div className="grid grid-cols-3 gap-2 items-center">
+              <div>
+                <label className="sr-only">MOVE IN</label>
+                <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal h-10 text-sm",
+                        !checkIn && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      {checkIn ? format(checkIn, "dd MMM") : "Move in"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={checkIn}
+                      onSelect={handleCheckInSelect}
+                      disabled={isDateDisabled}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
 
-          {/* Move Out Date */}
-          <div className="space-y-2">
-            <label className={cn(
-              "text-sm font-medium text-muted-foreground",
-              isMobile && "text-xs"
-            )}>MOVE OUT</label>
-            <Popover open={showCheckOutCalendar} onOpenChange={setShowCheckOutCalendar}>
-              <PopoverTrigger asChild>
-                <Button
-                  variant="outline"
-                  className={cn(
-                    "w-full justify-start text-left font-normal h-12",
-                    !checkOut && "text-muted-foreground",
-                    isMobile && "h-10 text-sm"
-                  )}
-                >
-                  <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
-                  {checkOut ? format(checkOut, "dd MMM") : "Select dates"}
-                </Button>
-              </PopoverTrigger>
-              <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
-                <Calendar
-                  mode="single"
-                  selected={checkOut}
-                  onSelect={handleCheckOutSelect}
-                  disabled={isCheckOutDisabled}
-                  initialFocus
-                  className="pointer-events-auto"
-                />
-              </PopoverContent>
-            </Popover>
+              <div>
+                <label className="sr-only">MOVE OUT</label>
+                <Popover open={showCheckOutCalendar} onOpenChange={setShowCheckOutCalendar}>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal h-10 text-sm",
+                        !checkOut && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-1 h-3 w-3" />
+                      {checkOut ? format(checkOut, "dd MMM") : "Move out"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={checkOut}
+                      onSelect={handleCheckOutSelect}
+                      disabled={isCheckOutDisabled}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+
+              <Button
+                className="w-full h-10 text-sm"
+                onClick={handleSelectDates}
+                disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
+              >
+                {loading ? 'Loading...' : 'Continue > >'}
+              </Button>
+            </div>
+            <p className="text-[10px] text-muted-foreground text-center mt-1">
+              Nothing will be charged now
+            </p>
+          </>
+        ) : (
+          <div className={cn(
+            "grid grid-cols-2 gap-3",
+            isMobile && "gap-2"
+          )}>
+            {/* Move In Date */}
+            <div className="space-y-2">
+              <label className={cn(
+                "text-sm font-medium text-muted-foreground",
+                isMobile && "text-xs"
+              )}>MOVE IN</label>
+              <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-12",
+                      !checkIn && "text-muted-foreground",
+                      isMobile && "h-10 text-sm"
+                    )}
+                  >
+                    <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
+                    {checkIn ? format(checkIn, "dd MMM") : "Select dates"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={checkIn}
+                    onSelect={handleCheckInSelect}
+                    disabled={isDateDisabled}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
+
+            {/* Move Out Date */}
+            <div className="space-y-2">
+              <label className={cn(
+                "text-sm font-medium text-muted-foreground",
+                isMobile && "text-xs"
+              )}>MOVE OUT</label>
+              <Popover open={showCheckOutCalendar} onOpenChange={setShowCheckOutCalendar}>
+                <PopoverTrigger asChild>
+                  <Button
+                    variant="outline"
+                    className={cn(
+                      "w-full justify-start text-left font-normal h-12",
+                      !checkOut && "text-muted-foreground",
+                      isMobile && "h-10 text-sm"
+                    )}
+                  >
+                    <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
+                    {checkOut ? format(checkOut, "dd MMM") : "Select dates"}
+                  </Button>
+                </PopoverTrigger>
+                <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                  <Calendar
+                    mode="single"
+                    selected={checkOut}
+                    onSelect={handleCheckOutSelect}
+                    disabled={isCheckOutDisabled}
+                    initialFocus
+                    className="pointer-events-auto"
+                  />
+                </PopoverContent>
+              </Popover>
+            </div>
           </div>
-        </div>
+        )}
 
         {/* Desktop only: Date Recommendation Alert */}
         {!isMobile && recommendation && showRecommendation && (
@@ -397,25 +470,29 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </Alert>
         )}
 
-        {/* Select Dates Button */}
-        <Button 
-          className={cn(
-            "w-full h-12 text-base font-medium",
-            isMobile && "h-10 text-sm"
-          )}
-          onClick={handleSelectDates}
-          disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
-        >
-          {loading ? 'Loading...' : 'Continue > >'}
-        </Button>
+        {/* Desktop: Select button and note */}
+        {!isMobile && (
+          <>
+            <Button 
+              className={cn(
+                "w-full h-12 text-base font-medium",
+                isMobile && "h-10 text-sm"
+              )}
+              onClick={handleSelectDates}
+              disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
+            >
+              {loading ? 'Loading...' : 'Continue > >'}
+            </Button>
 
-        {/* Availability Note */}
-        <p className={cn(
-          "text-xs text-muted-foreground text-center",
-          isMobile && "text-[10px]"
-        )}>
-          Nothing will be charged now
-        </p>
+            {/* Availability Note */}
+            <p className={cn(
+              "text-xs text-muted-foreground text-center",
+              isMobile && "text-[10px]"
+            )}>
+              Nothing will be charged now
+            </p>
+          </>
+        )}
       </CardContent>
     </Card>
   );
