@@ -11,6 +11,7 @@ import { cn } from '@/lib/utils';
 import { useAvailability } from '@/hooks/useAvailability';
 import { Listing } from '@/types';
 import { useNavigate } from 'react-router-dom';
+import { useIsMobile } from '@/hooks/use-mobile';
 
 interface UnplacesBookingWidgetProps {
   listing: Listing;
@@ -28,6 +29,7 @@ interface UnplacesBookingWidgetProps {
 
 export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange }: UnplacesBookingWidgetProps) {
   const navigate = useNavigate();
+  const isMobile = useIsMobile();
   const [persons, setPersons] = useState(1);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
@@ -238,8 +240,14 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   };
 
   return (
-    <Card className="sticky top-24">
-      <CardContent className="p-6 space-y-6">
+    <Card className={cn(
+      "sticky top-24",
+      isMobile && "fixed bottom-0 left-0 right-0 z-50 rounded-t-lg rounded-b-none border-t shadow-2xl"
+    )}>
+      <CardContent className={cn(
+        "p-6 space-y-6",
+        isMobile && "p-4 space-y-4"
+      )}>
         {/* Price Display */}
         <div className="flex items-baseline justify-between">
           <div>
