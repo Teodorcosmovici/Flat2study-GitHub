@@ -75,7 +75,7 @@ export default function Header() {
             </div>
           </div>
           
-          <Link to="/about" className={`text-xs md:text-sm font-medium transition-colors duration-300 ${
+          <Link to="/about" className={`hidden md:inline text-xs md:text-sm font-medium transition-colors duration-300 ${
             shouldShowBackground 
               ? 'text-foreground hover:text-foreground/80' 
               : 'text-white hover:text-white/80'
