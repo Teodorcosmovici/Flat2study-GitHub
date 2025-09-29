@@ -246,7 +246,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     )}>
       <CardContent className={cn(
         "p-6 space-y-6",
-        isMobile && "p-2 space-y-2 pb-[calc(env(safe-area-inset-bottom)+8px)]"
+        isMobile && "p-1 space-y-1 pb-[calc(env(safe-area-inset-bottom)+4px)]"
       )}>
         {/* Desktop: Full widget */}
         {!isMobile && (
@@ -298,7 +298,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
         {/* Date selectors - mobile compact vs desktop */}
         {isMobile ? (
           <>
-            <div className="grid grid-cols-3 gap-2 items-center">
+            <div className="grid grid-cols-3 gap-1 items-center">
               <div>
                 <label className="sr-only">MOVE IN</label>
                 <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
@@ -306,7 +306,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal h-10 text-sm",
+                        "w-full justify-start text-left font-normal h-9 text-xs",
                         !checkIn && "text-muted-foreground"
                       )}
                     >
@@ -314,7 +314,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       {checkIn ? format(checkIn, "dd MMM") : "Move in"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                  <PopoverContent side={isMobile ? "top" : undefined} className={cn("w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]", isMobile && "max-h-[60vh] overflow-auto")} align="start">
                     <Calendar
                       mode="single"
                       selected={checkIn}
@@ -334,7 +334,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                     <Button
                       variant="outline"
                       className={cn(
-                        "w-full justify-start text-left font-normal h-10 text-sm",
+                        "w-full justify-start text-left font-normal h-9 text-xs",
                         !checkOut && "text-muted-foreground"
                       )}
                     >
@@ -342,7 +342,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       {checkOut ? format(checkOut, "dd MMM") : "Move out"}
                     </Button>
                   </PopoverTrigger>
-                  <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                  <PopoverContent side={isMobile ? "top" : undefined} className={cn("w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]", isMobile && "max-h-[60vh] overflow-auto")} align="start">
                     <Calendar
                       mode="single"
                       selected={checkOut}
@@ -356,16 +356,13 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               </div>
 
               <Button
-                className="w-full h-10 text-sm"
+                className="w-full h-9 text-xs"
                 onClick={handleSelectDates}
                 disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
               >
                 {loading ? 'Loading...' : 'Continue > >'}
               </Button>
             </div>
-            <p className="text-[10px] text-muted-foreground text-center mt-1">
-              Nothing will be charged now
-            </p>
           </>
         ) : (
           <div className={cn(
@@ -392,7 +389,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                     {checkIn ? format(checkIn, "dd MMM") : "Select dates"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                <PopoverContent side={isMobile ? "top" : undefined} className={cn("w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]", isMobile && "max-h-[60vh] overflow-auto")} align="start">
                   <Calendar
                     mode="single"
                     selected={checkIn}
@@ -425,7 +422,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                     {checkOut ? format(checkOut, "dd MMM") : "Select dates"}
                   </Button>
                 </PopoverTrigger>
-                <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                <PopoverContent side={isMobile ? "top" : undefined} className={cn("w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]", isMobile && "max-h-[60vh] overflow-auto")} align="start">
                   <Calendar
                     mode="single"
                     selected={checkOut}
