@@ -204,7 +204,7 @@ export default function Header() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`transition-colors duration-300 ${
+                  className={`transition-colors duration-300 -ml-1 ${
                     shouldShowBackground 
                       ? 'text-foreground hover:text-foreground/80' 
                       : 'text-white hover:text-white/80 hover:bg-white/10'
