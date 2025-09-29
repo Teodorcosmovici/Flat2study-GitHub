@@ -58,7 +58,7 @@ export default function Header() {
         </div>
 
         {/* Right side actions */}
-        <div className="flex items-center space-x-2 md:space-x-4">
+        <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
           {/* Mobile language selector - show only on homepage */}
           {location.pathname === '/' && (
             <div className="md:hidden">
@@ -216,7 +216,7 @@ export default function Header() {
               </Link>
 
               <Link to="/get-started">
-                <Button size="sm" className={`transition-all duration-300 text-xs md:text-sm ${
+                <Button size="sm" className={`transition-all duration-300 text-xs px-3 sm:px-4 md:text-sm ${
                   shouldShowBackground 
                     ? 'hero-gradient text-white border-0' 
                     : 'bg-white text-primary hover:bg-white/90 border-0'
