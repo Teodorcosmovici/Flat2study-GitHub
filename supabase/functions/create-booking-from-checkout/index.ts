@@ -82,6 +82,26 @@ serve(async (req) => {
 
     logStep("Metadata extracted", metadata);
 
+    // Idempotency: return existing booking if a record already exists for this payment intent
+    const { data: existingBooking } = await supabaseClient
+      .from('bookings')
+      .select('*')
+      .eq('payment_authorization_id', paymentIntent.id)
+      .maybeSingle();
+
+    if (existingBooking) {
+      logStep("Existing booking found", { bookingId: existingBooking.id });
+      return new Response(JSON.stringify({
+        success: true,
+        booking: existingBooking,
+        paymentIntentId: paymentIntent.id,
+        landlordResponseDeadline: existingBooking.landlord_response_due_at
+      }), {
+        headers: { ...corsHeaders, "Content-Type": "application/json" },
+        status: 200,
+      });
+    }
+
     // Create booking record with payment authorization
     const landlordResponseDeadline = new Date();
     landlordResponseDeadline.setHours(landlordResponseDeadline.getHours() + 24);

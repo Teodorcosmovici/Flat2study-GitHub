@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { useParams, useNavigate, useSearchParams } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 import Header from '@/components/layout/Header';
@@ -31,6 +31,7 @@ export default function Checkout() {
   const [applicationData, setApplicationData] = useState<any>(null);
   const [bookingData, setBookingData] = useState<any>(null);
   const [paymentVerified, setPaymentVerified] = useState(false);
+  const hasVerifiedRef = useRef(false);
 
   // Get dates from URL params
   const checkInDate = searchParams.get('checkin');
@@ -38,26 +39,26 @@ export default function Checkout() {
   const persons = searchParams.get('persons') || '1';
   const sessionId = searchParams.get('session_id');
 
+  // Handle auth redirects and listing fetch
   useEffect(() => {
-    // Don't redirect if we're still loading auth or if returning from payment
     if (authLoading) return;
-    
-    // If user is not logged in and not returning from payment, redirect to signup
+
     if (!user && !sessionId) {
       navigate(`/signup/student?redirect=/checkout/${id}&checkin=${checkInDate}&checkout=${checkOutDate}&persons=${persons}`);
       return;
     }
 
-    // Fetch listing when needed (on first load or after returning from Stripe)
     if (id && !listing) {
       fetchListing();
     }
+  }, [id, user, authLoading]);
 
-    // Check for payment success - this works even if user session is still loading
-    if (sessionId && !paymentVerified) {
-      verifyPayment(sessionId);
-    }
-  }, [id, user, authLoading, searchParams, currentStep, listing]);
+  // Process Stripe return once (idempotent on the client)
+  useEffect(() => {
+    if (!sessionId || hasVerifiedRef.current) return;
+    hasVerifiedRef.current = true;
+    verifyPayment(sessionId);
+  }, [sessionId]);
 
   const fetchListing = async () => {
     if (!id) return;
