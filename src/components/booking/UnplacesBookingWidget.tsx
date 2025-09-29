@@ -240,10 +240,11 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   };
 
   return (
-      <Card className={cn(
-        "sticky top-24",
-        isMobile && "fixed bottom-0 left-0 right-0 z-50 rounded-t-xl rounded-b-none border-t shadow-2xl bg-background/95 backdrop-blur-md"
-      )}>
+    <Card className={cn(
+      isMobile
+        ? "fixed bottom-0 left-0 right-0 z-50 rounded-t-xl rounded-b-none border-t shadow-2xl bg-background/95 backdrop-blur-md"
+        : "sticky top-24"
+    )}>
       <CardContent className={cn(
         "p-6 space-y-6",
         isMobile && "p-2 space-y-2 pb-[calc(env(safe-area-inset-bottom)+8px)]"
