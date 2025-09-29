@@ -42,16 +42,16 @@ export default function Header() {
         ? 'bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60 border-b' 
         : 'bg-transparent'
     }`}>
-      <div className="container flex h-16 items-center justify-between">
+      <div className="container flex h-16 items-center justify-between px-4">
         {/* Left section with Logo and Language - Fixed positioning */}
-        <div className="flex items-center space-x-2 md:space-x-4 min-w-0 flex-shrink-0">
-          <Link to="/" className="flex items-center space-x-1 md:space-x-2">
+        <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 min-w-0 flex-shrink-0">
+          <Link to="/" className="flex items-center space-x-1 sm:space-x-2">
             <div className={`flex h-6 w-6 md:h-8 md:w-8 items-center justify-center rounded-lg transition-all duration-300 ${
               shouldShowBackground ? 'hero-gradient' : 'bg-white/20'
             } text-white`}>
               <Logo size={16} className="md:w-5 md:h-5" />
             </div>
-            <span className={`text-lg md:text-xl font-bold transition-colors duration-300 ${
+            <span className={`text-base sm:text-lg md:text-xl font-bold transition-colors duration-300 ${
               shouldShowBackground ? 'text-primary' : 'text-white'
             }`}>flat2study</span>
           </Link>
