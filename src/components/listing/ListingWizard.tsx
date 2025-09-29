@@ -172,12 +172,12 @@ export const ListingWizard = () => {
           agency_id: profile.id,
           title: `${
             listingData.type === 'studio' 
-              ? 'Studio' 
+              ? t('createListing.studio') 
               : listingData.type === 'room_shared' 
-                ? 'Room in Shared Property'
+                ? t('createListing.roomShared')
                 : listingData.type === 'bedspace_shared'
-                  ? 'Bedspace in Shared Room'
-                  : 'Entire Property'
+                  ? t('createListing.bedspaceShared')
+                  : t('createListing.entireProperty')
           } in ${listingData.address_line}`,
           type: listingData.type === 'entire_property' ? 'apartment' : listingData.type === 'studio' ? 'studio' : 'room',
           description: listingData.description,
