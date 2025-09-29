@@ -426,7 +426,7 @@ export default function ListingDetails() {
               {listing.description && <Card>
                   <CardHeader>
                     <CardTitle className="flex items-center justify-between">
-                      <span>Description</span>
+                      <span>{t('listing.description')}</span>
                       <TranslateButton text={listing.description} onTranslated={translatedText => {
                     setTranslatedDescription(translatedText);
                     setIsDescriptionTranslated(!isDescriptionTranslated);
@@ -458,26 +458,26 @@ export default function ListingDetails() {
               {/* Required Documents */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Required Documents</CardTitle>
+                  <CardTitle>{t('listing.requiredDocuments')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="text-sm">Valid ID or Passport</span>
+                      <span className="text-sm">{t('listing.validId')}</span>
                     </div>
                     <div className="flex items-center gap-2">
                       <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-sm">
-                        Student enrollment certificate or job offer certificate 
-                        <span className="text-muted-foreground italic ml-1">(optional but higher chance to get your booking accepted)</span>
+                        {t('listing.studentCertificate')}
+                        <span className="text-muted-foreground italic ml-1">{t('listing.optionalHigherChance')}</span>
                       </span>
                     </div>
                     
                     {/* House Rules */}
                     {Array.isArray(listing.houseRules) && listing.houseRules.length > 0 && (
                       <div className="mt-4">
-                        <h4 className="font-medium mb-2">House Rules</h4>
+                        <h4 className="font-medium mb-2">{t('listing.houseRules')}</h4>
                         <div className="space-y-2">
                           {listing.houseRules.map((rule: string, index: number) => (
                             <div key={index} className="flex items-start gap-2">
@@ -505,9 +505,9 @@ export default function ListingDetails() {
                         <Calendar className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium mb-2">Cancellation policy</h5>
+                        <h5 className="font-medium mb-2">{t('listing.cancellationPolicy')}</h5>
                         <p className="text-sm text-muted-foreground">
-                          Your 1st rent will be 100% refunded if you cancel up to 60 days before the contract start date or you'll get a 50% refund if you cancel up to 30 days.
+                          {t('listing.refundPolicy')}
                         </p>
                       </div>
                     </div>
@@ -518,9 +518,9 @@ export default function ListingDetails() {
                         <FileText className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium mb-2">Fortnightly contract</h5>
+                        <h5 className="font-medium mb-2">{t('listing.fortnightlyContract')}</h5>
                         <p className="text-sm text-muted-foreground">
-                          A fortnightly contract refers to a contract type where you are charged per fortnight booked.
+                          {t('listing.fortnightlyDescription')}
                         </p>
                       </div>
                     </div>
@@ -534,7 +534,7 @@ export default function ListingDetails() {
               {/* Why rent with Flat2stdy */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Why rent with Flat2stdy ?</CardTitle>
+                  <CardTitle>{t('listing.whyRentWithFlat2stdy')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -544,9 +544,9 @@ export default function ListingDetails() {
                         <Shield className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium mb-2">Safe arrival</h5>
+                        <h5 className="font-medium mb-2">{t('listing.safeArrival')}</h5>
                         <p className="text-sm text-muted-foreground">
-                          If your property isn't as listed, report it within 24 hours of your move-in. We'll freeze your payment and help resolve the issue fast.
+                          {t('listing.safeArrivalDescription')}
                         </p>
                       </div>
                     </div>
@@ -557,9 +557,9 @@ export default function ListingDetails() {
                         <Globe className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium mb-2">Stress-free housing</h5>
+                        <h5 className="font-medium mb-2">{t('listing.stressFreeHousing')}</h5>
                         <p className="text-sm text-muted-foreground">
-                          Book your stay online effortlessly with Flat2study from anywhere in the world.
+                          {t('listing.stressFreeDescription')}
                         </p>
                       </div>
                     </div>
@@ -570,9 +570,9 @@ export default function ListingDetails() {
                         <Heart className="h-5 w-5 text-muted-foreground" />
                       </div>
                       <div className="flex-1">
-                        <h5 className="font-medium mb-2">Full support</h5>
+                        <h5 className="font-medium mb-2">{t('listing.fullSupport')}</h5>
                         <p className="text-sm text-muted-foreground">
-                          We're here for you every step of the way, from booking through to check-out.
+                          {t('listing.fullSupportDescription')}
                         </p>
                       </div>
                     </div>
@@ -588,8 +588,8 @@ export default function ListingDetails() {
                 setSelectedDates(data);
               }} onBookingRequest={data => {
                 toast({
-                  title: "Booking request sent!",
-                  description: "The landlord will respond within 24 hours."
+                  title: t('listing.bookingRequestSent'),
+                  description: t('listing.landlordResponse')
                 });
               }} />
               </div>
