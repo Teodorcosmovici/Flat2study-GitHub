@@ -315,7 +315,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       {checkIn ? format(checkIn, "dd MMM") : "Move in"}
                     </Button>
                   </PopoverTrigger>
-                    <PopoverContent side="top" sideOffset={-260} avoidCollisions={false} className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                    <PopoverContent side="top" sideOffset={-320} avoidCollisions={false} className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
                     <Calendar
                       mode="single"
                       selected={checkIn}
@@ -343,7 +343,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       {checkOut ? format(checkOut, "dd MMM") : "Move out"}
                     </Button>
                   </PopoverTrigger>
-                    <PopoverContent side="top" sideOffset={-260} avoidCollisions={false} className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
+                    <PopoverContent side="top" sideOffset={-320} avoidCollisions={false} className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
                     <Calendar
                       mode="single"
                       selected={checkOut}
