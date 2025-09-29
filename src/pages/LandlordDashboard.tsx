@@ -12,6 +12,7 @@ import { Avatar, AvatarFallback, AvatarImage } from '@/components/ui/avatar';
 import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User, CheckCircle, Search, Building2, MessageSquare, Clock, Settings } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface Listing {
   id: string;
@@ -44,6 +45,7 @@ interface Booking {
 
 export const LandlordDashboard = () => {
   const { profile, user, signOut } = useAuth();
+  const { t } = useLanguage();
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -150,7 +152,7 @@ export const LandlordDashboard = () => {
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
-        title: "Error",
+        title: t('dashboard.error'),
         description: "Failed to load dashboard data",
         variant: "destructive",
       });
@@ -191,16 +193,16 @@ export const LandlordDashboard = () => {
 
   const getStatusBadge = (status: string, reviewStatus: string) => {
     if (status === 'RENTED') {
-      return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">Rented</Badge>;
+      return <Badge variant="default" className="bg-blue-100 text-blue-800 border-blue-200">{t('dashboard.rented')}</Badge>;
     }
     if (status === 'PUBLISHED') {
-      return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">Published</Badge>;
+      return <Badge variant="default" className="bg-green-100 text-green-800 border-green-200">{t('dashboard.published')}</Badge>;
     }
     if (reviewStatus === 'rejected') {
-      return <Badge variant="destructive">Rejected</Badge>;
+      return <Badge variant="destructive">{t('dashboard.rejected')}</Badge>;
     }
     // Default for DRAFT, pending_review, etc.
-    return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">Pending</Badge>;
+    return <Badge variant="outline" className="text-orange-600 border-orange-200 bg-orange-50">{t('dashboard.pending')}</Badge>;
   };
 
   const handleDeleteListing = async (listingId: string) => {
@@ -259,7 +261,7 @@ export const LandlordDashboard = () => {
     return (
       <div className="min-h-screen bg-background">
         <div className="flex items-center justify-center h-64">
-          <div className="text-center text-muted-foreground">Loading dashboard...</div>
+          <div className="text-center text-muted-foreground">{t('dashboard.loadingDashboard')}</div>
         </div>
       </div>
     );
@@ -274,14 +276,14 @@ export const LandlordDashboard = () => {
             <div className="flex items-center gap-6">
               <div className="flex items-center gap-3">
                 <Building2 className="h-8 w-8 text-primary" />
-                <h1 className="text-2xl font-semibold">Dashboard</h1>
+                <h1 className="text-2xl font-semibold">{t('dashboard.title')}</h1>
               </div>
             </div>
             
             <div className="flex items-center gap-4">
               <Button onClick={() => navigate('/create-listing')} className="bg-primary hover:bg-primary/90">
                 <Plus className="w-4 h-4 mr-2" />
-                Add listing
+                {t('dashboard.addListing')}
               </Button>
               
               <Button 
@@ -289,7 +291,7 @@ export const LandlordDashboard = () => {
                 onClick={() => navigate('/')}
               >
                 <Home className="w-4 h-4 mr-2" />
-                Back to Home
+                {t('dashboard.backToHome')}
               </Button>
               
               <Button 
@@ -297,7 +299,7 @@ export const LandlordDashboard = () => {
                 onClick={handleLogout}
               >
                 <LogOut className="w-4 h-4 mr-2" />
-                Logout
+                {t('dashboard.logout')}
               </Button>
               
               <Avatar className="h-8 w-8">
@@ -319,25 +321,25 @@ export const LandlordDashboard = () => {
                 value="listings" 
                 className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
               >
-                Listings
+                {t('dashboard.listings')}
               </TabsTrigger>
               <TabsTrigger 
                 value="booking-requests" 
                 className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
               >
-                Booking requests
+                {t('dashboard.bookingRequests')}
               </TabsTrigger>
               <TabsTrigger 
                 value="confirmed-bookings" 
                 className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
               >
-                Confirmed bookings
+                {t('dashboard.confirmedBookings')}
               </TabsTrigger>
               <TabsTrigger 
                 value="account" 
                 className="h-full border-b-2 border-transparent data-[state=active]:border-primary data-[state=active]:bg-transparent bg-transparent px-1 rounded-none font-medium"
               >
-                Account
+                {t('dashboard.account')}
               </TabsTrigger>
             </TabsList>
           </div>
@@ -346,12 +348,12 @@ export const LandlordDashboard = () => {
           <TabsContent value="listings" className="py-6">
             <div className="flex justify-between items-center mb-6">
               <div>
-                <h2 className="text-3xl font-bold">{listings.length} Listings</h2>
+                <h2 className="text-3xl font-bold">{listings.length} {t('dashboard.listings')}</h2>
               </div>
               <div className="flex items-center gap-4">
                 <Button onClick={() => navigate('/create-listing')} className="bg-primary hover:bg-primary/90 px-6">
                   <Plus className="w-4 h-4 mr-2" />
-                  Add a listing
+                  {t('dashboard.addAListing')}
                 </Button>
               </div>
             </div>
@@ -360,7 +362,7 @@ export const LandlordDashboard = () => {
             <div className="relative mb-6">
               <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
               <Input 
-                placeholder="Quick find"
+                placeholder={t('dashboard.quickFind')}
                 className="pl-10 bg-muted/30 border-muted"
               />
             </div>
