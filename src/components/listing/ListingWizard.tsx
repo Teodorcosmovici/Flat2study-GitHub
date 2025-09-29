@@ -179,7 +179,7 @@ export const ListingWizard = () => {
                   ? t('createListing.bedspaceShared')
                   : t('createListing.entireProperty')
           } in ${listingData.address_line}`,
-          type: listingData.type === 'entire_property' ? 'apartment' : listingData.type === 'studio' ? 'studio' : 'room',
+          type: listingData.type === 'entire_property' ? 'apartment' : listingData.type === 'studio' ? 'studio' : listingData.type === 'bedspace_shared' ? 'bedspace' : 'room',
           description: listingData.description,
           address_line: listingData.address_line,
           postcode: listingData.postcode,
