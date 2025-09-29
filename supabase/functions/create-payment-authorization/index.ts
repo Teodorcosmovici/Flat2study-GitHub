@@ -77,6 +77,34 @@ serve(async (req) => {
       logStep("New Stripe customer created", { customerId });
     }
 
+    // Upload application document if provided
+    let documentUrl = null;
+    let documentType = null;
+    if (applicationData?.document) {
+      try {
+        const file = applicationData.document;
+        const fileName = `${user.id}/${Date.now()}_${file.name}`;
+        
+        // Convert file to bytes (assuming it's a File object)
+        const { data: uploadData, error: uploadError } = await supabaseClient.storage
+          .from('applications')
+          .upload(fileName, file, {
+            contentType: file.type,
+            upsert: true
+          });
+
+        if (uploadError) {
+          logStep("Document upload failed", { error: uploadError });
+        } else {
+          documentUrl = uploadData.path;
+          documentType = file.type;
+          logStep("Document uploaded successfully", { path: documentUrl });
+        }
+      } catch (uploadErr) {
+        logStep("Document upload error", { error: uploadErr });
+      }
+    }
+
     // Create Stripe Checkout session with manual capture
     const origin = req.headers.get("origin") || "http://localhost:3000";
     const session = await stripe.checkout.sessions.create({
@@ -105,7 +133,16 @@ serve(async (req) => {
           checkOutDate,
           firstMonthRent: firstMonthRent.toString(),
           serviceFee: serviceFee.toString(),
-          type: "rental_authorization"
+          totalAmount: totalAmount.toString(),
+          type: "rental_authorization",
+          // Include application data in metadata
+          applicationFirstName: applicationData?.firstName || "",
+          applicationLastName: applicationData?.lastName || "",
+          applicationPhone: applicationData?.countryCode + applicationData?.phone || "",
+          applicationUniversity: applicationData?.university || "",
+          applicationMessage: applicationData?.message || "",
+          applicationDocumentUrl: documentUrl || "",
+          applicationDocumentType: documentType || ""
         },
         description: `Rental authorization for listing ${listingId}`,
       },
@@ -120,6 +157,14 @@ serve(async (req) => {
         firstMonthRent: firstMonthRent.toString(),
         serviceFee: serviceFee.toString(),
         totalAmount: totalAmount.toString(),
+        // Include application data in session metadata too
+        applicationFirstName: applicationData?.firstName || "",
+        applicationLastName: applicationData?.lastName || "",
+        applicationPhone: applicationData?.countryCode + applicationData?.phone || "",
+        applicationUniversity: applicationData?.university || "",
+        applicationMessage: applicationData?.message || "",
+        applicationDocumentUrl: documentUrl || "",
+        applicationDocumentType: documentType || ""
       }
     });
 

@@ -77,7 +77,14 @@ serve(async (req) => {
       checkOutDate,
       firstMonthRent,
       serviceFee,
-      totalAmount
+      totalAmount,
+      applicationFirstName,
+      applicationLastName,
+      applicationPhone,
+      applicationUniversity,
+      applicationMessage,
+      applicationDocumentUrl,
+      applicationDocumentType
     } = metadata;
 
     logStep("Metadata extracted", metadata);
@@ -119,7 +126,11 @@ serve(async (req) => {
       payment_status: 'authorized',
       authorization_expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000), // 7 days
       landlord_response_due_at: landlordResponseDeadline,
-      status: 'pending_landlord_response'
+      status: 'pending_landlord_response',
+      // Add application details to booking
+      application_message: applicationMessage || null,
+      application_document_url: applicationDocumentUrl || null,
+      application_document_type: applicationDocumentType || null
     };
 
     logStep("Creating booking record", bookingData);
