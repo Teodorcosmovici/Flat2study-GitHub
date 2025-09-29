@@ -24,6 +24,7 @@ import { HowToBook } from '@/components/listing/HowToBook';
 import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
 import { LocationMapDialog } from '@/components/listing/LocationMapDialog';
 import { ContactInfo } from '@/components/contact/ContactInfo';
+import { generateListingTitle } from '@/utils/titleGeneration';
 
 // Helper function to get text in current language
 const getLocalizedText = (multilingualField: any, language: string, fallback: string = '') => {
@@ -87,7 +88,15 @@ export default function ListingDetails() {
       // Transform the data to match the Listing type
       const transformedListing: Listing = {
         id: listingData.id,
-        title: getLocalizedText(listingData.title_multilingual, language, listingData.type === 'room' ? `Room in a shared apartment in ${listingData.city}` : listingData.title),
+        title: getLocalizedText(listingData.title_multilingual, language) || 
+               generateListingTitle({
+                 type: listingData.type,
+                 bedrooms: listingData.bedrooms,
+                 bathrooms: listingData.bathrooms,
+                 totalBedrooms: listingData.total_bedrooms,
+                 totalBathrooms: listingData.total_bathrooms,
+                 address: `${listingData.address_line}, ${listingData.city}`
+               }),
         type: listingData.type as ListingType,
         description: getLocalizedText(listingData.description_multilingual, language, listingData.description),
         addressLine: listingData.address_line,
