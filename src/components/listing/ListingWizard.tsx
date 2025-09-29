@@ -28,7 +28,7 @@ interface ListingData {
   furnished: boolean;
   
   // Property Details
-  type: 'entire_property' | 'studio' | 'room_shared';
+  type: 'entire_property' | 'studio' | 'room_shared' | 'bedspace_shared';
   bedrooms?: number;
   bathrooms: number;
   total_bedrooms?: number; // for shared rooms
@@ -170,7 +170,15 @@ export const ListingWizard = () => {
         .from('listings')
         .insert({
           agency_id: profile.id,
-          title: `${listingData.type === 'studio' ? 'Studio' : listingData.type === 'room_shared' ? 'Room in Shared Property' : 'Entire Property'} in ${listingData.address_line}`,
+          title: `${
+            listingData.type === 'studio' 
+              ? 'Studio' 
+              : listingData.type === 'room_shared' 
+                ? 'Room in Shared Property'
+                : listingData.type === 'bedspace_shared'
+                  ? 'Bedspace in Shared Room'
+                  : 'Entire Property'
+          } in ${listingData.address_line}`,
           type: listingData.type === 'entire_property' ? 'apartment' : listingData.type === 'studio' ? 'studio' : 'room',
           description: listingData.description,
           address_line: listingData.address_line,

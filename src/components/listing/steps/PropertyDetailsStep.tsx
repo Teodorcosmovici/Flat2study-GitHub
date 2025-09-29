@@ -7,7 +7,7 @@ import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 
 interface PropertyDetailsStepProps {
   data: {
-    type: 'entire_property' | 'studio' | 'room_shared';
+    type: 'entire_property' | 'studio' | 'room_shared' | 'bedspace_shared';
     bedrooms?: number;
     bathrooms: number;
     total_bedrooms?: number;
@@ -40,6 +40,10 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
           <div className="flex items-center space-x-2">
             <RadioGroupItem value="room_shared" id="room_shared" />
             <Label htmlFor="room_shared">{t('createListing.roomShared')}</Label>
+          </div>
+          <div className="flex items-center space-x-2">
+            <RadioGroupItem value="bedspace_shared" id="bedspace_shared" />
+            <Label htmlFor="bedspace_shared">{t('createListing.bedspaceShared')}</Label>
           </div>
         </RadioGroup>
       </div>
@@ -85,7 +89,7 @@ export const PropertyDetailsStep: React.FC<PropertyDetailsStepProps> = ({ data, 
         </div>
       )}
 
-      {data.type === 'room_shared' && (
+      {(data.type === 'room_shared' || data.type === 'bedspace_shared') && (
         <>
           <div className="grid grid-cols-2 gap-4">
             <div>
