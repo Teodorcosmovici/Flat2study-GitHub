@@ -276,7 +276,6 @@ export default function ListingCard({
         {/* Landlord */}
         <div className="flex items-center justify-between">
           <div className="flex items-center space-x-2">
-            <span className="text-sm text-muted-foreground">{listing.landlord.name}</span>
           </div>
           
           <div className="flex gap-2">
