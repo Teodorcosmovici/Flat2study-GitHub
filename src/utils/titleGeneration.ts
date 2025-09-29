@@ -33,34 +33,34 @@ export const generateListingTitle = (
     case 'apartment':
       const bedroomCount = bedrooms ? Number(bedrooms) : 1;
       const bathroomCount = bathrooms ? Number(bathrooms) : 1;
-      baseTitle = `${bedroomCount} bedroom${bedroomCount > 1 ? 's' : ''}, ${bathroomCount} bathroom${bathroomCount > 1 ? 's' : ''} apartment`;
+      baseTitle = `Apartment - ${bedroomCount} bedroom${bedroomCount > 1 ? 's' : ''}, ${bathroomCount} bathroom${bathroomCount > 1 ? 's' : ''}`;
       break;
       
     case 'studio':
       const studioBathrooms = bathrooms ? Number(bathrooms) : 1;
-      baseTitle = `Studio with ${studioBathrooms} bathroom${studioBathrooms > 1 ? 's' : ''}`;
+      baseTitle = `Studio - ${studioBathrooms} bathroom${studioBathrooms > 1 ? 's' : ''}`;
       break;
       
     case 'room_shared':
     case 'room':
       if (totalBedrooms && totalBathrooms) {
-        baseTitle = `Room in ${totalBedrooms} bedroom, ${totalBathrooms} bathroom apartment`;
+        baseTitle = `Room - in ${totalBedrooms} bedroom, ${totalBathrooms} bathroom apartment`;
       } else {
-        baseTitle = translate('createListing.roomShared');
+        baseTitle = `Room - ${translate('createListing.roomShared')}`;
       }
       break;
       
     case 'bedspace_shared':
     case 'bedspace':
       if (totalBedrooms && totalBathrooms) {
-        baseTitle = `Bedspace in ${totalBedrooms} bedroom, ${totalBathrooms} bathroom apartment`;
+        baseTitle = `Bedspace - in ${totalBedrooms} bedroom, ${totalBathrooms} bathroom apartment`;
       } else {
-        baseTitle = translate('createListing.bedspaceShared');
+        baseTitle = `Bedspace - ${translate('createListing.bedspaceShared')}`;
       }
       break;
       
     default:
-      baseTitle = 'Rental property';
+      baseTitle = 'Property';
   }
 
   // Add address if provided
