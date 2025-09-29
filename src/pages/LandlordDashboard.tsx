@@ -13,10 +13,12 @@ import { Plus, Home, Calendar, BarChart3, Edit, Eye, Trash2, LogOut, User, Check
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { useListingText } from '@/hooks/useListingText';
 
 interface Listing {
   id: string;
   title: string;
+  title_multilingual?: any;
   type: string;
   city: string;
   rent_monthly_eur: number;
@@ -46,6 +48,7 @@ interface Booking {
 export const LandlordDashboard = () => {
   const { profile, user, signOut } = useAuth();
   const { t } = useLanguage();
+  const { getLocalizedText } = useListingText();
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
   const [bookings, setBookings] = useState<Booking[]>([]);
@@ -397,7 +400,7 @@ export const LandlordDashboard = () => {
                         />
                       )}
                       <div>
-                        <h3 className="font-medium">{listing.title}</h3>
+                        <h3 className="font-medium">{getLocalizedText(listing.title_multilingual, listing.title)}</h3>
                         <p className="text-sm text-muted-foreground">
                           {listing.bedrooms} {t('dashboard.bed')}, {listing.bathrooms} {t('dashboard.bath')} • {listing.city}
                         </p>
