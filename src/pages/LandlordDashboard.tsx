@@ -141,7 +141,7 @@ export const LandlordDashboard = () => {
           listing:listings(title, address_line, images)
         `)
         .eq('landlord_id', profile.id)
-        .eq('payment_status', 'authorized')
+        .or('status.eq.pending_landlord_response,payment_status.eq.authorized')
         .order('created_at', { ascending: false });
 
       if (bookingError) {
