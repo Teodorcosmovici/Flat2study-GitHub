@@ -68,8 +68,8 @@ export const LandlordDashboard = () => {
   };
 
   useEffect(() => {
-    // Only redirect if we have a profile and it's definitely not private
-    if (profile && profile.user_type !== 'private') {
+    // Only redirect if we have a profile and it's definitely not agency or private
+    if (profile && !['private', 'agency'].includes(profile.user_type)) {
       navigate('/');
       return;
     }
@@ -138,8 +138,7 @@ export const LandlordDashboard = () => {
         .from('bookings')
         .select(`
           *,
-          listing:listings(title, address_line, images),
-          tenant:profiles!bookings_tenant_id_fkey(full_name, university, email, phone)
+          listing:listings(title, address_line, images)
         `)
         .eq('landlord_id', profile.id)
         .eq('payment_status', 'authorized')
@@ -147,8 +146,25 @@ export const LandlordDashboard = () => {
 
       if (bookingError) {
         console.error('Error fetching booking requests:', bookingError);
+        setBookingRequests([]);
       } else {
-        setBookingRequests(bookingRequestsData || []);
+        // Fetch tenant details for each booking
+        const bookingsWithTenants = await Promise.all(
+          (bookingRequestsData || []).map(async (booking) => {
+            const { data: tenantProfile } = await supabase
+              .from('profiles')
+              .select('full_name, university, email, phone')
+              .eq('user_id', booking.tenant_id)
+              .single();
+            
+            return {
+              ...booking,
+              tenant: tenantProfile
+            };
+          })
+        );
+        
+        setBookingRequests(bookingsWithTenants);
       }
       
       setBookings([]);
