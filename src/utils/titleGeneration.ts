@@ -31,32 +31,21 @@ export const generateListingTitle = (
   switch (type) {
     case 'entire_property':
     case 'apartment':
-      const bedroomCount = bedrooms ? Number(bedrooms) : 1;
-      const bathroomCount = bathrooms ? Number(bathrooms) : 1;
-      baseTitle = `Apartment - ${bedroomCount} bedroom${bedroomCount > 1 ? 's' : ''}, ${bathroomCount} bathroom${bathroomCount > 1 ? 's' : ''}`;
+      baseTitle = 'Apartment';
       break;
       
     case 'studio':
-      const studioBathrooms = bathrooms ? Number(bathrooms) : 1;
-      baseTitle = `Studio - ${studioBathrooms} bathroom${studioBathrooms > 1 ? 's' : ''}`;
+      baseTitle = 'Studio';
       break;
       
     case 'room_shared':
     case 'room':
-      if (totalBedrooms && totalBathrooms) {
-        baseTitle = `Room - in ${totalBedrooms} bedroom, ${totalBathrooms} bathroom apartment`;
-      } else {
-        baseTitle = `Room - ${translate('createListing.roomShared')}`;
-      }
+      baseTitle = 'Room';
       break;
       
     case 'bedspace_shared':
     case 'bedspace':
-      if (totalBedrooms && totalBathrooms) {
-        baseTitle = `Bedspace - in ${totalBedrooms} bedroom, ${totalBathrooms} bathroom apartment`;
-      } else {
-        baseTitle = `Bedspace - ${translate('createListing.bedspaceShared')}`;
-      }
+      baseTitle = 'Bedspace';
       break;
       
     default:
