@@ -370,24 +370,25 @@ export default function ListingDetails() {
                         </span>
                       </div>
                     )}
-                    {listing.sizeSqm && <div className="flex items-center space-x-2">
+                    {listing.sizeSqm && (
+                      <div className="flex items-center space-x-2">
                         <Building className="h-5 w-5 text-muted-foreground" />
                         <span>{listing.sizeSqm} m²</span>
-                      </div>}
+                      </div>
+                    )}
+                    {listing.housematesGender && (
+                      <div className="flex items-center space-x-2">
+                        <Users className="h-5 w-5 text-muted-foreground" />
+                        <span>
+                          {listing.housematesGender === 'mixed' 
+                            ? 'Mixed gender'
+                            : `${listing.housematesGender.charAt(0).toUpperCase() + listing.housematesGender.slice(1)} only`
+                          }
+                        </span>
+                      </div>
+                    )}
                   </div>
 
-                   {/* Gender preference for shared rooms */}
-                   {listing.type === 'room' && listing.housematesGender && (
-                     <div className="flex items-center space-x-2">
-                       <Users className="h-5 w-5 text-muted-foreground" />
-                       <span>
-                         {listing.housematesGender === 'mixed' 
-                           ? 'Mixed gender housemates'
-                           : `${listing.housematesGender.charAt(0).toUpperCase() + listing.housematesGender.slice(1)} housemates only`
-                         }
-                       </span>
-                     </div>
-                   )}
 
                   {/* Availability */}
                   {listing.availabilityDate && <div className="flex items-center space-x-2">
