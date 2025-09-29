@@ -3,12 +3,15 @@ import { MessageCircle } from 'lucide-react';
 import { Button } from './button';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from './dialog';
 import { ChatMessageForm } from './chat-message-form';
+import { useIsMobile } from '@/hooks/use-mobile';
+import { cn } from '@/lib/utils';
 
 export const ChatButton: React.FC = () => {
   const [isOpen, setIsOpen] = useState(false);
+  const isMobile = useIsMobile();
 
   return (
-    <div className="fixed bottom-6 right-6 z-50">
+    <div className={cn("fixed right-6 z-50", isMobile ? "bottom-24" : "bottom-6")}>
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogTrigger asChild>
           <Button
