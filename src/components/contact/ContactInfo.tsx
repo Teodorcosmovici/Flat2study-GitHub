@@ -94,10 +94,6 @@ export const ContactInfo: React.FC<ContactInfoProps> = ({
   if (!user) {
     return (
       <div className="space-y-2">
-        <div className="flex items-center gap-2 text-sm text-muted-foreground">
-          <Lock className="h-4 w-4" />
-          <span>Sign in to request contact information</span>
-        </div>
       </div>
     );
   }
