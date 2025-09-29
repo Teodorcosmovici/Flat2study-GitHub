@@ -110,6 +110,11 @@ interface CancellationRequest {
 const OwnerDashboard = () => {
   const { user, profile } = useAuth();
   const navigate = useNavigate();
+
+  const handleOwnerLogout = () => {
+    sessionStorage.removeItem('ownerAuthenticated');
+    navigate('/');
+  };
   const [stats, setStats] = useState({
     totalUsers: 0,
     totalListings: 0,
@@ -551,7 +556,7 @@ const OwnerDashboard = () => {
               <h1 className="text-2xl font-bold">Flat2Study Owner Dashboard</h1>
               <p className="text-muted-foreground">Platform overview and management</p>
             </div>
-            <Button variant="outline" onClick={() => window.location.href = '/'}>
+            <Button variant="outline" onClick={handleOwnerLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Back to Home
             </Button>
@@ -617,7 +622,7 @@ const OwnerDashboard = () => {
               <Users className="h-4 w-4 mr-2" />
               Customer Database
             </Button>
-            <Button variant="outline" onClick={() => window.location.href = '/'}>
+            <Button variant="outline" onClick={handleOwnerLogout}>
               <LogOut className="h-4 w-4 mr-2" />
               Back to Home
             </Button>
@@ -1084,7 +1089,7 @@ const OwnerDashboard = () => {
               <h2 className="text-2xl font-bold">Customer Database</h2>
               <p className="text-muted-foreground">Overview of all registered students and their activity</p>
             </div>
-            <Button onClick={() => window.location.href = '/customer-database'}>
+            <Button onClick={() => navigate('/customer-database')}>
               View Full Database
             </Button>
           </div>

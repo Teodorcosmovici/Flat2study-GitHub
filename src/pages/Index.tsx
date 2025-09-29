@@ -26,7 +26,19 @@ const Index = () => {
   const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
   const { listings: featuredListings, loading: listingsLoading } = useFeaturedListings(6);
   const isMobile = useIsMobile();
-  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState(false);
+  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState(() => {
+    return sessionStorage.getItem('ownerAuthenticated') === 'true';
+  });
+
+  const handleOwnerAuthentication = () => {
+    setIsOwnerAuthenticated(true);
+    sessionStorage.setItem('ownerAuthenticated', 'true');
+  };
+
+  const handleOwnerLogout = () => {
+    setIsOwnerAuthenticated(false);
+    sessionStorage.removeItem('ownerAuthenticated');
+  };
 
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
@@ -545,7 +557,7 @@ const Index = () => {
       {/* Discrete Owner Access at the bottom of homepage */}
       <footer className="py-8 text-center bg-muted/20">
         <div className="container mx-auto">
-          <OwnerAccess onAuthenticated={() => setIsOwnerAuthenticated(true)} />
+          <OwnerAccess onAuthenticated={handleOwnerAuthentication} />
           
           {/* Direct link for testing */}
           <div className="mt-4 pt-4 border-t border-muted">
