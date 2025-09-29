@@ -401,9 +401,6 @@ export const LandlordDashboard = () => {
                       )}
                       <div>
                         <h3 className="font-medium">{getLocalizedText(listing.title_multilingual, listing.title)}</h3>
-                        <p className="text-sm text-muted-foreground">
-                          {listing.bedrooms} {t('dashboard.bed')}, {listing.bathrooms} {t('dashboard.bath')} {listing.city}
-                        </p>
                         <p className="text-xs text-muted-foreground">
                           {t('dashboard.ref')} {listing.id.slice(0, 8)} | {t('dashboard.bedroom')} {listing.bedrooms}
                         </p>
