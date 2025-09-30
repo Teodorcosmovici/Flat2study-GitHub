@@ -9,7 +9,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 
-import { BookingRequestManager } from '@/components/booking/BookingRequestManager';
+import { AdminBookingRequestManager } from '@/components/admin/AdminBookingRequestManager';
 import { AdminPaymentCapture } from '@/components/admin/AdminPaymentCapture';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { 
@@ -633,7 +633,7 @@ const OwnerDashboard = () => {
 
         {/* Booking Requests Section */}
         <div className="mb-8">
-          <BookingRequestManager landlordId={user?.id || ''} />
+          <AdminBookingRequestManager />
         </div>
 
         {/* Cancellation Requests Section */}
