@@ -135,35 +135,18 @@ export const LandlordDashboard = () => {
 
       setListings(listingsWithCounts);
       
-      // Fetch booking requests with payment_status = 'authorized' and no landlord response yet
-      const { data: bookingRequestsData, error: bookingError } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('landlord_id', profile.id)
-        .eq('payment_status', 'authorized')
-        .is('landlord_response', null)
-        .order('created_at', { ascending: false });
+      // Fetch booking requests via RPC with tenant and listing info (bypasses RLS safely)
+      const { data: pendingData, error: pendingError } = await supabase.rpc('get_pending_bookings_with_tenant', {
+        p_landlord_id: profile.id,
+      });
 
-      if (bookingError) {
-        console.error('Error fetching booking requests:', bookingError);
+      if (pendingError) {
+        console.error('Error fetching booking requests:', pendingError);
         setBookingRequests([]);
       } else {
-        // Fetch tenant and listing details for each booking
-        const bookingsEnriched = await Promise.all(
-          (bookingRequestsData || []).map(async (booking) => {
-            const [{ data: tenantProfile }, { data: listingData }] = await Promise.all([
-              supabase
-                .from('profiles')
-                .select('full_name, university, email, phone')
-                .eq('user_id', booking.tenant_id)
-                .maybeSingle(),
-              supabase
-                .from('listings')
-                .select('title, address_line, images')
-                .eq('id', booking.listing_id)
-                .maybeSingle()
-            ]);
-
+        // Format the RPC results to match our expected structure
+        const formattedBookings = await Promise.all(
+          (pendingData || []).map(async (booking) => {
             // Generate a signed URL for the application document if present
             let application_document_signed_url: string | null = null;
             if (booking.application_document_url) {
@@ -183,14 +166,23 @@ export const LandlordDashboard = () => {
             
             return {
               ...booking,
-              tenant: tenantProfile || null,
-              listing: listingData || null,
+              tenant: {
+                full_name: booking.tenant_full_name,
+                email: booking.tenant_email,
+                phone: booking.tenant_phone,
+                university: booking.tenant_university,
+              },
+              listing: {
+                title: booking.listing_title,
+                address_line: booking.listing_address_line,
+                images: booking.listing_images,
+              },
               application_document_signed_url,
             } as any;
           })
         );
         
-setBookingRequests(bookingsEnriched);
+        setBookingRequests(formattedBookings);
       }
       
       // Fetch confirmed bookings via RPC with tenant and listing info (bypasses RLS safely)

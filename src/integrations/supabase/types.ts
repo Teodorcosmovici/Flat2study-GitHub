@@ -1158,6 +1158,38 @@ export type Database = {
           video_url: string
         }[]
       }
+      get_pending_bookings_with_tenant: {
+        Args: { p_landlord_id: string }
+        Returns: {
+          application_document_type: string
+          application_document_url: string
+          application_message: string
+          authorization_expires_at: string
+          check_in_date: string
+          check_out_date: string
+          created_at: string
+          id: string
+          landlord_id: string
+          landlord_response: string
+          landlord_response_due_at: string
+          listing_address_line: string
+          listing_id: string
+          listing_images: Json
+          listing_title: string
+          monthly_rent: number
+          payment_authorization_id: string
+          payment_status: string
+          security_deposit: number
+          status: string
+          tenant_email: string
+          tenant_full_name: string
+          tenant_id: string
+          tenant_phone: string
+          tenant_university: string
+          total_amount: number
+          updated_at: string
+        }[]
+      }
       get_platform_analytics: {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
