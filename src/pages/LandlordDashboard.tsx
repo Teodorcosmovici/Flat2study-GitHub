@@ -646,7 +646,9 @@ export const LandlordDashboard = () => {
           {bookings.length === 0 ? <div className="text-center py-12">
               <Calendar className="mx-auto h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-semibold mb-2">{t('dashboard.confirmedBookings')}</h3>
-              <p className="text-muted-foreground">No confirmed bookings yet.</p>
+              <p className="text-muted-foreground">
+                {t('dashboard.language') === 'it' ? 'Nessuna prenotazione confermata ancora.' : 'No confirmed bookings yet.'}
+              </p>
             </div> : <div className="space-y-6">
               <div className="flex justify-between items-center">
                 <h2 className="text-3xl font-bold">{bookings.length} {t('dashboard.confirmedBookings')}</h2>
