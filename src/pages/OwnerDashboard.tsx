@@ -81,6 +81,7 @@ interface PendingListing {
   images: string[];
   created_at: string;
   agency_id: string;
+  bookingStatus?: 'pending' | 'approved' | 'declined' | null;
   profiles: {
     full_name: string;
     email: string;
@@ -299,10 +300,42 @@ const OwnerDashboard = () => {
         .order('created_at', { ascending: true });
 
       if (error) throw error;
-      setPendingListings((data || []).map(listing => ({
-        ...listing,
-        images: Array.isArray(listing.images) ? listing.images.map(img => String(img)) : []
-      })));
+
+      // Fetch booking request status for each listing
+      const listingsWithBookingStatus = await Promise.all(
+        (data || []).map(async (listing) => {
+          // Get booking requests for this listing
+          const { data: bookings } = await supabase
+            .from('bookings')
+            .select('landlord_response, payment_status')
+            .eq('listing_id', listing.id)
+            .in('payment_status', ['authorized', 'pending']);
+
+          let bookingStatus = null;
+          if (bookings && bookings.length > 0) {
+            // Check if there are any pending (no landlord response)
+            const hasPending = bookings.some(b => !b.landlord_response && b.payment_status === 'authorized');
+            const hasApproved = bookings.some(b => b.landlord_response === 'approved');
+            const hasDeclined = bookings.some(b => b.landlord_response === 'declined');
+
+            if (hasPending) {
+              bookingStatus = 'pending';
+            } else if (hasApproved) {
+              bookingStatus = 'approved';
+            } else if (hasDeclined) {
+              bookingStatus = 'declined';
+            }
+          }
+
+          return {
+            ...listing,
+            images: Array.isArray(listing.images) ? listing.images.map(img => String(img)) : [],
+            bookingStatus
+          };
+        })
+      );
+
+      setPendingListings(listingsWithBookingStatus);
     } catch (error) {
       console.error('Error fetching pending listings:', error);
       toast({
@@ -809,7 +842,27 @@ const OwnerDashboard = () => {
                         />
                       )}
                       <div className="flex-1 space-y-1">
-                        <h4 className="font-semibold">{listing.title}</h4>
+                        <div className="flex items-center justify-between">
+                          <h4 className="font-semibold">{listing.title}</h4>
+                          {listing.bookingStatus && (
+                            <Badge 
+                              variant={
+                                listing.bookingStatus === 'pending' ? 'default' :
+                                listing.bookingStatus === 'approved' ? 'secondary' :
+                                'destructive'
+                              }
+                              className={
+                                listing.bookingStatus === 'pending' ? 'bg-yellow-100 text-yellow-800' :
+                                listing.bookingStatus === 'approved' ? 'bg-green-100 text-green-800' :
+                                'bg-red-100 text-red-800'
+                              }
+                            >
+                              {listing.bookingStatus === 'pending' ? 'Booking Pending' :
+                               listing.bookingStatus === 'approved' ? 'Booking Approved' :
+                               'Booking Declined'}
+                            </Badge>
+                          )}
+                        </div>
                         <p className="text-sm text-muted-foreground">{listing.address_line}, {listing.city}</p>
                         <p className="text-sm font-medium text-green-600">€{listing.rent_monthly_eur}/month</p>
                         <p className="text-xs text-muted-foreground">
