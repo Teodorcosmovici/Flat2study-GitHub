@@ -748,8 +748,10 @@ export const LandlordDashboard = () => {
                             <span className="font-medium">€{booking.security_deposit}</span>
                           </div>
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">Total Amount:</span>
-                            <span className="font-semibold">€{booking.total_amount}</span>
+                            <span className="text-muted-foreground">
+                              {t('dashboard.language') === 'it' ? 'Primo mese (già pagato e trasferito 24 ore dopo l\'arrivo dello studente):' : 'First month (already paid and will be transferred 24 hours after check in):'}
+                            </span>
+                            <span className="font-semibold">€{booking.monthly_rent}</span>
                           </div>
                         </div>
                       </div>
