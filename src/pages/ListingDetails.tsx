@@ -464,7 +464,7 @@ export default function ListingDetails() {
                 <CardContent>
                   <div className="space-y-3">
                     <div className="flex items-center gap-2">
-                      <CheckCircle className="h-6 w-6 md:h-4 md:w-4 text-green-600" />
+                      <CheckCircle className="h-4 w-4 text-green-600" />
                       <span className="text-sm">{t('listing.validId')}</span>
                     </div>
                     <div className="flex items-center gap-2">
