@@ -71,9 +71,9 @@ export const LandlordDashboard = () => {
       fetchDashboardData();
     }
 
-    // Set up real-time subscription for listings updates
+    // Set up real-time subscription for listings and bookings updates
     const channel = supabase
-      .channel('landlord-dashboard-listings')
+      .channel('landlord-dashboard-updates')
       .on(
         'postgres_changes',
         {
@@ -81,6 +81,18 @@ export const LandlordDashboard = () => {
           schema: 'public',
           table: 'listings',
           filter: `agency_id=eq.${profile?.id}`
+        },
+        () => {
+          fetchDashboardData();
+        }
+      )
+      .on(
+        'postgres_changes',
+        {
+          event: '*',
+          schema: 'public',
+          table: 'bookings',
+          filter: `landlord_id=eq.${profile?.id}`
         },
         () => {
           fetchDashboardData();
@@ -201,7 +213,7 @@ setBookingRequests(bookingsEnriched);
             const [{ data: tenantProfile }, { data: listingData }] = await Promise.all([
               supabase
                 .from('profiles')
-                .select('full_name, university, email, phone')
+                .select('full_name, university, email, phone, user_type')
                 .eq('user_id', booking.tenant_id)
                 .maybeSingle(),
               supabase
