@@ -628,10 +628,6 @@ export const LandlordDashboard = () => {
                               <span className="text-sm">{request.tenant?.university || t('dashboard.notSpecified')}</span>
                             </div>
                             <div className="flex justify-between">
-                              <span className="text-sm font-medium">{t('common.phone')}:</span>
-                              <span className="text-sm">{request.tenant?.phone || t('dashboard.notProvided')}</span>
-                            </div>
-                            <div className="flex justify-between">
                               <span className="text-sm font-medium">{t('dashboard.checkIn')}:</span>
                               <span className="text-sm">{new Date(request.check_in_date).toLocaleDateString()}</span>
                             </div>
