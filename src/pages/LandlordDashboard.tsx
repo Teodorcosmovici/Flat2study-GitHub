@@ -161,12 +161,30 @@ export const LandlordDashboard = () => {
                 .eq('id', booking.listing_id)
                 .maybeSingle()
             ]);
+
+            // Generate a signed URL for the application document if present
+            let application_document_signed_url: string | null = null;
+            if (booking.application_document_url) {
+              try {
+                const { data: signed, error: urlError } = await supabase.storage
+                  .from('applications')
+                  .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
+                if (urlError) {
+                  console.error('Error creating signed URL (landlord dashboard):', urlError);
+                } else {
+                  application_document_signed_url = signed?.signedUrl || null;
+                }
+              } catch (err) {
+                console.error('Error generating document URL (landlord dashboard):', err);
+              }
+            }
             
             return {
               ...booking,
               tenant: tenantProfile || null,
               listing: listingData || null,
-            };
+              application_document_signed_url,
+            } as any;
           })
         );
         
@@ -600,14 +618,14 @@ export const LandlordDashboard = () => {
 
                           <div>
                             <h4 className="font-medium mb-2">{t('dashboard.supportingDocument')}</h4>
-                            {request.application_document_url ? (
+                            {request.application_document_signed_url ? (
                               <a 
-                                href={request.application_document_url}
+                                href={request.application_document_signed_url}
                                 target="_blank"
                                 rel="noopener noreferrer"
                                 className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2"
                               >
-                                {t('dashboard.viewDocument')} ({request.application_document_type || 'PDF'})
+                                {t('dashboard.viewDocument')} ({request.application_document_type || 'document'})
                               </a>
                             ) : (
                               <div className="text-sm text-muted-foreground">
