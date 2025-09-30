@@ -54,9 +54,11 @@ export const useMultilingualListings = (limit: number = 50) => {
         }
 
         if (data) {
-          setListings(data.map((listing: any) => ({
+          setListings(data.map((listing: any) => {
+            const localizedTitle = listing.title_multilingual?.[language] || listing.title_multilingual?.['en'] || listing.title || 'Untitled Property';
+            return {
             id: listing.id,
-            title: listing.title || 'Untitled Property',
+            title: localizedTitle,
             type: listing.type || 'room',
             description: listing.description || '',
             address_line: listing.address_line || '',
@@ -80,7 +82,8 @@ export const useMultilingualListings = (limit: number = 50) => {
             created_at: listing.created_at || '',
             published_at: listing.published_at || '',
             agency_name: listing.agency_name || 'Agency'
-          })));
+          };
+          }));
         }
       } catch (err) {
         console.error('Error fetching multilingual listings:', err);

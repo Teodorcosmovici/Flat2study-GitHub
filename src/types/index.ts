@@ -42,6 +42,7 @@ export interface Listing {
   id: string;
   landlord: Landlord;
   title: string;
+  titleMultilingual?: { en?: string; it?: string };
   type: ListingType;
   description: string;
   addressLine: string;

@@ -38,15 +38,18 @@ export const useFeaturedListings = (limit: number = 6) => {
         }
 
         if (data) {
-          setListings(data.map((listing: any) => ({
+          setListings(data.map((listing: any) => {
+            const localizedTitle = listing.title_multilingual?.[language] || listing.title_multilingual?.['en'] || listing.title || 'Property';
+            return {
             id: listing.id,
-            title: listing.title || 'Property',
+            title: localizedTitle,
             address_line: listing.address_line || '',
             city: listing.city || '',
             rent_monthly_eur: listing.rent_monthly_eur || 0,
             images: Array.isArray(listing.images) ? listing.images : [],
             agency_name: listing.agency_name || 'Agency'
-          })));
+          };
+          }));
         }
       } catch (err) {
         console.error('Error fetching featured listings:', err);

@@ -8,6 +8,7 @@ import { Separator } from '@/components/ui/separator';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { Listing } from '@/types';
 import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
+import { useListingText } from '@/hooks/useListingText';
 
 interface ListingSummaryProps {
   listing: Listing;
@@ -19,6 +20,7 @@ interface ListingSummaryProps {
 export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: ListingSummaryProps) {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [showPriceDetails, setShowPriceDetails] = useState(false);
+  const { getLocalizedText } = useListingText();
 
   const images = Array.isArray(listing.images) ? listing.images : [];
   
@@ -117,7 +119,7 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
           </div>
           
           <div className="p-4">
-            <h3 className="font-semibold text-lg line-clamp-2">{listing.title}</h3>
+            <h3 className="font-semibold text-lg line-clamp-2">{getLocalizedText(listing.titleMultilingual, listing.title)}</h3>
             <p className="text-sm text-muted-foreground mt-1">ROOM</p>
           </div>
         </CardContent>
