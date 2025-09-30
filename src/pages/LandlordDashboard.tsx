@@ -194,12 +194,9 @@ setBookingRequests(bookingsEnriched);
       }
       
       // Fetch confirmed bookings via RPC with tenant and listing info (bypasses RLS safely)
-      console.log('Calling RPC with landlord ID:', profile.id);
       const { data: confirmedData, error: confirmedError } = await supabase.rpc('get_confirmed_bookings_with_tenant', {
         p_landlord_id: profile.id,
       });
-      
-      console.log('RPC response:', { confirmedData, confirmedError });
 
       if (confirmedError) {
         console.error('Error fetching confirmed bookings:', confirmedError);
@@ -804,14 +801,7 @@ setBookingRequests(bookingsEnriched);
                         <div className="space-y-2">
                           <div className="flex justify-between">
                             <span className="text-sm font-medium">{t('dashboard.university')}:</span>
-                            <span className="text-sm">
-                              {booking.tenant?.university || t('dashboard.notSpecified')}
-                              {process.env.NODE_ENV === 'development' && (
-                                <span className="text-xs text-gray-400 block">
-                                  Debug: {JSON.stringify(booking.tenant)}
-                                </span>
-                              )}
-                            </span>
+                            <span className="text-sm">{booking.tenant?.university || t('dashboard.notSpecified')}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-sm font-medium">{t('common.phone')}:</span>
