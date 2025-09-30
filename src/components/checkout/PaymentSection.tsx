@@ -44,6 +44,32 @@ export function PaymentSection({
         return;
       }
       
+      // Prepare application data and upload document (if any) to Supabase Storage first
+      let updatedApplicationData = { ...applicationData } as any;
+      try {
+        const maybeFile = applicationData?.document as File | undefined;
+        if (maybeFile && maybeFile instanceof File) {
+          const filePath = `${user.id}/${Date.now()}_${maybeFile.name}`;
+          const { data: uploadData, error: uploadError } = await supabase.storage
+            .from('applications')
+            .upload(filePath, maybeFile, {
+              contentType: maybeFile.type,
+              upsert: true,
+            });
+          if (uploadError) {
+            console.error('Error uploading application document:', uploadError);
+            toast.error('Failed to upload document. You can try again.');
+          } else if (uploadData?.path) {
+            updatedApplicationData = {
+              ...updatedApplicationData,
+              document: { path: uploadData.path, type: maybeFile.type, name: maybeFile.name },
+            };
+          }
+        }
+      } catch (uploadErr) {
+        console.error('Unexpected upload error:', uploadErr);
+      }
+      
       // Call the create-payment-authorization edge function
       const { data, error } = await supabase.functions.invoke('create-payment-authorization', {
         body: {
@@ -54,7 +80,7 @@ export function PaymentSection({
           firstMonthRent,
           serviceFee,
           totalAmount: totalToAuthorize,
-          applicationData
+          applicationData: updatedApplicationData,
         }
       });
 

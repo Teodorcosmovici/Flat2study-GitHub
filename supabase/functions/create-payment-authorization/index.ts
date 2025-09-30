@@ -77,31 +77,38 @@ serve(async (req) => {
       logStep("New Stripe customer created", { customerId });
     }
 
-    // Upload application document if provided
-    let documentUrl = null;
-    let documentType = null;
+    // Resolve application document reference (prefer client-uploaded path)
+    let documentUrl: string | null = null;
+    let documentType: string | null = null;
     if (applicationData?.document) {
-      try {
-        const file = applicationData.document;
-        const fileName = `${user.id}/${Date.now()}_${file.name}`;
-        
-        // Convert file to bytes (assuming it's a File object)
-        const { data: uploadData, error: uploadError } = await supabaseClient.storage
-          .from('applications')
-          .upload(fileName, file, {
-            contentType: file.type,
-            upsert: true
-          });
+      const doc = applicationData.document as any;
+      if (doc && typeof doc === 'object' && 'path' in doc) {
+        // Client already uploaded to Storage; just store the path
+        documentUrl = doc.path || null;
+        documentType = doc.type || null;
+        logStep("Using pre-uploaded document", { path: documentUrl });
+      } else {
+        // Legacy fallback: attempt to upload if raw File/Blob provided (may not work if invoked via JSON)
+        try {
+          const file: any = applicationData.document;
+          const fileName = `${user.id}/${Date.now()}_${file?.name ?? 'document'}`;
+          const { data: uploadData, error: uploadError } = await supabaseClient.storage
+            .from('applications')
+            .upload(fileName, file, {
+              contentType: file?.type ?? 'application/octet-stream',
+              upsert: true
+            });
 
-        if (uploadError) {
-          logStep("Document upload failed", { error: uploadError });
-        } else {
-          documentUrl = uploadData.path;
-          documentType = file.type;
-          logStep("Document uploaded successfully", { path: documentUrl });
+          if (uploadError) {
+            logStep("Document upload failed", { error: uploadError });
+          } else {
+            documentUrl = uploadData?.path ?? null;
+            documentType = file?.type ?? null;
+            logStep("Document uploaded successfully", { path: documentUrl });
+          }
+        } catch (uploadErr) {
+          logStep("Document upload error", { error: uploadErr });
         }
-      } catch (uploadErr) {
-        logStep("Document upload error", { error: uploadErr });
       }
     }
 
