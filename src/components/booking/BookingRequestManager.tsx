@@ -26,6 +26,13 @@ interface BookingRequest {
   listing_address?: string;
   tenant_name?: string;
   tenant_email?: string;
+  // New application fields
+  tenant_phone?: string | null;
+  tenant_university?: string | null;
+  application_message?: string | null;
+  application_document_url?: string | null;
+  application_document_type?: string | null;
+  application_document_signed_url?: string | null;
 }
 
 interface BookingRequestManagerProps {
@@ -81,30 +88,45 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
 
       if (error) throw error;
 
-      // Get additional data separately
-      const formattedRequests = await Promise.all(data.map(async (booking: any) => {
-        // Get listing info
-        const { data: listing } = await supabase
-          .from('listings')
-          .select('title, address_line, city')
-          .eq('id', booking.listing_id)
-          .single();
+// Get additional data separately
+const formattedRequests = await Promise.all(data.map(async (booking: any) => {
+  // Get listing info
+  const { data: listing } = await supabase
+    .from('listings')
+    .select('title, address_line, city')
+    .eq('id', booking.listing_id)
+    .single();
 
-        // Get tenant info
-        const { data: tenant } = await supabase
-          .from('profiles')
-          .select('full_name, email')
-          .eq('user_id', booking.tenant_id)
-          .single();
+  // Get tenant info (profiles linked by user_id)
+  const { data: tenant } = await supabase
+    .from('profiles')
+    .select('full_name, email, phone, university')
+    .eq('user_id', booking.tenant_id)
+    .maybeSingle();
 
-        return {
-          ...booking,
-          listing_title: listing?.title || 'Untitled Listing',
-          listing_address: `${listing?.address_line || ''}, ${listing?.city || ''}`.trim(),
-          tenant_name: tenant?.full_name || 'Unknown',
-          tenant_email: tenant?.email || ''
-        };
-      }));
+  // If application document exists, create a short-lived signed URL
+  let signedDocUrl: string | null = null;
+  if (booking.application_document_url) {
+    const { data: signed } = await supabase.storage
+      .from('applications')
+      .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
+    signedDocUrl = signed?.signedUrl || null;
+  }
+
+  return {
+    ...booking,
+    listing_title: listing?.title || 'Untitled Listing',
+    listing_address: `${listing?.address_line || ''}, ${listing?.city || ''}`.trim(),
+    tenant_name: tenant?.full_name || 'Unknown',
+    tenant_email: tenant?.email || '',
+    tenant_phone: tenant?.phone ?? null,
+    tenant_university: tenant?.university ?? null,
+    application_message: booking.application_message ?? null,
+    application_document_url: booking.application_document_url ?? null,
+    application_document_type: booking.application_document_type ?? null,
+    application_document_signed_url: signedDocUrl,
+  } as BookingRequest;
+}));
 
       setRequests(formattedRequests);
     } catch (error) {
@@ -267,16 +289,24 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
                           <User className="h-4 w-4" />
                           Tenant Information
                         </h4>
-                        <div className="grid grid-cols-2 gap-4 text-sm">
-                          <div>
-                            <span className="text-muted-foreground">Name:</span>
-                            <p className="font-medium">{request.tenant_name}</p>
-                          </div>
-                          <div>
-                            <span className="text-muted-foreground">Email:</span>
-                            <p className="font-medium">{request.tenant_email}</p>
-                          </div>
-                        </div>
+        <div className="grid grid-cols-2 gap-4 text-sm">
+          <div>
+            <span className="text-muted-foreground">Name:</span>
+            <p className="font-medium">{request.tenant_name}</p>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Email:</span>
+            <p className="font-medium">{request.tenant_email}</p>
+          </div>
+          <div>
+            <span className="text-muted-foreground">University:</span>
+            <p className="font-medium">{request.tenant_university || 'Not specified'}</p>
+          </div>
+          <div>
+            <span className="text-muted-foreground">Phone:</span>
+            <p className="font-medium">{request.tenant_phone || 'Not provided'}</p>
+          </div>
+        </div>
                       </div>
 
                       {/* Booking Details */}
@@ -302,9 +332,38 @@ export function BookingRequestManager({ landlordId }: BookingRequestManagerProps
                             <p><span className="text-muted-foreground">Total authorized:</span> €{request.total_amount}</p>
                           </div>
                         </div>
-                      </div>
+</div>
 
-                      {/* Timing Information */}
+{/* Application Details */}
+<div className="grid grid-cols-2 gap-4">
+  <div className="space-y-2">
+    <h4 className="font-medium">Application Message</h4>
+    <div className="text-sm border rounded-md p-3 bg-muted/20">
+      {request.application_message && request.application_message.trim().length > 0
+        ? request.application_message
+        : 'No message provided'}
+    </div>
+  </div>
+  <div className="space-y-2">
+    <h4 className="font-medium">Supporting Document</h4>
+    <div className="text-sm">
+      {request.application_document_signed_url ? (
+        <a
+          href={request.application_document_signed_url}
+          target="_blank"
+          rel="noreferrer"
+          className="underline"
+        >
+          View document{request.application_document_type ? ` (${request.application_document_type})` : ''}
+        </a>
+      ) : (
+        <span className="text-muted-foreground">No document uploaded</span>
+      )}
+    </div>
+  </div>
+</div>
+
+{/* Timing Information */}
                       <div className="bg-blue-50 border border-blue-200 rounded-lg p-3">
                         <div className="flex items-center gap-2 text-sm">
                           <Clock className="h-4 w-4 text-blue-600" />
