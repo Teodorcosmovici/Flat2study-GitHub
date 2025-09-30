@@ -133,12 +133,13 @@ export const LandlordDashboard = () => {
 
       setListings(listingsWithCounts);
       
-      // Fetch booking requests with payment_status = 'authorized'
+      // Fetch booking requests with payment_status = 'authorized' and no landlord response yet
       const { data: bookingRequestsData, error: bookingError } = await supabase
         .from('bookings')
         .select('*')
         .eq('landlord_id', profile.id)
-        .or('status.eq.pending_landlord_response,payment_status.eq.authorized')
+        .eq('payment_status', 'authorized')
+        .is('landlord_response', null)
         .order('created_at', { ascending: false });
 
       if (bookingError) {
@@ -191,7 +192,7 @@ export const LandlordDashboard = () => {
         .from('bookings')
         .update({ 
           status: response === 'accepted' ? 'confirmed' : 'cancelled',
-          landlord_response: response,
+          landlord_response: response === 'accepted' ? 'approved' : 'declined',
           updated_at: new Date().toISOString()
         })
         .eq('id', bookingId);
