@@ -69,7 +69,6 @@ export function AdminBookingRequestManager() {
         .from('bookings')
         .select('*')
         .in('payment_status', ['authorized', 'pending'])
-        .is('landlord_response', null) // Only show requests without a response
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -100,10 +99,18 @@ export function AdminBookingRequestManager() {
         // If application document exists, create a short-lived signed URL
         let signedDocUrl: string | null = null;
         if (booking.application_document_url) {
-          const { data: signed } = await supabase.storage
-            .from('applications')
-            .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
-          signedDocUrl = signed?.signedUrl || null;
+          try {
+            const { data: signed, error: urlError } = await supabase.storage
+              .from('applications')
+              .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
+            if (urlError) {
+              console.error('Error creating signed URL:', urlError);
+            } else {
+              signedDocUrl = signed?.signedUrl || null;
+            }
+          } catch (error) {
+            console.error('Error generating document URL:', error);
+          }
         }
 
         return {
