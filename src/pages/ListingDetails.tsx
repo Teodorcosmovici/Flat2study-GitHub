@@ -31,7 +31,10 @@ const getLocalizedText = (multilingualField: any, language: string, fallback: st
   if (!multilingualField || typeof multilingualField !== 'object') {
     return fallback;
   }
-  return multilingualField[language] || multilingualField['en'] || fallback;
+  // Check if the value exists and is not an empty string
+  const langValue = multilingualField[language]?.trim();
+  const enValue = multilingualField['en']?.trim();
+  return langValue || enValue || fallback;
 };
 export default function ListingDetails() {
   const {

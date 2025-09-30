@@ -8,7 +8,9 @@ export const useListingText = () => {
     if (!multilingualField || typeof multilingualField !== 'object') {
       return fallback;
     }
-    return multilingualField[language] || multilingualField['en'] || fallback;
+    const langValue = multilingualField[language]?.trim();
+    const enValue = multilingualField['en']?.trim();
+    return langValue || enValue || fallback;
   };
 
   return { getLocalizedText };

@@ -39,7 +39,7 @@ export const useFeaturedListings = (limit: number = 6) => {
 
         if (data) {
           setListings(data.map((listing: any) => {
-            const localizedTitle = listing.title_multilingual?.[language] || listing.title_multilingual?.['en'] || listing.title || 'Property';
+            const localizedTitle = listing.title_multilingual?.[language]?.trim() || listing.title_multilingual?.['en']?.trim() || listing.title || 'Property';
             return {
             id: listing.id,
             title: localizedTitle,

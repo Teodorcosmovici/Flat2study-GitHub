@@ -55,7 +55,7 @@ export const useMultilingualListings = (limit: number = 50) => {
 
         if (data) {
           setListings(data.map((listing: any) => {
-            const localizedTitle = listing.title_multilingual?.[language] || listing.title_multilingual?.['en'] || listing.title || 'Untitled Property';
+            const localizedTitle = listing.title_multilingual?.[language]?.trim() || listing.title_multilingual?.['en']?.trim() || listing.title || 'Untitled Property';
             return {
             id: listing.id,
             title: localizedTitle,
