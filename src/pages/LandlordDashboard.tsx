@@ -14,6 +14,8 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useListingText } from '@/hooks/useListingText';
+import { Booking as BookingType } from '@/types/booking';
+import { BookingCard } from '@/components/booking/BookingCard';
 
 interface Listing {
   id: string;
@@ -32,18 +34,8 @@ interface Listing {
   booking_requests_count?: number;
 }
 
-interface Booking {
-  id: string;
-  check_in_date: string;
-  check_out_date: string;
-  monthly_rent: number;
-  status: string;
-  created_at: string;
-  listing: {
-    title: string;
-    address_line: string;
-  };
-}
+// Using BookingType from '@/types/booking' for confirmed bookings data
+
 
 export const LandlordDashboard = () => {
   const { profile, user, signOut } = useAuth();
@@ -51,7 +43,7 @@ export const LandlordDashboard = () => {
   const { getLocalizedText } = useListingText();
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [bookings, setBookings] = useState<Booking[]>([]);
+  const [bookings, setBookings] = useState<BookingType[]>([]);
   const [bookingRequests, setBookingRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -188,10 +180,23 @@ export const LandlordDashboard = () => {
           })
         );
         
-        setBookingRequests(bookingsEnriched);
+setBookingRequests(bookingsEnriched);
       }
       
-      setBookings([]);
+      // Fetch confirmed bookings for this landlord
+      const { data: confirmedBookingsData, error: confirmedError } = await supabase
+        .from('bookings')
+        .select('*')
+        .eq('landlord_id', profile.id)
+        .eq('status', 'confirmed')
+        .order('created_at', { ascending: false });
+
+      if (confirmedError) {
+        console.error('Error fetching confirmed bookings:', confirmedError);
+        setBookings([]);
+      } else {
+        setBookings((confirmedBookingsData || []) as BookingType[]);
+      }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
       toast({
@@ -702,6 +707,19 @@ export const LandlordDashboard = () => {
 
           {/* Confirmed Bookings Tab */}
           <TabsContent value="confirmed-bookings" className="py-6">
+          {bookings.length === 0 ? (
+            <div className="text-center py-12">
+              <Calendar className="mx-auto h-12 w-12 text-primary mb-4" />
+              <h3 className="text-xl font-semibold mb-2">{t('dashboard.confirmedBookings')}</h3>
+              <p className="text-muted-foreground">No confirmed bookings yet.</p>
+            </div>
+          ) : (
+            <div className="space-y-4">
+              {bookings.map((booking) => (
+                <BookingCard key={booking.id} booking={booking} userRole="landlord" />
+              ))}
+            </div>
+          )}
           </TabsContent>
 
           {/* Account Tab */}
