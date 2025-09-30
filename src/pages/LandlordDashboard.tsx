@@ -40,7 +40,7 @@ export const LandlordDashboard = () => {
     signOut
   } = useAuth();
   const {
-    t
+    t, language
   } = useLanguage();
   const {
     getLocalizedText
@@ -563,7 +563,7 @@ export const LandlordDashboard = () => {
                         <div className="space-y-4">
                           <div>
                             <h4 className="font-medium mb-2">
-                              {t('dashboard.language') === 'it' ? 'Proprietà' : 'Property'}
+                              {language === 'it' ? 'Proprietà' : 'Property'}
                             </h4>
                             <div className="flex gap-3">
                               {request.listing?.images?.[0] && <img src={request.listing.images[0]} alt={request.listing.title} className="w-16 h-16 object-cover rounded-lg" />}
@@ -647,7 +647,7 @@ export const LandlordDashboard = () => {
               <Calendar className="mx-auto h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-semibold mb-2">{t('dashboard.confirmedBookings')}</h3>
               <p className="text-muted-foreground">
-                {t('dashboard.language') === 'it' ? 'Nessuna prenotazione confermata ancora.' : 'No confirmed bookings yet.'}
+                {language === 'it' ? 'Nessuna prenotazione confermata ancora.' : 'No confirmed bookings yet.'}
               </p>
             </div> : <div className="space-y-6">
               <div className="flex justify-between items-center">
@@ -697,7 +697,7 @@ export const LandlordDashboard = () => {
                       <div className="space-y-4">
                         <div>
                           <h4 className="font-medium mb-2">
-                            {t('dashboard.language') === 'it' ? 'Proprietà' : 'Property'}
+                            {language === 'it' ? 'Proprietà' : 'Property'}
                           </h4>
                           <div className="flex gap-3">
                             {booking.listing?.images?.[0] && <img src={booking.listing.images[0]} alt={booking.listing.title} className="w-16 h-16 object-cover rounded-lg" />}
@@ -729,10 +729,10 @@ export const LandlordDashboard = () => {
                       <div className="space-y-4">
                         <div className="text-center">
                           <Badge className="bg-green-100 text-green-800 border-green-200 mb-2">
-                            {t('dashboard.language') === 'it' ? 'Confermata' : 'Confirmed'}
+                            {language === 'it' ? 'Confermata' : 'Confirmed'}
                           </Badge>
                           <div className="text-sm text-muted-foreground">
-                            {t('dashboard.language') === 'it' ? 'Confermata il' : 'Confirmed on'}: {new Date(booking.updated_at).toLocaleDateString()}
+                            {language === 'it' ? 'Confermata il' : 'Confirmed on'}: {new Date(booking.updated_at).toLocaleDateString()}
                           </div>
                         </div>
 
@@ -740,11 +740,11 @@ export const LandlordDashboard = () => {
                           <div className="flex items-center gap-2 text-green-800 mb-2">
                             <CheckCircle className="w-4 h-4" />
                             <span className="text-sm font-medium">
-                              {t('dashboard.language') === 'it' ? 'Prenotazione Confermata' : 'Booking Confirmed'}
+                              {language === 'it' ? 'Prenotazione Confermata' : 'Booking Confirmed'}
                             </span>
                           </div>
                           <p className="text-xs text-green-700">
-                            {t('dashboard.language') === 'it' 
+                            {language === 'it' 
                               ? 'Il pagamento del locatario è stato autorizzato e la prenotazione è confermata.' 
                               : 'The tenant\'s payment has been authorized and the booking is confirmed.'}
                           </p>
@@ -753,13 +753,13 @@ export const LandlordDashboard = () => {
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
-                              {t('dashboard.language') === 'it' ? 'Cauzione immobiliare (da versare):' : 'Security Deposit (has to be paid):'}
+                              {language === 'it' ? 'Cauzione immobiliare (da versare):' : 'Security Deposit (has to be paid):'}
                             </span>
                             <span className="font-medium">€{booking.security_deposit}</span>
                           </div>
                           <div className="flex justify-between">
                             <span className="text-muted-foreground">
-                              {t('dashboard.language') === 'it' ? 'Primo mese (già pagato e trasferito 24 ore dopo l\'arrivo dello studente):' : 'First month (already paid and will be transferred 24 hours after check in):'}
+                              {language === 'it' ? 'Primo mese (già pagato e trasferito 24 ore dopo l\'arrivo dello studente):' : 'First month (already paid and will be transferred 24 hours after check in):'}
                             </span>
                             <span className="font-semibold">€{booking.monthly_rent}</span>
                           </div>
