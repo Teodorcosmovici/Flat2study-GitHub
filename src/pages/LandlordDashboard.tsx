@@ -618,7 +618,7 @@ export const LandlordDashboard = () => {
                             </div>
                             <div>
                               <h3 className="font-semibold text-lg">{request.tenant?.full_name}</h3>
-                              <p className="text-sm text-muted-foreground">{request.tenant?.email}</p>
+                              
                             </div>
                           </div>
                           
