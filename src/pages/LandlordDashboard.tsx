@@ -723,10 +723,10 @@ export const LandlordDashboard = () => {
                       <div className="space-y-4">
                         <div className="text-center">
                           <Badge className="bg-green-100 text-green-800 border-green-200 mb-2">
-                            {t('dashboard.confirmed')}
+                            {t('dashboard.language') === 'it' ? 'Confermata' : 'Confirmed'}
                           </Badge>
                           <div className="text-sm text-muted-foreground">
-                            {t('dashboard.confirmedOn')}: {new Date(booking.updated_at).toLocaleDateString()}
+                            {t('dashboard.language') === 'it' ? 'Confermata il' : 'Confirmed on'}: {new Date(booking.updated_at).toLocaleDateString()}
                           </div>
                         </div>
 
