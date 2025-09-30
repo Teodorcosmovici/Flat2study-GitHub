@@ -14,8 +14,6 @@ import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useListingText } from '@/hooks/useListingText';
-import { Booking as BookingType } from '@/types/booking';
-import { BookingCard } from '@/components/booking/BookingCard';
 
 interface Listing {
   id: string;
@@ -43,7 +41,7 @@ export const LandlordDashboard = () => {
   const { getLocalizedText } = useListingText();
   const navigate = useNavigate();
   const [listings, setListings] = useState<Listing[]>([]);
-  const [bookings, setBookings] = useState<BookingType[]>([]);
+  const [bookings, setBookings] = useState<any[]>([]);
   const [bookingRequests, setBookingRequests] = useState<any[]>([]);
   const [loading, setLoading] = useState(true);
   
@@ -195,60 +193,71 @@ export const LandlordDashboard = () => {
 setBookingRequests(bookingsEnriched);
       }
       
-      // Fetch confirmed bookings for this landlord with enriched data
-      const { data: confirmedBookingsData, error: confirmedError } = await supabase
-        .from('bookings')
-        .select('*')
-        .eq('landlord_id', profile.id)
-        .eq('status', 'confirmed')
-        .order('created_at', { ascending: false });
+      // Fetch confirmed bookings via RPC with tenant and listing info (bypasses RLS safely)
+      const { data: confirmedData, error: confirmedError } = await supabase.rpc('get_confirmed_bookings_with_tenant', {
+        p_landlord_id: profile.id,
+      });
 
       if (confirmedError) {
         console.error('Error fetching confirmed bookings:', confirmedError);
         setBookings([]);
       } else {
-        // Fetch tenant and listing details for each confirmed booking
         const confirmedBookingsEnriched = await Promise.all(
-          (confirmedBookingsData || []).map(async (booking) => {
-            const [{ data: tenantProfile }, { data: listingData }] = await Promise.all([
-              supabase
-                .from('profiles')
-                .select('full_name, university, email, phone, user_type')
-                .eq('user_id', booking.tenant_id)
-                .maybeSingle(),
-              supabase
-                .from('listings')
-                .select('title, address_line, images')
-                .eq('id', booking.listing_id)
-                .maybeSingle()
-            ]);
-
+          (confirmedData || []).map(async (b: any) => {
             // Generate a signed URL for the application document if present
             let application_document_signed_url: string | null = null;
-            if (booking.application_document_url) {
+            if (b.application_document_url) {
               try {
                 const { data: signed, error: urlError } = await supabase.storage
                   .from('applications')
-                  .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
-                if (urlError) {
-                  console.error('Error creating signed URL (confirmed bookings):', urlError);
-                } else {
+                  .createSignedUrl(b.application_document_url, 60 * 60); // 1 hour
+                if (!urlError) {
                   application_document_signed_url = signed?.signedUrl || null;
+                } else {
+                  console.error('Error creating signed URL (confirmed bookings):', urlError);
                 }
               } catch (err) {
                 console.error('Error generating document URL (confirmed bookings):', err);
               }
             }
-            
+
             return {
-              ...booking,
-              tenant: tenantProfile || null,
-              listing: listingData || null,
+              id: b.id,
+              listing_id: b.listing_id,
+              tenant_id: b.tenant_id,
+              landlord_id: b.landlord_id,
+              status: b.status,
+              check_in_date: b.check_in_date,
+              check_out_date: b.check_out_date,
+              monthly_rent: b.monthly_rent,
+              security_deposit: b.security_deposit,
+              total_amount: b.total_amount,
+              payment_authorization_id: b.payment_authorization_id,
+              payment_status: b.payment_status,
+              authorization_expires_at: b.authorization_expires_at,
+              landlord_response_due_at: b.landlord_response_due_at,
+              landlord_response: b.landlord_response,
+              application_message: b.application_message,
+              application_document_url: b.application_document_url,
+              application_document_type: b.application_document_type,
+              created_at: b.created_at,
+              updated_at: b.updated_at,
+              tenant: {
+                full_name: b.tenant_full_name,
+                email: b.tenant_email,
+                phone: b.tenant_phone,
+                university: b.tenant_university,
+              },
+              listing: {
+                title: b.listing_title,
+                address_line: b.listing_address_line,
+                images: Array.isArray(b.listing_images) ? b.listing_images : [],
+              },
               application_document_signed_url,
             } as any;
           })
         );
-        
+
         setBookings(confirmedBookingsEnriched);
       }
     } catch (error) {
