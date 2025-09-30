@@ -75,6 +75,30 @@ const translateAmenity = (amenity: string, language: string): string => {
   }
   return amenity; // Return original if no translation found
 };
+
+// House rule translations
+const houseRuleTranslations: Record<string, { en: string; it: string }> = {
+  'No Smoking': { en: 'No Smoking', it: 'Vietato Fumare' },
+  'Vietato Fumare': { en: 'No Smoking', it: 'Vietato Fumare' },
+  'No Pets': { en: 'No Pets', it: 'Animali Non Ammessi' },
+  'Animali Non Ammessi': { en: 'No Pets', it: 'Animali Non Ammessi' },
+  'No Parties': { en: 'No Parties', it: 'Vietate Feste' },
+  'Vietate Feste': { en: 'No Parties', it: 'Vietate Feste' },
+  'Quiet Hours': { en: 'Quiet Hours', it: 'Orari di Silenzio' },
+  'Orari di Silenzio': { en: 'Quiet Hours', it: 'Orari di Silenzio' },
+  'No Visitors': { en: 'No Visitors', it: 'Vietati Visitatori' },
+  'Vietati Visitatori': { en: 'No Visitors', it: 'Vietati Visitatori' },
+};
+
+// Function to translate house rule
+const translateHouseRule = (rule: string, language: string): string => {
+  const translation = houseRuleTranslations[rule];
+  if (translation) {
+    return language === 'it' ? translation.it : translation.en;
+  }
+  return rule; // Return original if no translation found
+};
+
 export default function ListingDetails() {
   const {
     id
@@ -525,7 +549,7 @@ export default function ListingDetails() {
                           {listing.houseRules.map((rule: string, index: number) => (
                             <div key={index} className="flex items-start gap-2">
                               <CheckCircle className="h-4 w-4 text-blue-600 mt-0.5 flex-shrink-0" />
-                              <span className="text-sm">{rule}</span>
+                              <span className="text-sm">{translateHouseRule(rule, language)}</span>
                             </div>
                           ))}
                         </div>
