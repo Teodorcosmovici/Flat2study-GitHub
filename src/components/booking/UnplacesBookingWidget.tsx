@@ -12,6 +12,7 @@ import { useAvailability } from '@/hooks/useAvailability';
 import { Listing } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface UnplacesBookingWidgetProps {
   listing: Listing;
@@ -30,6 +31,7 @@ interface UnplacesBookingWidgetProps {
 export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange }: UnplacesBookingWidgetProps) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
+  const { t, language } = useLanguage();
   const [persons, setPersons] = useState(1);
   const [checkIn, setCheckIn] = useState<Date>();
   const [checkOut, setCheckOut] = useState<Date>();
@@ -199,7 +201,9 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
         type: 'mid-month',
         recommendedDate: sixteenthOfMonth,
         savings: formatPrice(savings),
-        message: `If you select ${format(sixteenthOfMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
+        message: language === 'it'
+          ? `Se selezioni ${format(sixteenthOfMonth, "dd MMMM yyyy")} come data di trasloco, risparmierai metà mese di affitto (${formatPrice(savings)}).`
+          : `If you select ${format(sixteenthOfMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
       };
     }
     
@@ -212,7 +216,9 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
         type: 'month-end',
         recommendedDate: firstOfNextMonth,
         savings: formatPrice(savings),
-        message: `If you select ${format(firstOfNextMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
+        message: language === 'it'
+          ? `Se selezioni ${format(firstOfNextMonth, "dd MMMM yyyy")} come data di trasloco, risparmierai metà mese di affitto (${formatPrice(savings)}).`
+          : `If you select ${format(firstOfNextMonth, "MMMM dd yyyy")} as your move-in, you'll save half a month of rent (${formatPrice(savings)}).`
       };
     }
     
@@ -256,11 +262,11 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
             <div className="flex items-baseline justify-between">
               <div>
                 <span className="text-2xl font-bold">{formatPrice(listing.rentMonthlyEur)}</span>
-                <span className="text-muted-foreground">/month</span>
+                <span className="text-muted-foreground">{t('booking.perMonth')}</span>
               </div>
               <div className="flex items-center text-sm text-muted-foreground">
                 <Users className="h-4 w-4 mr-1" />
-                <span>{persons} person{persons > 1 ? 's' : ''}</span>
+                <span>{persons} {persons > 1 ? t('booking.persons') : t('booking.person')}</span>
               </div>
             </div>
 
@@ -279,7 +285,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       onClick={handleDismissRecommendation}
                       className="text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
                     >
-                      I'm ok with my dates
+                      {t('booking.okWithDates')}
                     </Button>
                     <Button
                       variant="outline"
@@ -287,7 +293,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       onClick={handleChangeDates}
                       className="border-green-300 text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
                     >
-                      Change dates
+                      {t('booking.changeDates')}
                     </Button>
                   </div>
                 </AlertDescription>
@@ -301,7 +307,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           <>
             <div className="grid grid-cols-3 gap-2 items-center">
               <div>
-                <label className="sr-only">MOVE IN</label>
+                <label className="sr-only">{t('booking.moveInLabel')}</label>
                 <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
                   <PopoverTrigger asChild>
                     <Button
@@ -312,7 +318,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       )}
                     >
                       <CalendarIcon className="mr-1 h-3 w-3" />
-                      {checkIn ? format(checkIn, "dd MMM") : "Move in"}
+                      {checkIn ? format(checkIn, "dd MMM") : t('booking.moveIn')}
                     </Button>
                   </PopoverTrigger>
                     <PopoverContent side="top" sideOffset={12} collisionPadding={{ left: 16, right: 16 }} className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[100]" align="start">
@@ -329,7 +335,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               </div>
 
               <div>
-                <label className="sr-only">MOVE OUT</label>
+                <label className="sr-only">{t('booking.moveOutLabel')}</label>
                 <Popover open={showCheckOutCalendar} onOpenChange={setShowCheckOutCalendar}>
                   <PopoverTrigger asChild>
                     <Button
@@ -340,7 +346,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                       )}
                     >
                       <CalendarIcon className="mr-1 h-3 w-3" />
-                      {checkOut ? format(checkOut, "dd MMM") : "Move out"}
+                      {checkOut ? format(checkOut, "dd MMM") : t('booking.moveOut')}
                     </Button>
                   </PopoverTrigger>
                     <PopoverContent side="top" sideOffset={12} collisionPadding={{ left: 16, right: 16 }} className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[100]" align="start">
@@ -361,11 +367,11 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                 onClick={handleSelectDates}
                 disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
               >
-                {loading ? 'Loading...' : 'Continue > >'}
+                {loading ? t('booking.loading') : t('booking.continue')}
               </Button>
             </div>
             <p className="text-[10px] text-muted-foreground text-center mt-1">
-              Nothing will be charged now
+              {t('booking.nothingCharged')}
             </p>
           </>
         ) : (
@@ -378,7 +384,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               <label className={cn(
                 "text-sm font-medium text-muted-foreground",
                 isMobile && "text-xs"
-              )}>MOVE IN</label>
+              )}>{t('booking.moveInLabel')}</label>
               <Popover open={showCheckInCalendar} onOpenChange={setShowCheckInCalendar}>
                 <PopoverTrigger asChild>
                   <Button
@@ -390,7 +396,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                     )}
                   >
                     <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
-                    {checkIn ? format(checkIn, "dd MMM") : "Select dates"}
+                    {checkIn ? format(checkIn, "dd MMM") : t('booking.selectDates')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
@@ -411,7 +417,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               <label className={cn(
                 "text-sm font-medium text-muted-foreground",
                 isMobile && "text-xs"
-              )}>MOVE OUT</label>
+              )}>{t('booking.moveOutLabel')}</label>
               <Popover open={showCheckOutCalendar} onOpenChange={setShowCheckOutCalendar}>
                 <PopoverTrigger asChild>
                   <Button
@@ -423,7 +429,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                     )}
                   >
                     <CalendarIcon className={cn("mr-2 h-4 w-4", isMobile && "h-3 w-3 mr-1")} />
-                    {checkOut ? format(checkOut, "dd MMM") : "Select dates"}
+                    {checkOut ? format(checkOut, "dd MMM") : t('booking.selectDates')}
                   </Button>
                 </PopoverTrigger>
                 <PopoverContent className="w-auto p-0 bg-background/95 backdrop-blur-sm border shadow-lg z-[60]" align="start">
@@ -456,7 +462,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                   onClick={handleDismissRecommendation}
                   className="text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
                 >
-                  I'm ok with my dates
+                  {t('booking.okWithDates')}
                 </Button>
                 <Button
                   variant="outline"
@@ -464,7 +470,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
                   onClick={handleChangeDates}
                   className="border-green-300 text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
                 >
-                  Change dates
+                  {t('booking.changeDates')}
                 </Button>
               </div>
             </AlertDescription>
@@ -482,7 +488,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               onClick={handleSelectDates}
               disabled={!checkIn || !checkOut || loading || isDateDisabled(checkIn || new Date()) || isCheckOutDisabled(checkOut || new Date())}
             >
-              {loading ? 'Loading...' : 'Continue > >'}
+              {loading ? t('booking.loading') : t('booking.continue')}
             </Button>
 
             {/* Availability Note */}
@@ -490,7 +496,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               "text-xs text-muted-foreground text-center",
               isMobile && "text-[10px]"
             )}>
-              Nothing will be charged now
+              {t('booking.nothingCharged')}
             </p>
           </>
         )}

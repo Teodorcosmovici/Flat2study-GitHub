@@ -428,6 +428,21 @@ const translations = {
     'listing.howToBook.remember': 'Remember: you have 24h to check your new home',
     'listing.howToBook.rememberDesc': 'If the property is significantly different to what our listing promised, let us know within 24h since you move in, so we can help you.',
     
+    // Booking Widget
+    'booking.perMonth': '/month',
+    'booking.person': 'person',
+    'booking.persons': 'persons',
+    'booking.moveIn': 'Move in',
+    'booking.moveOut': 'Move out',
+    'booking.moveInLabel': 'MOVE IN',
+    'booking.moveOutLabel': 'MOVE OUT',
+    'booking.selectDates': 'Select dates',
+    'booking.continue': 'Continue > >',
+    'booking.loading': 'Loading...',
+    'booking.nothingCharged': 'Nothing will be charged now',
+    'booking.okWithDates': "I'm ok with my dates",
+    'booking.changeDates': 'Change dates',
+    
     // Property Types
     'propertyType.room': 'Room',
     'propertyType.bedspace': 'Bedspace',
@@ -1209,6 +1224,21 @@ const translations = {
     'listing.howToBook.step4.desc': "Organizza la data del tuo trasloco, il ritiro delle chiavi e qualsiasi altra cosa direttamente con il tuo proprietario. Come ulteriore misura di sicurezza, trasferiremo l'affitto del primo mese al proprietario solo 24 ore dopo il tuo trasloco, a meno che non ci contatti per un problema.",
     'listing.howToBook.remember': 'Ricorda: hai 24 ore per controllare la tua nuova casa',
     'listing.howToBook.rememberDesc': 'Se la proprietà è significativamente diversa da quanto promesso nel nostro annuncio, faccelo sapere entro 24 ore dal trasloco, così possiamo aiutarti.',
+    
+    // Booking Widget
+    'booking.perMonth': '/mese',
+    'booking.person': 'persona',
+    'booking.persons': 'persone',
+    'booking.moveIn': 'Entrata',
+    'booking.moveOut': 'Uscita',
+    'booking.moveInLabel': 'ENTRATA',
+    'booking.moveOutLabel': 'USCITA',
+    'booking.selectDates': 'Seleziona date',
+    'booking.continue': 'Continua > >',
+    'booking.loading': 'Caricamento...',
+    'booking.nothingCharged': 'Non ti sarà addebitato nulla ora',
+    'booking.okWithDates': 'Le mie date vanno bene',
+    'booking.changeDates': 'Cambia date',
     
     // Property Types
     'propertyType.room': 'Camera',
