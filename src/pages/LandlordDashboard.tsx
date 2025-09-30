@@ -562,7 +562,9 @@ export const LandlordDashboard = () => {
                         {/* Middle Column - Listing Info & Application */}
                         <div className="space-y-4">
                           <div>
-                            <h4 className="font-medium mb-2">Property</h4>
+                            <h4 className="font-medium mb-2">
+                              {t('dashboard.language') === 'it' ? 'Proprietà' : 'Property'}
+                            </h4>
                             <div className="flex gap-3">
                               {request.listing?.images?.[0] && <img src={request.listing.images[0]} alt={request.listing.title} className="w-16 h-16 object-cover rounded-lg" />}
                               <div>
@@ -692,7 +694,9 @@ export const LandlordDashboard = () => {
                       {/* Middle Column - Listing Info & Application */}
                       <div className="space-y-4">
                         <div>
-                          <h4 className="font-medium mb-2">Property</h4>
+                          <h4 className="font-medium mb-2">
+                            {t('dashboard.language') === 'it' ? 'Proprietà' : 'Property'}
+                          </h4>
                           <div className="flex gap-3">
                             {booking.listing?.images?.[0] && <img src={booking.listing.images[0]} alt={booking.listing.title} className="w-16 h-16 object-cover rounded-lg" />}
                             <div>
