@@ -108,6 +108,7 @@ const formattedRequests = await Promise.all(data.map(async (booking: any) => {
   let signedDocUrl: string | null = null;
   if (booking.application_document_url) {
     try {
+      console.log('Creating signed URL for:', booking.application_document_url);
       const { data: signed, error: urlError } = await supabase.storage
         .from('applications')
         .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
@@ -115,6 +116,7 @@ const formattedRequests = await Promise.all(data.map(async (booking: any) => {
         console.error('Error creating signed URL:', urlError);
       } else {
         signedDocUrl = signed?.signedUrl || null;
+        console.log('Signed URL created successfully:', signedDocUrl ? 'YES' : 'NO');
       }
     } catch (error) {
       console.error('Error generating document URL:', error);
