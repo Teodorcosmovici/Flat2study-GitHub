@@ -36,6 +36,45 @@ const getLocalizedText = (multilingualField: any, language: string, fallback: st
   const enValue = multilingualField['en']?.trim();
   return langValue || enValue || fallback;
 };
+
+// Amenity translations
+const amenityTranslations: Record<string, { en: string; it: string }> = {
+  'WiFi': { en: 'WiFi', it: 'WiFi' },
+  'Kitchen': { en: 'Kitchen', it: 'Cucina' },
+  'Cucina': { en: 'Kitchen', it: 'Cucina' },
+  'Washing Machine': { en: 'Washing Machine', it: 'Lavatrice' },
+  'Lavatrice': { en: 'Washing Machine', it: 'Lavatrice' },
+  'Heating': { en: 'Heating', it: 'Riscaldamento' },
+  'Riscaldamento': { en: 'Heating', it: 'Riscaldamento' },
+  'Air Conditioning': { en: 'Air Conditioning', it: 'Aria Condizionata' },
+  'Aria Condizionata': { en: 'Air Conditioning', it: 'Aria Condizionata' },
+  'Balcone': { en: 'Balcony', it: 'Balcone' },
+  'Balcony': { en: 'Balcony', it: 'Balcone' },
+  'Dishwasher': { en: 'Dishwasher', it: 'Lavastoviglie' },
+  'Lavastoviglie': { en: 'Dishwasher', it: 'Lavastoviglie' },
+  'TV': { en: 'TV', it: 'TV' },
+  'Desk': { en: 'Desk', it: 'Scrivania' },
+  'Scrivania': { en: 'Desk', it: 'Scrivania' },
+  'Elevator': { en: 'Elevator', it: 'Ascensore' },
+  'Ascensore': { en: 'Elevator', it: 'Ascensore' },
+  'Dryer': { en: 'Dryer', it: 'Asciugatrice' },
+  'Asciugatrice': { en: 'Dryer', it: 'Asciugatrice' },
+  'Wardrobe': { en: 'Wardrobe', it: 'Armadio' },
+  'Armadio': { en: 'Wardrobe', it: 'Armadio' },
+  'Portineria': { en: 'Concierge', it: 'Portineria' },
+  'Concierge': { en: 'Concierge', it: 'Portineria' },
+  'Parking': { en: 'Parking', it: 'Parcheggio' },
+  'Parcheggio': { en: 'Parking', it: 'Parcheggio' },
+};
+
+// Function to translate amenity
+const translateAmenity = (amenity: string, language: string): string => {
+  const translation = amenityTranslations[amenity];
+  if (translation) {
+    return language === 'it' ? translation.it : translation.en;
+  }
+  return amenity; // Return original if no translation found
+};
 export default function ListingDetails() {
   const {
     id
@@ -417,7 +456,7 @@ export default function ListingDetails() {
                           .map((amenity: string) => (
                             <Badge key={amenity} variant="outline" className="flex items-center space-x-1">
                               {getAmenityIcon(amenity)}
-                              <span>{amenity}</span>
+                              <span>{translateAmenity(amenity, language)}</span>
                             </Badge>
                           ))}
                       </div>
