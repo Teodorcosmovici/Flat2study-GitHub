@@ -742,7 +742,9 @@ export const LandlordDashboard = () => {
 
                         <div className="space-y-2 text-sm">
                           <div className="flex justify-between">
-                            <span className="text-muted-foreground">afteSecurity Deposit:</span>
+                            <span className="text-muted-foreground">
+                              {t('dashboard.language') === 'it' ? 'Cauzione immobiliare (da versare):' : 'Security Deposit (has to be paid):'}
+                            </span>
                             <span className="font-medium">€{booking.security_deposit}</span>
                           </div>
                           <div className="flex justify-between">
