@@ -183,7 +183,7 @@ export const LandlordDashboard = () => {
 setBookingRequests(bookingsEnriched);
       }
       
-      // Fetch confirmed bookings for this landlord
+      // Fetch confirmed bookings for this landlord with enriched data
       const { data: confirmedBookingsData, error: confirmedError } = await supabase
         .from('bookings')
         .select('*')
@@ -195,7 +195,49 @@ setBookingRequests(bookingsEnriched);
         console.error('Error fetching confirmed bookings:', confirmedError);
         setBookings([]);
       } else {
-        setBookings((confirmedBookingsData || []) as BookingType[]);
+        // Fetch tenant and listing details for each confirmed booking
+        const confirmedBookingsEnriched = await Promise.all(
+          (confirmedBookingsData || []).map(async (booking) => {
+            const [{ data: tenantProfile }, { data: listingData }] = await Promise.all([
+              supabase
+                .from('profiles')
+                .select('full_name, university, email, phone')
+                .eq('user_id', booking.tenant_id)
+                .maybeSingle(),
+              supabase
+                .from('listings')
+                .select('title, address_line, images')
+                .eq('id', booking.listing_id)
+                .maybeSingle()
+            ]);
+
+            // Generate a signed URL for the application document if present
+            let application_document_signed_url: string | null = null;
+            if (booking.application_document_url) {
+              try {
+                const { data: signed, error: urlError } = await supabase.storage
+                  .from('applications')
+                  .createSignedUrl(booking.application_document_url, 60 * 60); // 1 hour
+                if (urlError) {
+                  console.error('Error creating signed URL (confirmed bookings):', urlError);
+                } else {
+                  application_document_signed_url = signed?.signedUrl || null;
+                }
+              } catch (err) {
+                console.error('Error generating document URL (confirmed bookings):', err);
+              }
+            }
+            
+            return {
+              ...booking,
+              tenant: tenantProfile || null,
+              listing: listingData || null,
+              application_document_signed_url,
+            } as any;
+          })
+        );
+        
+        setBookings(confirmedBookingsEnriched);
       }
     } catch (error) {
       console.error('Error fetching dashboard data:', error);
@@ -714,10 +756,136 @@ setBookingRequests(bookingsEnriched);
               <p className="text-muted-foreground">No confirmed bookings yet.</p>
             </div>
           ) : (
-            <div className="space-y-4">
-              {bookings.map((booking) => (
-                <BookingCard key={booking.id} booking={booking} userRole="landlord" />
-              ))}
+            <div className="space-y-6">
+              <div className="flex justify-between items-center">
+                <h2 className="text-3xl font-bold">{bookings.length} {t('dashboard.confirmedBookings')}</h2>
+              </div>
+
+              <div className="space-y-4">
+                {bookings.map((booking: any) => (
+                  <Card key={booking.id} className="p-6">
+                    <div className="grid grid-cols-1 lg:grid-cols-3 gap-6">
+                      {/* Left Column - Tenant Info */}
+                      <div className="space-y-4">
+                        <div className="flex items-center gap-3">
+                          <div className="w-12 h-12 bg-green-100 rounded-full flex items-center justify-center">
+                            <CheckCircle className="w-6 h-6 text-green-600" />
+                          </div>
+                          <div>
+                            <h3 className="font-semibold text-lg">{booking.tenant?.full_name}</h3>
+                            <p className="text-sm text-muted-foreground">{booking.tenant?.email}</p>
+                          </div>
+                        </div>
+                        
+                        <div className="space-y-2">
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">{t('dashboard.university')}:</span>
+                            <span className="text-sm">{booking.tenant?.university || t('dashboard.notSpecified')}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">{t('common.phone')}:</span>
+                            <span className="text-sm">{booking.tenant?.phone || t('dashboard.notProvided')}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">{t('dashboard.checkIn')}:</span>
+                            <span className="text-sm">{new Date(booking.check_in_date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">{t('dashboard.checkOut')}:</span>
+                            <span className="text-sm">{new Date(booking.check_out_date).toLocaleDateString()}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-sm font-medium">{t('dashboard.monthlyRent')}:</span>
+                            <span className="text-sm font-semibold">€{booking.monthly_rent}</span>
+                          </div>
+                        </div>
+                      </div>
+
+                      {/* Middle Column - Listing Info & Application */}
+                      <div className="space-y-4">
+                        <div>
+                          <h4 className="font-medium mb-2">Property</h4>
+                          <div className="flex gap-3">
+                            {booking.listing?.images?.[0] && (
+                              <img
+                                src={booking.listing.images[0]}
+                                alt={booking.listing.title}
+                                className="w-16 h-16 object-cover rounded-lg"
+                              />
+                            )}
+                            <div>
+                              <p className="font-medium text-sm">{booking.listing?.title}</p>
+                              <p className="text-xs text-muted-foreground">{booking.listing?.address_line}</p>
+                            </div>
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="font-medium mb-2">{t('dashboard.applicationMessage')}</h4>
+                          <div className="bg-muted/30 p-3 rounded-lg text-sm">
+                            {booking.application_message ? (
+                              <p>{booking.application_message}</p>
+                            ) : (
+                              <p className="text-muted-foreground italic">{t('dashboard.noMessageProvided')}</p>
+                            )}
+                          </div>
+                        </div>
+
+                        <div>
+                          <h4 className="font-medium mb-2">{t('dashboard.supportingDocument')}</h4>
+                          {booking.application_document_signed_url ? (
+                            <a 
+                              href={booking.application_document_signed_url}
+                              target="_blank"
+                              rel="noopener noreferrer"
+                              className="text-blue-600 hover:text-blue-800 text-sm flex items-center gap-2"
+                            >
+                              {t('dashboard.viewDocument')} ({booking.application_document_type || 'document'})
+                            </a>
+                          ) : (
+                            <div className="text-sm text-muted-foreground">
+                              {t('dashboard.noDocumentUploaded')}
+                            </div>
+                          )}
+                        </div>
+                      </div>
+
+                      {/* Right Column - Status & Details */}
+                      <div className="space-y-4">
+                        <div className="text-center">
+                          <Badge className="bg-green-100 text-green-800 border-green-200 mb-2">
+                            {t('dashboard.confirmed')}
+                          </Badge>
+                          <div className="text-sm text-muted-foreground">
+                            {t('dashboard.confirmedOn')}: {new Date(booking.updated_at).toLocaleDateString()}
+                          </div>
+                        </div>
+
+                        <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
+                          <div className="flex items-center gap-2 text-green-800 mb-2">
+                            <CheckCircle className="w-4 h-4" />
+                            <span className="text-sm font-medium">Booking Confirmed</span>
+                          </div>
+                          <p className="text-xs text-green-700">
+                            The tenant's payment has been authorized and the booking is confirmed.
+                          </p>
+                        </div>
+
+                        <div className="space-y-2 text-sm">
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Security Deposit:</span>
+                            <span className="font-medium">€{booking.security_deposit}</span>
+                          </div>
+                          <div className="flex justify-between">
+                            <span className="text-muted-foreground">Total Amount:</span>
+                            <span className="font-semibold">€{booking.total_amount}</span>
+                          </div>
+                        </div>
+                      </div>
+                    </div>
+                  </Card>
+                ))}
+              </div>
             </div>
           )}
           </TabsContent>
