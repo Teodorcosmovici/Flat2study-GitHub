@@ -733,10 +733,14 @@ export const LandlordDashboard = () => {
                         <div className="bg-green-50 border border-green-200 p-3 rounded-lg">
                           <div className="flex items-center gap-2 text-green-800 mb-2">
                             <CheckCircle className="w-4 h-4" />
-                            <span className="text-sm font-medium">Booking Confirmed</span>
+                            <span className="text-sm font-medium">
+                              {t('dashboard.language') === 'it' ? 'Prenotazione Confermata' : 'Booking Confirmed'}
+                            </span>
                           </div>
                           <p className="text-xs text-green-700">
-                            The tenant's payment has been authorized and the booking is confirmed.
+                            {t('dashboard.language') === 'it' 
+                              ? 'Il pagamento del locatario è stato autorizzato e la prenotazione è confermata.' 
+                              : 'The tenant\'s payment has been authorized and the booking is confirmed.'}
                           </p>
                         </div>
 
