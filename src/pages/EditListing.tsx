@@ -28,7 +28,7 @@ export default function EditListing() {
     postcode: '',
     
     // Property type and details
-    type: 'entire_property' as 'entire_property' | 'studio' | 'room_shared',
+    type: 'entire_property' as 'entire_property' | 'studio' | 'room_shared' | 'bedspace_shared',
     bedrooms: '',
     bathrooms: '',
     totalBedrooms: '', // for shared rooms
@@ -130,7 +130,7 @@ export default function EditListing() {
         addressLine: data.address_line || '',
         addressLine2: '', // Not stored in current schema
         postcode: data.postcode || '',
-        type: data.type === 'apartment' ? 'entire_property' : data.type === 'studio' ? 'studio' : 'room_shared',
+        type: data.type === 'apartment' ? 'entire_property' : data.type === 'studio' ? 'studio' : data.type === 'bedspace' ? 'bedspace_shared' : 'room_shared',
         bedrooms: data.bedrooms?.toString() || '',
         bathrooms: data.bathrooms?.toString() || '',
         totalBedrooms: data.total_bedrooms?.toString() || '',
@@ -260,7 +260,7 @@ export default function EditListing() {
         title: title,
         address_line: formData.addressLine || null,
         postcode: formData.postcode || null,
-        type: formData.type === 'entire_property' ? 'apartment' : formData.type === 'studio' ? 'studio' : 'room',
+        type: formData.type === 'entire_property' ? 'apartment' : formData.type === 'studio' ? 'studio' : formData.type === 'bedspace_shared' ? 'bedspace' : 'room',
         description: formData.description || null,
         rent_monthly_eur: formData.rentAmount ? parseInt(formData.rentAmount) : null,
         deposit_eur: depositAmount || null,
@@ -444,6 +444,10 @@ export default function EditListing() {
                     <RadioGroupItem value="room_shared" id="room_shared" />
                     <Label htmlFor="room_shared">Room in a Shared Property</Label>
                   </div>
+                  <div className="flex items-center space-x-2">
+                    <RadioGroupItem value="bedspace_shared" id="bedspace_shared" />
+                    <Label htmlFor="bedspace_shared">Bedspace in a Shared Property</Label>
+                  </div>
                 </RadioGroup>
               </div>
 
@@ -485,7 +489,7 @@ export default function EditListing() {
                 </div>
               )}
 
-              {formData.type === 'room_shared' && (
+              {(formData.type === 'room_shared' || formData.type === 'bedspace_shared') && (
                 <>
                   <div className="grid grid-cols-2 gap-4">
                     <div className="space-y-2">
