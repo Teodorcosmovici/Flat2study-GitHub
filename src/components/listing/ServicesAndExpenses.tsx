@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { CheckCircle, XCircle, Euro, Zap, Droplet, Wifi, Flame, Calendar } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface ServicesAndExpensesProps {
   rentMonthlyEur: number;
@@ -19,6 +20,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
   depositEur,
   utilities
 }) => {
+  const { t } = useLanguage();
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -29,25 +31,25 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
 
   const utilityList = [
     {
-      name: 'Water',
+      nameKey: 'listing.water',
       icon: <Droplet className="h-4 w-4" />,
       included: utilities.water.included,
       price: utilities.water.cost
     },
     {
-      name: 'Electricity',
+      nameKey: 'listing.electricity',
       icon: <Zap className="h-4 w-4" />,
       included: utilities.electricity.included,
       price: utilities.electricity.cost
     },
     {
-      name: 'Internet',
+      nameKey: 'listing.internet',
       icon: <Wifi className="h-4 w-4" />,
       included: utilities.internet.included,
       price: utilities.internet.cost
     },
     {
-      name: 'Gas',
+      nameKey: 'listing.gas',
       icon: <Flame className="h-4 w-4" />,
       included: utilities.gas.included,
       price: utilities.gas.cost
@@ -84,7 +86,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Euro className="h-5 w-5" />
-          Services and expenses
+          {t('listing.servicesAndExpenses')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -92,9 +94,9 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
         <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
           <div className="flex justify-between items-start">
             <div className="flex-1">
-              <h5 className="font-medium text-blue-900">Security deposit</h5>
+              <h5 className="font-medium text-blue-900">{t('listing.securityDeposit')}</h5>
               <p className="text-sm text-blue-700 mt-1">
-                Refundable payment to be made directly to Landlord, which should be refunded if you meet all the rental conditions with our platform
+                {t('listing.securityDepositDesc')}
               </p>
             </div>
             <div className="text-right ml-4">
@@ -105,25 +107,25 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
 
         {/* Fixed Monthly Bills */}
         <div>
-          <h4 className="font-medium mb-4">Fixed Monthly Bills</h4>
+          <h4 className="font-medium mb-4">{t('listing.fixedMonthlyBills')}</h4>
           <div className="grid grid-cols-1 md:grid-cols-2 gap-4">
             {utilityList.map((utility) => (
-              <div key={utility.name} className="flex items-center justify-between p-3 rounded-lg border">
+              <div key={utility.nameKey} className="flex items-center justify-between p-3 rounded-lg border">
                 <div className="flex items-center gap-3">
                   {utility.icon}
-                  <span className="font-medium">{utility.name}</span>
+                  <span className="font-medium">{t(utility.nameKey)}</span>
                 </div>
                 <div className="flex items-center gap-2">
                   {utility.included ? (
                     <>
                       <CheckCircle className="h-4 w-4 text-green-600" />
-                      <span className="text-green-600 text-sm">Included in the price</span>
+                      <span className="text-green-600 text-sm">{t('listing.includedInPrice')}</span>
                     </>
                   ) : (
                     <>
                       <XCircle className="h-4 w-4 text-red-600" />
                       <span className="text-red-600 text-sm">
-                        Not included - Est. {formatPrice(utility.price)}/month
+                        {t('listing.notIncludedEst')} {formatPrice(utility.price)}{t('listing.perMonthShort')}
                       </span>
                     </>
                   )}

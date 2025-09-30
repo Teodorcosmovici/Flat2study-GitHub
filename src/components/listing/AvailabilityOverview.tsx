@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Calendar } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface AvailabilityOverviewProps {
   availabilityDate?: string;
@@ -16,6 +17,7 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
   maximumStayDays,
   rentMonthlyEur
 }) => {
+  const { t, language } = useLanguage();
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -40,7 +42,7 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
     
     for (let i = 0; i < 12; i++) {
       const date = new Date(startDate.getFullYear(), startDate.getMonth() + i, 1);
-      const monthName = date.toLocaleDateString('en-US', { month: 'short' });
+      const monthName = date.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-US', { month: 'short' });
       const year = date.getFullYear();
       
       // Available if the month is after or includes the availability date
@@ -69,7 +71,7 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
       <CardHeader>
         <CardTitle className="flex items-center gap-2">
           <Calendar className="h-5 w-5" />
-          Availability
+          {t('listing.availability')}
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
@@ -120,11 +122,11 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
         <div className="flex items-center gap-4 text-sm">
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-green-50 border border-green-200 rounded"></div>
-            <span>Available</span>
+            <span>{t('listing.available')}</span>
           </div>
           <div className="flex items-center gap-2">
             <div className="w-4 h-4 bg-red-50 border border-red-200 rounded"></div>
-            <span>Occupied</span>
+            <span>{t('listing.occupied')}</span>
           </div>
         </div>
 
@@ -132,9 +134,9 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
         <div className="space-y-3 pt-4 border-t">
           {availabilityDate && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Available from:</span>
+              <span className="text-muted-foreground">{t('listing.availableFromColon')}</span>
               <span className="font-medium">
-                {new Date(availabilityDate).toLocaleDateString('en-GB', {
+                {new Date(availabilityDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-GB', {
                   day: 'numeric',
                   month: 'long',
                   year: 'numeric'
@@ -145,7 +147,7 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
           
           {minimumStayDays && (
             <div className="flex justify-between">
-              <span className="text-muted-foreground">Min stay:</span>
+              <span className="text-muted-foreground">{t('listing.minStay')}</span>
               <span className="font-medium">{formatStayDuration(minimumStayDays)}</span>
             </div>
           )}

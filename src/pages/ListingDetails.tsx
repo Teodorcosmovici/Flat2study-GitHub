@@ -374,13 +374,13 @@ export default function ListingDetails() {
                                   <img src={image} alt={`${listing.title} - Thumbnail ${index + 2}`} className={`w-full h-full object-cover transition-all group-hover:brightness-110 ${currentImageIndex === index + 1 ? 'ring-2 ring-primary' : ''}`} loading="lazy" decoding="async" />
                                   {/* Show +X more overlay on last thumbnail if there are more images */}
                                   {index === 2 && listing.images.length > 4 && <div className="absolute inset-0 bg-black/60 flex items-center justify-center text-white font-semibold">
-                                      +{listing.images.length - 4} more
+                                      +{listing.images.length - 4} {t('listing.more')}
                                     </div>}
                                 </div>
                               </ImageLightbox>)}
                           </div>}
-                      </div> : <div className="w-full h-64 md:h-96 bg-muted rounded-lg flex items-center justify-center">
-                      <div className="text-muted-foreground">No images available</div>
+                       </div> : <div className="w-full h-64 md:h-96 bg-muted rounded-lg flex items-center justify-center">
+                      <div className="text-muted-foreground">{t('listing.noImages')}</div>
                     </div>}
                 </CardContent>
               </Card>
@@ -403,7 +403,7 @@ export default function ListingDetails() {
                       <div className="text-3xl font-bold text-price">
                         {formatPrice(listing.rentMonthlyEur)}
                       </div>
-                      <div className="text-sm text-muted-foreground">per month</div>
+                      <div className="text-sm text-muted-foreground">{t('listing.perMonth')}</div>
                       <ContactInfo 
                         profileId={listing.landlord.id}
                         name={listing.landlord.name}
@@ -473,7 +473,7 @@ export default function ListingDetails() {
                   {/* Full Amenities */}
                   {listing.amenities.filter((a: string) => typeof a === 'string' && a.toLowerCase() !== 'pet friendly').length > 0 && (
                     <div>
-                      <h3 className="font-semibold mb-3">Amenities</h3>
+                      <h3 className="font-semibold mb-3">{t('listing.amenities')}</h3>
                       <div className="flex flex-wrap gap-2">
                         {listing.amenities
                           .filter((amenity: string) => typeof amenity === 'string' && amenity.toLowerCase() !== 'pet friendly')
@@ -562,7 +562,7 @@ export default function ListingDetails() {
               {/* Contract */}
               <Card>
                 <CardHeader>
-                  <CardTitle>Contract</CardTitle>
+                  <CardTitle>{t('listing.contract')}</CardTitle>
                 </CardHeader>
                 <CardContent>
                   <div className="space-y-6">
@@ -674,19 +674,19 @@ export default function ListingDetails() {
                     <div className="space-y-2 text-sm">
                       <div className="flex justify-between">
                         <span>
-                          First rental payment
-                          {selectedDates && selectedDates.checkIn.getDate() > 15 && ' (half month)'}
+                          {t('listing.firstRentalPayment')}
+                          {selectedDates && selectedDates.checkIn.getDate() > 15 && ` ${t('listing.halfMonth')}`}
                         </span>
                         <span>
                           {formatPrice(selectedDates && selectedDates.checkIn.getDate() > 15 ? Math.round(listing.rentMonthlyEur / 2) : listing.rentMonthlyEur)}
                         </span>
                       </div>
                       <div className="flex justify-between">
-                        <span>One-time service fee</span>
+                        <span>{t('listing.oneTimeServiceFee')}</span>
                         <span>{formatPrice(Math.round(listing.rentMonthlyEur * 0.4))}</span>
                       </div>
                       <div className="flex justify-between font-semibold border-t pt-2">
-                        <span>Total</span>
+                        <span>{t('listing.total')}</span>
                         <span>
                           {formatPrice((selectedDates && selectedDates.checkIn.getDate() > 15 ? Math.round(listing.rentMonthlyEur / 2) : listing.rentMonthlyEur) + Math.round(listing.rentMonthlyEur * 0.4))}
                         </span>
@@ -701,7 +701,7 @@ export default function ListingDetails() {
                       selectedDates={selectedDates}
                     >
                       <Button variant="link" className="p-0 h-auto text-xs mt-2">
-                        Review price details →
+                        {t('listing.reviewPriceDetails')} →
                       </Button>
                     </PaymentSummaryModal>
                   </CardContent>

@@ -12,31 +12,34 @@ import {
   CreditCard,
   ChevronDown
 } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 export const HowToBook: React.FC = () => {
+  const { t } = useLanguage();
+  
   const steps = [
     {
       icon: <Search className="h-6 w-6" />,
-      title: "Find your home 100% online",
-      description: "With our platform, in-person visits are a thing of the past. Our team verifies the property to offer video tours and photos so you can view them online. We collect all the information you need to make your decision.",
+      titleKey: "listing.howToBook.step1.title",
+      descKey: "listing.howToBook.step1.desc",
       highlighted: false
     },
     {
       icon: <MessageSquare className="h-6 w-6" />,
-      title: "Make a booking request",
-      description: "With just a few simple details you can make a request for the property. Remember, we won't charge you until the Landlord confirms.",
+      titleKey: "listing.howToBook.step2.title",
+      descKey: "listing.howToBook.step2.desc",
       highlighted: true
     },
     {
       icon: <Clock className="h-6 w-6" />,
-      title: "Get an answer in 24h or less",
-      description: "The Landlord has 24 hours to respond to your booking request. If they accept, your payment method will be charged and we will put you in contact with the Landlord. If they don't accept, no worries, you won't be charged and we'll help you find alternatives.",
+      titleKey: "listing.howToBook.step3.title",
+      descKey: "listing.howToBook.step3.desc",
       highlighted: false
     },
     {
       icon: <Key className="h-6 w-6" />,
-      title: "Move in",
-      description: "Arrange your move-in date, key collection and anything else directly with your Landlord. As an extra security step, we will only transfer the first month's rent to the Landlord 24 hours after you move in, unless you contact us with a problem.",
+      titleKey: "listing.howToBook.step4.title",
+      descKey: "listing.howToBook.step4.desc",
       highlighted: false
     }
   ];
@@ -77,7 +80,7 @@ export const HowToBook: React.FC = () => {
   return (
     <Card>
       <CardHeader>
-        <CardTitle>How to Book</CardTitle>
+        <CardTitle>{t('listing.howToBook')}</CardTitle>
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Steps */}
@@ -92,9 +95,9 @@ export const HowToBook: React.FC = () => {
                 {step.icon}
               </div>
               <div className="flex-1">
-                <h4 className="font-semibold mb-2">{step.title}</h4>
+                <h4 className="font-semibold mb-2">{t(step.titleKey)}</h4>
                 <p className="text-sm text-muted-foreground leading-relaxed">
-                  {step.description}
+                  {t(step.descKey)}
                 </p>
               </div>
             </div>
@@ -105,10 +108,9 @@ export const HowToBook: React.FC = () => {
         <div className="bg-blue-50 border border-blue-200 rounded-lg p-4 flex items-start gap-3">
           <Search className="h-5 w-5 text-blue-600 flex-shrink-0 mt-0.5" />
           <div>
-            <h5 className="font-medium text-blue-900 mb-1">Remember: you have 24h to check your new home</h5>
+            <h5 className="font-medium text-blue-900 mb-1">{t('listing.howToBook.remember')}</h5>
             <p className="text-sm text-blue-700">
-              If the property is significantly different to what our listing promised, let us know within 
-              24h since you move in, so we can help you.
+              {t('listing.howToBook.rememberDesc')}
             </p>
           </div>
         </div>
