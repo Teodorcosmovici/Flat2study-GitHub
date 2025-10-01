@@ -107,7 +107,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
     (!utilities.internet.included ? utilities.internet.cost : 0)
   ) : 0;
   
-  const afterBookingTotal = depositEur + landlordAdminFee + monthlyUtilitiesTotal;
+  const afterBookingTotal = depositEur + landlordAdminFee;
 
   return (
     <Dialog>
@@ -173,52 +173,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                     <span>{formatPrice(landlordAdminFee)}</span>
                   </div>
                 )}
-                
-                <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">{t('paymentSummary.monthlyPayments')}</div>
-                <div className="flex justify-between items-center">
-                  <span>{t('paymentSummary.water')}</span>
-                  {utilities?.water.included ? (
-                    <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                    </div>
-                  ) : (
-                    <span>{formatPrice(utilities?.water.cost || 0)}</span>
-                  )}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>{t('paymentSummary.internet')}</span>
-                  {utilities?.internet.included ? (
-                    <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                    </div>
-                  ) : (
-                    <span>{formatPrice(utilities?.internet.cost || 0)}</span>
-                  )}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>{t('paymentSummary.electricity')}</span>
-                  {utilities?.electricity.included ? (
-                    <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                    </div>
-                  ) : (
-                    <span>{formatPrice(utilities?.electricity.cost || 0)}</span>
-                  )}
-                </div>
-                <div className="flex justify-between items-center">
-                  <span>{t('paymentSummary.gas')}</span>
-                  {utilities?.gas.included ? (
-                    <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
-                      <CheckCircle className="h-3 w-3 text-green-600" />
-                    </div>
-                  ) : (
-                    <span>{formatPrice(utilities?.gas.cost || 0)}</span>
-                  )}
-                </div>
                 
               </div>
             </CollapsibleContent>
