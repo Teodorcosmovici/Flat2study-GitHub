@@ -675,10 +675,9 @@ export default function ListingDetails() {
                       <div className="flex justify-between">
                         <span>
                           {t('listing.firstRentalPayment')}
-                          {selectedDates && selectedDates.checkIn.getDate() > 15 && ` ${t('listing.halfMonth')}`}
                         </span>
                         <span>
-                          {formatPrice(selectedDates && selectedDates.checkIn.getDate() > 15 ? Math.round(listing.rentMonthlyEur / 2) : listing.rentMonthlyEur)}
+                          {formatPrice(listing.rentMonthlyEur)}
                         </span>
                       </div>
                       <div className="flex justify-between">
@@ -688,7 +687,7 @@ export default function ListingDetails() {
                       <div className="flex justify-between font-semibold border-t pt-2">
                         <span>{t('listing.total')}</span>
                         <span>
-                          {formatPrice((selectedDates && selectedDates.checkIn.getDate() > 15 ? Math.round(listing.rentMonthlyEur / 2) : listing.rentMonthlyEur) + Math.round(listing.rentMonthlyEur * 0.4))}
+                          {formatPrice(listing.rentMonthlyEur + Math.round(listing.rentMonthlyEur * 0.4))}
                         </span>
                       </div>
                     </div>
