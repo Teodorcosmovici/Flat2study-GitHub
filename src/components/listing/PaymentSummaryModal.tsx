@@ -14,6 +14,7 @@ import {
   CollapsibleTrigger,
 } from '@/components/ui/collapsible';
 import { ChevronDown, CheckCircle, ArrowRight } from 'lucide-react';
+import { useLanguage } from '@/contexts/LanguageContext';
 
 interface PaymentSummaryModalProps {
   rentMonthlyEur: number;
@@ -41,6 +42,8 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   selectedDates,
   children
 }) => {
+  const { t } = useLanguage();
+  
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -113,7 +116,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
       </DialogTrigger>
       <DialogContent className="max-w-lg">
         <DialogHeader>
-          <DialogTitle>Payment summary</DialogTitle>
+          <DialogTitle>{t('paymentSummary.title')}</DialogTitle>
         </DialogHeader>
         
         <div className="space-y-4">
@@ -121,9 +124,9 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           <Collapsible defaultOpen>
             <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
               <div className="flex items-center gap-2">
-                <span className="font-medium">When your booking is accepted</span>
+                <span className="font-medium">{t('paymentSummary.whenBookingAccepted')}</span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">Through our platform</span>
+                <span className="text-sm text-muted-foreground">{t('paymentSummary.throughPlatform')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{formatPrice(firstPaymentTotal)}</span>
@@ -133,11 +136,11 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
             <CollapsibleContent className="px-4 pb-4">
               <div className="space-y-2 text-sm mt-3">
                 <div className="flex justify-between">
-                  <span>First rental payment (full month)</span>
+                  <span>{t('paymentSummary.firstRentalFull')}</span>
                   <span>{formatPrice(firstMonthRent)}</span>
                 </div>
                 <div className="flex justify-between">
-                  <span>One-time service fee</span>
+                  <span>{t('paymentSummary.oneTimeServiceFee')}</span>
                   <span>{formatPrice(serviceFee)}</span>
                 </div>
               </div>
@@ -148,9 +151,9 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           <Collapsible>
             <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
               <div className="flex items-center gap-2">
-                <span className="font-medium">After booking is confirmed</span>
+                <span className="font-medium">{t('paymentSummary.afterBookingConfirmed')}</span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">To landlord</span>
+                <span className="text-sm text-muted-foreground">{t('paymentSummary.toLandlord')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{formatPrice(afterBookingTotal)}</span>
@@ -159,24 +162,24 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
             </CollapsibleTrigger>
             <CollapsibleContent className="px-4 pb-4">
               <div className="space-y-2 text-sm mt-3">
-                <div className="text-xs font-medium text-muted-foreground mb-2">One-time payment</div>
+                <div className="text-xs font-medium text-muted-foreground mb-2">{t('paymentSummary.oneTimePayment')}</div>
                 <div className="flex justify-between">
-                  <span>Security deposit</span>
+                  <span>{t('paymentSummary.securityDeposit')}</span>
                   <span>{formatPrice(depositEur)}</span>
                 </div>
                 {landlordAdminFee > 0 && (
                   <div className="flex justify-between">
-                    <span>Landlord admin fee</span>
+                    <span>{t('paymentSummary.landlordAdminFee')}</span>
                     <span>{formatPrice(landlordAdminFee)}</span>
                   </div>
                 )}
                 
-                <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">Monthly payments</div>
+                <div className="text-xs font-medium text-muted-foreground mb-2 mt-4">{t('paymentSummary.monthlyPayments')}</div>
                 <div className="flex justify-between items-center">
-                  <span>Water</span>
+                  <span>{t('paymentSummary.water')}</span>
                   {utilities?.water.included ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">Included</span>
+                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
                       <CheckCircle className="h-3 w-3 text-green-600" />
                     </div>
                   ) : (
@@ -184,10 +187,10 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Internet</span>
+                  <span>{t('paymentSummary.internet')}</span>
                   {utilities?.internet.included ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">Included</span>
+                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
                       <CheckCircle className="h-3 w-3 text-green-600" />
                     </div>
                   ) : (
@@ -195,10 +198,10 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Electricity</span>
+                  <span>{t('paymentSummary.electricity')}</span>
                   {utilities?.electricity.included ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">Included</span>
+                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
                       <CheckCircle className="h-3 w-3 text-green-600" />
                     </div>
                   ) : (
@@ -206,10 +209,10 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   )}
                 </div>
                 <div className="flex justify-between items-center">
-                  <span>Gas</span>
+                  <span>{t('paymentSummary.gas')}</span>
                   {utilities?.gas.included ? (
                     <div className="flex items-center gap-1">
-                      <span className="text-green-600 text-xs">Included</span>
+                      <span className="text-green-600 text-xs">{t('paymentSummary.included')}</span>
                       <CheckCircle className="h-3 w-3 text-green-600" />
                     </div>
                   ) : (
@@ -225,9 +228,9 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           <Collapsible>
             <CollapsibleTrigger className="flex items-center justify-between w-full py-3 border rounded-lg px-4 hover:bg-muted/50">
               <div className="flex items-center gap-2">
-                <span className="font-medium">Monthly rent</span>
+                <span className="font-medium">{t('paymentSummary.monthlyRent')}</span>
                 <ArrowRight className="h-4 w-4 text-muted-foreground" />
-                <span className="text-sm text-muted-foreground">To landlord</span>
+                <span className="text-sm text-muted-foreground">{t('paymentSummary.toLandlord')}</span>
               </div>
               <div className="flex items-center gap-2">
                 <span className="text-sm font-semibold">{formatPrice(rentMonthlyEur)}</span>
@@ -255,12 +258,12 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                       const monthlyRent = calculateProratedRent(currentMonth, isFirstMonth, isLastMonth, monthIndex);
                       const isProrated = monthlyRent !== rentMonthlyEur;
                       
-                      months.push(
+                        months.push(
                         <div key={currentMonth.getTime()} className="flex justify-between">
                           <span>
                             {monthName} 
-                            {isFirstMonth && <span className="text-xs text-green-600">(already paid)</span>}
-                            {isProrated && !isFirstMonth && <span className="text-xs text-orange-600">(prorated)</span>}
+                            {isFirstMonth && <span className="text-xs text-green-600">{t('paymentSummary.alreadyPaid')}</span>}
+                            {isProrated && !isFirstMonth && <span className="text-xs text-orange-600">{t('paymentSummary.prorated')}</span>}
                           </span>
                           <span className={isFirstMonth ? "text-green-600" : ""}>{formatPrice(isFirstMonth ? 0 : monthlyRent)}</span>
                         </div>
@@ -294,7 +297,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
           <div className="bg-green-50 border border-green-200 rounded-lg p-3 flex items-center gap-2">
             <CheckCircle className="h-4 w-4 text-green-600" />
             <span className="text-sm text-green-700">
-              If you find it cheaper elsewhere, we'll refund the difference.
+              {t('paymentSummary.priceMatchGuarantee')}
             </span>
           </div>
         </div>
