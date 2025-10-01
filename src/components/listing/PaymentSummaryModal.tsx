@@ -105,7 +105,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
     (!utilities.gas.included ? utilities.gas.cost : 0) +
     (!utilities.water.included ? utilities.water.cost : 0) +
     (!utilities.internet.included ? utilities.internet.cost : 0)
-  ) : 70; // fallback to old total (35+35)
+  ) : 0;
   
   const afterBookingTotal = depositEur + landlordAdminFee + monthlyUtilitiesTotal;
 
@@ -205,7 +205,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                       <CheckCircle className="h-3 w-3 text-green-600" />
                     </div>
                   ) : (
-                    <span>{formatPrice(utilities?.electricity.cost || 35)}</span>
+                    <span>{formatPrice(utilities?.electricity.cost || 0)}</span>
                   )}
                 </div>
                 <div className="flex justify-between items-center">
@@ -216,7 +216,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                       <CheckCircle className="h-3 w-3 text-green-600" />
                     </div>
                   ) : (
-                    <span>{formatPrice(utilities?.gas.cost || 35)}</span>
+                    <span>{formatPrice(utilities?.gas.cost || 0)}</span>
                   )}
                 </div>
                 
