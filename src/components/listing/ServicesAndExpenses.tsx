@@ -125,7 +125,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
                     <>
                       <XCircle className="h-4 w-4 text-red-600" />
                       <span className="text-red-600 text-sm">
-                        {t('listing.notIncludedEst')} {formatPrice(utility.price)}{t('listing.perMonthShort')}
+                        {t('listing.notIncluded')}
                       </span>
                     </>
                   )}
