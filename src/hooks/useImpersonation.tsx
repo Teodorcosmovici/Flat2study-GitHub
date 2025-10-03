@@ -70,9 +70,21 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
         return { error };
       }
 
-      // Refresh impersonation status
-      await checkCurrentImpersonation();
+      // The new function returns full session data as jsonb
+      if (data) {
+        const sessionData = data as any;
+        setImpersonationSession({
+          session_token: sessionData.session_token,
+          impersonated_user_id: sessionData.impersonated_user_id,
+          admin_user_id: sessionData.admin_user_id,
+          started_at: sessionData.started_at
+        });
+        setIsImpersonating(true);
+      }
+      
       setLoading(false);
+      // Trigger a page reload to refresh all data with new user context
+      window.location.reload();
       return { error: null };
     } catch (error) {
       setLoading(false);
@@ -99,6 +111,8 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
       setImpersonationSession(null);
       setIsImpersonating(false);
       setLoading(false);
+      // Reload to return to admin context
+      window.location.reload();
       return { error: null };
     } catch (error) {
       setLoading(false);

@@ -1077,6 +1077,10 @@ export type Database = {
           user_type: string
         }
       }
+      get_effective_user_id: {
+        Args: Record<PropertyKey, never>
+        Returns: string
+      }
       get_listing_text: {
         Args: { language_code?: string; multilingual_field: Json }
         Returns: string
@@ -1208,7 +1212,7 @@ export type Database = {
       }
       start_impersonation: {
         Args: { reason_text?: string; target_user_id: string }
-        Returns: string
+        Returns: Json
       }
       user_has_sent_messages_to_any_listing: {
         Args: Record<PropertyKey, never>
