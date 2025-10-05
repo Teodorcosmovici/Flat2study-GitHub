@@ -9,7 +9,7 @@ export function ImpersonationBanner() {
   if (!isImpersonating || !impersonationSession) return null;
 
   return (
-    <Alert className="mb-4 border-warning bg-warning/10">
+    <Alert role="status" className="fixed top-0 left-0 right-0 z-[60] border-warning bg-warning/10 backdrop-blur supports-[backdrop-filter]:bg-warning/20 rounded-none border-b">
       <Shield className="h-4 w-4" />
       <AlertDescription className="flex items-center justify-between">
         <div className="flex items-center gap-2">
