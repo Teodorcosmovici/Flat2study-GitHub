@@ -957,7 +957,7 @@ export type Database = {
         Returns: boolean
       }
       end_impersonation: {
-        Args: { token: string }
+        Args: { p_token: string }
         Returns: boolean
       }
       generate_conversation_id: {
