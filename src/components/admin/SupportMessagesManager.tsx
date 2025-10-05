@@ -92,9 +92,21 @@ export const SupportMessagesManager: React.FC = () => {
 
       if (error) throw error;
 
+      // If marking as replied, send email notification
+      if (status === 'replied' && notes) {
+        try {
+          await supabase.functions.invoke('send-support-reply-notification', {
+            body: { message_id: messageId, admin_response: notes }
+          });
+        } catch (emailError) {
+          console.error('Failed to send email notification:', emailError);
+          // Don't fail the whole operation if email fails
+        }
+      }
+
       toast({
         title: "Success",
-        description: `Message marked as ${status}.`,
+        description: `Message marked as ${status}.${status === 'replied' ? ' Email sent to sender.' : ''}`,
       });
 
       fetchMessages();
@@ -122,6 +134,8 @@ export const SupportMessagesManager: React.FC = () => {
   };
 
   const unreadCount = messages.filter(m => m.status === 'unread').length;
+  const pendingMessages = messages.filter(m => m.status !== 'replied');
+  const repliedMessages = messages.filter(m => m.status === 'replied');
 
   if (loading) {
     return (
@@ -171,107 +185,163 @@ export const SupportMessagesManager: React.FC = () => {
         </CollapsibleTrigger>
         
         <CollapsibleContent>
-          <CardContent>
-            {messages.filter(m => m.status !== 'replied').length === 0 ? (
-              <div className="text-center py-8">
-                <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-                <h3 className="text-lg font-semibold mb-2">No pending messages</h3>
-                <p className="text-muted-foreground">All messages have been handled or no messages received yet.</p>
-              </div>
-            ) : (
-              <div className="space-y-4">
-                {messages.filter(m => m.status !== 'replied').map((message) => (
-                  <Card key={message.id} className={`${message.status === 'unread' ? 'border-primary bg-primary/5' : 'border-border'}`}>
-                    <CardContent className="p-4">
-                      <div className="space-y-3">
-                        {/* Message Header */}
-                        <div className="flex items-start justify-between">
-                          <div className="space-y-1">
-                            <div className="flex items-center gap-2">
-                              <User className="h-4 w-4 text-muted-foreground" />
-                              <span className="font-medium">{message.sender_name}</span>
-                              <div className="flex items-center gap-2 text-sm text-muted-foreground">
-                                <Phone className="h-3 w-3" />
-                                <span className="font-mono">{message.country_code} {message.phone_number}</span>
+          <CardContent className="space-y-6">
+            {/* Pending Messages Section */}
+            <div>
+              <h3 className="text-lg font-semibold mb-4">Pending Messages</h3>
+              {pendingMessages.length === 0 ? (
+                <div className="text-center py-8">
+                  <MessageCircle className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+                  <h3 className="text-lg font-semibold mb-2">No pending messages</h3>
+                  <p className="text-muted-foreground">All messages have been handled.</p>
+                </div>
+              ) : (
+                <div className="space-y-4">
+                  {pendingMessages.map((message) => (
+                    <Card key={message.id} className={`${message.status === 'unread' ? 'border-primary bg-primary/5' : 'border-border'}`}>
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* Message Header */}
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{message.sender_name}</span>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3 w-3" />
+                                  <span className="font-mono">{message.country_code} {message.phone_number}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
                               </div>
                             </div>
-                            <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                              <Clock className="h-3 w-3" />
-                              <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
-                            </div>
+                            {getStatusBadge(message.status)}
                           </div>
-                          {getStatusBadge(message.status)}
-                        </div>
 
-                        {/* Message Content */}
-                        <div>
-                          <p className="text-sm bg-muted/50 p-3 rounded-lg whitespace-pre-wrap border">
-                            {message.message}
-                          </p>
-                        </div>
-
-                        {/* Admin Notes */}
-                        {message.admin_notes && (
+                          {/* Message Content */}
                           <div>
-                            <h4 className="text-sm font-medium mb-1">Admin Notes:</h4>
-                            <p className="text-sm bg-accent/20 p-2 rounded border">{message.admin_notes}</p>
+                            <p className="text-sm bg-muted/50 p-3 rounded-lg whitespace-pre-wrap border">
+                              {message.message}
+                            </p>
                           </div>
-                        )}
 
-                        {/* Admin Notes Input */}
-                        <div className="space-y-2">
-                          <label className="text-sm font-medium">Admin Notes:</label>
-                          <Textarea
-                            placeholder="Add admin notes..."
-                            value={adminNotes[message.id] || message.admin_notes || ''}
-                            onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
-                            className="min-h-[60px] text-sm"
-                          />
-                        </div>
-
-                        {/* Action Buttons */}
-                        <div className="flex gap-2 flex-wrap">
-                          {message.status === 'unread' && (
-                            <Button
-                              variant="outline"
-                              size="sm"
-                              onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
-                            >
-                              <CheckCheck className="h-3 w-3 mr-1" />
-                              Mark as Read
-                            </Button>
+                          {/* Admin Notes */}
+                          {message.admin_notes && (
+                            <div>
+                              <h4 className="text-sm font-medium mb-1">Previous Notes:</h4>
+                              <p className="text-sm bg-accent/20 p-2 rounded border">{message.admin_notes}</p>
+                            </div>
                           )}
-                          
-                          <Button
-                            variant="default"
-                            size="sm"
-                            onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
-                          >
-                            <Reply className="h-3 w-3 mr-1" />
-                            Mark as Replied
-                          </Button>
 
-                          {adminNotes[message.id] !== (message.admin_notes || '') && (
-                            <Button
-                              variant="secondary"
-                              size="sm"
-                              onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
-                            >
-                              Save Notes
-                            </Button>
-                          )}
-                        </div>
-
-                        {/* Reply Status */}
-                        {message.replied_at && (
-                          <div className="text-xs text-green-600 dark:text-green-400 bg-green-50 dark:bg-green-950/20 p-2 rounded border border-green-200 dark:border-green-800">
-                            ✅ Replied {formatDistanceToNow(new Date(message.replied_at))} ago
+                          {/* Admin Response Input */}
+                          <div className="space-y-2">
+                            <label className="text-sm font-medium">Your Response (will be emailed to sender):</label>
+                            <Textarea
+                              placeholder="Write your response here..."
+                              value={adminNotes[message.id] || message.admin_notes || ''}
+                              onChange={(e) => setAdminNotes({ ...adminNotes, [message.id]: e.target.value })}
+                              className="min-h-[80px] text-sm"
+                            />
                           </div>
-                        )}
-                      </div>
-                    </CardContent>
-                  </Card>
-                ))}
+
+                          {/* Action Buttons */}
+                          <div className="flex gap-2 flex-wrap">
+                            {message.status === 'unread' && (
+                              <Button
+                                variant="outline"
+                                size="sm"
+                                onClick={() => updateMessageStatus(message.id, 'read', adminNotes[message.id])}
+                              >
+                                <CheckCheck className="h-3 w-3 mr-1" />
+                                Mark as Read
+                              </Button>
+                            )}
+                            
+                            <Button
+                              variant="default"
+                              size="sm"
+                              onClick={() => updateMessageStatus(message.id, 'replied', adminNotes[message.id])}
+                              disabled={!adminNotes[message.id]?.trim()}
+                            >
+                              <Reply className="h-3 w-3 mr-1" />
+                              Send Reply & Mark as Replied
+                            </Button>
+
+                            {adminNotes[message.id] !== (message.admin_notes || '') && (
+                              <Button
+                                variant="secondary"
+                                size="sm"
+                                onClick={() => updateMessageStatus(message.id, message.status as 'read' | 'replied', adminNotes[message.id])}
+                              >
+                                Save Notes (no email)
+                              </Button>
+                            )}
+                          </div>
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
+              )}
+            </div>
+
+            {/* Past Conversations Section */}
+            {repliedMessages.length > 0 && (
+              <div className="border-t pt-6">
+                <h3 className="text-lg font-semibold mb-4">Past Conversations</h3>
+                <div className="space-y-4">
+                  {repliedMessages.map((message) => (
+                    <Card key={message.id} className="border-green-200 dark:border-green-800 bg-green-50/50 dark:bg-green-950/20 cursor-pointer hover:bg-green-100/50 dark:hover:bg-green-950/30 transition-colors">
+                      <CardContent className="p-4">
+                        <div className="space-y-3">
+                          {/* Message Header */}
+                          <div className="flex items-start justify-between">
+                            <div className="space-y-1">
+                              <div className="flex items-center gap-2">
+                                <User className="h-4 w-4 text-muted-foreground" />
+                                <span className="font-medium">{message.sender_name}</span>
+                                <div className="flex items-center gap-2 text-sm text-muted-foreground">
+                                  <Phone className="h-3 w-3" />
+                                  <span className="font-mono">{message.country_code} {message.phone_number}</span>
+                                </div>
+                              </div>
+                              <div className="flex items-center gap-2 text-xs text-muted-foreground">
+                                <Clock className="h-3 w-3" />
+                                <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
+                              </div>
+                            </div>
+                            {getStatusBadge(message.status)}
+                          </div>
+
+                          {/* Message Content */}
+                          <div>
+                            <p className="text-xs text-muted-foreground mb-1">Their message:</p>
+                            <p className="text-sm bg-white dark:bg-gray-900 p-3 rounded-lg whitespace-pre-wrap border">
+                              {message.message}
+                            </p>
+                          </div>
+
+                          {/* Your Response */}
+                          {message.admin_notes && (
+                            <div>
+                              <p className="text-xs text-muted-foreground mb-1">Your response:</p>
+                              <p className="text-sm bg-accent/20 p-3 rounded border font-medium">{message.admin_notes}</p>
+                            </div>
+                          )}
+
+                          {/* Reply Status */}
+                          {message.replied_at && (
+                            <div className="text-xs text-green-600 dark:text-green-400">
+                              ✅ Replied {formatDistanceToNow(new Date(message.replied_at))} ago
+                            </div>
+                          )}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  ))}
+                </div>
               </div>
             )}
           </CardContent>
