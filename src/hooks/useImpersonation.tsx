@@ -26,9 +26,8 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
   const { profile } = useAuth();
 
   useEffect(() => {
-    if (profile?.user_type === 'admin') {
-      checkCurrentImpersonation();
-    }
+    // Always check for an active impersonation session when auth/profile state changes
+    checkCurrentImpersonation();
   }, [profile]);
 
   const checkCurrentImpersonation = async () => {
@@ -100,7 +99,7 @@ export function ImpersonationProvider({ children }: { children: ReactNode }) {
     setLoading(true);
     try {
       const { error } = await supabase.rpc('end_impersonation', {
-        token: impersonationSession.session_token
+        p_token: impersonationSession.session_token
       });
 
       if (error) {
