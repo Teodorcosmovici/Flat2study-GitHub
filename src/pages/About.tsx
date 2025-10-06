@@ -3,6 +3,7 @@ import { Button } from '@/components/ui/button';
 import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
+import melchiorPhoto from '@/assets/melchior-founder.jpeg';
 
 export default function About() {
   const { t } = useLanguage();
@@ -35,6 +36,17 @@ export default function About() {
             <p className="text-lg font-medium">
               {t('about.founders')}
             </p>
+            
+            <div className="mt-8 flex flex-col items-center">
+              <img 
+                src={melchiorPhoto} 
+                alt="Melchior - flat2study co-founder" 
+                className="w-64 h-64 rounded-lg object-cover shadow-lg"
+              />
+              <p className="mt-4 text-lg font-semibold text-foreground">
+                Melchior - flat2study co-founder
+              </p>
+            </div>
             
             <div className="mt-12">
               <h2 className="text-2xl font-semibold mb-6">{t('about.contactInfo')}</h2>
