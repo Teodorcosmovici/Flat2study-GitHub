@@ -123,15 +123,18 @@ export const ListingWizard = () => {
       address: listingData.address_line
     });
     
-    setListingData(prev => ({ ...prev, title: newTitle }));
+    // Only update if the title has actually changed
+    if (newTitle !== listingData.title) {
+      setListingData(prev => ({ ...prev, title: newTitle }));
+    }
   }, [
     listingData.type,
     listingData.bedrooms,
     listingData.bathrooms,
     listingData.total_bedrooms,
     listingData.total_bathrooms,
-    listingData.address_line,
-    generateTitle
+    listingData.address_line
+    // Removed generateTitle from dependencies to prevent infinite loop
   ]);
 
   const updateListingData = (newData: Partial<ListingData>) => {
