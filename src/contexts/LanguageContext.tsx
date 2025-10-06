@@ -51,7 +51,7 @@ const translations = {
     // Homepage
     'home.heroWelcome': 'Welcome back',
     'home.heroTitle': 'Your perfect student home here and now.',
-    'home.heroSubtitle': 'Connecting students with verified housing near Bocconi University and other top Milan universities. Trusted by agencies, loved by students.',
+    'home.heroSubtitle': 'Trusted by landlords, loved by students.',
     'home.heroSubtitleStudent': 'Ready to find your perfect student accommodation?',
     'home.heroSubtitleRealtor': 'Manage your listings and connect with potential tenants.',
     'home.findPlace': 'Find a Place',
