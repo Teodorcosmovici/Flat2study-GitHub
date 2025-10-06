@@ -12,6 +12,7 @@ import Index from "./pages/Index";
 import Search from "./pages/Search";
 import Auth from "./pages/Auth";
 import About from "./pages/About";
+import HowItWorks from "./pages/HowItWorks";
 import { ListingWizard } from "./components/listing/ListingWizard";
 import { LandlordDashboard } from "./pages/LandlordDashboard";
 import { AdminDashboard } from "./pages/AdminDashboard";
@@ -56,6 +57,7 @@ const AppRoutes = () => {
       <Route path="/signup/private" element={<SignupPrivate />} />
       <Route path="/signup/student" element={<SignupStudent />} />
       <Route path="/about" element={<About />} />
+      <Route path="/how-it-works" element={<HowItWorks />} />
       <Route path="/create-listing" element={<ListingWizard />} />
       <Route path="/landlord-dashboard" element={<LandlordDashboard />} />
       <Route path="/my-listings" element={<LandlordDashboard />} />
