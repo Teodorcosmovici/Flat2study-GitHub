@@ -1,8 +1,14 @@
-import { Link } from "react-router-dom";
+import { Link, useLocation } from "react-router-dom";
 import { useLanguage } from "@/contexts/LanguageContext";
 
 export function Footer() {
   const { t } = useLanguage();
+  const location = useLocation();
+  
+  // Hide footer on search page
+  if (location.pathname === '/search') {
+    return null;
+  }
   
   return (
     <footer className="border-t bg-background mt-16">
