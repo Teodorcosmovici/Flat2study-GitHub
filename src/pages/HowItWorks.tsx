@@ -32,7 +32,7 @@ export default function HowItWorks() {
         <Link to="/">
           <Button variant="ghost" className="mb-6">
             <ArrowLeft className="mr-2 h-4 w-4" />
-            {t('common.backToHome') || 'Back to Home'}
+            {t('common.backToHome')}
           </Button>
         </Link>
 

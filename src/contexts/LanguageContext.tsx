@@ -233,6 +233,7 @@ const translations = {
     'profile.pleaseSignIn': 'Please sign in to view your profile.',
     
     // Common
+    'common.backToHome': 'Back to Home',
     'common.email': 'Email',
     'common.phone': 'Phone',
     'common.address': 'Address',
@@ -831,6 +832,22 @@ const translations = {
     'landlord.finalCta.subtitle': 'Join thousands of landlords already maximizing their rental income with verified student tenants.',
     'landlord.finalCta.startListing': 'Start listing for free',
 
+    // How It Works Page
+    'howItWorks.title': 'How to Book',
+    'howItWorks.subtitle': 'Find your home 100% online',
+    'howItWorks.intro': "With our platform, in-person visits are a thing of the past. Our team verifies the property to offer video tours and photos so you can view them online. We collect all the information you need to make your decision.",
+    'howItWorks.step': 'Step',
+    'howItWorks.step1.title': 'Make a booking request',
+    'howItWorks.step1.description': "With just a few simple details you can make a request for the property. Remember, we won't charge you until the Landlord confirms.",
+    'howItWorks.step2.title': 'Get an answer in 24h or less',
+    'howItWorks.step2.description': "The Landlord has 24 hours to respond to your booking request. If they accept, your payment method will be charged and we will put you in contact with the Landlord. If they don't accept, no worries, you won't be charged and we'll help you find alternatives.",
+    'howItWorks.step3.title': 'Move in',
+    'howItWorks.step3.description': "Arrange your move-in date, key collection and anything else directly with your Landlord. As an extra security step, we will only transfer the first month's rent to the Landlord 24 hours after you move in, unless you contact us with a problem.",
+    'howItWorks.reminder.title': 'Remember: you have 24h to check your new home',
+    'howItWorks.reminder.description': 'If the property is significantly different to what our listing promised, let us know within 24h since you move in, so we can help you.',
+    'howItWorks.cta.title': 'Ready to find your home?',
+    'howItWorks.cta.button': 'Start Searching',
+
     // Footer
     'footer.aboutUs': 'About us',
     'footer.howItWorks': 'How it works',
@@ -1064,6 +1081,7 @@ const translations = {
     'profile.pleaseSignIn': 'Effettua l\'accesso per visualizzare il tuo profilo.',
     
     // Common
+    'common.backToHome': 'Torna alla Home',
     'common.email': 'Email',
     'common.phone': 'Telefono',
     'common.address': 'Indirizzo',
@@ -1657,6 +1675,22 @@ const translations = {
     'landlord.finalCta.title': 'Pronto a iniziare a guadagnare?',
     'landlord.finalCta.subtitle': 'Unisciti a migliaia di proprietari che stanno già massimizzando il loro reddito da affitto con studenti inquilini verificati.',
     'landlord.finalCta.startListing': 'Inizia a pubblicare gratuitamente',
+
+    // How It Works Page
+    'howItWorks.title': 'Come Prenotare',
+    'howItWorks.subtitle': 'Trova la tua casa 100% online',
+    'howItWorks.intro': "Con la nostra piattaforma, le visite di persona sono un ricordo del passato. Il nostro team verifica la proprietà per offrire tour video e foto così puoi vederle online. Raccogliamo tutte le informazioni di cui hai bisogno per prendere la tua decisione.",
+    'howItWorks.step': 'Passo',
+    'howItWorks.step1.title': 'Fai una richiesta di prenotazione',
+    'howItWorks.step1.description': "Con pochi semplici dettagli puoi fare una richiesta per la proprietà. Ricorda, non ti addebiteremo fino a quando il Proprietario non conferma.",
+    'howItWorks.step2.title': 'Ricevi una risposta in 24h o meno',
+    'howItWorks.step2.description': "Il Proprietario ha 24 ore per rispondere alla tua richiesta di prenotazione. Se accettano, il tuo metodo di pagamento verrà addebitato e ti metteremo in contatto con il Proprietario. Se non accettano, nessun problema, non ti verrà addebitato e ti aiuteremo a trovare alternative.",
+    'howItWorks.step3.title': 'Trasloca',
+    'howItWorks.step3.description': "Organizza la tua data di trasloco, il ritiro delle chiavi e qualsiasi altra cosa direttamente con il tuo Proprietario. Come ulteriore misura di sicurezza, trasferiremo solo il primo mese di affitto al Proprietario 24 ore dopo il tuo trasloco, a meno che tu non ci contatti con un problema.",
+    'howItWorks.reminder.title': 'Ricorda: hai 24h per controllare la tua nuova casa',
+    'howItWorks.reminder.description': 'Se la proprietà è significativamente diversa da quello che prometteva il nostro annuncio, faccelo sapere entro 24h dal tuo trasloco, così possiamo aiutarti.',
+    'howItWorks.cta.title': 'Pronto a trovare la tua casa?',
+    'howItWorks.cta.button': 'Inizia la Ricerca',
 
     // Footer
     'footer.aboutUs': 'Chi siamo',
