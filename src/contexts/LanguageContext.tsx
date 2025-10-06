@@ -830,6 +830,17 @@ const translations = {
     'landlord.finalCta.title': 'Ready to start earning?',
     'landlord.finalCta.subtitle': 'Join thousands of landlords already maximizing their rental income with verified student tenants.',
     'landlord.finalCta.startListing': 'Start listing for free',
+
+    // Footer
+    'footer.aboutUs': 'About us',
+    'footer.howItWorks': 'How it works',
+    'footer.landlords': 'Landlords',
+    'footer.startListing': 'Start listing',
+    'footer.support': 'Support',
+    'footer.chatWithAgent': 'Chat with an agent',
+    'footer.allRightsReserved': 'All rights reserved',
+    'footer.terms': 'Terms',
+    'footer.privacy': 'Privacy',
   },
   it: {
     // Header
@@ -1646,6 +1657,17 @@ const translations = {
     'landlord.finalCta.title': 'Pronto a iniziare a guadagnare?',
     'landlord.finalCta.subtitle': 'Unisciti a migliaia di proprietari che stanno già massimizzando il loro reddito da affitto con studenti inquilini verificati.',
     'landlord.finalCta.startListing': 'Inizia a pubblicare gratuitamente',
+
+    // Footer
+    'footer.aboutUs': 'Chi siamo',
+    'footer.howItWorks': 'Come funziona',
+    'footer.landlords': 'Proprietari',
+    'footer.startListing': 'Inizia a pubblicare',
+    'footer.support': 'Supporto',
+    'footer.chatWithAgent': 'Chatta con un agente',
+    'footer.allRightsReserved': 'Tutti i diritti riservati',
+    'footer.terms': 'Termini',
+    'footer.privacy': 'Privacy',
   }
 };
 

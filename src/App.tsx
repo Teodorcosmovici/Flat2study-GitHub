@@ -6,6 +6,7 @@ import { BrowserRouter, Routes, Route } from "react-router-dom";
 import { usePageTracking } from "@/hooks/usePageTracking";
 import { ChatButton } from "@/components/ui/whatsapp-chat-button";
 import { ImpersonationBanner } from "./components/admin/ImpersonationBanner";
+import { Footer } from "./components/layout/Footer";
 
 import Index from "./pages/Index";
 import Search from "./pages/Search";
@@ -86,6 +87,7 @@ const App = () => (
       <BrowserRouter>
         <ImpersonationBanner />
         <AppRoutes />
+        <Footer />
         <ChatButton />
       </BrowserRouter>
     </TooltipProvider>
