@@ -514,6 +514,7 @@ export default function ListingDetails() {
               <ServicesAndExpenses 
                 rentMonthlyEur={listing.rentMonthlyEur} 
                 depositEur={listing.depositEur}
+                landlordAdminFee={listing.landlordAdminFee}
                 utilities={listing.utilities || {
                   electricity: { included: listing.billsIncluded, cost: 50 },
                   gas: { included: listing.billsIncluded, cost: 40 },
