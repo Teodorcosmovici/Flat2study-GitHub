@@ -420,9 +420,15 @@ export default function SimpleMapView({
 
     // Set initial bounds only once
     if (Object.keys(markersRef.current).length > 0 && !initialBoundsSet.current) {
-      const markers = Object.values(markersRef.current);
-      const group = L.featureGroup(markers);
-      map.fitBounds(group.getBounds().pad(0.1));
+      // If there's only one listing, center on it with a specific zoom level
+      if (listings.length === 1) {
+        map.setView([listings[0].lat, listings[0].lng], 15);
+      } else {
+        // For multiple listings, fit bounds to show all markers
+        const markers = Object.values(markersRef.current);
+        const group = L.featureGroup(markers);
+        map.fitBounds(group.getBounds().pad(0.1));
+      }
       initialBoundsSet.current = true;
     }
   }, [groupedListings, hoveredListingId, formatPrice]);
