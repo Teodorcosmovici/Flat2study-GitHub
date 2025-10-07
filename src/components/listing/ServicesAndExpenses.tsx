@@ -7,6 +7,7 @@ import { useLanguage } from '@/contexts/LanguageContext';
 interface ServicesAndExpensesProps {
   rentMonthlyEur: number;
   depositEur?: number;
+  landlordAdminFee?: number;
   utilities: {
     electricity: { included: boolean; cost: number };
     gas: { included: boolean; cost: number };
@@ -18,6 +19,7 @@ interface ServicesAndExpensesProps {
 export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
   rentMonthlyEur,
   depositEur,
+  landlordAdminFee,
   utilities
 }) => {
   const { t } = useLanguage();
@@ -104,6 +106,23 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
             </div>
           </div>
         </div>
+
+        {/* Administrative Cost */}
+        {landlordAdminFee && landlordAdminFee > 0 && (
+          <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h5 className="font-medium text-blue-900">Administrative cost</h5>
+                <p className="text-sm text-blue-700 mt-1">
+                  Not included
+                </p>
+              </div>
+              <div className="text-right ml-4">
+                <span className="font-semibold text-blue-900">{formatPrice(landlordAdminFee)}</span>
+              </div>
+            </div>
+          </div>
+        )}
 
         {/* Fixed Monthly Bills */}
         <div>
