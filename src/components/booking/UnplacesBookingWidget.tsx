@@ -445,35 +445,6 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </div>
         )}
 
-        {/* Desktop only: Date Recommendation Alert */}
-        {!isMobile && recommendation && showRecommendation && (
-          <Alert className="bg-green-50 border-green-200 text-green-800">
-            <Lightbulb className="h-4 w-4" />
-            <AlertDescription className="flex flex-col space-y-3">
-              <p className="text-sm">
-                {recommendation.message}
-              </p>
-              <div className="flex space-x-2">
-                <Button
-                  variant="ghost"
-                  size="sm"
-                  onClick={handleDismissRecommendation}
-                  className="text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
-                >
-                  {t('booking.okWithDates')}
-                </Button>
-                <Button
-                  variant="outline"
-                  size="sm"
-                  onClick={handleChangeDates}
-                  className="border-green-300 text-green-700 hover:text-green-800 hover:bg-green-100 px-3 py-1 h-auto font-medium"
-                >
-                  {t('booking.changeDates')}
-                </Button>
-              </div>
-            </AlertDescription>
-          </Alert>
-        )}
 
         {/* Desktop: Select button and note */}
         {!isMobile && (
