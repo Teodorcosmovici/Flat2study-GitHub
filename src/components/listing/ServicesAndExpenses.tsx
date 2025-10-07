@@ -117,9 +117,6 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
                   Not included
                 </p>
               </div>
-              <div className="text-right ml-4">
-                <span className="font-semibold text-blue-900">{formatPrice(landlordAdminFee)}</span>
-              </div>
             </div>
           </div>
         )}
