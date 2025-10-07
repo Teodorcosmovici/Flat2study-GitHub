@@ -37,7 +37,7 @@ export function Footer() {
             <h3 className="font-semibold text-foreground mb-4">{t('footer.landlords')}</h3>
             <ul className="space-y-2">
               <li>
-                <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
+                <Link to="/landlord" className="text-muted-foreground hover:text-foreground transition-colors">
                   {t('footer.howItWorks')}
                 </Link>
               </li>
