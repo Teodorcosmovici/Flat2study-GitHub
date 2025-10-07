@@ -25,6 +25,7 @@ import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
 import { LocationMapDialog } from '@/components/listing/LocationMapDialog';
 import { ContactInfo } from '@/components/contact/ContactInfo';
 import { generateListingTitle } from '@/utils/titleGeneration';
+import { cn } from '@/lib/utils';
 
 // Helper function to get text in current language
 const getLocalizedText = (multilingualField: any, language: string, fallback: string = '') => {
@@ -125,6 +126,7 @@ export default function ListingDetails() {
     checkOut: Date;
     persons: number;
   } | null>(null);
+  const [showRecommendation, setShowRecommendation] = useState(false);
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [translatedDescription, setTranslatedDescription] = useState('');
   const [isDescriptionTranslated, setIsDescriptionTranslated] = useState(false);
@@ -652,19 +654,26 @@ export default function ListingDetails() {
             {/* Sidebar */}
             <div className="space-y-4">
               <div className="lg:sticky lg:top-24">
-                 <UnplacesBookingWidget listing={listing} onDatesChange={data => {
-                setSelectedDates(data);
-              }} onBookingRequest={data => {
-                toast({
-                  title: t('listing.bookingRequestSent'),
-                  description: t('listing.landlordResponse')
-                });
-              }} />
+                 <UnplacesBookingWidget 
+                  listing={listing} 
+                  onDatesChange={data => {
+                    setSelectedDates(data);
+                  }} 
+                  onRecommendationChange={showing => {
+                    setShowRecommendation(showing);
+                  }}
+                  onBookingRequest={data => {
+                    toast({
+                      title: t('listing.bookingRequestSent'),
+                      description: t('listing.landlordResponse')
+                    });
+                  }} 
+                />
               </div>
 
               
               {/* Payment Summary Box - Only show when dates are selected */}
-              {selectedDates && <div className="lg:sticky lg:top-[600px] lg:z-30">
+              {selectedDates && <div className={cn("lg:sticky lg:z-30", showRecommendation ? "lg:top-[600px]" : "lg:top-[400px]")}>
                 <Card className="bg-muted/30">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">

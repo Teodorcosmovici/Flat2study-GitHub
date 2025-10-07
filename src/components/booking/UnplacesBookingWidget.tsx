@@ -1,4 +1,4 @@
-import { useState, useMemo } from 'react';
+import { useState, useMemo, useEffect } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon, Users, Lightbulb } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -26,9 +26,10 @@ interface UnplacesBookingWidgetProps {
     checkOut: Date;
     persons: number;
   } | null) => void;
+  onRecommendationChange?: (showing: boolean) => void;
 }
 
-export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange }: UnplacesBookingWidgetProps) {
+export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange, onRecommendationChange }: UnplacesBookingWidgetProps) {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
   const { t, language } = useLanguage();
@@ -224,6 +225,11 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     
     return null;
   }, [checkIn, checkOut, listing.rentMonthlyEur, language]);
+
+  // Notify parent when recommendation visibility changes
+  useEffect(() => {
+    onRecommendationChange?.(!!recommendation && showRecommendation);
+  }, [recommendation, showRecommendation, onRecommendationChange]);
 
   const handleDismissRecommendation = () => {
     setShowRecommendation(false);
