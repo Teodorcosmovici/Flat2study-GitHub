@@ -56,8 +56,7 @@ export function Footer() {
               <li>
                 <button 
                   onClick={() => {
-                    const chatButton = document.querySelector('[data-chat-button]') as HTMLButtonElement;
-                    if (chatButton) chatButton.click();
+                    window.dispatchEvent(new CustomEvent('openSupportChat'));
                   }}
                   className="text-muted-foreground hover:text-foreground transition-colors text-left"
                 >

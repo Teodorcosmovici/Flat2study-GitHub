@@ -54,6 +54,12 @@ export const SupportChatButton: React.FC = () => {
     }
   }, [user, profile]);
 
+  useEffect(() => {
+    const handleOpenChat = () => setIsOpen(true);
+    window.addEventListener('openSupportChat', handleOpenChat);
+    return () => window.removeEventListener('openSupportChat', handleOpenChat);
+  }, []);
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     
