@@ -1,4 +1,4 @@
-import { useState } from 'react';
+import { useState, useMemo } from 'react';
 import { format } from 'date-fns';
 import { CalendarIcon, Users, Lightbulb } from 'lucide-react';
 import { Card, CardContent } from '@/components/ui/card';
@@ -186,7 +186,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     return date < minimumCheckOutDate;
   };
 
-  const getDateRecommendation = () => {
+  const recommendation = useMemo(() => {
     if (!checkIn || !checkOut) return null;
     
     const date = checkIn.getDate();
@@ -223,9 +223,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
     }
     
     return null;
-  };
-
-  const recommendation = getDateRecommendation();
+  }, [checkIn, checkOut, listing.rentMonthlyEur, language]);
 
   const handleDismissRecommendation = () => {
     setShowRecommendation(false);
