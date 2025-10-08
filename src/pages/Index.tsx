@@ -433,39 +433,44 @@ const Index = () => {
             </div>
           </section>
 
-          {/* Trustpilot Banner */}
-          <section className="py-8 px-4 border-y bg-background">
-            <div className="container mx-auto">
-              <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
-                <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold">Very good</span>
-                  <div className="flex gap-1">
-                    {[1, 2, 3, 4].map(star => <svg key={star} className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
-                        <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>)}
-                    <svg className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
-                      <defs>
-                        <linearGradient id="half-star">
-                          <stop offset="50%" stopColor="rgb(34 197 94)" />
-                          <stop offset="50%" stopColor="hsl(var(--muted))" />
-                        </linearGradient>
-                      </defs>
-                      <path fill="url(#half-star)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  </div>
-                </div>
-                <div className="text-center md:text-left">
-                  <div className="font-semibold">4.0 out of 5</div>
-                  <div className="flex items-center gap-2 justify-center md:justify-start mt-1">
-                    <svg className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                    <span className="text-sm text-muted-foreground">Trustpilot</span>
-                  </div>
-                </div>
+      {/* Trustpilot Banner */}
+      <section className="py-8 px-4 border-y bg-background">
+        <div className="container mx-auto">
+          <a 
+            href="https://ie.trustpilot.com/review/flat2study.com" 
+            target="_blank" 
+            rel="noopener noreferrer"
+            className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8 hover:opacity-80 transition-opacity cursor-pointer"
+          >
+            <div className="flex items-center gap-2">
+              <span className="text-lg font-semibold">Very good</span>
+              <div className="flex gap-1">
+                {[1, 2, 3, 4].map(star => <svg key={star} className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
+                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                  </svg>)}
+                <svg className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
+                  <defs>
+                    <linearGradient id="half-star">
+                      <stop offset="50%" stopColor="rgb(34 197 94)" />
+                      <stop offset="50%" stopColor="hsl(var(--muted))" />
+                    </linearGradient>
+                  </defs>
+                  <path fill="url(#half-star)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
               </div>
             </div>
-          </section>
+            <div className="text-center md:text-left">
+              <div className="font-semibold">4.0 out of 5</div>
+              <div className="flex items-center gap-2 justify-center md:justify-start mt-1">
+                <svg className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
+                  <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                </svg>
+                <span className="text-sm text-muted-foreground">Trustpilot</span>
+              </div>
+            </div>
+          </a>
+        </div>
+      </section>
 
           {/* Benefits Section */}
           <section className="py-16 px-4 bg-muted/30">
