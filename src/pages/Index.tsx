@@ -10,26 +10,37 @@ import { useFeaturedListings } from '@/hooks/useFeaturedListings';
 import { Logo } from '@/components/ui/logo';
 import { useAuth } from '@/hooks/useAuth';
 import { useLanguage } from '@/contexts/LanguageContext';
-
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import OwnerAccess from '@/components/OwnerAccess';
 import OwnerDashboard from '@/pages/OwnerDashboard';
 import { useState, useEffect } from 'react';
-
 const Index = () => {
-  const { user, profile } = useAuth();
-  const { t, language, setLanguage } = useLanguage();
+  const {
+    user,
+    profile
+  } = useAuth();
+  const {
+    t,
+    language,
+    setLanguage
+  } = useLanguage();
   const navigate = useNavigate();
   const unreadCount = 0; // Removed messaging system
-  const { activeListingsCount, uniqueInquiriesCount, loading: statsLoading } = useDashboardStats();
-  const { listings: featuredListings, loading: listingsLoading } = useFeaturedListings(6);
+  const {
+    activeListingsCount,
+    uniqueInquiriesCount,
+    loading: statsLoading
+  } = useDashboardStats();
+  const {
+    listings: featuredListings,
+    loading: listingsLoading
+  } = useFeaturedListings(6);
   const isMobile = useIsMobile();
   const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState(() => {
     return sessionStorage.getItem('isOwnerAuthenticated') === 'true';
   });
-
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -37,7 +48,6 @@ const Index = () => {
       maximumFractionDigits: 0
     }).format(price);
   };
-
   const isStudent = profile?.user_type === 'student';
   const isLandlord = profile?.user_type === 'private';
   const isAdmin = profile?.user_type === 'admin';
@@ -47,55 +57,33 @@ const Index = () => {
   if (isOwnerAuthenticated) {
     return <OwnerDashboard />;
   }
-
-  return (
-    <div className="min-h-screen bg-background">
+  return <div className="min-h-screen bg-background">
       <Header />
       
       {/* Hero Section - Full viewport height */}
       <section className="relative h-screen flex items-center justify-center hero-gradient text-white overflow-hidden">
         <div className="container mx-auto text-center relative z-10 px-4">
           {/* Mobile Language Selector - Only on homepage and mobile */}
-          {isMobile && (
-            <div className="mb-6 flex justify-center">
+          {isMobile && <div className="mb-6 flex justify-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex items-center gap-1 border border-white/20">
-                <button
-                  onClick={() => setLanguage('en')}
-                  className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${
-                    language === 'en' 
-                      ? 'bg-white text-primary' 
-                      : 'text-white hover:bg-white/10'
-                  }`}
-                >
+                <button onClick={() => setLanguage('en')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'en' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
                   EN
                 </button>
-                <button
-                  onClick={() => setLanguage('it')}
-                  className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${
-                    language === 'it' 
-                      ? 'bg-white text-primary' 
-                      : 'text-white hover:bg-white/10'
-                  }`}
-                >
+                <button onClick={() => setLanguage('it')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'it' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
                   IT
                 </button>
               </div>
-            </div>
-          )}
+            </div>}
           
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
             {user && profile ? `${t('home.heroWelcome')}, ${profile.full_name || 'User'}!` : t('home.heroTitle')}
           </h1>
           <p className="text-xl md:text-2xl mb-8 text-white/90 max-w-3xl mx-auto">
-            {user && profile ? 
-              (isStudent ? t('home.heroSubtitleStudent') : t('home.heroSubtitleRealtor')) : 
-              t('home.heroSubtitle')
-            }
+            {user && profile ? isStudent ? t('home.heroSubtitleStudent') : t('home.heroSubtitleRealtor') : t('home.heroSubtitle')}
           </p>
           
           <div className="flex flex-col gap-4 justify-center max-w-md mx-auto">
-            {user && isLandlord ? (
-              <>
+            {user && isLandlord ? <>
                 <Link to="/create-listing">
                   <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold">
                     <Plus className="mr-2 h-5 w-5" />
@@ -109,15 +97,12 @@ const Index = () => {
                     </span>
                   </Link>
                 </div>
-              </>
-            ) : (
-              <Link to="/search">
+              </> : <Link to="/search">
                 <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold">
                   <Search className="mr-2 h-5 w-5" />
                   {t('home.findPlace')}
                 </Button>
-              </Link>
-            )}
+              </Link>}
           </div>
         </div>
         
@@ -135,10 +120,8 @@ const Index = () => {
       </section>
 
       {/* Conditional Content Based on User Type */}
-      {user && profile ? (
-        <>
-          {isStudent ? (
-            <>
+      {user && profile ? <>
+          {isStudent ? <>
               {/* Universities Section for Students */}
               <section className="py-16 px-4 bg-muted/30">
                 <div className="container mx-auto">
@@ -150,8 +133,7 @@ const Index = () => {
                   </div>
                   
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                    {universities.map(university => (
-                      <Link key={university.id} to={`/search?location=${encodeURIComponent(university.city)}`}>
+                    {universities.map(university => <Link key={university.id} to={`/search?location=${encodeURIComponent(university.city)}`}>
                         <Card className="text-center hover:shadow-lg transition-shadow cursor-pointer">
                           <CardContent className="p-6">
                             <MapPin className="h-8 w-8 text-primary mx-auto mb-3" />
@@ -159,8 +141,7 @@ const Index = () => {
                             <p className="text-sm text-muted-foreground">{university.city}, {university.country}</p>
                           </CardContent>
                         </Card>
-                      </Link>
-                    ))}
+                      </Link>)}
                   </div>
                 </div>
               </section>
@@ -176,10 +157,8 @@ const Index = () => {
                   </div>
                   
                   <div className="relative mb-8">
-                    {listingsLoading ? (
-                      <div className="flex gap-4 overflow-x-auto pb-4">
-                        {[...Array(6)].map((_, index) => (
-                          <Card key={index} className="min-w-[220px] w-[220px] flex-shrink-0 overflow-hidden">
+                    {listingsLoading ? <div className="flex gap-4 overflow-x-auto pb-4">
+                        {[...Array(6)].map((_, index) => <Card key={index} className="min-w-[220px] w-[220px] flex-shrink-0 overflow-hidden">
                             <div className="h-32 bg-muted animate-pulse"></div>
                             <CardContent className="p-4">
                               <div className="h-4 bg-muted animate-pulse rounded mb-2"></div>
@@ -189,25 +168,14 @@ const Index = () => {
                                 <div className="h-8 bg-muted animate-pulse rounded w-16"></div>
                               </div>
                             </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    ) : featuredListings.length === 0 ? (
-                      <div className="text-center py-12">
+                          </Card>)}
+                      </div> : featuredListings.length === 0 ? <div className="text-center py-12">
                         <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
-                      </div>
-                    ) : (
-                      <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                        {featuredListings.map(listing => (
-                          <Card key={listing.id} className="min-w-[220px] w-[220px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
+                      </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                        {featuredListings.map(listing => <Card key={listing.id} className="min-w-[220px] w-[220px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
                             <div className="relative h-32">
-                              <img 
-                                src={listing.images[0] || '/placeholder.svg'}
-                                alt={listing.title} 
-                                className="w-full h-full object-cover"
-                                loading="lazy"
-                              />
+                              <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
                               <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
                                 {t('home.featured')}
                               </Badge>
@@ -228,10 +196,8 @@ const Index = () => {
                                  </Link>
                                </div>
                              </CardContent>
-                          </Card>
-                        ))}
-                      </div>
-                    )}
+                          </Card>)}
+                      </div>}
                   </div>
                   
                   <div className="text-center">
@@ -316,9 +282,7 @@ const Index = () => {
                   <ScrollIndicator className="text-muted-foreground" />
                 </div>
               </section>
-            </>
-          ) : isLandlord ? (
-            <>
+            </> : isLandlord ? <>
               {/* Realtor Dashboard Content */}
               <section className="py-16 px-4 bg-muted/30">
                 <div className="container mx-auto">
@@ -364,11 +328,9 @@ const Index = () => {
                           <div className="w-16 h-16 bg-primary/10 rounded-full flex items-center justify-center mx-auto mb-4 group-hover:bg-primary/20 transition-colors">
                             <MessageCircle className="h-8 w-8 text-primary" />
                           </div>
-                          {unreadCount > 0 && (
-                            <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground">
+                          {unreadCount > 0 && <Badge className="absolute top-4 right-4 bg-destructive text-destructive-foreground">
                               {unreadCount}
-                            </Badge>
-                          )}
+                            </Badge>}
                           <h3 className="text-xl font-semibold mb-3">{t('home.messages')}</h3>
                           <p className="text-muted-foreground">
                             {t('home.messagesDescRealtor')}
@@ -381,11 +343,8 @@ const Index = () => {
                 </div>
               </section>
 
-            </>
-          ) : null}
-        </>
-      ) : (
-        <>
+            </> : null}
+        </> : <>
           {/* Universities Section */}
           <section className="py-16 px-4 bg-muted/30">
             <div className="container mx-auto">
@@ -397,8 +356,7 @@ const Index = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {universities.map(university => (
-                  <Link key={university.id} to={`/search?location=${encodeURIComponent(university.city)}`}>
+                {universities.map(university => <Link key={university.id} to={`/search?location=${encodeURIComponent(university.city)}`}>
                     <Card className="text-center hover:shadow-lg transition-shadow cursor-pointer">
                       <CardContent className="p-6">
                         <MapPin className="h-8 w-8 text-primary mx-auto mb-3" />
@@ -406,8 +364,7 @@ const Index = () => {
                         <p className="text-sm text-muted-foreground">{university.city}, {university.country}</p>
                       </CardContent>
                     </Card>
-                  </Link>
-                ))}
+                  </Link>)}
               </div>
             </div>
           </section>
@@ -423,10 +380,8 @@ const Index = () => {
               </div>
               
               <div className="relative mb-8">
-                {listingsLoading ? (
-                  <div className="flex gap-8 overflow-x-auto pb-4">
-                    {[...Array(6)].map((_, index) => (
-                      <Card key={index} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden">
+                {listingsLoading ? <div className="flex gap-8 overflow-x-auto pb-4">
+                    {[...Array(6)].map((_, index) => <Card key={index} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden">
                         <div className="h-72 bg-muted animate-pulse"></div>
                         <CardContent className="p-4">
                           <div className="h-3 bg-muted animate-pulse rounded mb-1"></div>
@@ -436,24 +391,14 @@ const Index = () => {
                             <div className="h-6 bg-muted animate-pulse rounded w-12"></div>
                           </div>
                         </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                ) : featuredListings.length === 0 ? (
-                  <div className="text-center py-12">
+                      </Card>)}
+                  </div> : featuredListings.length === 0 ? <div className="text-center py-12">
                     <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                     <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
-                  </div>
-                ) : (
-                  <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    {featuredListings.map(listing => (
-                      <Card key={listing.id} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
+                  </div> : <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                    {featuredListings.map(listing => <Card key={listing.id} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
                         <div className="relative h-72">
-                          <img 
-                            src={listing.images[0] || '/placeholder.svg'} 
-                            alt={listing.title} 
-                            className="w-full h-full object-cover" 
-                          />
+                          <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" />
                           <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
                             {t('home.featured')}
                           </Badge>
@@ -474,10 +419,8 @@ const Index = () => {
                             </Link>
                           </div>
                         </CardContent>
-                      </Card>
-                    ))}
-                  </div>
-                )}
+                      </Card>)}
+                  </div>}
               </div>
               
               <div className="text-center">
@@ -495,13 +438,11 @@ const Index = () => {
             <div className="container mx-auto">
               <div className="flex flex-col md:flex-row items-center justify-center gap-4 md:gap-8">
                 <div className="flex items-center gap-2">
-                  <span className="text-lg font-semibold">Excellent</span>
+                  <span className="text-lg font-semibold">Very good</span>
                   <div className="flex gap-1">
-                    {[1, 2, 3, 4].map((star) => (
-                      <svg key={star} className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
+                    {[1, 2, 3, 4].map(star => <svg key={star} className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
                         <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                      </svg>
-                    ))}
+                      </svg>)}
                     <svg className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
                       <defs>
                         <linearGradient id="half-star">
@@ -574,8 +515,7 @@ const Index = () => {
               <ScrollIndicator className="text-muted-foreground" />
             </div>
           </section>
-        </>
-      )}
+        </>}
 
       {/* Admin Quick Access */}
       
@@ -593,8 +533,6 @@ const Index = () => {
           </div>
         </div>
       </footer>
-    </div>
-  );
+    </div>;
 };
-
 export default Index;
