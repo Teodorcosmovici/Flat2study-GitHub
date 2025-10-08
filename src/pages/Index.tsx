@@ -476,9 +476,9 @@ const Index = () => {
           <section className="py-16 px-4 bg-muted/30">
             <div className="container mx-auto">
               <div className="text-center mb-12">
-                <h2 className="text-3xl font-bold mb-4">{t('home.whyChooseUs')}</h2>
+                <h2 className="text-3xl font-bold mb-4">{t('home.whyChooseTitle')}</h2>
                 <p className="text-muted-foreground text-lg">
-                  {t('home.whyChooseUsSubtitle')}
+                  {t('home.whyChooseSubtitle')}
                 </p>
               </div>
               
