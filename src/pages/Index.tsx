@@ -445,62 +445,76 @@ const Index = () => {
           
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
             {/* Elodie's Review */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg font-semibold">E</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold">Elodie</h3>
-                      <span className="text-sm text-muted-foreground">4 days ago</span>
+            <a 
+              href="https://ie.trustpilot.com/review/flat2study.com?languages=all" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block hover:shadow-lg transition-shadow"
+            >
+              <Card className="h-full cursor-pointer">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg font-semibold">E</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">IT · 1 review</p>
-                    <div className="flex gap-1 mb-3">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <svg key={star} className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      ))}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold">Elodie</h3>
+                        <span className="text-sm text-muted-foreground">4 days ago</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">IT · 1 review</p>
+                      <div className="flex gap-1 mb-3">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <svg key={star} className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <h4 className="font-semibold mb-2">sito incredibile</h4>
-                <p className="text-muted-foreground">
-                  Ho trovato un appartamento meraviglioso grazie a questo sito, lo raccomendo 100%
-                </p>
-              </CardContent>
-            </Card>
+                  <h4 className="font-semibold mb-2">sito incredibile</h4>
+                  <p className="text-muted-foreground">
+                    Ho trovato un appartamento meraviglioso grazie a questo sito, lo raccomendo 100%
+                  </p>
+                </CardContent>
+              </Card>
+            </a>
 
             {/* Marie's Review */}
-            <Card>
-              <CardContent className="p-6">
-                <div className="flex items-start gap-4 mb-4">
-                  <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                    <span className="text-lg font-semibold">MA</span>
-                  </div>
-                  <div className="flex-1">
-                    <div className="flex items-center justify-between mb-1">
-                      <h3 className="font-semibold">Marie</h3>
-                      <span className="text-sm text-muted-foreground">5 days ago</span>
+            <a 
+              href="https://ie.trustpilot.com/review/flat2study.com?languages=all" 
+              target="_blank" 
+              rel="noopener noreferrer"
+              className="block hover:shadow-lg transition-shadow"
+            >
+              <Card className="h-full cursor-pointer">
+                <CardContent className="p-6">
+                  <div className="flex items-start gap-4 mb-4">
+                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                      <span className="text-lg font-semibold">MA</span>
                     </div>
-                    <p className="text-sm text-muted-foreground mb-2">FR · 1 review</p>
-                    <div className="flex gap-1 mb-3">
-                      {[1, 2, 3, 4, 5].map(star => (
-                        <svg key={star} className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
-                          <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                        </svg>
-                      ))}
+                    <div className="flex-1">
+                      <div className="flex items-center justify-between mb-1">
+                        <h3 className="font-semibold">Marie</h3>
+                        <span className="text-sm text-muted-foreground">5 days ago</span>
+                      </div>
+                      <p className="text-sm text-muted-foreground mb-2">FR · 1 review</p>
+                      <div className="flex gap-1 mb-3">
+                        {[1, 2, 3, 4, 5].map(star => (
+                          <svg key={star} className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
+                          </svg>
+                        ))}
+                      </div>
                     </div>
                   </div>
-                </div>
-                <h4 className="font-semibold mb-2">Very great</h4>
-                <p className="text-muted-foreground">
-                  Very great, I took a room for my son who is studying at Cattolica. Unfortunately I wasn't able to visit the place but it was exactly as described
-                </p>
-              </CardContent>
-            </Card>
+                  <h4 className="font-semibold mb-2">Very great</h4>
+                  <p className="text-muted-foreground">
+                    Very great, I took a room for my son who is studying at Cattolica. Unfortunately I wasn't able to visit the place but it was exactly as described
+                  </p>
+                </CardContent>
+              </Card>
+            </a>
           </div>
 
           {/* Trustpilot Banner */}
