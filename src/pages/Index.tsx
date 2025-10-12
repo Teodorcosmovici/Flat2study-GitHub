@@ -433,94 +433,29 @@ const Index = () => {
             </div>
           </section>
 
-      {/* Customer Reviews/Testimonials Section */}
+      {/* Trustpilot Reviews Section */}
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto">
           <div className="text-center mb-12">
             <h2 className="text-3xl font-bold mb-4">{language === 'it' ? 'Cosa Dicono i Nostri Clienti' : 'What Our Customers Say'}</h2>
             <p className="text-muted-foreground text-lg">
-              {language === 'it' ? 'Testimonianze reali dai nostri studenti e proprietari' : 'Real testimonials from our students and landlords'}
+              {language === 'it' ? 'Recensioni verificate da Trustpilot' : 'Verified reviews from Trustpilot'}
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mb-8">
-            <Card className="bg-muted/30">
-              <CardContent className="p-6">
-                <div className="flex gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <svg key={star} className="w-5 h-5 fill-yellow-500" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-muted-foreground italic mb-4">
-                  {language === 'it' 
-                    ? '"Piattaforma fantastica! Ho trovato il mio appartamento perfetto vicino all\'università in pochi giorni. Il processo è stato fluido e il supporto è stato eccellente."'
-                    : '"Amazing platform! Found my perfect apartment near university in just a few days. The process was smooth and the support was excellent."'}
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Marco R.</p>
-                    <p className="text-sm text-muted-foreground">{language === 'it' ? 'Studente, Milano' : 'Student, Milan'}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-muted/30">
-              <CardContent className="p-6">
-                <div className="flex gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <svg key={star} className="w-5 h-5 fill-yellow-500" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-muted-foreground italic mb-4">
-                  {language === 'it'
-                    ? '"Affittare la mia proprietà attraverso Flat2Study è stata la decisione migliore. Inquilini affidabili e gestione senza problemi."'
-                    : '"Listing my property through Flat2Study was the best decision. Reliable tenants and hassle-free management."'}
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Building className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Laura B.</p>
-                    <p className="text-sm text-muted-foreground">{language === 'it' ? 'Proprietaria, Roma' : 'Landlord, Rome'}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
-
-            <Card className="bg-muted/30">
-              <CardContent className="p-6">
-                <div className="flex gap-1 mb-4">
-                  {[1, 2, 3, 4, 5].map(star => (
-                    <svg key={star} className="w-5 h-5 fill-yellow-500" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
-                  ))}
-                </div>
-                <p className="text-muted-foreground italic mb-4">
-                  {language === 'it'
-                    ? '"Servizio eccellente dall\'inizio alla fine. La verifica e la trasparenza mi hanno fatto sentire sicuro nella mia scelta."'
-                    : '"Excellent service from start to finish. The verification and transparency made me feel safe about my choice."'}
-                </p>
-                <div className="flex items-center gap-3">
-                  <div className="w-10 h-10 rounded-full bg-primary/20 flex items-center justify-center">
-                    <Users className="h-5 w-5 text-primary" />
-                  </div>
-                  <div>
-                    <p className="font-semibold">Sofia M.</p>
-                    <p className="text-sm text-muted-foreground">{language === 'it' ? 'Studentessa, Firenze' : 'Student, Florence'}</p>
-                  </div>
-                </div>
-              </CardContent>
-            </Card>
+          {/* Trustpilot TrustBox widget - Carousel */}
+          <div 
+            className="trustpilot-widget mb-8" 
+            data-locale={language === 'it' ? 'it-IT' : 'en-US'}
+            data-template-id="53aa8912dec7e10d38f59f36" 
+            data-businessunit-id="678fca6c7a2ec1afaf7c6a98" 
+            data-style-height="140px" 
+            data-style-width="100%" 
+            data-theme="light" 
+            data-stars="4,5"
+            data-review-languages={language === 'it' ? 'it' : 'en'}
+          >
+            <a href="https://ie.trustpilot.com/review/flat2study.com" target="_blank" rel="noopener noreferrer">Trustpilot</a>
           </div>
 
           {/* Trustpilot Banner */}
