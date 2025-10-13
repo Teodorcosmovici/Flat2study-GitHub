@@ -90,7 +90,9 @@ export default function ListingCard({
               // Single image - no carousel needed
               <div className="relative h-full">
                 <img 
-                  src={listing.images[0]}
+                  src={transformSupabaseImage(listing.images[0], { width: 800, quality: 75 })}
+                  srcSet={buildSrcSet(listing.images[0], [400, 600, 800], 75)}
+                  sizes="(max-width: 768px) 100vw, 400px"
                   alt={listing.title}
                   className="w-full h-full object-cover"
                   loading="lazy"
@@ -101,7 +103,9 @@ export default function ListingCard({
               // Multiple images - simple manual navigation
               <div className="relative h-full">
                 <img 
-                  src={listing.images[currentImageIndex]}
+                  src={transformSupabaseImage(listing.images[currentImageIndex], { width: 800, quality: 75 })}
+                  srcSet={buildSrcSet(listing.images[currentImageIndex], [400, 600, 800], 75)}
+                  sizes="(max-width: 768px) 100vw, 400px"
                   alt={`${listing.title} - Image ${currentImageIndex + 1}`}
                   className="w-full h-full object-cover"
                   draggable={false}
