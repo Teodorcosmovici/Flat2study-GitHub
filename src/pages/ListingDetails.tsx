@@ -24,6 +24,7 @@ import { HowToBook } from '@/components/listing/HowToBook';
 import { PaymentSummaryModal } from '@/components/listing/PaymentSummaryModal';
 import { LocationMapDialog } from '@/components/listing/LocationMapDialog';
 import { ContactInfo } from '@/components/contact/ContactInfo';
+import { RequestVisitDialog } from '@/components/booking/RequestVisitDialog';
 import { generateListingTitle } from '@/utils/titleGeneration';
 import { cn } from '@/lib/utils';
 
@@ -130,6 +131,7 @@ export default function ListingDetails() {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
   const [translatedDescription, setTranslatedDescription] = useState('');
   const [isDescriptionTranslated, setIsDescriptionTranslated] = useState(false);
+  const [showMobileVisitDialog, setShowMobileVisitDialog] = useState(false);
   useEffect(() => {
     if (id) {
       fetchListing();
@@ -390,6 +392,24 @@ export default function ListingDetails() {
               {/* Property Details */}
               <Card>
                 <CardHeader>
+                  {/* Mobile Request Visit Button */}
+                  {isMobile && (
+                    <>
+                      <Button 
+                        variant="outline"
+                        className="w-full h-12 text-base font-medium border-secondary hover:bg-secondary/10 mb-4"
+                        onClick={() => setShowMobileVisitDialog(true)}
+                      >
+                        {t('booking.requestVisit')}
+                      </Button>
+                      <RequestVisitDialog 
+                        listing={listing}
+                        open={showMobileVisitDialog}
+                        onOpenChange={setShowMobileVisitDialog}
+                      />
+                    </>
+                  )}
+                  
                   <div className="flex items-start justify-between">
                     <div>
                       <CardTitle className="text-2xl mb-2">{listing.title}</CardTitle>
