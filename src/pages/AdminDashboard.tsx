@@ -12,6 +12,7 @@ import { toast } from '@/hooks/use-toast';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
+import { AdminVisitRequests } from '@/components/admin/AdminVisitRequests';
 
 interface PendingListing {
   id: string;
@@ -131,8 +132,12 @@ export const AdminDashboard = () => {
         </Badge>
       </div>
 
-      <Tabs defaultValue="bookings" className="space-y-6">
+      <Tabs defaultValue="visits" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="visits">
+            <MessageSquare className="w-4 h-4 mr-2" />
+            Visit Requests
+          </TabsTrigger>
           <TabsTrigger value="bookings">
             <Calendar className="w-4 h-4 mr-2" />
             Booking Requests
@@ -150,6 +155,10 @@ export const AdminDashboard = () => {
             User Impersonation
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="visits">
+          <AdminVisitRequests />
+        </TabsContent>
 
         <TabsContent value="bookings">
           <AdminBookingRequests />
