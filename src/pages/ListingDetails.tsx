@@ -412,7 +412,9 @@ export default function ListingDetails() {
                   
                   <div className="flex items-start justify-between">
                     <div>
-                      <CardTitle className="text-2xl mb-2">{listing.title}</CardTitle>
+                      <CardTitle className="text-2xl mb-2">
+                        {getTypeDisplayName(listing.type)} {t('listing.in')} {listing.addressLine}
+                      </CardTitle>
                       <div className="flex items-center justify-between text-muted-foreground mb-2">
                         <div className="flex items-center">
                           <MapPin className="h-4 w-4 mr-1" />
