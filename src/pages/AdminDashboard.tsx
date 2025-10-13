@@ -6,11 +6,12 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, XCircle, Clock, Eye, MessageSquare } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { UserImpersonation } from '@/components/admin/UserImpersonation';
+import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
 
 interface PendingListing {
   id: string;
@@ -130,8 +131,12 @@ export const AdminDashboard = () => {
         </Badge>
       </div>
 
-      <Tabs defaultValue="support" className="space-y-6">
+      <Tabs defaultValue="bookings" className="space-y-6">
         <TabsList>
+          <TabsTrigger value="bookings">
+            <Calendar className="w-4 h-4 mr-2" />
+            Booking Requests
+          </TabsTrigger>
           <TabsTrigger value="pending">
             <Clock className="w-4 h-4 mr-2" />
             Pending Reviews ({pendingListings.length})
@@ -145,6 +150,10 @@ export const AdminDashboard = () => {
             User Impersonation
           </TabsTrigger>
         </TabsList>
+
+        <TabsContent value="bookings">
+          <AdminBookingRequests />
+        </TabsContent>
 
         <TabsContent value="pending" className="space-y-4">
           <div className="grid gap-6 lg:grid-cols-2">
