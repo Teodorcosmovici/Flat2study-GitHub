@@ -71,12 +71,6 @@ export function RequestVisitDialog({ listing, open, onOpenChange }: RequestVisit
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
       <DialogContent className="sm:max-w-[425px]">
-        <DialogHeader>
-          <DialogTitle>{t('booking.visitRequest.title')}</DialogTitle>
-          <DialogDescription>
-            {t('booking.visitRequest.description')}
-          </DialogDescription>
-        </DialogHeader>
         <form onSubmit={handleSubmit} className="space-y-4">
           <div className="space-y-2">
             <Label htmlFor="name">{t('booking.visitRequest.name')}</Label>
