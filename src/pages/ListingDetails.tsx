@@ -400,7 +400,7 @@ export default function ListingDetails() {
                         className="w-full h-12 text-base font-medium border-secondary hover:bg-secondary/10 mb-4"
                         onClick={() => setShowMobileVisitDialog(true)}
                       >
-                        {t('booking.requestVisit')}
+                        {language === 'it' ? 'Richiedi più informazioni' : 'Ask for more information'}
                       </Button>
                       <RequestVisitDialog 
                         listing={listing}
