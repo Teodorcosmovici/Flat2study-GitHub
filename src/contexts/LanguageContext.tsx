@@ -420,7 +420,7 @@ const translations = {
     'listing.perMonthShort': '/month',
     'listing.howToBook': 'How to Book',
     'listing.howToBook.step1.title': 'Find your home 100% online',
-    'listing.howToBook.step1.desc': 'With our platform, in-person visits are a thing of the past. Our team verifies the property to offer video tours and photos so you can view them online. We collect all the information you need to make your decision.',
+    'listing.howToBook.step1.desc': 'Our team verifies the property to offer video tours and photos so you can view them online. We collect all the information you need to make your decision.',
     'listing.howToBook.step2.title': 'Make a booking request',
     'listing.howToBook.step2.desc': "With just a few simple details you can make a request for the property. Remember, we won't charge you until the Landlord confirms.",
     'listing.howToBook.step3.title': 'Get an answer in 24h or less',
