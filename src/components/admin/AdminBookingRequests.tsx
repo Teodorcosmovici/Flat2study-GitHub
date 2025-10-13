@@ -39,52 +39,68 @@ export const AdminBookingRequests = () => {
   const fetchBookingRequests = async () => {
     try {
       setLoading(true);
-      const { data, error } = await supabase
+      
+      // First get all bookings
+      const { data: bookingsData, error: bookingsError } = await supabase
         .from('bookings')
-        .select(`
-          id,
-          tenant_id,
-          listing_id,
-          status,
-          payment_status,
-          check_in_date,
-          check_out_date,
-          monthly_rent,
-          total_amount,
-          created_at,
-          tenant:profiles!bookings_tenant_id_fkey (
-            full_name,
-            email,
-            phone,
-            university
-          ),
-          listing:listings!bookings_listing_id_fkey (
-            title,
-            address_line
-          )
-        `)
+        .select('*')
         .order('created_at', { ascending: false });
 
-      if (error) throw error;
+      if (bookingsError) throw bookingsError;
 
-      const formattedBookings: BookingRequest[] = (data || []).map((booking: any) => ({
-        id: booking.id,
-        tenant_id: booking.tenant_id,
-        listing_id: booking.listing_id,
-        status: booking.status,
-        payment_status: booking.payment_status,
-        check_in_date: booking.check_in_date,
-        check_out_date: booking.check_out_date,
-        monthly_rent: booking.monthly_rent,
-        total_amount: booking.total_amount,
-        created_at: booking.created_at,
-        tenant_full_name: booking.tenant?.full_name || 'N/A',
-        tenant_email: booking.tenant?.email || 'N/A',
-        tenant_phone: booking.tenant?.phone || 'N/A',
-        tenant_university: booking.tenant?.university || 'N/A',
-        listing_title: booking.listing?.title || 'N/A',
-        listing_address_line: booking.listing?.address_line || 'N/A',
-      }));
+      if (!bookingsData || bookingsData.length === 0) {
+        setBookings([]);
+        return;
+      }
+
+      // Get all unique tenant IDs and listing IDs
+      const tenantIds = [...new Set(bookingsData.map(b => b.tenant_id))];
+      const listingIds = [...new Set(bookingsData.map(b => b.listing_id))];
+
+      // Fetch tenant profiles
+      const { data: profilesData, error: profilesError } = await supabase
+        .from('profiles')
+        .select('user_id, full_name, email, phone, university')
+        .in('user_id', tenantIds);
+
+      if (profilesError) throw profilesError;
+
+      // Fetch listings
+      const { data: listingsData, error: listingsError } = await supabase
+        .from('listings')
+        .select('id, title, address_line')
+        .in('id', listingIds);
+
+      if (listingsError) throw listingsError;
+
+      // Create lookup maps
+      const profilesMap = new Map(profilesData?.map(p => [p.user_id, p]) || []);
+      const listingsMap = new Map(listingsData?.map(l => [l.id, l]) || []);
+
+      // Combine the data
+      const formattedBookings: BookingRequest[] = bookingsData.map((booking: any) => {
+        const profile = profilesMap.get(booking.tenant_id);
+        const listing = listingsMap.get(booking.listing_id);
+
+        return {
+          id: booking.id,
+          tenant_id: booking.tenant_id,
+          listing_id: booking.listing_id,
+          status: booking.status,
+          payment_status: booking.payment_status,
+          check_in_date: booking.check_in_date,
+          check_out_date: booking.check_out_date,
+          monthly_rent: booking.monthly_rent,
+          total_amount: booking.total_amount,
+          created_at: booking.created_at,
+          tenant_full_name: profile?.full_name || 'N/A',
+          tenant_email: profile?.email || 'N/A',
+          tenant_phone: profile?.phone || 'N/A',
+          tenant_university: profile?.university || 'N/A',
+          listing_title: listing?.title || 'N/A',
+          listing_address_line: listing?.address_line || 'N/A',
+        };
+      });
 
       setBookings(formattedBookings);
     } catch (error) {
