@@ -13,6 +13,7 @@ import { Listing } from '@/types';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { RequestVisitDialog } from './RequestVisitDialog';
 
 interface UnplacesBookingWidgetProps {
   listing: Listing;
@@ -39,6 +40,7 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
   const [showCheckInCalendar, setShowCheckInCalendar] = useState(false);
   const [showCheckOutCalendar, setShowCheckOutCalendar] = useState(false);
   const [showRecommendation, setShowRecommendation] = useState(true);
+  const [showVisitDialog, setShowVisitDialog] = useState(false);
 
   const { availability, loading } = useAvailability(listing.id);
 
@@ -466,6 +468,17 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               {loading ? t('booking.loading') : t('booking.continue')}
             </Button>
 
+            <Button 
+              variant="outline"
+              className={cn(
+                "w-full h-12 text-base font-medium border-secondary hover:bg-secondary/10",
+                isMobile && "h-10 text-sm"
+              )}
+              onClick={() => setShowVisitDialog(true)}
+            >
+              {t('booking.requestVisit')}
+            </Button>
+
             {/* Availability Note */}
             <p className={cn(
               "text-xs text-muted-foreground text-center",
@@ -476,6 +489,12 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
           </>
         )}
       </CardContent>
+
+      <RequestVisitDialog 
+        listing={listing}
+        open={showVisitDialog}
+        onOpenChange={setShowVisitDialog}
+      />
     </Card>
   );
 }
