@@ -190,14 +190,24 @@ export default function EditListing() {
     const files = e.target.files;
     if (!files || files.length === 0) return;
 
+    if (!user) {
+      toast({
+        title: "Error",
+        description: "You must be logged in to upload images",
+        variant: "destructive",
+      });
+      return;
+    }
+
     setUploading(true);
     const newImages: string[] = [];
 
     for (const file of Array.from(files)) {
       try {
         const fileExt = file.name.split('.').pop();
-        const fileName = `${Math.random()}.${fileExt}`;
-        const filePath = `${fileName}`;
+        const random = Math.random().toString(36).slice(2, 8);
+        const fileName = `${Date.now()}-${random}.${fileExt}`;
+        const filePath = `${user.id}/${fileName}`;
 
         const { error: uploadError } = await supabase.storage
           .from('listing-images')
@@ -205,6 +215,11 @@ export default function EditListing() {
 
         if (uploadError) {
           console.error('Upload error:', uploadError);
+          toast({
+            title: "Upload Error",
+            description: uploadError.message,
+            variant: "destructive",
+          });
           continue;
         }
 
@@ -215,11 +230,23 @@ export default function EditListing() {
         newImages.push(data.publicUrl);
       } catch (error) {
         console.error('Error uploading image:', error);
+        toast({
+          title: "Error",
+          description: "Failed to upload image",
+          variant: "destructive",
+        });
       }
     }
 
     setUploadedImages([...uploadedImages, ...newImages]);
     setUploading(false);
+    
+    if (newImages.length > 0) {
+      toast({
+        title: "Success",
+        description: `${newImages.length} image(s) uploaded successfully`,
+      });
+    }
   };
 
   const removeImage = (index: number) => {
