@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } f
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
+import { PhoneInput } from '@/components/ui/phone-input';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
@@ -102,14 +103,12 @@ export function RequestVisitDialog({ listing, open, onOpenChange }: RequestVisit
           </div>
           <div className="space-y-2">
             <Label htmlFor="phone">{t('booking.visitRequest.phone')}</Label>
-            <Input
-              id="phone"
-              type="tel"
+            <PhoneInput
               value={formData.phone}
-              onChange={(e) => setFormData({ ...formData, phone: e.target.value })}
-              required
-              maxLength={20}
+              onChange={(value) => setFormData({ ...formData, phone: value })}
+              defaultCountry="IT"
               placeholder={t('booking.visitRequest.phonePlaceholder')}
+              required
             />
           </div>
           <div className="flex gap-3 pt-4">
