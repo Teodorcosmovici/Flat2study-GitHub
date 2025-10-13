@@ -410,8 +410,8 @@ export default function ListingDetails() {
                     </>
                   )}
                   
-                  <div className="flex items-start justify-between">
-                    <div>
+                  <div className="flex flex-col md:flex-row items-start md:justify-between gap-4">
+                    <div className="flex-1">
                       <CardTitle className="text-2xl mb-2">
                         {getTypeDisplayName(listing.type)} {listing.addressLine}
                       </CardTitle>
@@ -423,7 +423,10 @@ export default function ListingDetails() {
                         <LocationMapDialog listing={listing} />
                       </div>
                     </div>
-                    <div className="text-right space-y-2">
+                    <div className={cn(
+                      "space-y-2",
+                      isMobile ? "text-center w-full" : "text-right"
+                    )}>
                       <div className="text-3xl font-bold text-price">
                         {formatPrice(listing.rentMonthlyEur)}
                       </div>
