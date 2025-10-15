@@ -700,7 +700,7 @@ export type Database = {
           read_at: string | null
           reminder_sent_at: string | null
           replied_at: string | null
-          sender_id: string
+          sender_id: string | null
           sender_name: string
           sender_phone: string | null
           sender_university: string | null
@@ -716,7 +716,7 @@ export type Database = {
           read_at?: string | null
           reminder_sent_at?: string | null
           replied_at?: string | null
-          sender_id: string
+          sender_id?: string | null
           sender_name: string
           sender_phone?: string | null
           sender_university?: string | null
@@ -732,7 +732,7 @@ export type Database = {
           read_at?: string | null
           reminder_sent_at?: string | null
           replied_at?: string | null
-          sender_id?: string
+          sender_id?: string | null
           sender_name?: string
           sender_phone?: string | null
           sender_university?: string | null
