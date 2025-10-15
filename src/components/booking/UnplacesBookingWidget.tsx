@@ -468,6 +468,14 @@ export function UnplacesBookingWidget({ listing, onBookingRequest, onDatesChange
               {loading ? t('booking.loading') : t('booking.continue')}
             </Button>
 
+            <Button 
+              variant="outline"
+              className="w-full h-12 text-base font-medium"
+              onClick={() => setShowVisitDialog(true)}
+            >
+              {t('booking.requestVisit')}
+            </Button>
+
             {/* Availability Note */}
             <p className={cn(
               "text-xs text-muted-foreground text-center",
