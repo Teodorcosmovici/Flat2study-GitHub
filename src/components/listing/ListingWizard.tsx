@@ -264,7 +264,7 @@ export const ListingWizard = () => {
           internet_included: listingData.internetIncluded,
           internet_cost_eur: listingData.internetCostEur,
           furnished: listingData.furnished,
-          bedrooms: listingData.bedrooms || (listingData.type === 'studio' ? 0 : 1),
+          bedrooms: listingData.bedrooms || 1,
           bathrooms: listingData.bathrooms,
           total_bedrooms: listingData.total_bedrooms,
           total_bathrooms: listingData.total_bathrooms,
