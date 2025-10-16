@@ -78,39 +78,81 @@ const STEPS = [
   'createListing.review'
 ];
 
+const STORAGE_KEY = 'listing_wizard_data';
+const STORAGE_STEP_KEY = 'listing_wizard_step';
+
 export const ListingWizard = () => {
   const { profile } = useAuth();
   const { t } = useLanguage();
   const navigate = useNavigate();
   const generateTitle = useListingTitleGenerator();
-  const [currentStep, setCurrentStep] = useState(0);
-  const [listingData, setListingData] = useState<ListingData>({
-    address_line: '',
-    address_line2: '',
-    postcode: '',
-    city: '',
-    country: '',
-    furnished: false,
-    type: 'entire_property',
-    bathrooms: 1,
-    size_sqm: 0,
-    amenities: [],
-    description: '',
-    rules: [],
-    rent_basis: 'monthly',
-    rent_amount: 0,
-    deposit: '1_month',
-    available_from: '',
-    electricityIncluded: true,
-    electricityCostEur: 0,
-    gasIncluded: true,
-    gasCostEur: 0,
-    waterIncluded: true,
-    waterCostEur: 0,
-    internetIncluded: true,
-    internetCostEur: 0,
-    images: []
+  
+  // Initialize state from localStorage if available
+  const [currentStep, setCurrentStep] = useState(() => {
+    try {
+      const savedStep = localStorage.getItem(STORAGE_STEP_KEY);
+      return savedStep ? parseInt(savedStep, 10) : 0;
+    } catch {
+      return 0;
+    }
   });
+  
+  const [listingData, setListingData] = useState<ListingData>(() => {
+    try {
+      const savedData = localStorage.getItem(STORAGE_KEY);
+      if (savedData) {
+        return JSON.parse(savedData);
+      }
+    } catch {
+      // If parsing fails, use default values
+    }
+    
+    return {
+      address_line: '',
+      address_line2: '',
+      postcode: '',
+      city: '',
+      country: '',
+      furnished: false,
+      type: 'entire_property',
+      bathrooms: 1,
+      size_sqm: 0,
+      amenities: [],
+      description: '',
+      rules: [],
+      rent_basis: 'monthly',
+      rent_amount: 0,
+      deposit: '1_month',
+      available_from: '',
+      electricityIncluded: true,
+      electricityCostEur: 0,
+      gasIncluded: true,
+      gasCostEur: 0,
+      waterIncluded: true,
+      waterCostEur: 0,
+      internetIncluded: true,
+      internetCostEur: 0,
+      images: []
+    };
+  });
+
+  // Save listingData to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(listingData));
+    } catch (error) {
+      console.error('Error saving to localStorage:', error);
+    }
+  }, [listingData]);
+
+  // Save currentStep to localStorage whenever it changes
+  useEffect(() => {
+    try {
+      localStorage.setItem(STORAGE_STEP_KEY, currentStep.toString());
+    } catch (error) {
+      console.error('Error saving step to localStorage:', error);
+    }
+  }, [currentStep]);
 
   // Auto-generate title when relevant fields change
   useEffect(() => {
@@ -240,6 +282,10 @@ export const ListingWizard = () => {
 
       if (error) throw error;
 
+      // Clear localStorage after successful submission
+      localStorage.removeItem(STORAGE_KEY);
+      localStorage.removeItem(STORAGE_STEP_KEY);
+      
       toast({
         title: t('createListing.submittedForReview'),
         description: t('createListing.submittedDescription'),
