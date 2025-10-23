@@ -674,28 +674,25 @@ export default function ListingDetails() {
             </div>
 
             {/* Sidebar */}
-            <div className="space-y-4">
-              <div className="lg:sticky lg:top-24">
-                 <UnplacesBookingWidget 
-                  listing={listing} 
-                  onDatesChange={data => {
-                    setSelectedDates(data);
-                  }} 
-                  onRecommendationChange={showing => {
-                    setShowRecommendation(showing);
-                  }}
-                  onBookingRequest={data => {
-                    toast({
-                      title: t('listing.bookingRequestSent'),
-                      description: t('listing.landlordResponse')
-                    });
-                  }} 
-                />
-              </div>
+            <div className="lg:sticky lg:top-24 lg:z-20 space-y-4">
+              <UnplacesBookingWidget 
+                listing={listing} 
+                onDatesChange={data => {
+                  setSelectedDates(data);
+                }} 
+                onRecommendationChange={showing => {
+                  setShowRecommendation(showing);
+                }}
+                onBookingRequest={data => {
+                  toast({
+                    title: t('listing.bookingRequestSent'),
+                    description: t('listing.landlordResponse')
+                  });
+                }} 
+              />
 
-              
               {/* Payment Summary Box - Only show when dates are selected */}
-              {selectedDates && <div className="lg:sticky lg:top-[28rem] lg:z-20">
+              {selectedDates && (
                 <Card className="bg-muted/30">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">
@@ -737,7 +734,7 @@ export default function ListingDetails() {
                     </PaymentSummaryModal>
                   </CardContent>
                 </Card>
-              </div>}
+              )}
             </div>
           </div>
         </div>
