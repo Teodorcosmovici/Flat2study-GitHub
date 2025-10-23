@@ -47,7 +47,7 @@ export default function EditListing() {
     // Pricing
     rentBasis: 'monthly' as 'daily' | 'semi_monthly' | 'monthly',
     rentAmount: '',
-    deposit: '1_month' as 'none' | '1_month' | '1.5_months' | '2_months' | '3_months',
+    deposit: 0,
     landlordAdminFee: '',
     minStayMonths: '',
     maxStayMonths: '',
@@ -148,16 +148,7 @@ export default function EditListing() {
           : [],
         rentBasis: 'monthly', // Default - could be calculated from deposit/rent ratio
         rentAmount: data.rent_monthly_eur?.toString() || '',
-        deposit: data.deposit_eur && data.rent_monthly_eur 
-          ? (() => {
-              const ratio = data.deposit_eur / data.rent_monthly_eur;
-              if (ratio <= 1.2) return '1_month';
-              if (ratio <= 1.7) return '1.5_months';
-              if (ratio <= 2.2) return '2_months';
-              if (ratio <= 3.2) return '3_months';
-              return 'none';
-            })()
-          : '1_month',
+        deposit: data.deposit_eur || 0,
         landlordAdminFee: (data as any).landlord_admin_fee?.toString() || '',
         minStayMonths: data.minimum_stay_days ? Math.round(data.minimum_stay_days / 30).toString() : '',
         maxStayMonths: data.maximum_stay_days ? Math.round(data.maximum_stay_days / 30).toString() : '',
@@ -268,17 +259,6 @@ export default function EditListing() {
     setIsSubmitting(true);
 
     try {
-      // Calculate deposit amount
-      let depositAmount = 0;
-      if (formData.deposit !== 'none' && formData.rentAmount) {
-        const multiplier = {
-          '1_month': 1,
-          '1.5_months': 1.5,
-          '2_months': 2,
-          '3_months': 3
-        }[formData.deposit];
-        depositAmount = parseInt(formData.rentAmount) * multiplier;
-      }
 
       // Generate title based on current form data
       const title = formData.title || 'Rental Property';
@@ -290,7 +270,7 @@ export default function EditListing() {
         type: formData.type === 'entire_property' ? 'apartment' : formData.type === 'studio' ? 'studio' : formData.type === 'bedspace_shared' ? 'bedspace' : 'room',
         description: formData.description || null,
         rent_monthly_eur: formData.rentAmount ? parseInt(formData.rentAmount) : null,
-        deposit_eur: depositAmount || null,
+        deposit_eur: formData.deposit || null,
         landlord_admin_fee: formData.landlordAdminFee ? parseInt(formData.landlordAdminFee) : null,
         bedrooms: formData.bedrooms ? parseInt(formData.bedrooms) : null,
         bathrooms: formData.bathrooms ? parseInt(formData.bathrooms) : null,
@@ -692,22 +672,19 @@ export default function EditListing() {
               </div>
 
               <div className="space-y-2">
-                <Label>Security Deposit</Label>
-                <Select 
-                  value={formData.deposit} 
-                  onValueChange={(value) => setFormData({...formData, deposit: value as typeof formData.deposit})}
-                >
-                  <SelectTrigger>
-                    <SelectValue placeholder="Select deposit amount" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    <SelectItem value="none">No deposit required</SelectItem>
-                    <SelectItem value="1_month">1 month rent</SelectItem>
-                    <SelectItem value="1.5_months">1.5 months rent</SelectItem>
-                    <SelectItem value="2_months">2 months rent</SelectItem>
-                    <SelectItem value="3_months">3 months rent</SelectItem>
-                  </SelectContent>
-                </Select>
+                <Label htmlFor="deposit">Security Deposit (EUR)</Label>
+                <Input
+                  id="deposit"
+                  type="number"
+                  min="0"
+                  step="1"
+                  value={formData.deposit || ''}
+                  onChange={(e) => setFormData({...formData, deposit: parseFloat(e.target.value) || 0})}
+                  placeholder="Enter deposit amount in EUR"
+                />
+                <p className="text-xs text-muted-foreground">
+                  Enter the security deposit amount in EUR (enter 0 for no deposit)
+                </p>
               </div>
 
               <div className="space-y-2">
