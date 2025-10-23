@@ -48,7 +48,7 @@ interface ListingData {
   // Pricing & Availability
   rent_basis: 'daily' | 'semi_monthly' | 'monthly';
   rent_amount: number;
-  deposit: 'none' | '1_month' | '1.5_months' | '2_months' | '3_months';
+  deposit: number;
   landlord_admin_fee?: number;
   min_stay_months?: number;
   max_stay_months?: number;
@@ -122,7 +122,7 @@ export const ListingWizard = () => {
       rules: [],
       rent_basis: 'monthly',
       rent_amount: 0,
-      deposit: '1_month',
+      deposit: 0,
       available_from: '',
       electricityIncluded: true,
       electricityCostEur: 0,
@@ -226,18 +226,6 @@ export const ListingWizard = () => {
         monthly_rent = listingData.rent_amount * 2;
       }
 
-      // Calculate deposit amount
-      let deposit_amount = 0;
-      if (listingData.deposit !== 'none') {
-        const multiplier = {
-          '1_month': 1,
-          '1.5_months': 1.5,
-          '2_months': 2,
-          '3_months': 3
-        }[listingData.deposit];
-        deposit_amount = monthly_rent * multiplier;
-      }
-
       const { data, error } = await supabase
         .from('listings')
         .insert({
@@ -252,7 +240,7 @@ export const ListingWizard = () => {
           lat: 0, // You'll need to geocode the address
           lng: 0, // You'll need to geocode the address
           rent_monthly_eur: Math.round(monthly_rent),
-          deposit_eur: Math.round(deposit_amount),
+          deposit_eur: Math.round(listingData.deposit),
           landlord_admin_fee: listingData.landlord_admin_fee || null,
           bills_included: listingData.electricityIncluded && listingData.gasIncluded && listingData.waterIncluded && listingData.internetIncluded,
           electricity_included: listingData.electricityIncluded,

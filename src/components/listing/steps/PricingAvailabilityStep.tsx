@@ -10,7 +10,7 @@ import { Info } from 'lucide-react';
 interface PricingAvailabilityStepProps {
   data: {
     rent_amount: number;
-    deposit: 'none' | '1_month' | '1.5_months' | '2_months' | '3_months';
+    deposit: number;
     landlord_admin_fee?: number;
     min_stay_months?: number;
     max_stay_months?: number;
@@ -41,24 +41,24 @@ export const PricingAvailabilityStep: React.FC<PricingAvailabilityStepProps> = (
       </div>
 
       <div>
-        <Label>{t('createListing.securityDeposit')} *</Label>
-        <Select 
-          value={data.deposit} 
-          onValueChange={(value) => updateData({ deposit: value })}
-        >
-          <SelectTrigger className="mt-1">
-            <SelectValue placeholder={t('createListing.selectDepositAmount')} />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="none">{t('createListing.noDepositRequired')}</SelectItem>
-            <SelectItem value="1_month">{t('createListing.oneMonthRent')}</SelectItem>
-            <SelectItem value="1.5_months">{t('createListing.oneAndHalfMonthsRent')}</SelectItem>
-            <SelectItem value="2_months">{t('createListing.twoMonthsRent')}</SelectItem>
-            <SelectItem value="3_months">{t('createListing.threeMonthsRent')}</SelectItem>
-          </SelectContent>
-        </Select>
+        <Label htmlFor="deposit">
+          {t('createListing.securityDeposit')} *
+        </Label>
+        <Input
+          id="deposit"
+          type="number"
+          min="0"
+          step="1"
+          value={data.deposit || ''}
+          onChange={(e) => updateData({ deposit: parseFloat(e.target.value) || 0 })}
+          placeholder={t('createListing.enterDepositAmount')}
+          className="mt-1"
+        />
+        <p className="text-xs text-muted-foreground mt-1">
+          Enter the security deposit amount in EUR
+        </p>
         
-        {data.deposit === 'none' && (
+        {data.deposit === 0 && (
           <Alert className="mt-3">
             <Info className="h-4 w-4" />
             <AlertDescription>
