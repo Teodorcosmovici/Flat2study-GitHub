@@ -695,7 +695,7 @@ export default function ListingDetails() {
 
               
               {/* Payment Summary Box - Only show when dates are selected */}
-              {selectedDates && <div className={cn("lg:sticky lg:z-30", showRecommendation ? "lg:top-[600px]" : "lg:top-[400px]")}>
+              {selectedDates && <div className="lg:mt-4">
                 <Card className="bg-muted/30">
                   <CardContent className="p-4">
                     <div className="text-sm text-muted-foreground mb-2">
