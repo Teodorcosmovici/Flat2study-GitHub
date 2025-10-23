@@ -674,7 +674,7 @@ export default function ListingDetails() {
             </div>
 
             {/* Sidebar */}
-            <div className="lg:sticky lg:top-24 lg:z-20 space-y-4">
+            <div className="md:sticky md:top-24 md:z-20 lg:top-24 space-y-4">
               <UnplacesBookingWidget 
                 listing={listing} 
                 onDatesChange={data => {
