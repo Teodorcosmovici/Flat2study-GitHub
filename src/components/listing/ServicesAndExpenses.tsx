@@ -93,7 +93,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Security Deposit */}
-        {depositEur && depositEur > 0 && (
+        {Number(depositEur) > 0 && (
           <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
             <div className="flex justify-between items-start">
               <div className="flex-1">
@@ -109,7 +109,7 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
           </div>
         )}
         {/* Administrative Cost */}
-        {landlordAdminFee && landlordAdminFee > 0 && (
+        {Number(landlordAdminFee) > 0 && (
           <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
             <div className="flex justify-between items-start">
               <div className="flex-1">
