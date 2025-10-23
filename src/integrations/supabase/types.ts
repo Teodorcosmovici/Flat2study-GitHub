@@ -16,7 +16,7 @@ export type Database = {
     Tables: {
       admin_impersonation_sessions: {
         Row: {
-          admin_ip_address: unknown | null
+          admin_ip_address: unknown
           admin_user_id: string
           created_at: string
           ended_at: string | null
@@ -27,7 +27,7 @@ export type Database = {
           started_at: string
         }
         Insert: {
-          admin_ip_address?: unknown | null
+          admin_ip_address?: unknown
           admin_user_id: string
           created_at?: string
           ended_at?: string | null
@@ -38,7 +38,7 @@ export type Database = {
           started_at?: string
         }
         Update: {
-          admin_ip_address?: unknown | null
+          admin_ip_address?: unknown
           admin_user_id?: string
           created_at?: string
           ended_at?: string | null
@@ -462,7 +462,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           listing_id: string
           session_id: string | null
           time_spent_seconds: number | null
@@ -471,7 +471,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           listing_id: string
           session_id?: string | null
           time_spent_seconds?: number | null
@@ -480,7 +480,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           listing_id?: string
           session_id?: string | null
           time_spent_seconds?: number | null
@@ -759,7 +759,7 @@ export type Database = {
         Row: {
           created_at: string
           id: string
-          ip_address: unknown | null
+          ip_address: unknown
           page_path: string
           referrer: string | null
           session_id: string | null
@@ -770,7 +770,7 @@ export type Database = {
         Insert: {
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           page_path: string
           referrer?: string | null
           session_id?: string | null
@@ -781,7 +781,7 @@ export type Database = {
         Update: {
           created_at?: string
           id?: string
-          ip_address?: unknown | null
+          ip_address?: unknown
           page_path?: string
           referrer?: string | null
           session_id?: string | null
@@ -956,10 +956,7 @@ export type Database = {
         }
         Returns: boolean
       }
-      end_impersonation: {
-        Args: { p_token: string }
-        Returns: boolean
-      }
+      end_impersonation: { Args: { p_token: string }; Returns: boolean }
       generate_conversation_id: {
         Args: { p_listing_id: string; p_student_id: string }
         Returns: string
@@ -983,7 +980,7 @@ export type Database = {
         }[]
       }
       get_all_conversations_for_owner: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           agency_email: string
           agency_id: string
@@ -1051,7 +1048,7 @@ export type Database = {
         }[]
       }
       get_current_impersonation: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           admin_user_id: string
           impersonated_user_id: string
@@ -1060,7 +1057,7 @@ export type Database = {
         }[]
       }
       get_current_user_profile: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           agency_name: string | null
           avatar_url: string | null
@@ -1076,11 +1073,14 @@ export type Database = {
           user_id: string
           user_type: string
         }
+        SetofOptions: {
+          from: "*"
+          to: "profiles"
+          isOneToOne: true
+          isSetofReturn: false
+        }
       }
-      get_effective_user_id: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
+      get_effective_user_id: { Args: never; Returns: string }
       get_listing_text: {
         Args: { language_code?: string; multilingual_field: Json }
         Returns: string
@@ -1198,14 +1198,8 @@ export type Database = {
         Args: { end_date?: string; start_date?: string }
         Returns: Json
       }
-      get_user_profile_type: {
-        Args: Record<PropertyKey, never>
-        Returns: string
-      }
-      handle_expired_authorizations: {
-        Args: Record<PropertyKey, never>
-        Returns: undefined
-      }
+      get_user_profile_type: { Args: never; Returns: string }
+      handle_expired_authorizations: { Args: never; Returns: undefined }
       has_contact_access: {
         Args: { requester_user_id: string; target_profile_id: string }
         Returns: boolean
@@ -1215,7 +1209,7 @@ export type Database = {
         Returns: Json
       }
       user_has_sent_messages_to_any_listing: {
-        Args: Record<PropertyKey, never>
+        Args: never
         Returns: {
           listing_id: string
         }[]
