@@ -93,20 +93,21 @@ export const ServicesAndExpenses: React.FC<ServicesAndExpensesProps> = ({
       </CardHeader>
       <CardContent className="space-y-6">
         {/* Security Deposit */}
-        <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
-          <div className="flex justify-between items-start">
-            <div className="flex-1">
-              <h5 className="font-medium text-blue-900">{t('listing.securityDeposit')}</h5>
-              <p className="text-sm text-blue-700 mt-1">
-                {t('listing.securityDepositDesc')}
-              </p>
-            </div>
-            <div className="text-right ml-4">
-              <span className="font-semibold text-blue-900">{formatPrice(depositEur || 0)}</span>
+        {depositEur && depositEur > 0 && (
+          <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
+            <div className="flex justify-between items-start">
+              <div className="flex-1">
+                <h5 className="font-medium text-blue-900">{t('listing.securityDeposit')}</h5>
+                <p className="text-sm text-blue-700 mt-1">
+                  {t('listing.securityDepositDesc')}
+                </p>
+              </div>
+              <div className="text-right ml-4">
+                <span className="font-semibold text-blue-900">{formatPrice(depositEur)}</span>
+              </div>
             </div>
           </div>
-        </div>
-
+        )}
         {/* Administrative Cost */}
         {landlordAdminFee && landlordAdminFee > 0 && (
           <div className="border rounded-lg p-4 bg-blue-50 border-blue-200">
