@@ -14,8 +14,8 @@ export const ReviewStep: React.FC<ReviewStepProps> = ({ data, onSubmit }) => {
   const { t } = useLanguage();
   
   const formatDeposit = () => {
-    if (data.deposit === 'none') return t('review.noDepositRequired');
-    return `${data.deposit.replace('_', ' ').replace('months', t('review.monthsRent'))}`;
+    if (!data.deposit || data.deposit === 0) return t('review.noDepositRequired');
+    return `€${data.deposit}`;
   };
 
   const formatRent = () => {
