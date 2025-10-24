@@ -186,7 +186,7 @@ export const ListingWizard = () => {
   const canProceed = () => {
     switch (currentStep) {
       case 0: // Basic Info
-        return listingData.address_line && listingData.postcode && listingData.city && listingData.country && listingData.furnished;
+        return !!(listingData.address_line && listingData.postcode && listingData.city && listingData.country && typeof listingData.furnished === 'boolean');
       case 1: // Property Details
         return listingData.bathrooms > 0 && listingData.size_sqm > 0;
       case 2: // Amenities & Rules
