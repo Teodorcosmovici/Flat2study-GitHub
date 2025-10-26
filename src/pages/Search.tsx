@@ -11,7 +11,7 @@ import { geocodeAllListings } from '@/utils/geocoding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search as SearchIcon, Grid, Map, MapPin, Home } from 'lucide-react';
+import { Search as SearchIcon, Grid, Map, MapPin, Home, ChevronLeft } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { toast } from '@/hooks/use-toast';
@@ -284,16 +284,15 @@ export default function Search() {
       
       {/* Search Section */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b">
-        {/* Return Home Button */}
-        <div className="container pt-4 pb-2">
+        <div className="container pt-4 pb-2 flex items-center gap-2">
           <Button
             variant="outline"
             size="sm"
             onClick={() => navigate('/')}
-            className="mb-2"
+            className="h-8 px-2"
           >
-            <Home className="h-4 w-4 mr-2" />
-            Return Home
+            <ChevronLeft className="h-3 w-3 mr-1" />
+            Home
           </Button>
         </div>
         
@@ -402,7 +401,7 @@ export default function Search() {
             />
           </div>
         ) : (
-          <div className="fixed top-[180px] left-0 right-0 bottom-0 flex gap-4 p-4">
+          <div className="fixed top-[64px] left-0 right-0 bottom-0 flex gap-4 p-4 pt-0">
             {/* Scrollable listings container - 50% width */}
             <div className="w-1/2 overflow-y-auto overflow-x-hidden">
               <div className="grid grid-cols-2 gap-4 pr-2">

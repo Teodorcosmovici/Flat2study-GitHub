@@ -308,7 +308,7 @@ export default function Checkout() {
                     </Button>
                     <Button onClick={() => navigate('/')} variant="outline" className="w-full">
                       <Home className="mr-2 h-4 w-4" />
-                      Return Home
+                      Home
                     </Button>
                   </div>
                 </CardContent>

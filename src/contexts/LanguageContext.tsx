@@ -797,7 +797,7 @@ const translations = {
     // 404 Page
     'notFound.title': '404',
     'notFound.message': 'Oops! Page not found',
-    'notFound.returnHome': 'Return to Home',
+    'notFound.returnHome': 'Home',
     
     // Checkout Cancel
     'checkout.cancelled.title': 'Payment Cancelled',

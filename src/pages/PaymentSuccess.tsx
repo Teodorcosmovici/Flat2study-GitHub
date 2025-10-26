@@ -80,7 +80,7 @@ export default function PaymentSuccess() {
             <p className="text-muted-foreground text-center mb-6">{error}</p>
             <Button onClick={() => navigate('/')} className="w-full">
               <Home className="mr-2 h-4 w-4" />
-              Return Home
+              Home
             </Button>
           </CardContent>
         </Card>
@@ -140,7 +140,7 @@ export default function PaymentSuccess() {
             </Button>
             <Button onClick={() => navigate('/')} variant="outline" className="w-full">
               <Home className="mr-2 h-4 w-4" />
-              Return Home
+              Home
             </Button>
           </div>
         </CardContent>

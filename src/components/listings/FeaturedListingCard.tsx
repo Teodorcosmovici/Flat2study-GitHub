@@ -47,7 +47,7 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
           <img 
             src={listing.images[currentImageIndex] || '/placeholder.svg'} 
             alt={listing.title} 
-            className="w-full h-full object-cover" 
+            className="w-full h-full object-cover transition-none" 
             loading="lazy" 
           />
           <div className={`absolute inset-0 bg-black/20 transition-opacity ${isHovered ? 'opacity-0' : ''}`} />

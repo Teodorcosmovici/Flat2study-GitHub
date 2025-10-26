@@ -68,7 +68,7 @@ export default function CheckoutSuccess() {
           <CardContent className="text-center space-y-4">
             <p className="text-muted-foreground">{error}</p>
             <Button onClick={() => navigate('/')} className="w-full">
-              Return Home
+              Home
             </Button>
           </CardContent>
         </Card>
