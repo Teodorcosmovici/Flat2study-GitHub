@@ -8,74 +8,65 @@ All colors MUST be HSL.
 
 @layer base {
   :root {
-    /* Premium Brand Colors - Bocconi inspired blue scheme */
-    --primary: 231 87% 45%;        /* Deep premium blue */
-    --primary-foreground: 0 0% 100%;
-    --primary-light: 231 75% 60%;  /* Lighter blue */
-    --primary-dark: 231 95% 35%;   /* Darker blue */
-    
-    /* UI Colors */
     --background: 0 0% 100%;
-    --foreground: 0 0% 0%;         /* Black text as requested */
-    
+    --foreground: 222.2 84% 4.9%;
     --card: 0 0% 100%;
-    --card-foreground: 0 0% 0%;    /* Black text */
-    
+    --card-foreground: 222.2 84% 4.9%;
     --popover: 0 0% 100%;
-    --popover-foreground: 0 0% 0%; /* Black text */
-    
-    --secondary: 220 20% 96%;
-    --secondary-foreground: 0 0% 0%; /* Black text */
-    
-    --muted: 220 15% 95%;
-    --muted-foreground: 0 0% 40%;  /* Dark gray for muted text */
-    
-    --accent: 220 25% 92%;
-    --accent-foreground: 0 0% 0%;  /* Black text */
-    
-    --destructive: 0 75% 55%;
-    --destructive-foreground: 0 0% 100%;
-    
-    --success: 140 65% 45%;
-    --success-foreground: 0 0% 100%;
-    
-    --warning: 35 85% 55%;
-    --warning-foreground: 0 0% 100%;
-    
-    --border: 220 15% 88%;
-    --input: 220 15% 88%;
-    --ring: 231 87% 45%;
-    
+    --popover-foreground: 222.2 84% 4.9%;
+    --primary: 221.2 83.2% 53.3%;
+    --primary-foreground: 210 40% 98%;
+    --secondary: 210 40% 96.1%;
+    --secondary-foreground: 222.2 47.4% 11.2%;
+    --muted: 210 40% 96.1%;
+    --muted-foreground: 215.4 16.3% 46.9%;
+    --accent: 210 40% 96.1%;
+    --accent-foreground: 222.2 47.4% 11.2%;
+    --destructive: 0 84.2% 60.2%;
+    --destructive-foreground: 210 40% 98%;
+    --border: 214.3 31.8% 91.4%;
+    --input: 214.3 31.8% 91.4%;
+    --ring: 221.2 83.2% 53.3%;
+    --chart-1: 12 76% 61%;
+    --chart-2: 173 58% 39%;
+    --chart-3: 197 37% 24%;
+    --chart-4: 43 74% 66%;
+    --chart-5: 27 87% 67%;
+
     /* Marketplace specific colors */
-    --price: 140 65% 35%;        /* Green for prices */
+    --price: 142 76% 36%;
     --price-foreground: 0 0% 100%;
-    --favorite: 350 85% 55%;     /* Heart red */
-    --available: 140 65% 45%;    /* Available status */
-    --pending: 35 85% 55%;       /* Pending status */
-    --expired: 0 0% 50%;         /* Expired status */
+    --favorite: 0 84.2% 60.2%;
+    --favorite-foreground: 0 0% 100%;
     
-    /* Premium Gradients - Deep marine blue like ocean depths */
-    --gradient-hero: linear-gradient(135deg, hsl(231 87% 45%), hsl(220 95% 15%));
-    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(220 15% 98%));
-    --gradient-overlay: linear-gradient(180deg, transparent, hsl(0 0% 0% / 0.6));
+    /* Status colors */
+    --available: 142 76% 36%;
+    --pending: 43 74% 66%;
+    --expired: 0 84.2% 60.2%;
     
-    --radius: 0.75rem;
-
+    /* UI colors */
+    --success: 142 76% 36%;
+    --success-foreground: 0 0% 100%;
+    --warning: 43 74% 66%;
+    --warning-foreground: 222.2 84% 4.9%;
+    --info: 221.2 83.2% 53.3%;
+    --info-foreground: 210 40% 98%;
+    
+    /* Sidebar colors */
     --sidebar-background: 0 0% 98%;
-
     --sidebar-foreground: 240 5.3% 26.1%;
-
     --sidebar-primary: 240 5.9% 10%;
-
     --sidebar-primary-foreground: 0 0% 98%;
-
     --sidebar-accent: 240 4.8% 95.9%;
-
     --sidebar-accent-foreground: 240 5.9% 10%;
-
     --sidebar-border: 220 13% 91%;
-
     --sidebar-ring: 217.2 91.2% 59.8%;
+
+    /* Gradients */
+    --gradient-primary: linear-gradient(135deg, hsl(221.2 83.2% 53.3%), hsl(221.2 83.2% 63.3%));
+    --gradient-card: linear-gradient(180deg, hsl(0 0% 100%), hsl(210 40% 98%));
+    
+    --radius: 0rem;
   }
 
   .dark {
