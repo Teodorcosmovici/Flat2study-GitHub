@@ -282,9 +282,9 @@ export default function Search() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b">
+      <div className="sticky top-16 z-40 bg-background/95 backdrop-blur">
         {/* Search Bar */}
-        <div className="container py-3">
+        <div className="container py-2">
           {isMobile ? (
             <>
               <div className="mb-2">
@@ -309,7 +309,7 @@ export default function Search() {
               </div>
             </>
           ) : (
-            <div className="flex gap-3 items-center">
+            <div className="flex gap-2 items-center">
               <Button
                 variant="outline"
                 size="sm"
@@ -331,10 +331,10 @@ export default function Search() {
               </div>
               
               {/* Sort Controls */}
-              <div className="flex items-center gap-3 min-w-0 flex-shrink-0">
-                <span className="text-sm text-muted-foreground whitespace-nowrap">{t('search.sortBy')}</span>
+              <div className="flex items-center gap-2 min-w-0 flex-shrink-0">
+                <span className="text-xs text-muted-foreground whitespace-nowrap">{t('search.sortBy')}</span>
                 <Select value={sortBy} onValueChange={setSortBy}>
-                  <SelectTrigger className="w-44">
+                  <SelectTrigger className="w-36 h-8 text-sm">
                     <SelectValue />
                   </SelectTrigger>
                   <SelectContent className="z-[70] bg-popover border shadow-lg">
@@ -381,7 +381,7 @@ export default function Search() {
             onViewModeChange={setViewMode}
           />
         ) : (
-          <div className="border-b">
+          <div className="">
             <SearchFilters 
               filters={filters}
               onFiltersChange={setFilters}
@@ -411,7 +411,7 @@ export default function Search() {
             />
           </div>
         ) : (
-          <div className="fixed top-[250px] left-0 right-0 bottom-0 flex gap-4 px-4 pb-4">
+          <div className="fixed top-[180px] left-0 right-0 bottom-0 flex gap-4 px-4 pb-4">
             {/* Scrollable listings container - 50% width */}
             <div className="w-1/2 overflow-y-auto overflow-x-hidden">
               <div className="grid grid-cols-2 gap-4 pr-2">

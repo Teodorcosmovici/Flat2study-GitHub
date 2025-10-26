@@ -113,8 +113,8 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
   };
 
   return (
-    <div className={`${className} bg-background border-b`}>
-      <div className="flex items-center gap-2 p-4 overflow-x-auto scrollbar-hide">
+    <div className={`${className} bg-background`}>
+      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
         {/* Price Filter */}
         <Popover>
           <PopoverTrigger asChild>
