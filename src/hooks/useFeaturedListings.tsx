@@ -11,6 +11,8 @@ interface FeaturedListing {
   rent_monthly_eur: number;
   images: string[];
   agency_name: string;
+  size_sqm?: number;
+  bathrooms?: number;
 }
 
 export const useFeaturedListings = (limit: number = 6) => {
@@ -47,7 +49,9 @@ export const useFeaturedListings = (limit: number = 6) => {
             city: listing.city || '',
             rent_monthly_eur: listing.rent_monthly_eur || 0,
             images: Array.isArray(listing.images) ? listing.images : [],
-            agency_name: listing.agency_name || 'Agency'
+            agency_name: listing.agency_name || 'Agency',
+            size_sqm: listing.size_sqm || undefined,
+            bathrooms: listing.bathrooms || undefined
           };
           }));
         }
