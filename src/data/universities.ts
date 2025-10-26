@@ -5,35 +5,40 @@ export interface University {
   shortName: string;
   lat: number;
   lng: number;
+  image: string;
 }
 
 export const MILAN_UNIVERSITIES: University[] = [
   {
     id: 'bocconi',
-    name: 'Università Bocconi',
+    name: 'Bocconi University',
     shortName: 'Bocconi',
     lat: 45.4470,
-    lng: 9.1905
+    lng: 9.1905,
+    image: '/src/assets/university-bocconi.png'
   },
   {
     id: 'cattolica',
-    name: 'Università Cattolica del Sacro Cuore',
+    name: 'Università Cattolica',
     shortName: 'Cattolica',
     lat: 45.4630,
-    lng: 9.1827
+    lng: 9.1827,
+    image: '/src/assets/university-cattolica.png'
   },
   {
     id: 'statale',
-    name: 'Università Statale di Milano',
+    name: 'La Statale',
     shortName: 'La Statale',
     lat: 45.4627,
-    lng: 9.1900
+    lng: 9.1900,
+    image: '/src/assets/university-statale.png'
   },
   {
     id: 'politecnico',
     name: 'Politecnico di Milano',
     shortName: 'Politecnico',
     lat: 45.4784,
-    lng: 9.2277
+    lng: 9.2277,
+    image: '/src/assets/university-politecnico.png'
   }
 ];
