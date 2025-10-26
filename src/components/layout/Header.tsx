@@ -232,14 +232,14 @@ export default function Header() {
                 </Button>
               </Link>
 
-              {/* Desktop: Show Get Started button */}
-              <Link to="/get-started" className="hidden md:block">
+              <Link to="/get-started">
                 <Button size="sm" className={`transition-all duration-300 text-xs px-3 sm:px-4 md:text-sm ${
                   shouldShowBackground 
                     ? 'hero-gradient text-white border-0' 
                     : 'bg-white text-primary hover:bg-white/90 border-0'
                 }`}>
-                  {t('header.getStarted')}
+                  <span className="hidden md:inline">{t('header.getStarted')}</span>
+                  <span className="md:hidden">{t('header.start')}</span>
                 </Button>
               </Link>
             </>

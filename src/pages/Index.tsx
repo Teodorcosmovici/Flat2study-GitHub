@@ -106,12 +106,23 @@ const Index = () => {
                     </span>
                   </Link>
                 </div>
-              </> : <Link to="/search">
-                <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold">
-                  <Search className="mr-2 h-5 w-5" />
-                  {t('home.findPlace')}
-                </Button>
-              </Link>}
+              </> : <>
+                <Link to="/search">
+                  <Button size="lg" className="w-full bg-white text-primary hover:bg-white/90 font-semibold">
+                    <Search className="mr-2 h-5 w-5" />
+                    {t('home.findPlace')}
+                  </Button>
+                </Link>
+                <Link to="/landlord" className="mt-4 block">
+                  <Button 
+                    variant="outline" 
+                    size="lg" 
+                    className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white"
+                  >
+                    {t('header.landlord')}
+                  </Button>
+                </Link>
+              </>}
           </div>
         </div>
         
