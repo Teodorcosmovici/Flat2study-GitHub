@@ -282,41 +282,51 @@ export default function Search() {
     <div className="min-h-screen bg-background">
       <Header />
       
-      {/* Search Section */}
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur border-b">
-        <div className="container pt-4 pb-2 flex items-center gap-2">
-          <Button
-            variant="outline"
-            size="sm"
-            onClick={() => navigate('/')}
-            className="h-8 px-2"
-          >
-            <ChevronLeft className="h-3 w-3 mr-1" />
-            Home
-          </Button>
-        </div>
-        
         {/* Search Bar */}
-        <div className="container pb-2">
+        <div className="container py-3">
           {isMobile ? (
-            <div className="relative">
-              <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
-              <Input
-                placeholder={t('search.placeholder')}
-                value={searchQuery}
-                onChange={(e) => setSearchQuery(e.target.value)}
-                className="pl-10 h-11"
-              />
-            </div>
-          ) : (
-            <div className="flex gap-4 items-center">
-              <div className="flex-1 relative">
+            <>
+              <div className="mb-2">
+                <Button
+                  variant="outline"
+                  size="sm"
+                  onClick={() => navigate('/')}
+                  className="h-8 px-2"
+                >
+                  <ChevronLeft className="h-3 w-3 mr-1" />
+                  Home
+                </Button>
+              </div>
+              <div className="relative">
                 <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
                 <Input
                   placeholder={t('search.placeholder')}
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
                   className="pl-10 h-11"
+                />
+              </div>
+            </>
+          ) : (
+            <div className="flex gap-3 items-center">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={() => navigate('/')}
+                className="h-9 px-2 flex-shrink-0"
+              >
+                <ChevronLeft className="h-3 w-3 mr-1" />
+                Home
+              </Button>
+              
+              <div className="flex-1 relative">
+                <SearchIcon className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground h-4 w-4" />
+                <Input
+                  placeholder={t('search.placeholder')}
+                  value={searchQuery}
+                  onChange={(e) => setSearchQuery(e.target.value)}
+                  className="pl-10 h-9"
                 />
               </div>
               
@@ -401,7 +411,7 @@ export default function Search() {
             />
           </div>
         ) : (
-          <div className="fixed top-[64px] left-0 right-0 bottom-0 flex gap-4 p-4 pt-0">
+          <div className="fixed top-[250px] left-0 right-0 bottom-0 flex gap-4 px-4 pb-4">
             {/* Scrollable listings container - 50% width */}
             <div className="w-1/2 overflow-y-auto overflow-x-hidden">
               <div className="grid grid-cols-2 gap-4 pr-2">
