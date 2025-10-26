@@ -3,7 +3,7 @@ import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Link, useNavigate } from 'react-router-dom';
-import { Search, Users, Shield, MapPin, Heart, MessageCircle, BarChart3, Plus, Eye, ChevronDown, Building } from 'lucide-react';
+import { Search, Users, Shield, MapPin, Heart, MessageCircle, BarChart3, Plus, Eye, ChevronDown, Building, ChevronLeft, ChevronRight } from 'lucide-react';
 import { ScrollIndicator } from '@/components/ui/scroll-indicator';
 import { universities } from '@/data/mockData';
 import { MILAN_UNIVERSITIES } from '@/data/universities';
@@ -16,7 +16,7 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import OwnerAccess from '@/components/OwnerAccess';
 import OwnerDashboard from '@/pages/OwnerDashboard';
-import { useState, useEffect } from 'react';
+import React, { useState, useEffect } from 'react';
 import bocconiImg from '@/assets/university-bocconi.png';
 import cattolicaImg from '@/assets/university-cattolica.png';
 import stataleImg from '@/assets/university-statale.png';
@@ -203,26 +203,68 @@ const Index = () => {
                         <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                       </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                        {featuredListings.map(listing => <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
-                            <div className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
-                              <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
-                              <div className="absolute inset-0 bg-black/20" />
-                              <div className="absolute inset-0 flex flex-col justify-between p-6">
-                                <div>
-                                  <h3 className="text-white/70 text-lg font-semibold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
-                                </div>
-                                <div className="flex items-end justify-between">
-                                  <span className="text-white text-lg font-bold drop-shadow-lg">
-                                    {formatPrice(listing.rent_monthly_eur)}
-                                    <span className="text-xs font-light block">/month</span>
-                                  </span>
-                                  <Link to={`/listing/${listing.id}`}>
-                                    <Button size="sm" className="text-xs px-3 py-1 h-8">{t('home.viewDetails')}</Button>
-                                  </Link>
-                                </div>
+                        {featuredListings.map(listing => {
+                          const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+                          const [showArrows, setShowArrows] = React.useState(false);
+                          
+                          const nextImage = (e: React.MouseEvent) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setCurrentImageIndex((prev) => (prev + 1) % listing.images.length);
+                          };
+                          
+                          const prevImage = (e: React.MouseEvent) => {
+                            e.preventDefault();
+                            e.stopPropagation();
+                            setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length);
+                          };
+                          
+                          return (
+                            <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
+                              <div 
+                                className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+                                onMouseEnter={() => setShowArrows(true)}
+                                onMouseLeave={() => setShowArrows(false)}
+                              >
+                                <Link to={`/listing/${listing.id}`} className="block w-full h-full">
+                                  <img src={listing.images[currentImageIndex] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
+                                  <div className="absolute inset-0 bg-black/20" />
+                                  <div className="absolute inset-0 flex flex-col justify-between p-6 pointer-events-none">
+                                    <div>
+                                      <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
+                                    </div>
+                                    <div className="flex items-end justify-between pointer-events-auto">
+                                      <span className="text-white text-lg font-bold drop-shadow-lg">
+                                        {formatPrice(listing.rent_monthly_eur)}
+                                        <span className="text-xs font-light block">/month</span>
+                                      </span>
+                                      <Button size="sm" className="text-xs px-3 py-1 h-8" onClick={(e) => e.preventDefault()}>
+                                        {t('home.viewDetails')}
+                                      </Button>
+                                    </div>
+                                  </div>
+                                </Link>
+                                
+                                {showArrows && listing.images.length > 1 && (
+                                  <>
+                                    <button
+                                      onClick={prevImage}
+                                      className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 z-10 transition-all"
+                                    >
+                                      <ChevronLeft className="h-5 w-5 text-gray-800" />
+                                    </button>
+                                    <button
+                                      onClick={nextImage}
+                                      className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 z-10 transition-all"
+                                    >
+                                      <ChevronRight className="h-5 w-5 text-gray-800" />
+                                    </button>
+                                  </>
+                                )}
                               </div>
                             </div>
-                           </div>)}
+                          );
+                        })}
                       </div>}
                   </div>
                   
@@ -447,26 +489,68 @@ const Index = () => {
                     <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                     <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                   </div> : <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    {featuredListings.map(listing => <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
-                        <div className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
-                          <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
-                          <div className="absolute inset-0 bg-black/20" />
-                          <div className="absolute inset-0 flex flex-col justify-between p-6">
-                            <div>
-                              <h3 className="text-white/70 text-lg font-semibold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
-                            </div>
-                            <div className="flex items-end justify-between">
-                              <span className="text-white text-lg font-bold drop-shadow-lg">
-                                {formatPrice(listing.rent_monthly_eur)}
-                                <span className="text-xs font-light block">/month</span>
-                              </span>
-                              <Link to={`/listing/${listing.id}`}>
-                                <Button size="sm" className="text-xs px-3 py-1 h-8">{t('home.viewDetails')}</Button>
-                              </Link>
-                            </div>
+                    {featuredListings.map(listing => {
+                      const [currentImageIndex, setCurrentImageIndex] = React.useState(0);
+                      const [showArrows, setShowArrows] = React.useState(false);
+                      
+                      const nextImage = (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setCurrentImageIndex((prev) => (prev + 1) % listing.images.length);
+                      };
+                      
+                      const prevImage = (e: React.MouseEvent) => {
+                        e.preventDefault();
+                        e.stopPropagation();
+                        setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length);
+                      };
+                      
+                      return (
+                        <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
+                          <div 
+                            className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
+                            onMouseEnter={() => setShowArrows(true)}
+                            onMouseLeave={() => setShowArrows(false)}
+                          >
+                            <Link to={`/listing/${listing.id}`} className="block w-full h-full">
+                              <img src={listing.images[currentImageIndex] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
+                              <div className="absolute inset-0 bg-black/20" />
+                              <div className="absolute inset-0 flex flex-col justify-between p-6 pointer-events-none">
+                                <div>
+                                  <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
+                                </div>
+                                <div className="flex items-end justify-between pointer-events-auto">
+                                  <span className="text-white text-lg font-bold drop-shadow-lg">
+                                    {formatPrice(listing.rent_monthly_eur)}
+                                    <span className="text-xs font-light block">/month</span>
+                                  </span>
+                                  <Button size="sm" className="text-xs px-3 py-1 h-8" onClick={(e) => e.preventDefault()}>
+                                    {t('home.viewDetails')}
+                                  </Button>
+                                </div>
+                              </div>
+                            </Link>
+                            
+                            {showArrows && listing.images.length > 1 && (
+                              <>
+                                <button
+                                  onClick={prevImage}
+                                  className="absolute left-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 z-10 transition-all"
+                                >
+                                  <ChevronLeft className="h-5 w-5 text-gray-800" />
+                                </button>
+                                <button
+                                  onClick={nextImage}
+                                  className="absolute right-2 top-1/2 -translate-y-1/2 bg-white/80 hover:bg-white rounded-full p-2 z-10 transition-all"
+                                >
+                                  <ChevronRight className="h-5 w-5 text-gray-800" />
+                                </button>
+                              </>
+                            )}
                           </div>
                         </div>
-                       </div>)}
+                      );
+                    })}
                   </div>}
               </div>
               
