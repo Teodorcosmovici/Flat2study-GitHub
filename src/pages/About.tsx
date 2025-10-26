@@ -4,6 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import melchiorPhoto from '@/assets/melchior-founder.jpeg';
+import teodorPhoto from '@/assets/teodor-founder.jpeg';
 
 export default function About() {
   const { t } = useLanguage();
@@ -37,15 +38,39 @@ export default function About() {
               {t('about.founders')}
             </p>
             
-            <div className="mt-8 flex flex-col items-center">
-              <img 
-                src={melchiorPhoto} 
-                alt="Melchior - flat2study co-founder" 
-                className="w-64 h-64 rounded-lg object-cover shadow-lg"
-              />
-              <p className="mt-4 text-lg font-semibold text-foreground">
-                Melchior - flat2study co-founder
-              </p>
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
+              <div className="flex flex-col items-center">
+                <img 
+                  src={melchiorPhoto} 
+                  alt="Melchior - flat2study co-founder" 
+                  className="w-64 h-64 rounded-lg object-cover shadow-lg"
+                />
+                <p className="mt-4 text-lg font-semibold text-foreground">
+                  Melchior - flat2study co-founder
+                </p>
+              </div>
+              
+              <div className="flex flex-col items-center">
+                <img 
+                  src={teodorPhoto} 
+                  alt="Teodor - flat2study co-founder" 
+                  className="w-64 h-64 rounded-lg object-cover shadow-lg"
+                />
+                <p className="mt-4 text-lg font-semibold text-foreground">
+                  Teodor - flat2study co-founder
+                </p>
+                <div className="mt-4 text-left space-y-3">
+                  <p className="text-muted-foreground">
+                    {t('about.teodorBio1')}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {t('about.teodorBio2')}
+                  </p>
+                  <p className="text-muted-foreground">
+                    {t('about.teodorBio3')}
+                  </p>
+                </div>
+              </div>
             </div>
             
             <div className="mt-12">
