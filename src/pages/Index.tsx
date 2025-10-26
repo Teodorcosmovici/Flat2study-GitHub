@@ -203,30 +203,30 @@ const Index = () => {
                         <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                       </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                        {featuredListings.map(listing => <Card key={listing.id} className="min-w-[220px] w-[220px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
-                            <div className="relative h-32">
+                        {featuredListings.map(listing => <Card key={listing.id} className="min-w-[280px] w-[280px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
+                            <div className="relative h-[210px]">
                               <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
-                              <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
-                                {t('home.featured')}
-                              </Badge>
+                              <div className="absolute inset-0 bg-black/30" />
+                              <div className="absolute inset-0 flex flex-col justify-between p-6">
+                                <div>
+                                  <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
+                                  <p className="text-white text-sm font-light drop-shadow-lg flex items-center">
+                                    <MapPin className="h-4 w-4 mr-1" />
+                                    {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
+                                  </p>
+                                </div>
+                                <div className="flex items-end justify-between">
+                                  <span className="text-white text-xl font-bold drop-shadow-lg">
+                                    {formatPrice(listing.rent_monthly_eur)}
+                                    <span className="text-sm font-light block">/month</span>
+                                  </span>
+                                  <Link to={`/listing/${listing.id}`}>
+                                    <Button size="sm">{t('home.viewDetails')}</Button>
+                                  </Link>
+                                </div>
+                              </div>
                             </div>
-                             <CardContent className="p-4">
-                               <h3 className="font-semibold mb-2 line-clamp-2 text-sm">{listing.title}</h3>
-                               <p className="text-muted-foreground text-xs mb-2 flex items-center">
-                                 <MapPin className="h-3 w-3 mr-1" />
-                                 {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
-                               </p>
-                               <div className="flex items-center justify-between">
-                                 <span className="text-lg font-bold text-price">
-                                   {formatPrice(listing.rent_monthly_eur)}
-                                   <span className="text-xs text-muted-foreground font-normal block">{t('home.month')}</span>
-                                 </span>
-                                 <Link to={`/listing/${listing.id}`}>
-                                   <Button size="sm" className="text-xs px-2 py-1 h-7">{t('home.viewDetails')}</Button>
-                                 </Link>
-                               </div>
-                             </CardContent>
-                          </Card>)}
+                           </Card>)}
                       </div>}
                   </div>
                   
