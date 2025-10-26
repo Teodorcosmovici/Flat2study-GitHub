@@ -203,25 +203,21 @@ const Index = () => {
                         <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                       </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                        {featuredListings.map(listing => <div key={listing.id} className="min-w-[280px] w-[280px] flex-shrink-0 snap-start">
-                            <div className="relative aspect-[4/3] overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
+                        {featuredListings.map(listing => <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
+                            <div className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
                               <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
-                              <div className="absolute inset-0 bg-black/30" />
+                              <div className="absolute inset-0 bg-black/20" />
                               <div className="absolute inset-0 flex flex-col justify-between p-6">
                                 <div>
-                                  <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
-                                  <p className="text-white text-sm font-light drop-shadow-lg flex items-center">
-                                    <MapPin className="h-4 w-4 mr-1" />
-                                    {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
-                                  </p>
+                                  <h3 className="text-white/70 text-lg font-semibold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
                                 </div>
                                 <div className="flex items-end justify-between">
-                                  <span className="text-white text-xl font-bold drop-shadow-lg">
+                                  <span className="text-white text-lg font-bold drop-shadow-lg">
                                     {formatPrice(listing.rent_monthly_eur)}
-                                    <span className="text-sm font-light block">/month</span>
+                                    <span className="text-xs font-light block">/month</span>
                                   </span>
                                   <Link to={`/listing/${listing.id}`}>
-                                    <Button size="sm">{t('home.viewDetails')}</Button>
+                                    <Button size="sm" className="text-xs px-3 py-1 h-8">{t('home.viewDetails')}</Button>
                                   </Link>
                                 </div>
                               </div>
@@ -451,25 +447,21 @@ const Index = () => {
                     <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                     <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                   </div> : <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    {featuredListings.map(listing => <div key={listing.id} className="min-w-[280px] w-[280px] flex-shrink-0 snap-start">
-                        <div className="relative aspect-[4/3] overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
+                    {featuredListings.map(listing => <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
+                        <div className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
                           <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
-                          <div className="absolute inset-0 bg-black/30" />
+                          <div className="absolute inset-0 bg-black/20" />
                           <div className="absolute inset-0 flex flex-col justify-between p-6">
                             <div>
-                              <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
-                              <p className="text-white text-sm font-light drop-shadow-lg flex items-center">
-                                <MapPin className="h-4 w-4 mr-1" />
-                                {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
-                              </p>
+                              <h3 className="text-white/70 text-lg font-semibold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
                             </div>
                             <div className="flex items-end justify-between">
-                              <span className="text-white text-xl font-bold drop-shadow-lg">
+                              <span className="text-white text-lg font-bold drop-shadow-lg">
                                 {formatPrice(listing.rent_monthly_eur)}
-                                <span className="text-sm font-light block">/month</span>
+                                <span className="text-xs font-light block">/month</span>
                               </span>
                               <Link to={`/listing/${listing.id}`}>
-                                <Button size="sm">{t('home.viewDetails')}</Button>
+                                <Button size="sm" className="text-xs px-3 py-1 h-8">{t('home.viewDetails')}</Button>
                               </Link>
                             </div>
                           </div>
