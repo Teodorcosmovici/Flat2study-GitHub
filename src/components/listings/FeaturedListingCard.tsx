@@ -43,7 +43,7 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
         onMouseEnter={() => setShowArrows(true)}
         onMouseLeave={() => setShowArrows(false)}
       >
-        <Link to={`/listing/${listing.id}`} className="block w-full h-full">
+        <Link to={`/listing/${listing.id}`} className="block w-full h-full" onClick={() => window.scrollTo(0, 0)}>
           <img 
             src={listing.images[currentImageIndex] || '/placeholder.svg'} 
             alt={listing.title} 
