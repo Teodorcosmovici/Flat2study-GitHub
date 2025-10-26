@@ -403,28 +403,38 @@ export default function Search() {
           </div>
         ) : (
           <div className="absolute top-[200px] left-0 right-0 bottom-0 flex gap-4 p-4">
-            {/* Two listing cards side by side - 25% each */}
-            {visibleListings.slice(0, 2).map((listing, index) => (
-              <div 
-                key={listing.id} 
-                className="w-1/4 flex-shrink-0"
-                onMouseEnter={() => setHoveredListingId(listing.id)}
-                onMouseLeave={() => setHoveredListingId(null)}
-              >
-                <FeaturedListingCard
-                  listing={{
-                    id: listing.id,
-                    title: listing.title,
-                    images: listing.images,
-                    rent_monthly_eur: listing.rentMonthlyEur,
-                    address_line: listing.addressLine,
-                    city: listing.city
-                  }}
-                  formatPrice={formatPrice}
-                  viewDetailsText={t('home.viewDetails')}
-                />
+            {/* Scrollable listings container - 50% width */}
+            <div className="w-1/2 overflow-y-auto overflow-x-hidden">
+              <div className="grid grid-cols-2 gap-4 pr-2">
+                {visibleListings.map((listing) => (
+                  <div 
+                    key={listing.id}
+                    onMouseEnter={() => setHoveredListingId(listing.id)}
+                    onMouseLeave={() => setHoveredListingId(null)}
+                  >
+                    <FeaturedListingCard
+                      listing={{
+                        id: listing.id,
+                        title: listing.title,
+                        images: listing.images,
+                        rent_monthly_eur: listing.rentMonthlyEur,
+                        address_line: listing.addressLine,
+                        city: listing.city
+                      }}
+                      formatPrice={formatPrice}
+                      viewDetailsText={t('home.viewDetails')}
+                    />
+                  </div>
+                ))}
+                
+                {visibleListings.length === 0 && (
+                  <div className="col-span-2 text-center py-8">
+                    <p className="text-muted-foreground">{t('search.noPropertiesView')}</p>
+                    <p className="text-sm text-muted-foreground mt-1">{t('search.moveMap')}</p>
+                  </div>
+                )}
               </div>
-            ))}
+            </div>
             
             {/* Map - Right Side - 50% */}
             <div className="w-1/2 flex-shrink-0">
