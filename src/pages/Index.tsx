@@ -204,7 +204,7 @@ const Index = () => {
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                       </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                         {featuredListings.map(listing => <Card key={listing.id} className="min-w-[280px] w-[280px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
-                            <div className="relative h-[210px]">
+                            <div className="relative aspect-[4/3]">
                               <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
                               <div className="absolute inset-0 bg-black/30" />
                               <div className="absolute inset-0 flex flex-col justify-between p-6">
