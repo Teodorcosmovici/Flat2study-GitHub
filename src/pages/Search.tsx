@@ -460,7 +460,7 @@ export default function Search() {
         )
       ) : (
         <div className="fixed top-[180px] left-0 right-0 bottom-0 overflow-y-auto px-4">
-          <div className="max-w-7xl mx-auto">
+          <div className="max-w-7xl mx-auto py-6">
             <div className="grid gap-6 grid-cols-1 lg:grid-cols-4">
               {listings.map((listing) => (
                 <FeaturedListingCard
@@ -483,13 +483,14 @@ export default function Search() {
                   <p className="text-muted-foreground">{t('search.noResults')}</p>
                   <Button 
                     variant="outline"
-                  onClick={() => setFilters({})}
-                  className="mt-4"
-                >
-                  {t('search.clearFilters')}
-                </Button>
-              </div>
-            )}
+                    onClick={() => setFilters({})}
+                    className="mt-4"
+                  >
+                    {t('search.clearFilters')}
+                  </Button>
+                </div>
+              )}
+            </div>
           </div>
         </div>
       )}
