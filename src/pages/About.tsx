@@ -57,7 +57,7 @@ export default function About() {
                 <img 
                   src={teodorPhoto} 
                   alt="Teodor - flat2study co-founder" 
-                  className="w-full h-80 rounded-lg object-contain bg-muted shadow-lg"
+                  className="w-full h-80 rounded-lg object-cover object-center shadow-lg"
                 />
                 <p className="mt-4 text-lg font-semibold text-foreground text-justify">
                   Teodor - flat2study co-founder
