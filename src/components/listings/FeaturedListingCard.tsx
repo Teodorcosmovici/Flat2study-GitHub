@@ -37,6 +37,14 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
     e.stopPropagation();
     setCurrentImageIndex((prev) => (prev - 1 + listing.images.length) % listing.images.length);
   };
+
+  const handleCardClick = (e: React.MouseEvent) => {
+    // Prevent click if user is dragging
+    const target = e.target as HTMLElement;
+    if (target.closest('[data-dragging]')) {
+      e.preventDefault();
+    }
+  };
   
   return (
     <div className="w-full snap-start">
@@ -48,7 +56,15 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
           setCurrentImageIndex(0);
         }}
       >
-        <Link to={`/listing/${listing.id}`} className="block w-full h-full" onClick={() => window.scrollTo(0, 0)}>
+        <Link 
+          to={`/listing/${listing.id}`} 
+          className="block w-full h-full" 
+          onClick={(e) => {
+            handleCardClick(e);
+            window.scrollTo(0, 0);
+          }}
+          onDragStart={(e) => e.preventDefault()}
+        >
           <img 
             src={listing.images[currentImageIndex] || '/placeholder.svg'} 
             alt={listing.title} 

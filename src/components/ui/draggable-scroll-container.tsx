@@ -13,21 +13,21 @@ export const DraggableScrollContainer: React.FC<DraggableScrollContainerProps> =
   const [isDragging, setIsDragging] = useState(false);
   const [startX, setStartX] = useState(0);
   const [scrollLeft, setScrollLeft] = useState(0);
+  const [hasDragged, setHasDragged] = useState(false);
 
   const handleMouseDown = (e: React.MouseEvent) => {
     if (!scrollRef.current) return;
     setIsDragging(true);
+    setHasDragged(false);
     setStartX(e.pageX - scrollRef.current.offsetLeft);
     setScrollLeft(scrollRef.current.scrollLeft);
     scrollRef.current.style.cursor = 'grabbing';
-    scrollRef.current.style.userSelect = 'none';
   };
 
   const handleMouseLeave = () => {
     setIsDragging(false);
     if (scrollRef.current) {
       scrollRef.current.style.cursor = 'grab';
-      scrollRef.current.style.userSelect = 'auto';
     }
   };
 
@@ -35,7 +35,6 @@ export const DraggableScrollContainer: React.FC<DraggableScrollContainerProps> =
     setIsDragging(false);
     if (scrollRef.current) {
       scrollRef.current.style.cursor = 'grab';
-      scrollRef.current.style.userSelect = 'auto';
     }
   };
 
@@ -43,8 +42,20 @@ export const DraggableScrollContainer: React.FC<DraggableScrollContainerProps> =
     if (!isDragging || !scrollRef.current) return;
     e.preventDefault();
     const x = e.pageX - scrollRef.current.offsetLeft;
-    const walk = (x - startX) * 2; // Scroll speed multiplier
+    const walk = (x - startX) * 2;
+    
+    if (Math.abs(walk) > 5) {
+      setHasDragged(true);
+    }
+    
     scrollRef.current.scrollLeft = scrollLeft - walk;
+  };
+
+  const handleClick = (e: React.MouseEvent) => {
+    if (hasDragged) {
+      e.preventDefault();
+      e.stopPropagation();
+    }
   };
 
   useEffect(() => {
@@ -67,6 +78,7 @@ export const DraggableScrollContainer: React.FC<DraggableScrollContainerProps> =
       onMouseLeave={handleMouseLeave}
       onMouseUp={handleMouseUp}
       onMouseMove={handleMouseMove}
+      onClick={handleClick}
       style={{ cursor: 'grab' }}
     >
       {children}
