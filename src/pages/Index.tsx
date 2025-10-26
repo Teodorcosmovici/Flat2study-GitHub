@@ -451,30 +451,30 @@ const Index = () => {
                     <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                     <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                   </div> : <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
-                    {featuredListings.map(listing => <Card key={listing.id} className="min-w-[280px] max-w-[280px] flex-shrink-0 overflow-hidden hover:shadow-lg transition-shadow snap-start">
-                        <div className="relative h-72">
-                          <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" />
-                          <Badge className="absolute top-3 left-3 bg-primary text-primary-foreground">
-                            {t('home.featured')}
-                          </Badge>
-                        </div>
-                        <CardContent className="p-4">
-                          <h3 className="font-semibold mb-1 line-clamp-1 text-sm">{listing.title}</h3>
-                          <p className="text-muted-foreground text-xs mb-2 flex items-center line-clamp-1">
-                            <MapPin className="h-3 w-3 mr-1 flex-shrink-0" />
-                            {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
-                          </p>
-                          <div className="flex items-center justify-between">
-                            <span className="text-lg font-bold text-price">
-                              {formatPrice(listing.rent_monthly_eur)}
-                              <span className="text-xs text-muted-foreground font-normal">{t('home.month')}</span>
-                            </span>
-                            <Link to={`/listing/${listing.id}`}>
-                              <Button size="sm" className="text-xs px-3 py-1">{t('home.viewDetails')}</Button>
-                            </Link>
+                    {featuredListings.map(listing => <div key={listing.id} className="min-w-[280px] w-[280px] flex-shrink-0 snap-start">
+                        <div className="relative aspect-[4/3] overflow-hidden rounded-lg hover:shadow-lg transition-shadow">
+                          <img src={listing.images[0] || '/placeholder.svg'} alt={listing.title} className="w-full h-full object-cover" loading="lazy" />
+                          <div className="absolute inset-0 bg-black/30" />
+                          <div className="absolute inset-0 flex flex-col justify-between p-6">
+                            <div>
+                              <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">{listing.title}</h3>
+                              <p className="text-white text-sm font-light drop-shadow-lg flex items-center">
+                                <MapPin className="h-4 w-4 mr-1" />
+                                {listing.address_line && listing.city ? `${listing.address_line}, ${listing.city}` : listing.city || 'Location not specified'}
+                              </p>
+                            </div>
+                            <div className="flex items-end justify-between">
+                              <span className="text-white text-xl font-bold drop-shadow-lg">
+                                {formatPrice(listing.rent_monthly_eur)}
+                                <span className="text-sm font-light block">/month</span>
+                              </span>
+                              <Link to={`/listing/${listing.id}`}>
+                                <Button size="sm">{t('home.viewDetails')}</Button>
+                              </Link>
+                            </div>
                           </div>
-                        </CardContent>
-                      </Card>)}
+                        </div>
+                       </div>)}
                   </div>}
               </div>
               
