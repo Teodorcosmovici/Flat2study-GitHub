@@ -460,9 +460,8 @@ export default function Search() {
           </div>
         )
       ) : (
-        /* Grid View - Full width container */
-        <div className="container py-6">
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
+        <div className="w-full max-w-7xl mx-auto px-4 py-6">
+          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
             {listings.map((listing) => (
               <FeaturedListingCard
                 key={listing.id}
