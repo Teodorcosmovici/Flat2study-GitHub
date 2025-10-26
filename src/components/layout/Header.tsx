@@ -1,5 +1,5 @@
 import { Button } from '@/components/ui/button';
-import { Heart, User, Menu, LogOut, MessageSquare, Settings } from 'lucide-react';
+import { Heart, User, Menu, LogOut, MessageSquare, Settings, Moon, Sun } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useAuth } from '@/hooks/useAuth';
 
@@ -10,10 +10,12 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { Logo } from '@/components/ui/logo';
 import { useState, useEffect } from 'react';
 import { useLocation } from 'react-router-dom';
+import { useTheme } from 'next-themes';
 
 export default function Header() {
   const { user, profile, signOut, loading: authLoading } = useAuth();
   const { t } = useLanguage();
+  const { theme, setTheme } = useTheme();
   const location = useLocation();
   const [isScrolled, setIsScrolled] = useState(false);
   
@@ -59,6 +61,20 @@ export default function Header() {
 
         {/* Right side actions */}
         <div className="flex items-center space-x-1 sm:space-x-2 md:space-x-4 flex-shrink-0">
+          {/* Theme toggle button */}
+          <Button
+            onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
+            variant="ghost"
+            size="icon"
+            className={`transition-colors duration-300 ${
+              shouldShowBackground 
+                ? 'text-foreground hover:text-foreground/80' 
+                : 'text-white hover:text-white/80 hover:bg-white/10'
+            }`}
+          >
+            {theme === 'dark' ? <Sun className="h-4 w-4" /> : <Moon className="h-4 w-4" />}
+          </Button>
+          
           {/* Mobile language selector - show only on homepage */}
           {location.pathname === '/' && (
             <div className="md:hidden">

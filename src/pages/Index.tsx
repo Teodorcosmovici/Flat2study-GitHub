@@ -72,16 +72,8 @@ const Index = () => {
       {/* Hero Section - Full viewport height */}
       <section className="relative h-screen flex items-center justify-center hero-gradient text-white overflow-hidden">
         <div className="container mx-auto text-center relative z-10 px-4">
-          {/* Mobile Language and Theme Selector - Only on homepage and mobile */}
-          {isMobile && <div className="mb-6 flex justify-center items-center gap-3">
-              <Button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                variant="outline"
-                size="icon"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-full"
-              >
-                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
+          {/* Mobile Language Selector - Only on homepage and mobile */}
+          {isMobile && <div className="mb-6 flex justify-center">
               <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex items-center gap-1 border border-white/20">
                 <button onClick={() => setLanguage('en')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'en' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
                   EN
@@ -90,18 +82,6 @@ const Index = () => {
                   IT
                 </button>
               </div>
-            </div>}
-          
-          {/* Desktop Theme Toggle - positioned top right */}
-          {!isMobile && <div className="absolute top-8 right-8">
-              <Button
-                onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
-                variant="outline"
-                size="icon"
-                className="bg-white/10 border-white/20 text-white hover:bg-white/20 rounded-full"
-              >
-                {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
-              </Button>
             </div>}
           
           <h1 className="text-4xl md:text-6xl font-bold mb-6 leading-tight">
