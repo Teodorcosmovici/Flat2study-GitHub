@@ -23,78 +23,60 @@ export default function About() {
           </Link>
         </div>
         <div className="max-w-4xl mx-auto">
-          <h1 className="text-4xl font-bold text-center mb-8">{t('about.title')}</h1>
+          <h1 className="text-4xl font-bold text-justify mb-8">{t('about.title')}</h1>
           
-          <div className="prose prose-lg mx-auto text-center space-y-8">
-            <p className="text-lg leading-relaxed text-slate-950">
+          <div className="prose prose-lg mx-auto space-y-8">
+            <p className="text-lg leading-relaxed text-slate-950 text-justify">
               {t('about.intro1')}
             </p>
             
-            <p className="text-lg leading-relaxed text-slate-950">
+            <p className="text-lg leading-relaxed text-slate-950 text-justify">
               {t('about.intro2')}
             </p>
             
-            <p className="text-lg font-medium">
+            <p className="text-lg font-medium text-justify">
               {t('about.founders')}
             </p>
             
-            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-8 max-w-3xl mx-auto">
-              <div className="flex flex-col items-center">
+            <div className="mt-8 grid grid-cols-1 md:grid-cols-2 gap-12 max-w-4xl mx-auto">
+              <div className="flex flex-col">
                 <img 
                   src={melchiorPhoto} 
                   alt="Melchior - flat2study co-founder" 
-                  className="w-64 h-64 rounded-lg object-cover shadow-lg"
+                  className="w-full h-80 rounded-lg object-cover shadow-lg"
                 />
-                <p className="mt-4 text-lg font-semibold text-foreground">
+                <p className="mt-4 text-lg font-semibold text-foreground text-justify">
                   Melchior - flat2study co-founder
+                </p>
+                <p className="mt-2 text-muted-foreground text-justify">
+                  melchior.deleusse@studbocconi.it
                 </p>
               </div>
               
-              <div className="flex flex-col items-center">
+              <div className="flex flex-col">
                 <img 
                   src={teodorPhoto} 
                   alt="Teodor - flat2study co-founder" 
-                  className="w-64 h-64 rounded-lg object-cover shadow-lg"
+                  className="w-full h-80 rounded-lg object-cover shadow-lg"
                 />
-                <p className="mt-4 text-lg font-semibold text-foreground">
+                <p className="mt-4 text-lg font-semibold text-foreground text-justify">
                   Teodor - flat2study co-founder
                 </p>
-                <div className="mt-4 text-left space-y-3">
-                  <p className="text-muted-foreground">
+                <p className="mt-2 text-muted-foreground text-justify">
+                  tc4606@nyu.edu
+                </p>
+                <div className="mt-4 space-y-3">
+                  <p className="text-muted-foreground text-justify">
                     {t('about.teodorBio1')}
                   </p>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground text-justify">
                     {t('about.teodorBio2')}
                   </p>
-                  <p className="text-muted-foreground">
+                  <p className="text-muted-foreground text-justify">
                     {t('about.teodorBio3')}
                   </p>
                 </div>
               </div>
-            </div>
-            
-            <div className="mt-12">
-              <h2 className="text-2xl font-semibold mb-6">{t('about.contactInfo')}</h2>
-              <div className="space-y-3">
-                <p className="text-muted-foreground">
-                  <span className="font-medium">{t('about.email')}</span> tc4606@nyu.edu
-                </p>
-                <p className="text-muted-foreground">
-                  <span className="font-medium">{t('about.email')}</span> melchior.deleusse@studbocconi.it
-                </p>
-              </div>
-            </div>
-            
-            <div className="mt-8">
-              <h2 className="text-2xl font-semibold mb-4">{t('about.partnerTitle')}</h2>
-              <p className="text-muted-foreground mb-6">
-                {t('about.partnerText')} <span className="text-muted-foreground">bhousingmilano@gmail.com</span> {t('about.partnerOr')}
-              </p>
-              <Button asChild>
-                <a href="https://calendly.com/tc4606-nyu/30min" target="_blank" rel="noopener noreferrer">
-                  {t('about.scheduleMeeting')}
-                </a>
-              </Button>
             </div>
           </div>
         </div>
