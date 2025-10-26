@@ -482,10 +482,7 @@ const Index = () => {
                         <span className="text-lg font-semibold">E</span>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold">Elodie</h3>
-                          <span className="text-sm text-muted-foreground">4 days ago</span>
-                        </div>
+                        <h3 className="font-semibold mb-1">Elodie</h3>
                         <p className="text-sm text-muted-foreground mb-2">IT · 1 review</p>
                         <div className="flex gap-1 mb-3">
                           {[1, 2, 3, 4, 5].map(star => (
@@ -511,10 +508,7 @@ const Index = () => {
                         <span className="text-lg font-semibold">MA</span>
                       </div>
                       <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold">Marie</h3>
-                          <span className="text-sm text-muted-foreground">5 days ago</span>
-                        </div>
+                        <h3 className="font-semibold mb-1">Marie</h3>
                         <p className="text-sm text-muted-foreground mb-2">FR · 1 review</p>
                         <div className="flex gap-1 mb-3">
                           {[1, 2, 3, 4, 5].map(star => (
@@ -526,36 +520,6 @@ const Index = () => {
                     <h4 className="font-semibold mb-2">Very great</h4>
                     <p className="text-muted-foreground">
                       Very great, I took a room for my son who is studying at Cattolica. Unfortunately I wasn't able to visit the place but it was exactly as described
-                    </p>
-                  </CardContent>
-                </Card>
-              </div>
-
-              {/* John's Review (new) */}
-              <div className="min-w-[350px] w-[350px] flex-shrink-0 snap-start">
-                <Card className="h-full">
-                  <CardContent className="p-6">
-                    <div className="flex items-start gap-4 mb-4">
-                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                        <span className="text-lg font-semibold">J</span>
-                      </div>
-                      <div className="flex-1">
-                        <div className="flex items-center justify-between mb-1">
-                          <h3 className="font-semibold">John</h3>
-                          <span className="text-sm text-muted-foreground">1 week ago</span>
-                        </div>
-                        <p className="text-sm text-muted-foreground mb-2">GB · 1 review</p>
-                        <div className="flex gap-1 mb-3">
-                          {[1, 2, 3, 4].map(star => (
-                            <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
-                          ))}
-                          <Star className="w-5 h-5 text-muted" />
-                        </div>
-                      </div>
-                    </div>
-                    <h4 className="font-semibold mb-2">Great experience</h4>
-                    <p className="text-muted-foreground">
-                      Found the perfect flat near Bocconi. The booking process was straightforward and the landlord was very responsive.
                     </p>
                   </CardContent>
                 </Card>
