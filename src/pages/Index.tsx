@@ -16,12 +16,13 @@ import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSelector } from '@/components/ui/language-selector';
 import OwnerAccess from '@/components/OwnerAccess';
 import OwnerDashboard from '@/pages/OwnerDashboard';
-import React, { useState, useEffect } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 import bocconiImg from '@/assets/university-bocconi.png';
 import cattolicaImg from '@/assets/university-cattolica.png';
 import stataleImg from '@/assets/university-statale.png';
 import politecnicoImg from '@/assets/university-politecnico.png';
 import { FeaturedListingCard } from '@/components/listings/FeaturedListingCard';
+import { Star, ExternalLink } from 'lucide-react';
 const Index = () => {
   const {
     user,
@@ -469,78 +470,128 @@ const Index = () => {
             </p>
           </div>
           
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 max-w-4xl mx-auto mb-8">
-            {/* Elodie's Review */}
-            <a 
-              href="https://ie.trustpilot.com/review/flat2study.com?languages=all" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="block hover:shadow-lg transition-shadow"
-            >
-              <Card className="h-full cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                      <span className="text-lg font-semibold">E</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold">Elodie</h3>
-                        <span className="text-sm text-muted-foreground">4 days ago</span>
+          {/* Swipeable Reviews Carousel */}
+          <div className="max-w-6xl mx-auto mb-8">
+            <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+              {/* Elodie's Review */}
+              <div className="min-w-[350px] w-[350px] flex-shrink-0 snap-start">
+                <Card className="h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-lg font-semibold">E</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">IT · 1 review</p>
-                      <div className="flex gap-1 mb-3">
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <svg key={star} className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                        ))}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold">Elodie</h3>
+                          <span className="text-sm text-muted-foreground">4 days ago</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">IT · 1 review</p>
+                        <div className="flex gap-1 mb-3">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <h4 className="font-semibold mb-2">sito incredibile</h4>
-                  <p className="text-muted-foreground">
-                    Ho trovato un appartamento meraviglioso grazie a questo sito, lo raccomendo 100%
-                  </p>
-                </CardContent>
-              </Card>
-            </a>
+                    <h4 className="font-semibold mb-2">sito incredibile</h4>
+                    <p className="text-muted-foreground">
+                      Ho trovato un appartamento meraviglioso grazie a questo sito, lo raccomando 100%
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
 
-            {/* Marie's Review */}
-            <a 
-              href="https://ie.trustpilot.com/review/flat2study.com?languages=all" 
-              target="_blank" 
-              rel="noopener noreferrer"
-              className="block hover:shadow-lg transition-shadow"
-            >
-              <Card className="h-full cursor-pointer">
-                <CardContent className="p-6">
-                  <div className="flex items-start gap-4 mb-4">
-                    <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
-                      <span className="text-lg font-semibold">MA</span>
-                    </div>
-                    <div className="flex-1">
-                      <div className="flex items-center justify-between mb-1">
-                        <h3 className="font-semibold">Marie</h3>
-                        <span className="text-sm text-muted-foreground">5 days ago</span>
+              {/* Marie's Review */}
+              <div className="min-w-[350px] w-[350px] flex-shrink-0 snap-start">
+                <Card className="h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-lg font-semibold">MA</span>
                       </div>
-                      <p className="text-sm text-muted-foreground mb-2">FR · 1 review</p>
-                      <div className="flex gap-1 mb-3">
-                        {[1, 2, 3, 4, 5].map(star => (
-                          <svg key={star} className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
-                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                          </svg>
-                        ))}
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold">Marie</h3>
+                          <span className="text-sm text-muted-foreground">5 days ago</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">FR · 1 review</p>
+                        <div className="flex gap-1 mb-3">
+                          {[1, 2, 3, 4, 5].map(star => (
+                            <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
+                          ))}
+                        </div>
                       </div>
                     </div>
-                  </div>
-                  <h4 className="font-semibold mb-2">Very great</h4>
-                  <p className="text-muted-foreground">
-                    Very great, I took a room for my son who is studying at Cattolica. Unfortunately I wasn't able to visit the place but it was exactly as described
-                  </p>
-                </CardContent>
-              </Card>
-            </a>
+                    <h4 className="font-semibold mb-2">Very great</h4>
+                    <p className="text-muted-foreground">
+                      Very great, I took a room for my son who is studying at Cattolica. Unfortunately I wasn't able to visit the place but it was exactly as described
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* John's Review (new) */}
+              <div className="min-w-[350px] w-[350px] flex-shrink-0 snap-start">
+                <Card className="h-full">
+                  <CardContent className="p-6">
+                    <div className="flex items-start gap-4 mb-4">
+                      <div className="w-12 h-12 rounded-full bg-muted flex items-center justify-center flex-shrink-0">
+                        <span className="text-lg font-semibold">J</span>
+                      </div>
+                      <div className="flex-1">
+                        <div className="flex items-center justify-between mb-1">
+                          <h3 className="font-semibold">John</h3>
+                          <span className="text-sm text-muted-foreground">1 week ago</span>
+                        </div>
+                        <p className="text-sm text-muted-foreground mb-2">GB · 1 review</p>
+                        <div className="flex gap-1 mb-3">
+                          {[1, 2, 3, 4].map(star => (
+                            <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
+                          ))}
+                          <Star className="w-5 h-5 text-muted" />
+                        </div>
+                      </div>
+                    </div>
+                    <h4 className="font-semibold mb-2">Great experience</h4>
+                    <p className="text-muted-foreground">
+                      Found the perfect flat near Bocconi. The booking process was straightforward and the landlord was very responsive.
+                    </p>
+                  </CardContent>
+                </Card>
+              </div>
+
+              {/* View More Reviews Card */}
+              <div className="min-w-[350px] w-[350px] flex-shrink-0 snap-start">
+                <a 
+                  href="https://ie.trustpilot.com/review/flat2study.com?languages=all" 
+                  target="_blank" 
+                  rel="noopener noreferrer"
+                  className="block h-full"
+                >
+                  <Card className="h-full cursor-pointer hover:shadow-lg transition-all bg-muted/30 hover:bg-muted/50">
+                    <CardContent className="p-6 flex flex-col items-center justify-center h-full text-center">
+                      <ExternalLink className="w-12 h-12 text-primary mb-4" />
+                      <h3 className="text-xl font-semibold mb-2">
+                        {language === 'it' ? 'Vedi altre recensioni' : 'View More Reviews'}
+                      </h3>
+                      <p className="text-muted-foreground mb-4">
+                        {language === 'it' ? 'Leggi tutte le nostre recensioni su Trustpilot' : 'Read all our reviews on Trustpilot'}
+                      </p>
+                      <div className="flex items-center gap-2">
+                        <div className="flex gap-1">
+                          {[1, 2, 3, 4].map(star => (
+                            <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
+                          ))}
+                          <Star className="w-5 h-5 fill-green-500/50 text-green-500" />
+                        </div>
+                        <span className="font-semibold">4.0</span>
+                      </div>
+                    </CardContent>
+                  </Card>
+                </a>
+              </div>
+            </div>
           </div>
 
           {/* Trustpilot Banner */}
@@ -555,27 +606,15 @@ const Index = () => {
                 <span className="text-lg font-semibold">{language === 'it' ? 'Molto buono' : 'Very good'}</span>
                 <div className="flex gap-1">
                   {[1, 2, 3, 4].map(star => (
-                    <svg key={star} className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
-                      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                    </svg>
+                    <Star key={star} className="w-6 h-6 fill-green-500 text-green-500" />
                   ))}
-                  <svg className="w-6 h-6 fill-green-500" viewBox="0 0 24 24">
-                    <defs>
-                      <linearGradient id="half-star">
-                        <stop offset="50%" stopColor="rgb(34 197 94)" />
-                        <stop offset="50%" stopColor="hsl(var(--muted))" />
-                      </linearGradient>
-                    </defs>
-                    <path fill="url(#half-star)" d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
+                  <Star className="w-6 h-6 fill-green-500/50 text-green-500" />
                 </div>
               </div>
               <div className="text-center md:text-left">
                 <div className="font-semibold">4.0 {language === 'it' ? 'su' : 'out of'} 5</div>
                 <div className="flex items-center gap-2 justify-center md:justify-start mt-1">
-                  <svg className="w-5 h-5 fill-green-500" viewBox="0 0 24 24">
-                    <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
-                  </svg>
+                  <Star className="w-5 h-5 fill-green-500 text-green-500" />
                   <span className="text-sm text-muted-foreground">Trustpilot</span>
                 </div>
               </div>
