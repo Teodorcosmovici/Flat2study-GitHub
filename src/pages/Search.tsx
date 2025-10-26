@@ -460,7 +460,7 @@ export default function Search() {
         )
       ) : (
         <div className="fixed top-[180px] left-0 right-0 bottom-0 overflow-y-auto px-4">
-          <div className="max-w-7xl mx-auto py-6 pt-8">
+          <div className="max-w-7xl mx-auto py-6">
             <div className="grid gap-6 grid-cols-1 lg:grid-cols-4">
               {listings.map((listing) => (
                 <FeaturedListingCard
