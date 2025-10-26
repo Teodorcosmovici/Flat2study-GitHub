@@ -161,8 +161,11 @@ const Index = () => {
                           <h3 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
                             {university.name}
                           </h3>
+                          {university.id === 'politecnico' && (
+                            <p className="text-white text-base font-light drop-shadow-lg">di Milano</p>
+                          )}
                           <p className="text-white text-base font-light drop-shadow-lg">
-                            {university.id === 'politecnico' ? 'di Milano' : 'Milan, Italy'}
+                            Milan, Italy
                           </p>
                         </div>
                           </Card>
@@ -406,8 +409,11 @@ const Index = () => {
                           <h3 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
                             {university.name}
                           </h3>
+                          {university.id === 'politecnico' && (
+                            <p className="text-white text-base font-light drop-shadow-lg">di Milano</p>
+                          )}
                           <p className="text-white text-base font-light drop-shadow-lg">
-                            {university.id === 'politecnico' ? 'di Milano' : 'Milan, Italy'}
+                            Milan, Italy
                           </p>
                         </div>
                       </Card>
