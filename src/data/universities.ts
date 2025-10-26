@@ -35,7 +35,7 @@ export const MILAN_UNIVERSITIES: University[] = [
   },
   {
     id: 'politecnico',
-    name: 'Politecnico di Milano',
+    name: 'Politecnico',
     shortName: 'Politecnico',
     lat: 45.4784,
     lng: 9.2277,

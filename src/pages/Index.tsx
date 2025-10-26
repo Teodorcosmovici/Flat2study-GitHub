@@ -162,7 +162,7 @@ const Index = () => {
                             {university.name}
                           </h3>
                           <p className="text-white text-base font-light drop-shadow-lg">
-                            di Milano
+                            {university.id === 'politecnico' ? 'di Milano' : 'Milan, Italy'}
                           </p>
                         </div>
                           </Card>
@@ -407,7 +407,7 @@ const Index = () => {
                             {university.name}
                           </h3>
                           <p className="text-white text-base font-light drop-shadow-lg">
-                            di Milano
+                            {university.id === 'politecnico' ? 'di Milano' : 'Milan, Italy'}
                           </p>
                         </div>
                       </Card>
