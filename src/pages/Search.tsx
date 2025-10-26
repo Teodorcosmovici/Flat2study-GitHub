@@ -402,7 +402,7 @@ export default function Search() {
             />
           </div>
         ) : (
-          <div className="absolute top-[200px] left-0 right-0 bottom-0 flex gap-4 p-4">
+          <div className="fixed top-[180px] left-0 right-0 bottom-0 flex gap-4 p-4">
             {/* Scrollable listings container - 50% width */}
             <div className="w-1/2 overflow-y-auto overflow-x-hidden">
               <div className="grid grid-cols-2 gap-4 pr-2">

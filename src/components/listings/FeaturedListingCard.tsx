@@ -22,7 +22,7 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
   viewDetailsText 
 }) => {
   const [currentImageIndex, setCurrentImageIndex] = useState(0);
-  const [showArrows, setShowArrows] = useState(false);
+  const [isHovered, setIsHovered] = useState(false);
   
   const nextImage = (e: React.MouseEvent) => {
     e.preventDefault();
@@ -40,8 +40,8 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
     <div className="w-full snap-start">
       <div 
         className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
-        onMouseEnter={() => setShowArrows(true)}
-        onMouseLeave={() => setShowArrows(false)}
+        onMouseEnter={() => setIsHovered(true)}
+        onMouseLeave={() => setIsHovered(false)}
       >
         <Link to={`/listing/${listing.id}`} className="block w-full h-full" onClick={() => window.scrollTo(0, 0)}>
           <img 
@@ -50,8 +50,8 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
             className="w-full h-full object-cover" 
             loading="lazy" 
           />
-          <div className="absolute inset-0 bg-black/20" />
-          <div className="absolute inset-0 flex flex-col justify-between p-6 pointer-events-none">
+          <div className={`absolute inset-0 bg-black/20 transition-opacity ${isHovered ? 'opacity-0' : ''}`} />
+          <div className={`absolute inset-0 flex flex-col justify-between p-6 pointer-events-none transition-opacity ${isHovered ? 'opacity-0' : ''}`}>
             <div>
               <h3 className="text-white text-xl font-bold mb-2 drop-shadow-lg line-clamp-2">
                 {listing.title}
@@ -69,7 +69,7 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
           </div>
         </Link>
         
-        {showArrows && listing.images.length > 1 && (
+        {isHovered && listing.images.length > 1 && (
           <>
             <button
               onClick={prevImage}
