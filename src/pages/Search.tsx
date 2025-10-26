@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
 import { useNavigate } from 'react-router-dom';
 import Header from '@/components/layout/Header';
-import ListingCard from '@/components/listings/ListingCard';
+import { FeaturedListingCard } from '@/components/listings/FeaturedListingCard';
 import SearchFilters from '@/components/search/SearchFilters';
 import MobileCompactControls from '@/components/search/MobileCompactControls';
 import SimpleMapView from '@/components/map/SimpleMapView';
@@ -32,6 +32,10 @@ export default function Search() {
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [geocodingComplete, setGeocodingComplete] = useState(false);
   const [visibleListings, setVisibleListings] = useState<Listing[]>([]);
+
+  const formatPrice = (price: number) => {
+    return `€${price.toLocaleString()}`;
+  };
 
   // Set appropriate default view mode based on device
   useEffect(() => {
@@ -417,11 +421,17 @@ export default function Search() {
                       onMouseEnter={() => setHoveredListingId(listing.id)}
                       onMouseLeave={() => setHoveredListingId(null)}
                     >
-                      <ListingCard
-                        listing={listing}
-                        onClick={() => handleListingClick(listing.id)}
-                        className="cursor-pointer"
-                        showTranslateButton={false}
+                      <FeaturedListingCard
+                        listing={{
+                          id: listing.id,
+                          title: listing.title,
+                          images: listing.images,
+                          rent_monthly_eur: listing.rentMonthlyEur,
+                          address_line: listing.addressLine,
+                          city: listing.city
+                        }}
+                        formatPrice={formatPrice}
+                        viewDetailsText={t('home.viewDetails')}
                       />
                     </div>
                   ))}
@@ -452,14 +462,20 @@ export default function Search() {
       ) : (
         /* Grid View - Full width container */
         <div className="container py-6">
-          <div className="grid gap-6 grid-cols-1 md:grid-cols-2 xl:grid-cols-3">
+          <div className="grid gap-6 grid-cols-1 md:grid-cols-2">
             {listings.map((listing) => (
-              <ListingCard
+              <FeaturedListingCard
                 key={listing.id}
-                listing={listing}
-                onClick={() => handleListingClick(listing.id)}
-                className="cursor-pointer"
-                showTranslateButton={false}
+                listing={{
+                  id: listing.id,
+                  title: listing.title,
+                  images: listing.images,
+                  rent_monthly_eur: listing.rentMonthlyEur,
+                  address_line: listing.addressLine,
+                  city: listing.city
+                }}
+                formatPrice={formatPrice}
+                viewDetailsText={t('home.viewDetails')}
               />
             ))}
           
