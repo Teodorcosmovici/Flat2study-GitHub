@@ -4,7 +4,7 @@ import { ArrowLeft } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import melchiorPhoto from '@/assets/melchior-founder.jpeg';
-import teodorPhoto from '@/assets/teodor-founder.jpeg';
+import teodorPhoto from '@/assets/teodor-founder-new.jpeg';
 
 export default function About() {
   const { t } = useLanguage();
@@ -57,7 +57,7 @@ export default function About() {
                 <img 
                   src={teodorPhoto} 
                   alt="Teodor - flat2study co-founder" 
-                  className="w-full h-80 rounded-lg object-cover shadow-lg"
+                  className="w-full h-80 rounded-lg object-contain bg-muted shadow-lg"
                 />
                 <p className="mt-4 text-lg font-semibold text-foreground text-justify">
                   Teodor - flat2study co-founder
