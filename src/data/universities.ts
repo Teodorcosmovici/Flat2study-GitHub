@@ -27,7 +27,7 @@ export const MILAN_UNIVERSITIES: University[] = [
   },
   {
     id: 'statale',
-    name: 'La Statale',
+    name: 'Università Statale',
     shortName: 'La Statale',
     lat: 45.4627,
     lng: 9.1900,
