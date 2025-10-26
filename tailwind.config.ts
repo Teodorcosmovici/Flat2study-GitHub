@@ -40,9 +40,7 @@ export default {
 				foreground: 'hsl(var(--foreground))',
 				primary: {
 					DEFAULT: 'hsl(var(--primary))',
-					foreground: 'hsl(var(--primary-foreground))',
-					light: 'hsl(var(--primary-light))',
-					dark: 'hsl(var(--primary-dark))'
+					foreground: 'hsl(var(--primary-foreground))'
 				},
 				secondary: {
 					DEFAULT: 'hsl(var(--secondary))',
@@ -76,12 +74,14 @@ export default {
 					DEFAULT: 'hsl(var(--card))',
 					foreground: 'hsl(var(--card-foreground))'
 				},
-				// Marketplace specific colors
 				price: {
 					DEFAULT: 'hsl(var(--price))',
 					foreground: 'hsl(var(--price-foreground))'
 				},
-				favorite: 'hsl(var(--favorite))',
+				favorite: {
+					DEFAULT: 'hsl(var(--favorite))',
+					foreground: 'hsl(var(--favorite-foreground))'
+				},
 				available: 'hsl(var(--available))',
 				pending: 'hsl(var(--pending))',
 				expired: 'hsl(var(--expired))',
@@ -94,12 +94,29 @@ export default {
 					'accent-foreground': 'hsl(var(--sidebar-accent-foreground))',
 					border: 'hsl(var(--sidebar-border))',
 					ring: 'hsl(var(--sidebar-ring))'
+				},
+				chart: {
+					'1': 'hsl(var(--chart-1))',
+					'2': 'hsl(var(--chart-2))',
+					'3': 'hsl(var(--chart-3))',
+					'4': 'hsl(var(--chart-4))',
+					'5': 'hsl(var(--chart-5))'
 				}
 			},
 			borderRadius: {
 				lg: 'var(--radius)',
 				md: 'calc(var(--radius) - 2px)',
 				sm: 'calc(var(--radius) - 4px)'
+			},
+			boxShadow: {
+				sm: 'none',
+				DEFAULT: 'none',
+				md: 'none',
+				lg: 'none',
+				xl: 'none',
+				'2xl': 'none',
+				inner: 'none',
+				none: 'none'
 			},
 			keyframes: {
 				'accordion-down': {
