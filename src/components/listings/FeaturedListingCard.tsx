@@ -37,7 +37,7 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
   };
   
   return (
-    <div className="min-w-[400px] w-[400px] flex-shrink-0 snap-start">
+    <div className="w-full snap-start">
       <div 
         className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
         onMouseEnter={() => setShowArrows(true)}

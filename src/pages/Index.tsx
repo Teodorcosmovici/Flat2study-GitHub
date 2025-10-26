@@ -205,12 +205,13 @@ const Index = () => {
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                       </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                         {featuredListings.map(listing => (
-                          <FeaturedListingCard 
-                            key={listing.id}
-                            listing={listing}
-                            formatPrice={formatPrice}
-                            viewDetailsText={t('home.viewDetails')}
-                          />
+                          <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0">
+                            <FeaturedListingCard 
+                              listing={listing}
+                              formatPrice={formatPrice}
+                              viewDetailsText={t('home.viewDetails')}
+                            />
+                          </div>
                         ))}
                       </div>}
                   </div>
@@ -437,12 +438,13 @@ const Index = () => {
                     <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
                   </div> : <div className="flex gap-6 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                     {featuredListings.map(listing => (
-                      <FeaturedListingCard 
-                        key={listing.id}
-                        listing={listing}
-                        formatPrice={formatPrice}
-                        viewDetailsText={t('home.viewDetails')}
-                      />
+                      <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0">
+                        <FeaturedListingCard 
+                          listing={listing}
+                          formatPrice={formatPrice}
+                          viewDetailsText={t('home.viewDetails')}
+                        />
+                      </div>
                     ))}
                   </div>}
               </div>
