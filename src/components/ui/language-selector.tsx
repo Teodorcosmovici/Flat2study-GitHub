@@ -1,4 +1,4 @@
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
+import { Button } from '@/components/ui/button';
 import { useLanguage } from '@/contexts/LanguageContext';
 import { Globe } from 'lucide-react';
 
@@ -7,51 +7,49 @@ interface LanguageSelectorProps {
 }
 
 export function LanguageSelector({ variant = 'default' }: LanguageSelectorProps) {
-  const { language, setLanguage, t } = useLanguage();
+  const { language, setLanguage } = useLanguage();
+
+  const toggleLanguage = () => {
+    setLanguage(language === 'en' ? 'it' : 'en');
+  };
+
+  const buttonText = language === 'en' ? 'Italiano' : 'English';
 
   if (variant === 'mobile-icon') {
     return (
-      <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'it')}>
-        <SelectTrigger className="w-auto border-0 bg-transparent p-1 h-auto">
-          <Globe className="h-5 w-5 text-current" />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="en">{t('language.english')}</SelectItem>
-          <SelectItem value="it">{t('language.italian')}</SelectItem>
-        </SelectContent>
-      </Select>
+      <Button
+        variant="ghost"
+        size="icon"
+        onClick={toggleLanguage}
+        className="h-auto w-auto p-1"
+      >
+        <Globe className="h-5 w-5 text-current" />
+      </Button>
     );
   }
 
   if (variant === 'compact') {
     return (
-      <div className="flex items-center space-x-2">
+      <Button
+        variant="ghost"
+        size="sm"
+        onClick={toggleLanguage}
+        className="flex items-center gap-2 h-auto px-2 py-1"
+      >
         <Globe className="h-4 w-4 text-current opacity-70" />
-        <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'it')}>
-          <SelectTrigger className="w-auto border-0 bg-transparent p-0 h-auto text-current">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="en">{t('language.english')}</SelectItem>
-            <SelectItem value="it">{t('language.italian')}</SelectItem>
-          </SelectContent>
-        </Select>
-      </div>
+        <span className="text-sm">{buttonText}</span>
+      </Button>
     );
   }
 
   return (
-    <div className="flex items-center space-x-2">
+    <Button
+      variant="ghost"
+      onClick={toggleLanguage}
+      className="flex items-center gap-2"
+    >
       <Globe className="h-4 w-4 text-current opacity-70" />
-      <Select value={language} onValueChange={(value) => setLanguage(value as 'en' | 'it')}>
-        <SelectTrigger className="w-32 text-current">
-          <SelectValue />
-        </SelectTrigger>
-        <SelectContent>
-          <SelectItem value="en">{t('language.english')}</SelectItem>
-          <SelectItem value="it">{t('language.italian')}</SelectItem>
-        </SelectContent>
-      </Select>
-    </div>
+      <span>{buttonText}</span>
+    </Button>
   );
 }
