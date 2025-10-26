@@ -71,41 +71,43 @@ All colors MUST be HSL.
   }
 
   .dark {
-    --background: 218 30% 8%;
-    --foreground: 220 15% 92%;
+    --background: 220 60% 8%;
+    --foreground: 220 20% 95%;
     
-    --card: 218 30% 10%;
-    --card-foreground: 220 15% 92%;
+    --card: 220 55% 12%;
+    --card-foreground: 220 20% 95%;
     
-    --popover: 218 30% 10%;
-    --popover-foreground: 220 15% 92%;
+    --popover: 220 55% 12%;
+    --popover-foreground: 220 20% 95%;
     
-    --primary: 231 75% 60%;       /* Lighter blue for dark mode */
-    --primary-foreground: 218 30% 8%;
+    --primary: 210 80% 55%;
+    --primary-foreground: 220 20% 95%;
     
-    --secondary: 218 25% 15%;
-    --secondary-foreground: 220 15% 92%;
+    --secondary: 220 45% 18%;
+    --secondary-foreground: 220 20% 95%;
     
-    --muted: 218 25% 15%;
-    --muted-foreground: 220 10% 65%;
+    --muted: 220 45% 18%;
+    --muted-foreground: 220 15% 70%;
     
-    --accent: 218 25% 18%;
-    --accent-foreground: 220 15% 92%;
+    --accent: 220 50% 22%;
+    --accent-foreground: 220 20% 95%;
     
     --destructive: 0 75% 55%;
     --destructive-foreground: 0 0% 100%;
     
-    --border: 218 25% 18%;
-    --input: 218 25% 18%;
-    --ring: 231 75% 60%;          /* Updated ring color for dark mode */
-    --sidebar-background: 240 5.9% 10%;
-    --sidebar-foreground: 240 4.8% 95.9%;
-    --sidebar-primary: 224.3 76.3% 48%;
-    --sidebar-primary-foreground: 0 0% 100%;
-    --sidebar-accent: 240 3.7% 15.9%;
-    --sidebar-accent-foreground: 240 4.8% 95.9%;
-    --sidebar-border: 240 3.7% 15.9%;
-    --sidebar-ring: 217.2 91.2% 59.8%;
+    --border: 220 40% 20%;
+    --input: 220 40% 20%;
+    --ring: 210 80% 55%;
+    
+    /* Sidebar with navy blue tones */
+    --sidebar-background: 220 60% 10%;
+    --sidebar-foreground: 220 20% 95%;
+    --sidebar-primary: 210 80% 55%;
+    --sidebar-primary-foreground: 220 20% 95%;
+    --sidebar-accent: 220 50% 16%;
+    --sidebar-accent-foreground: 220 20% 95%;
+    --sidebar-border: 220 40% 18%;
+    --sidebar-ring: 210 80% 55%;
   }
 }
 
