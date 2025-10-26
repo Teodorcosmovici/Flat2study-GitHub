@@ -79,7 +79,10 @@ export default function ListingCard({
       <div 
         className={`listing-card ${isHovered ? 'scale-[1.02] border-primary/20' : ''} ${className} cursor-pointer`}
         onMouseEnter={() => onHover?.(listing.id)}
-        onMouseLeave={() => onHover?.(null)}
+        onMouseLeave={() => {
+          onHover?.(null);
+          setCurrentImageIndex(0);
+        }}
         onClick={() => onClick?.(listing.id)}
       >
       {/* Image Gallery */}

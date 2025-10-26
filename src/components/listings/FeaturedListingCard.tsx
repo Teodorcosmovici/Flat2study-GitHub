@@ -43,7 +43,10 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
       <div 
         className="relative aspect-square overflow-hidden rounded-lg hover:shadow-lg transition-shadow cursor-pointer"
         onMouseEnter={() => setIsHovered(true)}
-        onMouseLeave={() => setIsHovered(false)}
+        onMouseLeave={() => {
+          setIsHovered(false);
+          setCurrentImageIndex(0);
+        }}
       >
         <Link to={`/listing/${listing.id}`} className="block w-full h-full" onClick={() => window.scrollTo(0, 0)}>
           <img 
