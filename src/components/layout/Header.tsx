@@ -202,7 +202,8 @@ export default function Header() {
           ) : (
             /* Non-authenticated user buttons */
             <>
-              <Link to="/landlord">
+              {/* Desktop: Show landlord link */}
+              <Link to="/landlord" className="hidden md:block">
                 <Button 
                   variant="ghost" 
                   size="sm" 
@@ -220,25 +221,25 @@ export default function Header() {
                 <Button 
                   variant="ghost" 
                   size="sm" 
-                  className={`transition-colors duration-300 -ml-1 ${
+                  className={`transition-colors duration-300 ${
                     shouldShowBackground 
                       ? 'text-foreground hover:text-foreground/80' 
                       : 'text-white hover:text-white/80 hover:bg-white/10'
                   }`}
                 >
-                  <User className="h-4 w-4 mr-1 md:mr-2" />
+                  <User className="h-4 w-4 md:mr-2" />
                   <span className="hidden md:inline">{t('header.logIn')}</span>
                 </Button>
               </Link>
 
-              <Link to="/get-started">
+              {/* Desktop: Show Get Started button */}
+              <Link to="/get-started" className="hidden md:block">
                 <Button size="sm" className={`transition-all duration-300 text-xs px-3 sm:px-4 md:text-sm ${
                   shouldShowBackground 
                     ? 'hero-gradient text-white border-0' 
                     : 'bg-white text-primary hover:bg-white/90 border-0'
                 }`}>
-                  <span className="hidden md:inline">{t('header.getStarted')}</span>
-                  <span className="md:hidden">{t('header.start')}</span>
+                  {t('header.getStarted')}
                 </Button>
               </Link>
             </>
