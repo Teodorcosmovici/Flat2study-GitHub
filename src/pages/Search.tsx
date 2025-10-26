@@ -459,29 +459,30 @@ export default function Search() {
           </div>
         )
       ) : (
-        <div className="w-full max-w-7xl mx-auto px-4 py-6">
-          <div className="grid gap-6 grid-cols-1 lg:grid-cols-2">
-            {listings.map((listing) => (
-              <FeaturedListingCard
-                key={listing.id}
-                listing={{
-                  id: listing.id,
-                  title: listing.title,
-                  images: listing.images,
-                  rent_monthly_eur: listing.rentMonthlyEur,
-                  address_line: listing.addressLine,
-                  city: listing.city
-                }}
-                formatPrice={formatPrice}
-                viewDetailsText={t('home.viewDetails')}
-              />
-            ))}
-          
-            {listings.length === 0 && (
-              <div className="col-span-full text-center py-12">
-                <p className="text-muted-foreground">{t('search.noResults')}</p>
-                <Button 
-                  variant="outline" 
+        <div className="fixed top-[180px] left-0 right-0 bottom-0 overflow-y-auto px-4">
+          <div className="max-w-7xl mx-auto">
+            <div className="grid gap-6 grid-cols-1 lg:grid-cols-4">
+              {listings.map((listing) => (
+                <FeaturedListingCard
+                  key={listing.id}
+                  listing={{
+                    id: listing.id,
+                    title: listing.title,
+                    images: listing.images,
+                    rent_monthly_eur: listing.rentMonthlyEur,
+                    address_line: listing.addressLine,
+                    city: listing.city
+                  }}
+                  formatPrice={formatPrice}
+                  viewDetailsText={t('home.viewDetails')}
+                />
+              ))}
+            
+              {listings.length === 0 && (
+                <div className="col-span-full text-center py-12">
+                  <p className="text-muted-foreground">{t('search.noResults')}</p>
+                  <Button 
+                    variant="outline"
                   onClick={() => setFilters({})}
                   className="mt-4"
                 >
