@@ -11,6 +11,8 @@ interface FeaturedListingCardProps {
     rent_monthly_eur: number;
     address_line?: string;
     city?: string;
+    size_sqm?: number;
+    bathrooms?: number;
   };
   formatPrice: (price: number) => string;
   viewDetailsText: string;
@@ -58,10 +60,17 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
               </h3>
             </div>
             <div className="flex items-end justify-between pointer-events-auto">
-              <span className="text-white text-lg font-bold drop-shadow-lg">
-                {formatPrice(listing.rent_monthly_eur)}
-                <span className="text-xs font-light block">/month</span>
-              </span>
+              <div>
+                <div className="text-white text-xs font-light drop-shadow-lg mb-1">
+                  {listing.size_sqm && <span>{listing.size_sqm}m²</span>}
+                  {listing.size_sqm && listing.bathrooms > 0 && <span> • </span>}
+                  {listing.bathrooms > 0 && <span>{listing.bathrooms} bath{listing.bathrooms > 1 ? 's' : ''}</span>}
+                </div>
+                <span className="text-white text-lg font-bold drop-shadow-lg">
+                  {formatPrice(listing.rent_monthly_eur)}
+                  <span className="text-xs font-light block">/month</span>
+                </span>
+              </div>
               <Button size="sm" className="text-xs px-3 py-1 h-8" onClick={(e) => e.preventDefault()}>
                 {viewDetailsText}
               </Button>
