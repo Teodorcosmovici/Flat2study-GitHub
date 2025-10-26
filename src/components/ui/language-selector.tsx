@@ -21,7 +21,7 @@ export function LanguageSelector({ variant = 'default' }: LanguageSelectorProps)
         variant="ghost"
         size="icon"
         onClick={toggleLanguage}
-        className="h-10 w-10 p-1"
+        className="h-10 w-10 p-1 hover:bg-transparent"
       >
         <Globe className="h-5 w-5 text-current" />
       </Button>
@@ -34,7 +34,7 @@ export function LanguageSelector({ variant = 'default' }: LanguageSelectorProps)
         variant="ghost"
         size="sm"
         onClick={toggleLanguage}
-        className="flex items-center gap-2 h-9 w-28 px-2 py-1"
+        className="flex items-center gap-2 h-9 w-28 px-2 py-1 hover:bg-transparent"
       >
         <Globe className="h-4 w-4 text-current opacity-70" />
         <span className="text-sm">{buttonText}</span>
@@ -46,7 +46,7 @@ export function LanguageSelector({ variant = 'default' }: LanguageSelectorProps)
     <Button
       variant="ghost"
       onClick={toggleLanguage}
-      className="flex items-center gap-2 w-32"
+      className="flex items-center gap-2 w-32 hover:bg-transparent"
     >
       <Globe className="h-4 w-4 text-current opacity-70" />
       <span>{buttonText}</span>
