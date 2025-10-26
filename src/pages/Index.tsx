@@ -383,15 +383,37 @@ const Index = () => {
               </div>
               
               <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6">
-                {universities.map(university => <Link key={university.id} to={`/search?location=${encodeURIComponent(university.city)}`}>
-                    <Card className="text-center hover:shadow-lg transition-shadow cursor-pointer">
-                      <CardContent className="p-6">
-                        <MapPin className="h-8 w-8 text-primary mx-auto mb-3" />
-                        <h3 className="font-semibold mb-2">{university.name}</h3>
-                        <p className="text-sm text-muted-foreground">{university.city}, {university.country}</p>
-                      </CardContent>
-                    </Card>
-                  </Link>)}
+                {MILAN_UNIVERSITIES.map((university) => {
+                  const imageMap: Record<string, string> = {
+                    'bocconi': bocconiImg,
+                    'cattolica': cattolicaImg,
+                    'statale': stataleImg,
+                    'politecnico': politecnicoImg
+                  };
+                  
+                  return (
+                    <Link key={university.id} to={`/search?location=Milan`}>
+                      <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-64 relative group">
+                        <div className="absolute inset-0">
+                          <img 
+                            src={imageMap[university.id]} 
+                            alt={university.name}
+                            className="w-full h-full object-cover"
+                          />
+                          <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
+                        </div>
+                        <div className="absolute inset-0 flex flex-col justify-start pt-20 px-6 text-center">
+                          <h3 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
+                            {university.name}
+                          </h3>
+                          <p className="text-white text-base font-light drop-shadow-lg">
+                            Milan, Italy
+                          </p>
+                        </div>
+                      </Card>
+                    </Link>
+                  );
+                })}
               </div>
             </div>
           </section>
