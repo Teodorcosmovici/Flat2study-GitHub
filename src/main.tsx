@@ -4,13 +4,16 @@ import './index.css'
 import { AuthProvider } from './hooks/useAuth'
 import { LanguageProvider } from './contexts/LanguageContext'
 import { ImpersonationProvider } from './hooks/useImpersonation'
+import { ThemeProvider } from 'next-themes'
 
 createRoot(document.getElementById("root")!).render(
-  <LanguageProvider>
-    <AuthProvider>
-      <ImpersonationProvider>
-        <App />
-      </ImpersonationProvider>
-    </AuthProvider>
-  </LanguageProvider>
+  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+    <LanguageProvider>
+      <AuthProvider>
+        <ImpersonationProvider>
+          <App />
+        </ImpersonationProvider>
+      </AuthProvider>
+    </LanguageProvider>
+  </ThemeProvider>
 );
