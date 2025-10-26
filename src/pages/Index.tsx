@@ -24,6 +24,7 @@ import politecnicoImg from '@/assets/university-politecnico.png';
 import { FeaturedListingCard } from '@/components/listings/FeaturedListingCard';
 import { Star, ExternalLink, Moon, Sun } from 'lucide-react';
 import { useTheme } from 'next-themes';
+import { DraggableScrollContainer } from '@/components/ui/draggable-scroll-container';
 const Index = () => {
   const {
     user,
@@ -217,7 +218,7 @@ const Index = () => {
                       </div> : featuredListings.length === 0 ? <div className="text-center py-12">
                         <p className="text-muted-foreground text-lg">{t('home.noListingsAvailable')}</p>
                         <p className="text-muted-foreground text-sm mt-2">{t('home.checkBackLater')}</p>
-                      </div> : <div className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
+                      </div> : <DraggableScrollContainer className="flex gap-4 overflow-x-auto pb-4 snap-x snap-mandatory scrollbar-hide">
                         {featuredListings.map(listing => (
                           <div key={listing.id} className="min-w-[400px] w-[400px] flex-shrink-0">
                             <FeaturedListingCard 
@@ -227,7 +228,7 @@ const Index = () => {
                             />
                           </div>
                         ))}
-                      </div>}
+                      </DraggableScrollContainer>}
                   </div>
                   
                   <div className="text-center">

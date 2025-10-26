@@ -61,7 +61,7 @@ export const FeaturedListingCard: React.FC<FeaturedListingCardProps> = ({
             </div>
             <div className="flex items-end justify-between pointer-events-auto">
               <div>
-                <div className="text-white text-xs font-light drop-shadow-lg mb-1">
+                <div className="text-white text-sm font-medium drop-shadow-lg mb-1.5">
                   {listing.size_sqm && <span>{listing.size_sqm}m²</span>}
                   {listing.size_sqm && listing.bathrooms > 0 && <span> • </span>}
                   {listing.bathrooms > 0 && <span>{listing.bathrooms} bath{listing.bathrooms > 1 ? 's' : ''}</span>}

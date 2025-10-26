@@ -201,7 +201,7 @@ export default function ListingCard({
             )}
           </div>
           <div className="text-right flex-shrink-0">
-            <div className="text-xs text-muted-foreground mb-1">
+            <div className="text-sm text-muted-foreground mb-1 font-medium">
               {listing.sizeSqm && <span>{listing.sizeSqm}m²</span>}
               {listing.sizeSqm && listing.bathrooms > 0 && <span> • </span>}
               {listing.bathrooms > 0 && <span>{listing.bathrooms} bath{listing.bathrooms > 1 ? 's' : ''}</span>}
