@@ -157,14 +157,14 @@ const Index = () => {
                               />
                               <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
                             </div>
-                            <div className="absolute inset-0 flex flex-col justify-start pt-20 px-6 text-center">
-                              <h3 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
-                                {university.name}
-                              </h3>
-                              <p className="text-white text-base font-light drop-shadow-lg">
-                                Milan, Italy
-                              </p>
-                            </div>
+                        <div className="absolute inset-0 flex flex-col justify-end pb-16 px-8 text-left">
+                          <h3 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
+                            {university.name}
+                          </h3>
+                          <p className="text-white text-base font-light drop-shadow-lg">
+                            Milan, Italy
+                          </p>
+                        </div>
                           </Card>
                         </Link>
                       );
@@ -402,7 +402,7 @@ const Index = () => {
                           />
                           <div className="absolute inset-0 bg-black/30 group-hover:bg-black/40 transition-colors" />
                         </div>
-                        <div className="absolute inset-0 flex flex-col justify-start pt-20 px-6 text-center">
+                        <div className="absolute inset-0 flex flex-col justify-end pb-16 px-8 text-left">
                           <h3 className="text-white text-2xl font-bold mb-2 drop-shadow-lg">
                             {university.name}
                           </h3>
