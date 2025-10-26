@@ -114,21 +114,23 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
 
   return (
     <div className={`${className} bg-background`}>
-      <div className="flex items-center gap-2 px-4 py-2 overflow-x-auto scrollbar-hide">
+      <div className="flex flex-col gap-2 px-4 py-3">
         {/* Price Filter */}
         <Popover>
           <PopoverTrigger asChild>
             <Button 
               variant={filters.priceMin || filters.priceMax ? "default" : "outline"} 
               size="sm" 
-              className="whitespace-nowrap"
+              className="w-full justify-between"
             >
-              <Euro className="h-4 w-4 mr-1" />
-              {getPriceLabel()}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              <span className="flex items-center">
+                <Euro className="h-4 w-4 mr-2" />
+                {getPriceLabel()}
+              </span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg">
+          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
             <div className="space-y-4">
               <Label className="text-sm font-medium">{t('filters.priceRange')}</Label>
               <div className="px-2">
@@ -155,14 +157,16 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
             <Button 
               variant={filters.type && filters.type.length > 0 ? "default" : "outline"} 
               size="sm" 
-              className="whitespace-nowrap"
+              className="w-full justify-between"
             >
-              <Home className="h-4 w-4 mr-1" />
-              {getTypeLabel()}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              <span className="flex items-center">
+                <Home className="h-4 w-4 mr-2" />
+                {getTypeLabel()}
+              </span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 z-[60] bg-background border shadow-lg">
+          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t('filters.propertyType')}</Label>
               <div className="space-y-2">
@@ -183,19 +187,19 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
           </PopoverContent>
         </Popover>
 
-        {/* Availability Date Filter - Third position */}
+        {/* Availability Date Filter */}
         <Popover>
           <PopoverTrigger asChild>
             <Button 
               variant={filters.availabilityDate ? "default" : "outline"} 
               size="sm" 
-              className="whitespace-nowrap"
+              className="w-full justify-between"
             >
-              {t('filters.availableFrom')}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              <span>{t('filters.availableFrom')}</span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 z-[60] bg-background border shadow-lg">
+          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t('filters.availableFrom')}</Label>
               <Input 
@@ -216,14 +220,16 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
             <Button 
               variant={filters.universityId ? "default" : "outline"} 
               size="sm" 
-              className="whitespace-nowrap"
+              className="w-full justify-between"
             >
-              <MapPin className="h-4 w-4 mr-1" />
-              {getUniversityLabel()}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              <span className="flex items-center">
+                <MapPin className="h-4 w-4 mr-2" />
+                {getUniversityLabel()}
+              </span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 z-[60] bg-background border shadow-lg">
+          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t('filters.nearUniversity')}</Label>
               <Select 
@@ -233,7 +239,7 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
                 <SelectTrigger>
                   <SelectValue placeholder={t('filters.selectUniversity')} />
                 </SelectTrigger>
-                <SelectContent className="z-[60]">
+                <SelectContent className="z-[70] bg-popover border shadow-lg">
                   <SelectItem value="any">{t('filters.anyUniversity')}</SelectItem>
                   {universities.map((uni) => (
                     <SelectItem key={uni.id} value={uni.id}>
@@ -252,14 +258,16 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
             <Button 
               variant={filters.bedrooms ? "default" : "outline"} 
               size="sm" 
-              className="whitespace-nowrap"
+              className="w-full justify-between"
             >
-              <Bed className="h-4 w-4 mr-1" />
-              {getBedroomsLabel()}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              <span className="flex items-center">
+                <Bed className="h-4 w-4 mr-2" />
+                {getBedroomsLabel()}
+              </span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 z-[60] bg-background border shadow-lg">
+          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t('filters.bedrooms')}</Label>
               <Select 
@@ -272,7 +280,7 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
                 <SelectTrigger>
                   <SelectValue placeholder={t('filters.any')} />
                 </SelectTrigger>
-                <SelectContent className="z-[60]">
+                <SelectContent className="z-[70] bg-popover border shadow-lg">
                   <SelectItem value="any">{t('filters.any')}</SelectItem>
                   <SelectItem value="1">1 {t('filters.bedroom')}</SelectItem>
                   <SelectItem value="2">2 {t('filters.bedroomsPlural')}</SelectItem>
@@ -287,13 +295,13 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
         <Button 
           variant={filters.furnished ? "default" : "outline"} 
           size="sm" 
-          className="whitespace-nowrap"
+          className="w-full justify-start"
           onClick={() => onFiltersChange({ 
             ...filters, 
             furnished: filters.furnished ? undefined : true 
           })}
         >
-          <Sofa className="h-4 w-4 mr-1" />
+          <Sofa className="h-4 w-4 mr-2" />
           {t('filters.furnished')}
         </Button>
 
@@ -303,14 +311,16 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
             <Button 
               variant={filters.amenities && filters.amenities.length > 0 ? "default" : "outline"} 
               size="sm" 
-              className="whitespace-nowrap"
+              className="w-full justify-between"
             >
-              <Wifi className="h-4 w-4 mr-1" />
-              {getAmenitiesLabel()}
-              <ChevronDown className="h-4 w-4 ml-1" />
+              <span className="flex items-center">
+                <Wifi className="h-4 w-4 mr-2" />
+                {getAmenitiesLabel()}
+              </span>
+              <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-64 z-[60] bg-background border shadow-lg">
+          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
             <div className="space-y-3">
               <Label className="text-sm font-medium">{t('filters.amenities')}</Label>
               <div className="space-y-2 max-h-48 overflow-y-auto">
@@ -337,9 +347,9 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
             variant="ghost" 
             size="sm" 
             onClick={clearFilters}
-            className="text-muted-foreground hover:text-foreground whitespace-nowrap ml-2"
+            className="text-muted-foreground hover:text-foreground w-full justify-start mt-2"
           >
-            <X className="h-4 w-4 mr-1" />
+            <X className="h-4 w-4 mr-2" />
             {t('filters.clearAll')}
           </Button>
         )}

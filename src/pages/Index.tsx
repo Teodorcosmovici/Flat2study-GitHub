@@ -115,9 +115,9 @@ const Index = () => {
                 </Link>
                 <Link to="/landlord" className="mt-4 block">
                   <Button 
-                    variant="outline" 
+                    variant="ghost" 
                     size="lg" 
-                    className="w-full border-white/30 text-white hover:bg-white/10 hover:text-white"
+                    className="w-full text-white hover:bg-white/10 hover:text-white border-0"
                   >
                     {t('header.landlord')}
                   </Button>
