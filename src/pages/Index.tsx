@@ -73,15 +73,7 @@ const Index = () => {
       <section className="relative h-screen flex items-center justify-center hero-gradient text-white overflow-hidden">
         <div className="container mx-auto text-center relative z-10 px-4">
           {/* Mobile Language and Theme Selector - Only on homepage and mobile */}
-          {isMobile && <div className="mb-6 flex justify-center gap-3">
-              <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex items-center gap-1 border border-white/20">
-                <button onClick={() => setLanguage('en')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'en' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
-                  EN
-                </button>
-                <button onClick={() => setLanguage('it')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'it' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
-                  IT
-                </button>
-              </div>
+          {isMobile && <div className="mb-6 flex justify-center items-center gap-3">
               <Button
                 onClick={() => setTheme(theme === 'dark' ? 'light' : 'dark')}
                 variant="outline"
@@ -90,6 +82,14 @@ const Index = () => {
               >
                 {theme === 'dark' ? <Sun className="h-5 w-5" /> : <Moon className="h-5 w-5" />}
               </Button>
+              <div className="bg-white/10 backdrop-blur-sm rounded-full p-1 flex items-center gap-1 border border-white/20">
+                <button onClick={() => setLanguage('en')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'en' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
+                  EN
+                </button>
+                <button onClick={() => setLanguage('it')} className={`px-3 py-1 text-sm font-medium rounded-full transition-all ${language === 'it' ? 'bg-white text-primary' : 'text-white hover:bg-white/10'}`}>
+                  IT
+                </button>
+              </div>
             </div>}
           
           {/* Desktop Theme Toggle - positioned top right */}
