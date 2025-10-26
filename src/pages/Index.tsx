@@ -482,8 +482,7 @@ const Index = () => {
                         <span className="text-lg font-semibold">E</span>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1">Elodie</h3>
-                        <p className="text-sm text-muted-foreground mb-2">IT · 1 review</p>
+                        <h3 className="font-semibold mb-2">Elodie</h3>
                         <div className="flex gap-1 mb-3">
                           {[1, 2, 3, 4, 5].map(star => (
                             <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
@@ -508,8 +507,7 @@ const Index = () => {
                         <span className="text-lg font-semibold">MA</span>
                       </div>
                       <div className="flex-1">
-                        <h3 className="font-semibold mb-1">Marie</h3>
-                        <p className="text-sm text-muted-foreground mb-2">FR · 1 review</p>
+                        <h3 className="font-semibold mb-2">Marie</h3>
                         <div className="flex gap-1 mb-3">
                           {[1, 2, 3, 4, 5].map(star => (
                             <Star key={star} className="w-5 h-5 fill-green-500 text-green-500" />
