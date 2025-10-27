@@ -4,7 +4,6 @@ import { Shield, Globe, Star, Calendar, Euro, Headphones, CheckCircle, ArrowLeft
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/layout/Header';
-import { ScrollLockedCounter } from '@/components/ui/scroll-locked-counter';
 export default function LandlordLanding() {
   const {
     t
@@ -101,7 +100,23 @@ export default function LandlordLanding() {
       </section>
 
       {/* Stats Section */}
-      <ScrollLockedCounter stats={stats} />
+      <section className="py-16 px-4 bg-background">
+        <div className="container mx-auto max-w-6xl">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 text-center">
+            {stats.map((stat, index) => <div key={index} className="space-y-2">
+                <h3 className="text-3xl md:text-4xl font-bold text-primary">
+                  {stat.number}
+                </h3>
+                <p className="text-lg font-medium text-foreground">
+                  {stat.label}
+                </p>
+                <p className="text-sm text-muted-foreground">
+                  {stat.sublabel}
+                </p>
+              </div>)}
+          </div>
+        </div>
+      </section>
 
       {/* CTA Section */}
       <section className="py-16 px-4 bg-muted/30">
