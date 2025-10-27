@@ -18,13 +18,10 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
     const observer = new IntersectionObserver(
       (entries) => {
         entries.forEach((entry) => {
-          if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
+          if (entry.isIntersecting && entry.intersectionRatio >= 0.5 && scrollProgress < 100) {
             setIsActive(true);
             document.body.style.overflow = 'hidden';
             window.scrollTo({ top: container.offsetTop, behavior: 'smooth' });
-          } else if (!entry.isIntersecting && scrollProgress >= 100) {
-            setIsActive(false);
-            document.body.style.overflow = '';
           }
         });
       },
@@ -35,7 +32,9 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
 
     return () => {
       observer.disconnect();
-      document.body.style.overflow = '';
+      if (scrollProgress >= 100) {
+        document.body.style.overflow = '';
+      }
     };
   }, [scrollProgress]);
 
@@ -46,15 +45,16 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
       e.preventDefault();
       
       accumulatedDelta.current += e.deltaY;
-      const newProgress = Math.max(0, Math.min(100, accumulatedDelta.current / 30));
+      const newProgress = Math.max(0, Math.min(100, accumulatedDelta.current / 50));
       setScrollProgress(newProgress);
 
       if (newProgress >= 100) {
         setTimeout(() => {
           setIsActive(false);
           document.body.style.overflow = '';
+          accumulatedDelta.current = 0;
           onComplete?.();
-        }, 300);
+        }, 500);
       }
     };
 
@@ -119,7 +119,7 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
             style={{
               opacity: getItemOpacity(index),
               transform: getItemTransform(index),
-              transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
+              transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
             }}
           >
             <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mb-6">
