@@ -136,11 +136,22 @@ export const AvailabilityOverview: React.FC<AvailabilityOverviewProps> = ({
             <div className="flex justify-between">
               <span className="text-muted-foreground">{t('listing.availableFromColon')}</span>
               <span className="font-medium">
-                {new Date(availabilityDate).toLocaleDateString(language === 'it' ? 'it-IT' : 'en-GB', {
-                  day: 'numeric',
-                  month: 'long',
-                  year: 'numeric'
-                })}
+                {(() => {
+                  const date = new Date(availabilityDate);
+                  const today = new Date();
+                  today.setHours(0, 0, 0, 0);
+                  date.setHours(0, 0, 0, 0);
+                  
+                  if (date < today) {
+                    return language === 'it' ? 'Disponibile ora' : 'Available now';
+                  }
+                  
+                  return date.toLocaleDateString(language === 'it' ? 'it-IT' : 'en-GB', {
+                    day: 'numeric',
+                    month: 'long',
+                    year: 'numeric'
+                  });
+                })()}
               </span>
             </div>
           )}

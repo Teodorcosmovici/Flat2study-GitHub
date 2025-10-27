@@ -47,6 +47,14 @@ export default function ListingCard({
 
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    
+    if (date < today) {
+      return 'Available now';
+    }
+    
     return date.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'short',
