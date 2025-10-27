@@ -21,7 +21,8 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
           if (entry.isIntersecting && entry.intersectionRatio >= 0.5) {
             setIsActive(true);
             document.body.style.overflow = 'hidden';
-          } else if (!entry.isIntersecting && isActive) {
+            window.scrollTo({ top: container.offsetTop, behavior: 'smooth' });
+          } else if (!entry.isIntersecting && scrollProgress >= 100) {
             setIsActive(false);
             document.body.style.overflow = '';
           }
@@ -36,7 +37,7 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
       observer.disconnect();
       document.body.style.overflow = '';
     };
-  }, [isActive]);
+  }, [scrollProgress]);
 
   useEffect(() => {
     if (!isActive) return;
@@ -45,20 +46,30 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
       e.preventDefault();
       
       accumulatedDelta.current += e.deltaY;
-      const newProgress = Math.max(0, Math.min(100, accumulatedDelta.current / 20));
+      const newProgress = Math.max(0, Math.min(100, accumulatedDelta.current / 30));
       setScrollProgress(newProgress);
 
       if (newProgress >= 100) {
-        setIsActive(false);
-        document.body.style.overflow = '';
-        onComplete?.();
+        setTimeout(() => {
+          setIsActive(false);
+          document.body.style.overflow = '';
+          onComplete?.();
+        }, 300);
+      }
+    };
+
+    const handleTouch = (e: TouchEvent) => {
+      if (e.touches.length === 1) {
+        e.preventDefault();
       }
     };
 
     window.addEventListener('wheel', handleWheel, { passive: false });
+    window.addEventListener('touchmove', handleTouch, { passive: false });
 
     return () => {
       window.removeEventListener('wheel', handleWheel);
+      window.removeEventListener('touchmove', handleTouch);
     };
   }, [isActive, onComplete]);
 
