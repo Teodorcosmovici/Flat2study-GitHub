@@ -112,6 +112,12 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
       }
     } else if (index < currentIndex) {
       return 0;
+    } else if (index > currentIndex) {
+      // Show next item with low opacity when scrolling back
+      if (index === currentIndex + 1 && itemProgress < 0) {
+        const t = Math.abs(itemProgress) * 2;
+        return applyEasing(Math.min(t, 1)) * 0.3;
+      }
     }
     return 0;
   };
@@ -144,6 +150,9 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
       }
     } else if (index < currentIndex) {
       return `translateY(-100%)`;
+    } else if (index > currentIndex) {
+      // Next items below
+      return `translateY(100%)`;
     }
     return 'translateY(100%)';
   };
