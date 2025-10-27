@@ -160,6 +160,22 @@ export default function LandlordLanding() {
       {/* Steps Section */}
       <ScrollLockedStepsReveal steps={steps} />
 
+      {/* Additional Information Section */}
+      <section className="py-16 px-4 bg-muted/30">
+        <div className="container mx-auto max-w-4xl">
+          <div className="bg-background border rounded-2xl p-8">
+            <div className="text-center space-y-4">
+              <p className="text-muted-foreground">
+                You will receive complete information about your potential tenants. Once a request is accepted, the tenant pays the first month rental and the deposit.
+              </p>
+              <p className="text-muted-foreground">
+                {t('landlord.steps.additionalInfo2')}
+              </p>
+            </div>
+          </div>
+        </div>
+      </section>
+
       {/* Final CTA */}
       <section className="py-16 px-4 bg-background">
         <div className="container mx-auto max-w-4xl text-center">

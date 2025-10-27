@@ -95,22 +95,33 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
 
   const getCubeTransform = (index: number) => {
     const totalSteps = steps.length;
-    const progressPerStep = 100 / (totalSteps + 1); // Extra space for final settle
+    const progressPerStep = 100 / (totalSteps + 1);
     const stepProgress = (scrollProgress - progressPerStep * index) / progressPerStep;
     
     if (stepProgress <= 0) {
       // Not yet appeared - off screen right
-      return 'translateX(150%) rotateY(-25deg)';
+      return 'translateX(200%) rotateY(-25deg)';
     } else if (stepProgress < 1) {
       // Appearing and moving to position
       const easedProgress = applyEasing(stepProgress);
-      const translateX = 150 - (150 + index * 110) * easedProgress; // Move from right to final position
+      // Calculate final position: cubes should be side by side from left to right
+      // Index 0 (cube 1) should be on the left, index 2 (cube 3) on the right
+      const cubeWidth = 320; // Approximate width with spacing
+      const totalWidth = (totalSteps - 1) * cubeWidth;
+      const startOffset = -totalWidth / 2; // Center the group
+      const finalX = startOffset + (index * cubeWidth);
+      
+      // Start from right (200%) and move to final position
+      const currentX = 200 - (200 - (finalX / 10)) * easedProgress;
       const rotateY = -25 + 25 * easedProgress; // Rotate to flat
-      return `translateX(${translateX}%) rotateY(${rotateY}deg)`;
+      return `translateX(${currentX}%) rotateY(${rotateY}deg)`;
     } else {
-      // Final position
-      const finalX = -index * 110;
-      return `translateX(${finalX}%) rotateY(0deg)`;
+      // Final position - cubes arranged left to right
+      const cubeWidth = 320;
+      const totalWidth = (totalSteps - 1) * cubeWidth;
+      const startOffset = -totalWidth / 2;
+      const finalX = startOffset + (index * cubeWidth);
+      return `translateX(${finalX / 10}%) rotateY(0deg)`;
     }
   };
 
