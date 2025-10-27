@@ -26,11 +26,11 @@ export default function About() {
           <h1 className="text-4xl font-bold text-justify mb-8">{t('about.title')}</h1>
           
           <div className="prose prose-lg mx-auto space-y-8">
-            <p className="text-lg leading-relaxed text-slate-950 text-justify">
+            <p className="text-lg leading-relaxed text-foreground text-justify">
               {t('about.intro1')}
             </p>
             
-            <p className="text-lg leading-relaxed text-slate-950 text-justify">
+            <p className="text-lg leading-relaxed text-foreground text-justify">
               {t('about.intro2')}
             </p>
             
