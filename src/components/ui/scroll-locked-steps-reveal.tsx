@@ -105,10 +105,10 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
     } else if (stepProgress < 1) {
       // Appearing and moving to position
       const easedProgress = applyEasing(stepProgress);
-      // Cube 1 (index 0): left at -500px
+      // Cube 1 (index 0): left at -350px
       // Cube 2 (index 1): center at 0px
-      // Cube 3 (index 2): right at 500px
-      const finalX = (index - 1) * 500; // -500, 0, 500
+      // Cube 3 (index 2): right at 350px
+      const finalX = (index - 1) * 350; // -350, 0, 350
       
       // Start from right (800px) and move to final position
       const currentX = 800 + (finalX - 800) * easedProgress;
@@ -116,8 +116,8 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
       return `translateX(${currentX}px) rotateY(${rotateY}deg)`;
     } else {
       // Final position - cubes arranged left to right
-      // Cube 1: -500px, Cube 2: 0px, Cube 3: 500px
-      const finalX = (index - 1) * 500;
+      // Cube 1: -350px, Cube 2: 0px, Cube 3: 350px
+      const finalX = (index - 1) * 350;
       return `translateX(${finalX}px) rotateY(0deg)`;
     }
   };
