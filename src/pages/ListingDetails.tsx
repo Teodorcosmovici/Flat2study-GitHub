@@ -492,7 +492,20 @@ export default function ListingDetails() {
                   {/* Availability */}
                   {listing.availabilityDate && <div className="flex items-center space-x-2">
                       <Calendar className="h-5 w-5 text-muted-foreground" />
-                      <span>{t('listing.availableFrom')} {formatDate(listing.availabilityDate)}</span>
+                      <span>
+                        {(() => {
+                          const date = new Date(listing.availabilityDate);
+                          const today = new Date();
+                          today.setHours(0, 0, 0, 0);
+                          date.setHours(0, 0, 0, 0);
+                          
+                          if (date < today) {
+                            return language === 'it' ? 'Disponibile ora' : 'Available now';
+                          }
+                          
+                          return `${t('listing.availableFrom')} ${formatDate(listing.availabilityDate)}`;
+                        })()}
+                      </span>
                     </div>}
 
                   {/* Additional Info */}

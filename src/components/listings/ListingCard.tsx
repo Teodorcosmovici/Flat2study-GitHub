@@ -257,10 +257,25 @@ export default function ListingCard({
         {/* Availability */}
         <div className="flex items-center text-sm mb-3">
           <Calendar className="h-4 w-4 mr-2 text-muted-foreground" />
-          <span className="text-muted-foreground">Available from</span>
-          <span className="ml-1 font-medium text-foreground">
-            {formatDate(listing.availabilityDate)}
-          </span>
+          {(() => {
+            const date = new Date(listing.availabilityDate);
+            const today = new Date();
+            today.setHours(0, 0, 0, 0);
+            date.setHours(0, 0, 0, 0);
+            
+            if (date < today) {
+              return <span className="font-medium text-foreground">Available now</span>;
+            }
+            
+            return (
+              <>
+                <span className="text-muted-foreground">Available from</span>
+                <span className="ml-1 font-medium text-foreground">
+                  {formatDate(listing.availabilityDate)}
+                </span>
+              </>
+            );
+          })()}
         </div>
 
         {/* Amenities */}
