@@ -79,11 +79,9 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
   };
 
   const applyEasing = (t: number) => {
-    // Apple-style easing: cubic-bezier(0.25, 0.1, 0.25, 1)
-    // Smooth acceleration and deceleration
-    return t < 0.5
-      ? 4 * t * t * t
-      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    // Apple-style easing: cubic-bezier(0.4, 0.0, 0.2, 1) - smoother than default
+    const x1 = 0.4, y1 = 0.0, x2 = 0.2, y2 = 1.0;
+    return t * t * (3.0 - 2.0 * t); // Smoothstep for buttery transitions
   };
 
   const getItemOpacity = (index: number) => {
@@ -151,7 +149,7 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
             style={{
               opacity: getItemOpacity(index),
               transform: getItemTransform(index),
-              transition: 'opacity 0.1s linear, transform 0.1s linear',
+              transition: 'opacity 0.05s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.05s cubic-bezier(0.4, 0.0, 0.2, 1)',
               willChange: 'opacity, transform',
             }}
           >

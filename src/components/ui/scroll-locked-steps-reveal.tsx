@@ -87,10 +87,8 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
   }, [isActive, onComplete]);
 
   const applyEasing = (t: number) => {
-    // Cubic bezier easing for smooth animations
-    return t < 0.5
-      ? 4 * t * t * t
-      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+    // Apple-style smoothstep easing for buttery smooth animations
+    return t * t * (3.0 - 2.0 * t);
   };
 
   const getCubeTransform = (index: number) => {
@@ -147,7 +145,7 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
               style={{
                 opacity: getCubeOpacity(index),
                 transform: getCubeTransform(index),
-                transition: 'opacity 0.1s linear, transform 0.1s cubic-bezier(0.25, 0.1, 0.25, 1)',
+                transition: 'opacity 0.05s cubic-bezier(0.4, 0.0, 0.2, 1), transform 0.05s cubic-bezier(0.4, 0.0, 0.2, 1)',
                 willChange: 'opacity, transform',
                 transformStyle: 'preserve-3d',
               }}
