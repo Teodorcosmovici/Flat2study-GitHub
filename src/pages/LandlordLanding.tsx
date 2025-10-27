@@ -4,6 +4,7 @@ import { Shield, Globe, Star, Calendar, Euro, Headphones, CheckCircle, ArrowLeft
 import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/layout/Header';
+import { ScrollLockedTextReveal } from '@/components/ui/scroll-locked-text-reveal';
 export default function LandlordLanding() {
   const {
     t
@@ -133,26 +134,15 @@ export default function LandlordLanding() {
         </div>
       </section>
 
-      {/* Features Section */}
-      <section className="py-16 px-4 bg-background">
-        <div className="container mx-auto max-w-6xl">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {features.map((feature, index) => <Card key={index} className={`h-full ${feature.highlight ? 'ring-2 ring-primary/20' : ''}`}>
-                <CardHeader className="text-center">
-                  <div className={`w-16 h-16 mx-auto mb-4 rounded-full flex items-center justify-center ${feature.highlight ? 'bg-primary/10' : 'bg-muted/50'}`}>
-                    <feature.icon className={`w-8 h-8 ${feature.highlight ? 'text-primary' : 'text-muted-foreground'}`} />
-                  </div>
-                  <CardTitle className="text-lg">{feature.title}</CardTitle>
-                </CardHeader>
-                <CardContent>
-                  <CardDescription className="text-center text-sm leading-relaxed">
-                    {feature.description}
-                  </CardDescription>
-                </CardContent>
-              </Card>)}
-          </div>
-        </div>
-      </section>
+      {/* Features Scroll Animation */}
+      <ScrollLockedTextReveal
+        items={[
+          t('landlord.features.qualityTenants'),
+          t('landlord.features.onlineBookings'),
+          t('landlord.features.payOnSuccess'),
+          t('landlord.features.personalService')
+        ]}
+      />
 
       {/* Steps Section */}
       <section className="py-16 px-4 bg-muted/30">
