@@ -14,7 +14,7 @@ export function Footer() {
     <footer className="border-t bg-background mt-16">
       <div className="container mx-auto px-4 py-12">
         {/* Main Footer Sections */}
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 mb-8">
           {/* flat2study Section */}
           <div>
             <h3 className="font-semibold text-foreground mb-4">flat2study</h3>
@@ -22,11 +22,6 @@ export function Footer() {
               <li>
                 <Link to="/about" className="text-muted-foreground hover:text-foreground transition-colors">
                   {t('footer.aboutUs')}
-                </Link>
-              </li>
-              <li>
-                <Link to="/how-it-works" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.howItWorks')}
                 </Link>
               </li>
             </ul>
@@ -42,26 +37,9 @@ export function Footer() {
                 </Link>
               </li>
               <li>
-                <Link to="/landlord" className="text-muted-foreground hover:text-foreground transition-colors">
-                  {t('footer.startListing')}
+                <Link to="/signup" className="text-muted-foreground hover:text-foreground transition-colors">
+                  {t('footer.getStarted')}
                 </Link>
-              </li>
-            </ul>
-          </div>
-
-          {/* Support Section */}
-          <div>
-            <h3 className="font-semibold text-foreground mb-4">{t('footer.support')}</h3>
-            <ul className="space-y-2">
-              <li>
-                <button 
-                  onClick={() => {
-                    window.dispatchEvent(new CustomEvent('openSupportChat'));
-                  }}
-                  className="text-muted-foreground hover:text-foreground transition-colors text-left"
-                >
-                  {t('footer.chatWithAgent')}
-                </button>
               </li>
             </ul>
           </div>
