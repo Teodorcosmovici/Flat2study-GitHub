@@ -95,7 +95,8 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
 
   const getCubeTransform = (index: number) => {
     const totalSteps = steps.length;
-    const progressPerStep = 100 / (totalSteps + 1);
+    // Tighter animation - less dead time
+    const progressPerStep = 100 / (totalSteps + 0.5);
     const stepProgress = (scrollProgress - progressPerStep * index) / progressPerStep;
     
     if (stepProgress <= 0) {
@@ -104,34 +105,38 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
     } else if (stepProgress < 1) {
       // Appearing and moving to position
       const easedProgress = applyEasing(stepProgress);
-      // Calculate final position: cubes should be side by side from left to right
-      // Index 0 (cube 1) should be on the left, index 2 (cube 3) on the right
-      const cubeWidth = 320; // Approximate width with spacing
-      const totalWidth = (totalSteps - 1) * cubeWidth;
+      // Proper spacing to prevent overlap
+      // Each cube is ~288px (w-72), add 40px gap = 328px spacing
+      const cubeSpacing = 360; // pixels
+      const totalWidth = (totalSteps - 1) * cubeSpacing;
       const startOffset = -totalWidth / 2; // Center the group
-      const finalX = startOffset + (index * cubeWidth);
+      const finalXPx = startOffset + (index * cubeSpacing);
       
-      // Start from right (200%) and move to final position
-      const currentX = 200 - (200 - (finalX / 10)) * easedProgress;
+      // Convert to viewport percentage for smooth scaling
+      const finalXVw = (finalXPx / window.innerWidth) * 100;
+      
+      // Start from right (200vw) and move to final position
+      const currentX = 200 + (finalXVw - 200) * easedProgress;
       const rotateY = -25 + 25 * easedProgress; // Rotate to flat
       return `translateX(${currentX}%) rotateY(${rotateY}deg)`;
     } else {
-      // Final position - cubes arranged left to right
-      const cubeWidth = 320;
-      const totalWidth = (totalSteps - 1) * cubeWidth;
+      // Final position - cubes arranged left to right with proper spacing
+      const cubeSpacing = 360;
+      const totalWidth = (totalSteps - 1) * cubeSpacing;
       const startOffset = -totalWidth / 2;
-      const finalX = startOffset + (index * cubeWidth);
-      return `translateX(${finalX / 10}%) rotateY(0deg)`;
+      const finalXPx = startOffset + (index * cubeSpacing);
+      const finalXVw = (finalXPx / window.innerWidth) * 100;
+      return `translateX(${finalXVw}%) rotateY(0deg)`;
     }
   };
 
   const getCubeOpacity = (index: number) => {
     const totalSteps = steps.length;
-    const progressPerStep = 100 / (totalSteps + 1);
+    const progressPerStep = 100 / (totalSteps + 0.5);
     const stepProgress = (scrollProgress - progressPerStep * index) / progressPerStep;
     
     if (stepProgress <= 0) return 0;
-    if (stepProgress < 0.3) return applyEasing(stepProgress / 0.3);
+    if (stepProgress < 0.2) return applyEasing(stepProgress / 0.2);
     return 1;
   };
 
@@ -156,14 +161,14 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
               }}
             >
               <div 
-                className="relative w-72 h-80 rounded-2xl shadow-2xl overflow-hidden"
+                className="w-72 h-80 rounded-2xl shadow-2xl overflow-hidden"
                 style={{
                   transformStyle: 'preserve-3d',
                 }}
               >
-                {/* Cube face */}
+                {/* Cube face - consistent color for all */}
                 <div 
-                  className={`absolute inset-0 ${step.bgColor} backdrop-blur-sm rounded-2xl p-8 flex flex-col items-center justify-center text-center border border-white/20`}
+                  className="absolute inset-0 bg-white/10 backdrop-blur-sm rounded-2xl p-8 flex flex-col items-center justify-center text-center border border-white/20"
                   style={{
                     transform: 'translateZ(20px)',
                   }}
@@ -205,7 +210,7 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
       <div className="absolute bottom-20 left-1/2 -translate-x-1/2 flex gap-2">
         {steps.map((_, index) => {
           const totalSteps = steps.length;
-          const progressPerStep = 100 / (totalSteps + 1);
+          const progressPerStep = 100 / (totalSteps + 0.5);
           const stepProgress = (scrollProgress - progressPerStep * index) / progressPerStep;
           const isActive = stepProgress > 0 && stepProgress < 1;
           const isComplete = stepProgress >= 1;
