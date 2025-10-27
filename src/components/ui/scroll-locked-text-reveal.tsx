@@ -84,9 +84,15 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
     const itemProgress = progress - index;
 
     if (index === currentIndex) {
-      return Math.min(1, Math.max(0, itemProgress));
+      // Fade in quickly, fade out faster
+      if (itemProgress < 0.5) {
+        return Math.min(1, itemProgress * 2);
+      } else {
+        // Faster fade out after center
+        return Math.max(0, 1 - (itemProgress - 0.5) * 3);
+      }
     } else if (index < currentIndex) {
-      return Math.max(0, 1 - (currentIndex - index) * 0.5);
+      return 0;
     }
     return 0;
   };
@@ -97,11 +103,19 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
     const itemProgress = progress - index;
 
     if (index === currentIndex) {
-      const translateY = (1 - itemProgress) * 100;
-      return `translateY(${translateY}%)`;
+      // Move normally until center (50%)
+      if (itemProgress < 0.5) {
+        const translateY = (1 - itemProgress * 2) * 50;
+        return `translateY(${translateY}%)`;
+      } else {
+        // Slow down at center, then move up
+        const centerProgress = (itemProgress - 0.5) * 2;
+        const eased = Math.pow(centerProgress, 0.5); // Ease out for slower movement
+        const translateY = -eased * 50;
+        return `translateY(${translateY}%)`;
+      }
     } else if (index < currentIndex) {
-      const translateY = -((currentIndex - index) * 100);
-      return `translateY(${translateY}%)`;
+      return `translateY(-100%)`;
     }
     return 'translateY(100%)';
   };
