@@ -101,32 +101,24 @@ export const ScrollLockedStepsReveal = ({ steps, onComplete }: ScrollLockedSteps
     
     if (stepProgress <= 0) {
       // Not yet appeared - off screen right
-      return 'translateX(200%) rotateY(-25deg)';
+      return 'translateX(800px) rotateY(-25deg)';
     } else if (stepProgress < 1) {
       // Appearing and moving to position
       const easedProgress = applyEasing(stepProgress);
-      // Proper spacing to prevent overlap
-      // Each cube is ~288px (w-72), add 40px gap = 328px spacing
-      const cubeSpacing = 360; // pixels
-      const totalWidth = (totalSteps - 1) * cubeSpacing;
-      const startOffset = -totalWidth / 2; // Center the group
-      const finalXPx = startOffset + (index * cubeSpacing);
+      // Cube 1 (index 0): left at -500px
+      // Cube 2 (index 1): center at 0px
+      // Cube 3 (index 2): right at 500px
+      const finalX = (index - 1) * 500; // -500, 0, 500
       
-      // Convert to viewport percentage for smooth scaling
-      const finalXVw = (finalXPx / window.innerWidth) * 100;
-      
-      // Start from right (200vw) and move to final position
-      const currentX = 200 + (finalXVw - 200) * easedProgress;
+      // Start from right (800px) and move to final position
+      const currentX = 800 + (finalX - 800) * easedProgress;
       const rotateY = -25 + 25 * easedProgress; // Rotate to flat
-      return `translateX(${currentX}%) rotateY(${rotateY}deg)`;
+      return `translateX(${currentX}px) rotateY(${rotateY}deg)`;
     } else {
-      // Final position - cubes arranged left to right with proper spacing
-      const cubeSpacing = 360;
-      const totalWidth = (totalSteps - 1) * cubeSpacing;
-      const startOffset = -totalWidth / 2;
-      const finalXPx = startOffset + (index * cubeSpacing);
-      const finalXVw = (finalXPx / window.innerWidth) * 100;
-      return `translateX(${finalXVw}%) rotateY(0deg)`;
+      // Final position - cubes arranged left to right
+      // Cube 1: -500px, Cube 2: 0px, Cube 3: 500px
+      const finalX = (index - 1) * 500;
+      return `translateX(${finalX}px) rotateY(0deg)`;
     }
   };
 
