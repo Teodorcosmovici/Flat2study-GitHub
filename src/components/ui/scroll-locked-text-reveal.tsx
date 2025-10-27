@@ -78,18 +78,27 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
     return Math.min(itemIndex, items.length - 1);
   };
 
+  const applyEasing = (t: number) => {
+    // Apple-style easing: cubic-bezier(0.25, 0.1, 0.25, 1)
+    // Smooth acceleration and deceleration
+    return t < 0.5
+      ? 4 * t * t * t
+      : 1 - Math.pow(-2 * t + 2, 3) / 2;
+  };
+
   const getItemOpacity = (index: number) => {
     const currentIndex = getCurrentItem();
     const progress = (scrollProgress / 100) * items.length;
     const itemProgress = progress - index;
 
     if (index === currentIndex) {
-      // Fade in quickly, fade out faster
+      // Smooth fade in from 0 to 0.5, then faster fade out from 0.5 to 1
       if (itemProgress < 0.5) {
-        return Math.min(1, itemProgress * 2);
+        const t = itemProgress * 2; // 0 to 1
+        return applyEasing(t);
       } else {
-        // Faster fade out after center
-        return Math.max(0, 1 - (itemProgress - 0.5) * 3);
+        const t = (itemProgress - 0.5) * 2; // 0 to 1
+        return 1 - applyEasing(t) * 1.5; // Faster fade out
       }
     } else if (index < currentIndex) {
       return 0;
@@ -103,15 +112,24 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
     const itemProgress = progress - index;
 
     if (index === currentIndex) {
-      // Move normally until center (50%)
-      if (itemProgress < 0.5) {
-        const translateY = (1 - itemProgress * 2) * 50;
+      // Smooth movement until center, then slow down at center
+      if (itemProgress < 0.4) {
+        // Normal speed entry (0 to 0.4)
+        const t = itemProgress / 0.4;
+        const easedT = applyEasing(t);
+        const translateY = (1 - easedT) * 60;
+        return `translateY(${translateY}%)`;
+      } else if (itemProgress < 0.6) {
+        // Slow down at center (0.4 to 0.6)
+        const t = (itemProgress - 0.4) / 0.2;
+        const slowT = t * 0.3; // Much slower movement
+        const translateY = -slowT * 20;
         return `translateY(${translateY}%)`;
       } else {
-        // Slow down at center, then move up
-        const centerProgress = (itemProgress - 0.5) * 2;
-        const eased = Math.pow(centerProgress, 0.5); // Ease out for slower movement
-        const translateY = -eased * 50;
+        // Speed up exit (0.6 to 1)
+        const t = (itemProgress - 0.6) / 0.4;
+        const easedT = applyEasing(t);
+        const translateY = -6 - easedT * 54; // Continue from -6% to -60%
         return `translateY(${translateY}%)`;
       }
     } else if (index < currentIndex) {
@@ -133,7 +151,8 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
             style={{
               opacity: getItemOpacity(index),
               transform: getItemTransform(index),
-              transition: 'opacity 0.5s cubic-bezier(0.4, 0, 0.2, 1), transform 0.5s cubic-bezier(0.4, 0, 0.2, 1)',
+              transition: 'opacity 0.1s linear, transform 0.1s linear',
+              willChange: 'opacity, transform',
             }}
           >
             <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mb-6">
