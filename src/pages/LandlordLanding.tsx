@@ -137,10 +137,22 @@ export default function LandlordLanding() {
       {/* Features Scroll Animation */}
       <ScrollLockedTextReveal
         items={[
-          t('landlord.features.qualityTenants'),
-          t('landlord.features.onlineBookings'),
-          t('landlord.features.payOnSuccess'),
-          t('landlord.features.personalService')
+          {
+            title: t('landlord.features.qualityTenants'),
+            description: t('landlord.features.qualityTenantsDesc')
+          },
+          {
+            title: t('landlord.features.onlineBookings'),
+            description: t('landlord.features.onlineBookingsDesc')
+          },
+          {
+            title: t('landlord.features.payOnSuccess'),
+            description: t('landlord.features.payOnSuccessDesc')
+          },
+          {
+            title: t('landlord.features.personalService'),
+            description: t('landlord.features.personalServiceDesc')
+          }
         ]}
       />
 

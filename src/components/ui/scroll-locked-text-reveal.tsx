@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 
 interface ScrollLockedTextRevealProps {
-  items: string[];
+  items: Array<{ title: string; description: string }>;
   onComplete?: () => void;
 }
 
@@ -98,22 +98,25 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
   return (
     <div
       ref={containerRef}
-      className="relative w-full h-screen flex items-center justify-center bg-gradient-to-b from-primary via-primary-glow to-primary overflow-hidden"
+      className="relative w-full min-h-screen h-screen flex items-center justify-center bg-primary overflow-hidden"
     >
       <div className="absolute inset-0 flex items-center justify-center">
         {items.map((item, index) => (
           <div
             key={index}
-            className="absolute text-center px-8"
+            className="absolute text-center px-8 max-w-5xl"
             style={{
               opacity: getItemOpacity(index),
               transform: getItemTransform(index),
               transition: 'opacity 0.3s ease-out, transform 0.3s ease-out',
             }}
           >
-            <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight">
-              {item}
+            <h2 className="text-5xl md:text-7xl lg:text-8xl font-bold text-white leading-tight mb-6">
+              {item.title}
             </h2>
+            <p className="text-xl md:text-2xl lg:text-3xl text-white/90 font-medium">
+              {item.description}
+            </p>
           </div>
         ))}
       </div>
