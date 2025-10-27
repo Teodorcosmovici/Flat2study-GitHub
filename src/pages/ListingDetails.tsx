@@ -244,6 +244,14 @@ export default function ListingDetails() {
   };
   const formatDate = (dateString: string) => {
     const date = new Date(dateString);
+    const today = new Date();
+    today.setHours(0, 0, 0, 0);
+    date.setHours(0, 0, 0, 0);
+    
+    if (date < today) {
+      return language === 'it' ? 'Disponibile ora' : 'Available now';
+    }
+    
     return date.toLocaleDateString('en-GB', {
       day: 'numeric',
       month: 'long',
