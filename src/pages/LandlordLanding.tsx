@@ -5,6 +5,7 @@ import { Link } from 'react-router-dom';
 import { useLanguage } from '@/contexts/LanguageContext';
 import Header from '@/components/layout/Header';
 import { ScrollLockedTextReveal } from '@/components/ui/scroll-locked-text-reveal';
+import { ScrollLockedStepsReveal } from '@/components/ui/scroll-locked-steps-reveal';
 export default function LandlordLanding() {
   const {
     t
@@ -157,41 +158,7 @@ export default function LandlordLanding() {
       />
 
       {/* Steps Section */}
-      <section className="py-16 px-4 bg-muted/30">
-        <div className="container mx-auto max-w-6xl">
-          <div className="text-center mb-12">
-            <h2 className="text-3xl md:text-4xl font-bold mb-4 text-foreground">
-              {t('landlord.steps.title')}
-            </h2>
-          </div>
-          
-          <div className="space-y-8">
-            {steps.map((step, index) => <div key={index} className={`${step.bgColor} rounded-2xl p-8`}>
-                <div className="flex items-center space-x-6">
-                  <div className="flex-shrink-0">
-                    <div className="w-12 h-12 bg-background rounded-full flex items-center justify-center font-bold text-lg">
-                      {step.number}
-                    </div>
-                  </div>
-                  <div className="flex-1">
-                    <h3 className="text-xl md:text-2xl font-bold mb-2">{step.title}</h3>
-                    <p className="text-muted-foreground">{step.description}</p>
-                  </div>
-                </div>
-              </div>)}
-            
-            {/* Additional info for step 3 */}
-            <div className="bg-background border rounded-2xl p-8">
-              <div className="text-center space-y-4">
-                <p className="text-muted-foreground">You will receive complete information about your potential tenants. Once a request is accepted,  the tenant pays the first month rental and the deposit..</p>
-                <p className="text-muted-foreground">
-                  {t('landlord.steps.additionalInfo2')}
-                </p>
-              </div>
-            </div>
-          </div>
-        </div>
-      </section>
+      <ScrollLockedStepsReveal steps={steps} />
 
       {/* Final CTA */}
       <section className="py-16 px-4 bg-background">
