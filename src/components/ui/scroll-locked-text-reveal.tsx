@@ -48,6 +48,16 @@ export const ScrollLockedTextReveal = ({ items, onComplete }: ScrollLockedTextRe
       const newProgress = Math.max(0, Math.min(100, accumulatedDelta.current / 50));
       setScrollProgress(newProgress);
 
+      // Release lock when scrolling back to start
+      if (newProgress <= 0) {
+        setTimeout(() => {
+          setIsActive(false);
+          document.body.style.overflow = '';
+          accumulatedDelta.current = 0;
+        }, 100);
+      }
+
+      // Release lock when reaching the end
       if (newProgress >= 100) {
         setTimeout(() => {
           setIsActive(false);
