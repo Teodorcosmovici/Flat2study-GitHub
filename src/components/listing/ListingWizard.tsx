@@ -226,6 +226,26 @@ export const ListingWizard = () => {
         monthly_rent = listingData.rent_amount * 2;
       }
 
+      // Geocode the address
+      const address = `${listingData.address_line}, ${listingData.postcode} ${listingData.city}, ${listingData.country}`;
+      let lat = 45.4642;  // Default to Milan coordinates
+      let lng = 9.1900;
+
+      try {
+        const geocodeResponse = await fetch(
+          `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(address)}`
+        );
+        const geocodeData = await geocodeResponse.json();
+        
+        if (geocodeData && geocodeData.length > 0) {
+          lat = parseFloat(geocodeData[0].lat);
+          lng = parseFloat(geocodeData[0].lon);
+        }
+      } catch (geocodeError) {
+        console.error('Geocoding error:', geocodeError);
+        // Continue with default coordinates if geocoding fails
+      }
+
       const { data, error } = await supabase
         .from('listings')
         .insert({
@@ -237,8 +257,8 @@ export const ListingWizard = () => {
           postcode: listingData.postcode,
           city: listingData.city,
           country: listingData.country,
-          lat: 0, // You'll need to geocode the address
-          lng: 0, // You'll need to geocode the address
+          lat: lat,
+          lng: lng,
           rent_monthly_eur: Math.round(monthly_rent),
           deposit_eur: Math.round(listingData.deposit),
           landlord_admin_fee: listingData.landlord_admin_fee || null,
@@ -262,8 +282,8 @@ export const ListingWizard = () => {
           house_rules: listingData.rules,
           availability_date: listingData.available_from,
           images: listingData.images,
-          status: 'DRAFT', // Set to DRAFT initially
-          review_status: 'pending_review', // Always requires admin review
+          status: 'DRAFT',
+          review_status: 'pending_review',
           minimum_stay_days: (listingData.min_stay_months || 1) * 30,
           maximum_stay_days: listingData.max_stay_months ? listingData.max_stay_months * 30 : 365,
         });
