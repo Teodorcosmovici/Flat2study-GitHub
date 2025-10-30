@@ -288,7 +288,13 @@ export const ListingWizard = () => {
           maximum_stay_days: listingData.max_stay_months ? listingData.max_stay_months * 30 : 365,
         });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Supabase error details:', error);
+        console.error('Error code:', error.code);
+        console.error('Error message:', error.message);
+        console.error('Error details:', error.details);
+        throw error;
+      }
 
       // Clear localStorage after successful submission
       localStorage.removeItem(STORAGE_KEY);
@@ -300,11 +306,18 @@ export const ListingWizard = () => {
       });
 
       navigate('/landlord-dashboard');
-    } catch (error) {
+    } catch (error: any) {
       console.error('Error creating listing:', error);
+      console.error('Full error object:', JSON.stringify(error, null, 2));
+      
+      let errorMessage = t('createListing.errorDescription');
+      if (error?.message) {
+        errorMessage = error.message;
+      }
+      
       toast({
         title: t('createListing.error'),
-        description: t('createListing.errorDescription'),
+        description: errorMessage,
         variant: "destructive",
       });
     }
