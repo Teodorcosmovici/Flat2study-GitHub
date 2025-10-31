@@ -538,7 +538,7 @@ export default function ListingDetails() {
                     </CardTitle>
                   </CardHeader>
                   <CardContent>
-                    <p className="text-muted-foreground leading-relaxed whitespace-pre-wrap">
+                    <p className="text-muted-foreground leading-relaxed whitespace-pre-line">
                       {isDescriptionTranslated && translatedDescription ? translatedDescription : listing.description}
                     </p>
                   </CardContent>
