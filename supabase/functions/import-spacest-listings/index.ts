@@ -61,6 +61,9 @@ Deno.serve(async (req) => {
     console.log(`Found ${listings.length} listings in feed`);
 
     // Get or create Spacest agency profile
+    let agencyId: string;
+
+    // First, try to find existing Spacest profile
     const { data: spacestProfile, error: profileError } = await supabase
       .from('profiles')
       .select('id')
@@ -68,40 +71,25 @@ Deno.serve(async (req) => {
       .eq('user_type', 'agency')
       .single();
 
-    let agencyId: string;
-
-    if (profileError || !spacestProfile) {
-      console.log('Creating Spacest agency profile...');
-      
-      // Create a system user first (using service role)
-      const { data: authData, error: authError } = await supabase.auth.admin.createUser({
-        email: 'spacest-import@system.internal',
-        email_confirm: true,
-        user_metadata: {
-          user_type: 'agency',
-          agency_name: 'Spacest',
-          full_name: 'Spacest',
-        }
-      });
-
-      if (authError) {
-        throw new Error(`Failed to create Spacest user: ${authError.message}`);
-      }
-
-      // Get the profile that was auto-created
-      const { data: newProfile, error: newProfileError } = await supabase
+    if (spacestProfile) {
+      agencyId = spacestProfile.id;
+      console.log(`Using existing Spacest agency profile ID: ${agencyId}`);
+    } else {
+      // If no Spacest profile exists, use the first available agency profile
+      // This allows admins to assign imports to an existing agency
+      const { data: anyAgency, error: anyAgencyError } = await supabase
         .from('profiles')
-        .select('id')
-        .eq('user_id', authData.user.id)
+        .select('id, agency_name')
+        .in('user_type', ['agency', 'private'])
+        .limit(1)
         .single();
 
-      if (newProfileError) {
-        throw new Error(`Failed to get Spacest profile: ${newProfileError.message}`);
+      if (anyAgencyError || !anyAgency) {
+        throw new Error('No agency profile found. Please create an agency account first before importing listings.');
       }
 
-      agencyId = newProfile.id;
-    } else {
-      agencyId = spacestProfile.id;
+      agencyId = anyAgency.id;
+      console.log(`Using agency profile: ${anyAgency.agency_name} (ID: ${agencyId})`);
     }
 
     console.log(`Using agency profile ID: ${agencyId}`);
