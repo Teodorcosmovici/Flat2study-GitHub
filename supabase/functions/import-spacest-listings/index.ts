@@ -56,7 +56,19 @@ Deno.serve(async (req) => {
     }
 
     const feedData = await feedResponse.json();
-    const listings: SpacestListing[] = feedData.listings || [];
+    
+    // Log the feed structure to debug
+    console.log('Feed data structure:', JSON.stringify(feedData).substring(0, 500));
+    
+    // The feed might be an array directly, or nested in a property
+    let listings: SpacestListing[] = [];
+    if (Array.isArray(feedData)) {
+      listings = feedData;
+    } else if (feedData.listings && Array.isArray(feedData.listings)) {
+      listings = feedData.listings;
+    } else if (feedData.data && Array.isArray(feedData.data)) {
+      listings = feedData.data;
+    }
     
     console.log(`Found ${listings.length} listings in feed`);
 
