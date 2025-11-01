@@ -6,7 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
@@ -39,6 +39,7 @@ export const AdminDashboard = () => {
   const [selectedListing, setSelectedListing] = useState<PendingListing | null>(null);
   const [reviewNotes, setReviewNotes] = useState('');
   const [loading, setLoading] = useState(true);
+  const [importingSpacest, setImportingSpacest] = useState(false);
 
   useEffect(() => {
     if (profile?.user_type !== 'admin') {
@@ -112,6 +113,38 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleSpacestImport = async () => {
+    setImportingSpacest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('import-spacest-listings');
+
+      if (error) throw error;
+
+      const result = data as { imported: number; updated: number; skipped: number; errors: string[] };
+
+      toast({
+        title: "Import Completed",
+        description: `Imported: ${result.imported}, Updated: ${result.updated}, Skipped: ${result.skipped}`,
+      });
+
+      if (result.errors.length > 0) {
+        console.error('Import errors:', result.errors);
+      }
+
+      // Refresh pending listings
+      fetchPendingListings();
+    } catch (error) {
+      console.error('Error importing Spacest listings:', error);
+      toast({
+        title: "Import Failed",
+        description: error.message || "Failed to import Spacest listings",
+        variant: "destructive",
+      });
+    } finally {
+      setImportingSpacest(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -127,9 +160,19 @@ export const AdminDashboard = () => {
           <h1 className="text-3xl font-bold">Admin Dashboard</h1>
           <p className="text-muted-foreground">Trust & Safety Review Portal</p>
         </div>
-        <Badge variant="outline" className="text-orange-600">
-          {pendingListings.length} Pending Review
-        </Badge>
+        <div className="flex gap-4 items-center">
+          <Button 
+            onClick={handleSpacestImport} 
+            disabled={importingSpacest}
+            variant="outline"
+          >
+            <Download className="w-4 h-4 mr-2" />
+            {importingSpacest ? 'Importing...' : 'Import Spacest Listings'}
+          </Button>
+          <Badge variant="outline" className="text-orange-600">
+            {pendingListings.length} Pending Review
+          </Badge>
+        </div>
       </div>
 
       <Tabs defaultValue="visits" className="space-y-6">

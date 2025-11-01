@@ -512,6 +512,8 @@ export type Database = {
           electricity_cost_eur: number | null
           electricity_included: boolean | null
           expires_at: string | null
+          external_listing_id: string | null
+          external_source: string | null
           floor: string | null
           furnished: boolean | null
           gas_cost_eur: number | null
@@ -525,6 +527,7 @@ export type Database = {
           internet_included: boolean | null
           landlord_admin_fee: number | null
           last_credit_deducted_at: string | null
+          last_synced_at: string | null
           lat: number
           lease_end_date: string | null
           lng: number
@@ -573,6 +576,8 @@ export type Database = {
           electricity_cost_eur?: number | null
           electricity_included?: boolean | null
           expires_at?: string | null
+          external_listing_id?: string | null
+          external_source?: string | null
           floor?: string | null
           furnished?: boolean | null
           gas_cost_eur?: number | null
@@ -586,6 +591,7 @@ export type Database = {
           internet_included?: boolean | null
           landlord_admin_fee?: number | null
           last_credit_deducted_at?: string | null
+          last_synced_at?: string | null
           lat: number
           lease_end_date?: string | null
           lng: number
@@ -634,6 +640,8 @@ export type Database = {
           electricity_cost_eur?: number | null
           electricity_included?: boolean | null
           expires_at?: string | null
+          external_listing_id?: string | null
+          external_source?: string | null
           floor?: string | null
           furnished?: boolean | null
           gas_cost_eur?: number | null
@@ -647,6 +655,7 @@ export type Database = {
           internet_included?: boolean | null
           landlord_admin_fee?: number | null
           last_credit_deducted_at?: string | null
+          last_synced_at?: string | null
           lat?: number
           lease_end_date?: string | null
           lng?: number

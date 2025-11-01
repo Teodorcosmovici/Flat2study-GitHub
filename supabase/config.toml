@@ -35,3 +35,6 @@ verify_jwt = false
 
 [functions.update-listing-image]
 verify_jwt = false
+
+[functions.import-spacest-listings]
+verify_jwt = true
