@@ -5,7 +5,7 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
-const SPACEST_FEED_URL = 'https://spacest-student-app.s3.eu-west-3.amazonaws.com/json_feed.json';
+const SPACEST_FEED_URL = 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
 
 interface SpacestListing {
   listing_code: string;
