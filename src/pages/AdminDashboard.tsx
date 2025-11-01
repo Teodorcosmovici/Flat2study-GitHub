@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
+import { Input } from '@/components/ui/input';
 import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
@@ -40,6 +41,7 @@ export const AdminDashboard = () => {
   const [reviewNotes, setReviewNotes] = useState('');
   const [loading, setLoading] = useState(true);
   const [importingSpacest, setImportingSpacest] = useState(false);
+  const [spacestFeedUrl, setSpacestFeedUrl] = useState('');
 
   useEffect(() => {
     if (profile?.user_type !== 'admin') {
@@ -116,7 +118,9 @@ export const AdminDashboard = () => {
   const handleSpacestImport = async () => {
     setImportingSpacest(true);
     try {
-      const { data, error } = await supabase.functions.invoke('import-spacest-listings');
+      const { data, error } = await supabase.functions.invoke('import-spacest-listings', {
+        body: spacestFeedUrl ? { feed_url: spacestFeedUrl } : undefined,
+      });
 
       if (error) throw error;
 
@@ -161,6 +165,12 @@ export const AdminDashboard = () => {
           <p className="text-muted-foreground">Trust & Safety Review Portal</p>
         </div>
         <div className="flex gap-4 items-center">
+          <Input
+            placeholder="Feed URL (optional)"
+            value={spacestFeedUrl}
+            onChange={(e) => setSpacestFeedUrl(e.target.value)}
+            className="w-80"
+          />
           <Button 
             onClick={handleSpacestImport} 
             disabled={importingSpacest}

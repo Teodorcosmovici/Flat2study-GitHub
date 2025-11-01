@@ -48,8 +48,19 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Allow overriding the feed URL via request body
+    let feedUrl = SPACEST_FEED_URL;
+    try {
+      const payload = await req.json();
+      if (payload && typeof payload.feed_url === 'string' && payload.feed_url.trim().length > 0) {
+        feedUrl = payload.feed_url.trim();
+      }
+    } catch (_) {
+      // no body provided
+    }
+
     console.log('Fetching Spacest feed...');
-    const feedResponse = await fetch(SPACEST_FEED_URL);
+    const feedResponse = await fetch(feedUrl);
     
     if (!feedResponse.ok) {
       throw new Error(`Failed to fetch Spacest feed: ${feedResponse.statusText}`);
@@ -117,14 +128,18 @@ Deno.serve(async (req) => {
     // Filter and process listings
     for (const listing of listings) {
       try {
-        // Filter by city (Milan only)
-        if (!listing.city || !listing.city.toLowerCase().includes('milan') && !listing.city.toLowerCase().includes('milano')) {
+        // Normalize core fields
+        const city = extractCity(listing);
+        const bedrooms = extractBedrooms(listing);
+
+        // Filter by city (Milan only) with robust matching
+        if (!containsMilan(city) && !containsMilan(listing.address) && !containsMilan(listing.title)) {
           result.skipped++;
           continue;
         }
 
         // Apply price filters based on category and bedrooms
-        const shouldImport = shouldImportListing(listing);
+        const shouldImport = shouldImportListing({ ...listing, bedrooms });
         if (!shouldImport) {
           result.skipped++;
           continue;
@@ -269,10 +284,10 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
       it: listing.description || ''
     },
     address_line: listing.address || '',
-    city: listing.city || 'Milan',
+    city: extractCity(listing) || 'Milan',
     country: listing.country || 'Italy',
-    lat: listing.latitude || 45.4642, // Default Milan coordinates
-    lng: listing.longitude || 9.1900,
+    lat: (listing as any).latitude ?? (listing as any).lat ?? 45.4642, // Default Milan coordinates
+    lng: (listing as any).longitude ?? (listing as any).lng ?? 9.1900,
     rent_monthly_eur: listing.price,
     deposit_eur: listing.price * 2, // Default 2 months deposit
     bills_included: listing.bills_included ?? false,
@@ -282,9 +297,9 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     size_sqm: listing.size_sqm || null,
     amenities: [],
     availability_date: listing.first_availability ? new Date(listing.first_availability).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
-    images: listing.images || [],
-    status: 'PUBLISHED',
-    review_status: 'approved',
+    images: extractImages(listing),
+    status: 'DRAFT',
+    review_status: 'pending_review',
     minimum_stay_days: listing.minimum_stay ? listing.minimum_stay * 30 : 30,
     maximum_stay_days: listing.maximum_stay ? listing.maximum_stay * 30 : 365,
   };
@@ -363,3 +378,31 @@ async function updateAvailabilityPeriods(
     console.error(`Error updating availability for ${listingId}:`, error);
   }
 }
+
+function extractCity(listing: any): string {
+  const city = listing?.city || listing?.city_name || listing?.location?.city || listing?.address_city || '';
+  return typeof city === 'string' ? city : '';
+}
+
+function containsMilan(value?: string): boolean {
+  if (!value || typeof value !== 'string') return false;
+  const v = value.toLowerCase();
+  return v.includes('milan') || v.includes('milano');
+}
+
+function extractBedrooms(listing: any): number {
+  const val = listing?.bedrooms ?? listing?.rooms ?? listing?.n_rooms ?? listing?.num_rooms ?? listing?.bedroom_count ?? listing?.rooms_count;
+  const n = Number(val);
+  return Number.isFinite(n) ? n : 0;
+}
+
+function extractImages(listing: any): string[] {
+  const imgs = listing?.images || listing?.photos || listing?.pictures || [];
+  if (Array.isArray(imgs)) {
+    return imgs
+      .map((it: any) => typeof it === 'string' ? it : (it?.url || it?.src))
+      .filter((u: any) => typeof u === 'string' && u.length > 0);
+  }
+  return [];
+}
+
