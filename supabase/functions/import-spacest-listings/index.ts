@@ -253,15 +253,23 @@ function shouldImportListing(listing: SpacestListing): boolean {
 }
 
 function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
-  // Determine our listing type
-  let type = 'room';
-  const bedrooms = listing.bedrooms || 0;
+  // Extract bedrooms from feed
+  const rawBedrooms = extractBedrooms(listing);
   
-  if (listing.category === 'apartment') {
-    if (bedrooms === 0 || bedrooms === 1) {
+  // Determine our listing type and correct bedroom count
+  let type = 'room';
+  let bedrooms = 1; // Default minimum
+  
+  if (listing.category === 'room') {
+    type = 'room';
+    bedrooms = 1; // A room is always 1 bedroom
+  } else if (listing.category === 'apartment') {
+    if (rawBedrooms === 0 || rawBedrooms === 1) {
       type = 'studio';
+      bedrooms = 1; // Studios count as 1 bedroom
     } else {
       type = 'entire_property';
+      bedrooms = Math.max(1, rawBedrooms); // Ensure at least 1
     }
   }
 
@@ -393,7 +401,7 @@ function containsMilan(value?: string): boolean {
 function extractBedrooms(listing: any): number {
   const val = listing?.bedrooms ?? listing?.rooms ?? listing?.n_rooms ?? listing?.num_rooms ?? listing?.bedroom_count ?? listing?.rooms_count;
   const n = Number(val);
-  return Number.isFinite(n) ? n : 0;
+  return Number.isFinite(n) && n > 0 ? n : 1; // Minimum 1 bedroom to satisfy DB constraint
 }
 
 function extractImages(listing: any): string[] {
