@@ -259,7 +259,7 @@ export default function MapView({
                 mouseout: () => onListingHover?.(null),
               }}
             >
-              <Tooltip direction="top" offset={[0, -10]} opacity={1} interactive>
+              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
                 <div className="w-80 p-2">
                   <h3 className="font-semibold text-sm mb-3 text-center">
                     {groupListings.length} Properties at {groupListings[0].addressLine}
