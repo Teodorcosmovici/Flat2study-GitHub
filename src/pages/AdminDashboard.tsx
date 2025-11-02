@@ -43,34 +43,6 @@ export const AdminDashboard = () => {
   const [importingSpacest, setImportingSpacest] = useState(false);
   const [spacestFeedUrl, setSpacestFeedUrl] = useState('');
 
-  // Fix listing with wrong coordinates (Africa instead of Milan)
-  const fixAfricaListing = async () => {
-    try {
-      const { data, error } = await supabase
-        .from('listings')
-        .update({ 
-          lat: 45.4796, 
-          lng: 9.2011 
-        })
-        .eq('id', '32f2bd8e-f6c8-4bd8-8718-4a734a61370e')
-        .select();
-
-      if (error) throw error;
-
-      toast({
-        title: "Success",
-        description: "Fixed listing location from Africa to Milan",
-      });
-    } catch (error) {
-      console.error('Error fixing listing:', error);
-      toast({
-        title: "Error",
-        description: "Failed to fix listing location",
-        variant: "destructive",
-      });
-    }
-  };
-
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
       toast({
@@ -234,13 +206,6 @@ export const AdminDashboard = () => {
           <p className="text-muted-foreground">Trust & Safety Review Portal</p>
         </div>
         <div className="flex gap-4 items-center">
-          <Button 
-            onClick={fixAfricaListing} 
-            variant="secondary"
-            size="sm"
-          >
-            Fix Africa Listing
-          </Button>
           <Button 
             onClick={handleApproveAll} 
             disabled={pendingListings.length === 0}
