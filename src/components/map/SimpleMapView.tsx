@@ -34,6 +34,7 @@ export default function SimpleMapView({
   const mapInstanceRef = useRef<L.Map | null>(null);
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const initialBoundsSet = useRef(false);
+  const currentOpenPopupRef = useRef<L.Marker | null>(null);
 
   // Stable callback refs to avoid re-rendering markers on every parent re-render
   const onListingClickRef = useRef(onListingClick);
@@ -343,8 +344,31 @@ export default function SimpleMapView({
             offset: [0, -18]
           });
 
-          // Hover behavior
-          groupMarker.on('mouseover', () => groupMarker.openPopup());
+          // Hover behavior - close any open popup first
+          groupMarker.on('mouseover', () => {
+            // Close any previously open popup
+            if (currentOpenPopupRef.current && currentOpenPopupRef.current !== groupMarker) {
+              currentOpenPopupRef.current.closePopup();
+            }
+            groupMarker.openPopup();
+            currentOpenPopupRef.current = groupMarker;
+          });
+          
+          groupMarker.on('mouseout', (e) => {
+            // Check if mouse is leaving to the popup element
+            const relatedTarget = (e.originalEvent as MouseEvent).relatedTarget as HTMLElement;
+            const popupEl = groupMarker.getPopup()?.getElement();
+            
+            // Don't close if moving to the popup
+            if (popupEl && relatedTarget && popupEl.contains(relatedTarget)) {
+              return;
+            }
+            
+            groupMarker.closePopup();
+            if (currentOpenPopupRef.current === groupMarker) {
+              currentOpenPopupRef.current = null;
+            }
+          });
           
           // Handle popup events
           groupMarker.on('popupopen', () => {
@@ -364,17 +388,28 @@ export default function SimpleMapView({
               }
             };
 
+            const mouseleaveHandler = () => {
+              groupMarker.closePopup();
+              if (currentOpenPopupRef.current === groupMarker) {
+                currentOpenPopupRef.current = null;
+              }
+            };
+
             popupEl.addEventListener('click', clickHandler);
+            popupEl.addEventListener('mouseleave', mouseleaveHandler);
             L.DomEvent.disableClickPropagation(popupEl);
             L.DomEvent.disableScrollPropagation(popupEl);
             (popupEl as any).__clickHandler = clickHandler;
+            (popupEl as any).__mouseleaveHandler = mouseleaveHandler;
           });
 
           groupMarker.on('popupclose', () => {
             const popupEl = groupMarker.getPopup()?.getElement();
             if (popupEl) {
-              const handler = (popupEl as any).__clickHandler;
-              if (handler) popupEl.removeEventListener('click', handler);
+              const clickHandler = (popupEl as any).__clickHandler;
+              const mouseleaveHandler = (popupEl as any).__mouseleaveHandler;
+              if (clickHandler) popupEl.removeEventListener('click', clickHandler);
+              if (mouseleaveHandler) popupEl.removeEventListener('mouseleave', mouseleaveHandler);
             }
             onListingHoverRef.current?.(null);
           });
