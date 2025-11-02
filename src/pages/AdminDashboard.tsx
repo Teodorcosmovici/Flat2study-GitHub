@@ -71,6 +71,47 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleApproveAll = async () => {
+    if (pendingListings.length === 0) {
+      toast({
+        title: "No listings to approve",
+        description: "There are no pending listings at the moment.",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({
+          review_status: 'approved',
+          review_notes: 'Bulk approved',
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: profile?.id,
+          status: 'PUBLISHED'
+        })
+        .eq('review_status', 'pending_review');
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Approved and published ${pendingListings.length} listing(s)`,
+      });
+
+      fetchPendingListings();
+      setSelectedListing(null);
+      setReviewNotes('');
+    } catch (error) {
+      console.error('Error approving listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to approve listings",
+        variant: "destructive",
+      });
+    }
+  };
+
   useEffect(() => {
     if (profile?.user_type !== 'admin') {
       navigate('/');
@@ -199,6 +240,15 @@ export const AdminDashboard = () => {
             size="sm"
           >
             Fix Africa Listing
+          </Button>
+          <Button 
+            onClick={handleApproveAll} 
+            disabled={pendingListings.length === 0}
+            variant="default"
+            size="sm"
+          >
+            <CheckCircle className="w-4 h-4 mr-2" />
+            Approve All
           </Button>
           <Input
             placeholder="Feed URL (optional)"
