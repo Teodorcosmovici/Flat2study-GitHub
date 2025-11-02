@@ -6,8 +6,9 @@ import { Textarea } from '@/components/ui/textarea';
 import { Collapsible, CollapsibleContent, CollapsibleTrigger } from '@/components/ui/collapsible';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MessageCircle, Phone, Clock, CheckCheck, Reply, ChevronDown, ChevronUp, User } from 'lucide-react';
+import { MessageCircle, Phone, Clock, CheckCheck, Reply, ChevronDown, ChevronUp, User, Home } from 'lucide-react';
 import { formatDistanceToNow } from 'date-fns';
+import { Link } from 'react-router-dom';
 
 interface SupportMessage {
   id: string;
@@ -20,6 +21,12 @@ interface SupportMessage {
   updated_at: string;
   replied_at: string | null;
   admin_notes: string | null;
+  listing_id: string | null;
+  listings?: {
+    id: string;
+    title: string;
+    images: string[];
+  } | null;
 }
 
 export const SupportMessagesManager: React.FC = () => {
@@ -53,7 +60,14 @@ export const SupportMessagesManager: React.FC = () => {
     try {
       const { data, error } = await supabase
         .from('support_messages')
-        .select('*')
+        .select(`
+          *,
+          listings (
+            id,
+            title,
+            images
+          )
+        `)
         .order('created_at', { ascending: false });
 
       if (error) throw error;
@@ -220,6 +234,29 @@ export const SupportMessagesManager: React.FC = () => {
                             {getStatusBadge(message.status)}
                           </div>
 
+                          {/* Listing Info */}
+                          {message.listings && (
+                            <Link 
+                              to={`/listing/${message.listings.id}`}
+                              className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors"
+                            >
+                              {message.listings.images && message.listings.images[0] && (
+                                <img
+                                  src={message.listings.images[0]}
+                                  alt={message.listings.title}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <Home className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                  <p className="text-sm font-medium truncate">{message.listings.title}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">View listing →</p>
+                              </div>
+                            </Link>
+                          )}
+
                           {/* Message Content */}
                           <div>
                             <p className="text-sm bg-muted/50 p-3 rounded-lg whitespace-pre-wrap border">
@@ -310,10 +347,33 @@ export const SupportMessagesManager: React.FC = () => {
                               <div className="flex items-center gap-2 text-xs text-muted-foreground">
                                 <Clock className="h-3 w-3" />
                                 <span>{formatDistanceToNow(new Date(message.created_at))} ago</span>
-                              </div>
+                               </div>
                             </div>
                             {getStatusBadge(message.status)}
                           </div>
+
+                          {/* Listing Info */}
+                          {message.listings && (
+                            <Link 
+                              to={`/listing/${message.listings.id}`}
+                              className="flex items-center gap-3 p-2 bg-muted/30 rounded-lg border hover:bg-muted/50 transition-colors"
+                            >
+                              {message.listings.images && message.listings.images[0] && (
+                                <img
+                                  src={message.listings.images[0]}
+                                  alt={message.listings.title}
+                                  className="w-16 h-16 object-cover rounded"
+                                />
+                              )}
+                              <div className="flex-1 min-w-0">
+                                <div className="flex items-center gap-2">
+                                  <Home className="h-4 w-4 text-muted-foreground flex-shrink-0" />
+                                  <p className="text-sm font-medium truncate">{message.listings.title}</p>
+                                </div>
+                                <p className="text-xs text-muted-foreground">View listing →</p>
+                              </div>
+                            </Link>
+                          )}
 
                           {/* Message Content */}
                           <div>

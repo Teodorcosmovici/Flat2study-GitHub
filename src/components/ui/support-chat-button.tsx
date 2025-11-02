@@ -10,6 +10,7 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { z } from 'zod';
+import { useLocation } from 'react-router-dom';
 
 const countries = [
   { code: '+1', name: 'United States', flag: '🇺🇸' },
@@ -33,6 +34,7 @@ const supportMessageSchema = z.object({
 
 export const SupportChatButton: React.FC = () => {
   const { user, profile } = useAuth();
+  const location = useLocation();
   const [isOpen, setIsOpen] = useState(false);
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showSuccessMessage, setShowSuccessMessage] = useState(false);
@@ -43,6 +45,12 @@ export const SupportChatButton: React.FC = () => {
     phoneNumber: '',
     message: ''
   });
+
+  // Extract listing ID from URL if on a listing page
+  const getListingIdFromUrl = () => {
+    const match = location.pathname.match(/\/listing\/([a-f0-9-]+)/);
+    return match ? match[1] : null;
+  };
 
   useEffect(() => {
     if (user && profile) {
@@ -69,6 +77,8 @@ export const SupportChatButton: React.FC = () => {
       
       setIsSubmitting(true);
 
+      const listingId = getListingIdFromUrl();
+
       const { error } = await supabase
         .from('support_messages')
         .insert([
@@ -77,7 +87,8 @@ export const SupportChatButton: React.FC = () => {
             sender_name: validatedData.name,
             phone_number: validatedData.phoneNumber,
             country_code: validatedData.countryCode,
-            message: validatedData.message
+            message: validatedData.message,
+            listing_id: listingId
           }
         ]);
 

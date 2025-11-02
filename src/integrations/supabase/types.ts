@@ -890,6 +890,7 @@ export type Database = {
           country_code: string
           created_at: string
           id: string
+          listing_id: string | null
           message: string
           phone_number: string
           replied_at: string | null
@@ -903,6 +904,7 @@ export type Database = {
           country_code: string
           created_at?: string
           id?: string
+          listing_id?: string | null
           message: string
           phone_number: string
           replied_at?: string | null
@@ -916,6 +918,7 @@ export type Database = {
           country_code?: string
           created_at?: string
           id?: string
+          listing_id?: string | null
           message?: string
           phone_number?: string
           replied_at?: string | null
@@ -924,7 +927,15 @@ export type Database = {
           updated_at?: string
           user_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "support_messages_listing_id_fkey"
+            columns: ["listing_id"]
+            isOneToOne: false
+            referencedRelation: "listings"
+            referencedColumns: ["id"]
+          },
+        ]
       }
     }
     Views: {
