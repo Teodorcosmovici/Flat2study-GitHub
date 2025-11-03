@@ -192,6 +192,7 @@ export default function Search() {
   };
 
   const handleMapBoundsChange = (bounds: { north: number; south: number; east: number; west: number }) => {
+    // Filter visible listings for the card view only
     const visible = listings.filter(listing => 
       listing.lat >= bounds.south && 
       listing.lat <= bounds.north && 
@@ -368,7 +369,7 @@ export default function Search() {
               </div>
             </div>
             
-            {/* Map - Right Side - 50% */}
+            {/* Map - Right Side - 50% - Show ALL filtered listings */}
             <div className="w-1/2 flex-shrink-0">
               <SimpleMapView 
                 listings={listings}
