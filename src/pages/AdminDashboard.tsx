@@ -56,6 +56,7 @@ export const AdminDashboard = () => {
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
   const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
   const [postcodeResults, setPostcodeResults] = useState<any>(null);
+  const [isDeletingSpacest, setIsDeletingSpacest] = useState(false);
 
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
@@ -257,6 +258,35 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteSpacestListings = async () => {
+    if (!confirm('Are you sure you want to delete ALL Spacest listings? This cannot be undone.')) {
+      return;
+    }
+
+    setIsDeletingSpacest(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-spacest-listings');
+
+      if (error) throw error;
+
+      toast({
+        title: "Deletion Complete",
+        description: `Deleted ${data.deletedCount} Spacest listings`,
+      });
+
+      fetchPendingListings();
+    } catch (error) {
+      console.error('Error deleting Spacest listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete Spacest listings",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingSpacest(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -299,6 +329,14 @@ export const AdminDashboard = () => {
             onChange={(e) => setSpacestFeedUrl(e.target.value)}
             className="w-80"
           />
+          <Button 
+            onClick={handleDeleteSpacestListings} 
+            disabled={isDeletingSpacest}
+            variant="destructive"
+            size="sm"
+          >
+            {isDeletingSpacest ? 'Deleting...' : 'Delete All Spacest'}
+          </Button>
           <Button 
             onClick={handleSpacestImport} 
             disabled={importingSpacest}
