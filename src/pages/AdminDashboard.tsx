@@ -1,19 +1,28 @@
 import React, { useState, useEffect } from 'react';
 import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent, CardHeader, CardTitle, CardDescription } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download, MapPin, Loader2 } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
 import { AdminVisitRequests } from '@/components/admin/AdminVisitRequests';
+import { geocodeAllListings } from '@/utils/geocoding';
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from '@/components/ui/table';
 
 interface PendingListing {
   id: string;
@@ -42,6 +51,8 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [importingSpacest, setImportingSpacest] = useState(false);
   const [spacestFeedUrl, setSpacestFeedUrl] = useState('');
+  const [isGeocoding, setIsGeocoding] = useState(false);
+  const [geocodingResults, setGeocodingResults] = useState<any>(null);
 
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
@@ -176,7 +187,6 @@ export const AdminDashboard = () => {
         console.error('Import errors:', result.errors);
       }
 
-      // Refresh pending listings
       fetchPendingListings();
     } catch (error) {
       console.error('Error importing Spacest listings:', error);
@@ -187,6 +197,33 @@ export const AdminDashboard = () => {
       });
     } finally {
       setImportingSpacest(false);
+    }
+  };
+
+  const handleGeocodeAllListings = async () => {
+    setIsGeocoding(true);
+    setGeocodingResults(null);
+    
+    try {
+      const results = await geocodeAllListings();
+      setGeocodingResults(results);
+      
+      const successCount = results.results.filter((r: any) => r.success).length;
+      const failCount = results.results.filter((r: any) => !r.success).length;
+      
+      toast({
+        title: "Geocoding Complete",
+        description: `${successCount} successful, ${failCount} failed`,
+      });
+    } catch (error) {
+      console.error('Error geocoding listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to geocode listings",
+        variant: "destructive",
+      });
+    } finally {
+      setIsGeocoding(false);
     }
   };
 
@@ -249,6 +286,10 @@ export const AdminDashboard = () => {
             <Clock className="w-4 h-4 mr-2" />
             Pending Reviews ({pendingListings.length})
           </TabsTrigger>
+          <TabsTrigger value="geocoding">
+            <MapPin className="w-4 h-4 mr-2" />
+            Geocoding
+          </TabsTrigger>
           <TabsTrigger value="support">
             <MessageSquare className="w-4 h-4 mr-2" />
             Support Messages
@@ -268,8 +309,9 @@ export const AdminDashboard = () => {
         </TabsContent>
 
         <TabsContent value="pending" className="space-y-4">
+          {// ... keep existing code
+          }
           <div className="grid gap-6 lg:grid-cols-2">
-            {/* Listings List */}
             <div className="space-y-4">
               <h2 className="text-xl font-semibold">Listings Awaiting Review</h2>
               
@@ -316,7 +358,6 @@ export const AdminDashboard = () => {
               )}
             </div>
 
-            {/* Review Panel */}
             <div className="space-y-4">
               {selectedListing ? (
                 <>
@@ -411,14 +452,112 @@ export const AdminDashboard = () => {
           </div>
         </TabsContent>
 
-            <TabsContent value="support">
-              <SupportMessagesManager />
-            </TabsContent>
-            
-            <TabsContent value="impersonation">
-              <UserImpersonation />
-            </TabsContent>
-          </Tabs>
+        <TabsContent value="geocoding" className="space-y-4">
+          <Card>
+            <CardHeader>
+              <CardTitle>Geocoding Management</CardTitle>
+              <CardDescription>
+                Fix property coordinates by geocoding addresses from titles
+              </CardDescription>
+            </CardHeader>
+            <CardContent className="space-y-4">
+              <Button 
+                onClick={handleGeocodeAllListings}
+                disabled={isGeocoding}
+                className="w-full"
+              >
+                {isGeocoding ? (
+                  <>
+                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                    Geocoding All Listings...
+                  </>
+                ) : (
+                  <>
+                    <MapPin className="mr-2 h-4 w-4" />
+                    Geocode All Published Listings
+                  </>
+                )}
+              </Button>
+
+              {geocodingResults && (
+                <div className="space-y-4">
+                  <div className="grid grid-cols-2 gap-4">
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">Total Processed</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold">{geocodingResults.total_listings}</div>
+                      </CardContent>
+                    </Card>
+                    <Card>
+                      <CardHeader className="pb-3">
+                        <CardTitle className="text-sm font-medium">Success Rate</CardTitle>
+                      </CardHeader>
+                      <CardContent>
+                        <div className="text-2xl font-bold text-green-600">
+                          {geocodingResults.results.filter((r: any) => r.success).length} / {geocodingResults.total_listings}
+                        </div>
+                      </CardContent>
+                    </Card>
+                  </div>
+
+                  <div className="border rounded-lg overflow-hidden">
+                    <Table>
+                      <TableHeader>
+                        <TableRow>
+                          <TableHead>Status</TableHead>
+                          <TableHead>Address</TableHead>
+                          <TableHead>Old Coordinates</TableHead>
+                          <TableHead>New Coordinates</TableHead>
+                          <TableHead>Error</TableHead>
+                        </TableRow>
+                      </TableHeader>
+                      <TableBody>
+                        {geocodingResults.results.map((result: any, index: number) => (
+                          <TableRow key={index}>
+                            <TableCell>
+                              {result.success ? (
+                                <CheckCircle className="h-5 w-5 text-green-600" />
+                              ) : (
+                                <XCircle className="h-5 w-5 text-red-600" />
+                              )}
+                            </TableCell>
+                            <TableCell className="max-w-xs truncate">
+                              {result.address}
+                            </TableCell>
+                            <TableCell className="text-sm text-muted-foreground">
+                              {result.old_coordinates ? 
+                                `${result.old_coordinates.lat.toFixed(4)}, ${result.old_coordinates.lng.toFixed(4)}` 
+                                : '-'}
+                            </TableCell>
+                            <TableCell className="text-sm">
+                              {result.new_coordinates ? 
+                                `${result.new_coordinates.lat.toFixed(4)}, ${result.new_coordinates.lng.toFixed(4)}` 
+                                : '-'}
+                            </TableCell>
+                            <TableCell className="text-sm text-red-600">
+                              {result.error || '-'}
+                            </TableCell>
+                          </TableRow>
+                        ))}
+                      </TableBody>
+                    </Table>
+                  </div>
+                </div>
+              )}
+            </CardContent>
+          </Card>
+        </TabsContent>
+
+        <TabsContent value="support">
+          <SupportMessagesManager />
+        </TabsContent>
+        
+        <TabsContent value="impersonation">
+          <UserImpersonation />
+        </TabsContent>
+      </Tabs>
     </div>
   );
 };
