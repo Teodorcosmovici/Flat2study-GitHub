@@ -18,77 +18,87 @@ Deno.serve(async (req) => {
   }
 
   try {
-    // Initialize Supabase client with service role key for database updates
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!
     
     const supabase = createClient(supabaseUrl, supabaseServiceKey)
 
-    // Get all published listings
+    // Only geocode listings with default coordinates (Piazza del Duomo)
+    const DEFAULT_LAT = 45.4641943
+    const DEFAULT_LNG = 9.1896346
+    
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
       .select('id, title, address_line, city, country, lat, lng')
       .eq('status', 'PUBLISHED')
+      .eq('lat', DEFAULT_LAT)
+      .eq('lng', DEFAULT_LNG)
+      .limit(50) // Process max 50 at a time to avoid timeout
 
     if (listingsError) {
       throw listingsError
     }
 
-    console.log(`Found ${listings.length} listings to geocode`)
+    console.log(`Found ${listings.length} listings needing geocoding`)
 
     const results = []
 
     for (const listing of listings) {
       try {
-        // Try to extract address from title if it contains common Milan address patterns
-        let addressToGeocode = `${listing.address_line}, ${listing.city}, ${listing.country}`
+        // Extract address from title - prioritize patterns like "in Via/Viale X, Number"
+        let addressToGeocode = listing.address_line 
+          ? `${listing.address_line}, Milan, Italy`
+          : `Milan, Italy`
         
-        // If title contains address-like patterns (street names, numbers), use it
         if (listing.title) {
-          const title = listing.title.toLowerCase()
-          // Common Milan street patterns: Via, Viale, Corso, Piazza, etc.
-          const milanStreetPattern = /(via|viale|corso|piazza|largo|vicolo)\s+[a-zA-ZÀ-ÿ\s]+\d*|[a-zA-ZÀ-ÿ\s]+\d+/i
-          const addressMatch = listing.title.match(milanStreetPattern)
+          // Match patterns: "in Via X", "Studio in X Y 123", etc.
+          const patterns = [
+            /(?:in|at)\s+((?:via|viale|corso|piazza|largo|alzaia)\s+[a-zA-ZÀ-ÿ'\s]+?\s+\d+)/i,
+            /((?:via|viale|corso|piazza|largo|alzaia)\s+[a-zA-ZÀ-ÿ'\s]+?\s+\d+)/i,
+            /(?:in|at)\s+([a-zA-ZÀ-ÿ'\s]+?\s+\d+)/i,
+          ]
           
-          if (addressMatch) {
-            // Use the extracted address from title, ensuring we include Milan, Italy
-            addressToGeocode = `${addressMatch[0]}, Milan, Italy`
-            console.log(`Extracted address from title: ${addressToGeocode}`)
+          for (const pattern of patterns) {
+            const match = listing.title.match(pattern)
+            if (match && match[1]) {
+              addressToGeocode = `${match[1].trim()}, Milan, Italy`
+              console.log(`📍 Extracted from title: "${match[1]}"`)
+              break
+            }
           }
         }
         
-        console.log(`Geocoding: ${addressToGeocode}`)
+        console.log(`🔍 Geocoding: ${addressToGeocode}`)
 
-        // Use OpenStreetMap Nominatim for geocoding (free service)
         const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressToGeocode)}&limit=1&addressdetails=1`
         
         const geocodeResponse = await fetch(nominatimUrl, {
-          headers: {
-            'User-Agent': 'Flat2Study-App/1.0' // Nominatim requires a User-Agent
-          }
+          headers: { 'User-Agent': 'Flat2Study-App/1.0' }
         })
 
         if (!geocodeResponse.ok) {
-          console.error(`Geocoding failed for ${addressToGeocode}: ${geocodeResponse.statusText}`)
+          console.error(`❌ Geocoding failed: ${geocodeResponse.statusText}`)
           results.push({
             listing_id: listing.id,
-            address: addressToGeocode,
+            title: listing.title,
             success: false,
             error: `Geocoding failed: ${geocodeResponse.statusText}`
           })
+          await new Promise(resolve => setTimeout(resolve, 1000))
           continue
         }
 
         const geocodeResults: GeocodeResult[] = await geocodeResponse.json()
 
         if (geocodeResults.length === 0) {
-          console.error(`No results found for ${addressToGeocode}`)
+          console.error(`❌ No results for: ${addressToGeocode}`)
           results.push({
             listing_id: listing.id,
-            address: addressToGeocode,
+            title: listing.title,
             success: false,
             error: 'Address not found'
           })
+          await new Promise(resolve => setTimeout(resolve, 1000))
           continue
         }
 
@@ -96,30 +106,31 @@ Deno.serve(async (req) => {
         const lat = parseFloat(result.lat)
         const lng = parseFloat(result.lon)
 
-        console.log(`Found coordinates: ${lat}, ${lng} for ${addressToGeocode}`)
+        console.log(`✅ Found: ${lat}, ${lng}`)
 
-        // Update the listing with accurate coordinates
+        // Update listing
         const { error: updateError } = await supabase
           .from('listings')
           .update({ 
-            lat: lat,
-            lng: lng,
+            lat,
+            lng,
+            address_line: listing.address_line || addressToGeocode.replace(', Milan, Italy', ''),
             updated_at: new Date().toISOString()
           })
           .eq('id', listing.id)
 
         if (updateError) {
-          console.error(`Failed to update listing ${listing.id}:`, updateError)
+          console.error(`❌ Update failed:`, updateError)
           results.push({
             listing_id: listing.id,
-            address: addressToGeocode,
+            title: listing.title,
             success: false,
-            error: `Database update failed: ${updateError.message}`
+            error: `Update failed: ${updateError.message}`
           })
         } else {
           results.push({
             listing_id: listing.id,
-            address: addressToGeocode,
+            title: listing.title,
             success: true,
             old_coordinates: { lat: listing.lat, lng: listing.lng },
             new_coordinates: { lat, lng },
@@ -127,34 +138,38 @@ Deno.serve(async (req) => {
           })
         }
 
-        // Add a small delay to be respectful to the Nominatim service
+        // Rate limit: 1 request per second
         await new Promise(resolve => setTimeout(resolve, 1000))
 
       } catch (error) {
-        console.error(`Error processing listing ${listing.id}:`, error)
+        console.error(`❌ Error processing listing:`, error)
         results.push({
           listing_id: listing.id,
-          address: listing.title || `${listing.address_line}, ${listing.city}, ${listing.country}`,
+          title: listing.title,
           success: false,
           error: error instanceof Error ? error.message : String(error)
         })
       }
     }
 
+    const successCount = results.filter(r => r.success).length
+    console.log(`✅ Successfully geocoded ${successCount}/${results.length} listings`)
+
     return new Response(
       JSON.stringify({ 
         success: true,
         total_listings: listings.length,
+        successful: successCount,
+        failed: results.length - successCount,
         results
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
 
   } catch (error) {
-    console.error('Error in geocode-all-listings function:', error)
-    const errorMessage = error instanceof Error ? error.message : String(error);
+    console.error('❌ Fatal error:', error)
     return new Response(
-      JSON.stringify({ error: errorMessage }),
+      JSON.stringify({ error: error instanceof Error ? error.message : String(error) }),
       { status: 500, headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     )
   }
