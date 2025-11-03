@@ -273,8 +273,24 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     }
   }
 
+  // Extract address and location data
+  const address = extractAddress(listing);
+  const city = extractCity(listing);
+  const postcode = extractPostcode(listing);
+  const country = listing?.country || listing?.location?.country || 'IT';
+  
+  // Extract coordinates from multiple possible locations
+  const lat = listing?.location?.coordinates?.latitude ?? 
+              listing?.latitude ?? 
+              listing?.lat ?? 
+              45.4642; // Default Milan
+  const lng = listing?.location?.coordinates?.longitude ?? 
+              listing?.longitude ?? 
+              listing?.lng ?? 
+              9.1900; // Default Milan
+
   // Generate title if not provided
-  const title = listing.title || generateTitle(type, listing.address, bedrooms);
+  const title = listing.title || listing.name || generateTitle(type, address, bedrooms);
 
   return {
     external_listing_id: listing.listing_code,
@@ -291,11 +307,12 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
       en: listing.description || '',
       it: listing.description || ''
     },
-    address_line: listing.address || '',
-    city: extractCity(listing) || 'Milan',
-    country: listing.country || 'Italy',
-    lat: (listing as any).latitude ?? (listing as any).lat ?? 45.4642, // Default Milan coordinates
-    lng: (listing as any).longitude ?? (listing as any).lng ?? 9.1900,
+    address_line: address || '',
+    postcode: postcode || null,
+    city: city || 'Milan',
+    country: country === 'IT' ? 'Italy' : country,
+    lat,
+    lng,
     rent_monthly_eur: listing.price,
     deposit_eur: listing.price * 2, // Default 2 months deposit
     bills_included: listing.bills_included ?? false,
@@ -390,6 +407,16 @@ async function updateAvailabilityPeriods(
 function extractCity(listing: any): string {
   const city = listing?.city || listing?.city_name || listing?.location?.city || listing?.address_city || '';
   return typeof city === 'string' ? city : '';
+}
+
+function extractAddress(listing: any): string {
+  const address = listing?.address || listing?.location?.address || listing?.street_address || '';
+  return typeof address === 'string' ? address.trim() : '';
+}
+
+function extractPostcode(listing: any): string {
+  const postcode = listing?.postcode || listing?.zip_code || listing?.location?.addressZipCode || listing?.zipcode || '';
+  return typeof postcode === 'string' ? postcode.trim() : '';
 }
 
 function containsMilan(value?: string): boolean {
