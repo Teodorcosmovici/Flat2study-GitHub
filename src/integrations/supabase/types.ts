@@ -843,10 +843,10 @@ export type Database = {
           company_size: string | null
           created_at: string
           description: string | null
-          email: string | null
+          email: string
           full_name: string | null
           id: string
-          phone: string | null
+          phone: string
           university: string | null
           updated_at: string
           user_id: string
@@ -858,10 +858,10 @@ export type Database = {
           company_size?: string | null
           created_at?: string
           description?: string | null
-          email?: string | null
+          email: string
           full_name?: string | null
           id?: string
-          phone?: string | null
+          phone: string
           university?: string | null
           updated_at?: string
           user_id: string
@@ -873,10 +873,10 @@ export type Database = {
           company_size?: string | null
           created_at?: string
           description?: string | null
-          email?: string | null
+          email?: string
           full_name?: string | null
           id?: string
-          phone?: string | null
+          phone?: string
           university?: string | null
           updated_at?: string
           user_id?: string
@@ -1084,10 +1084,10 @@ export type Database = {
           company_size: string | null
           created_at: string
           description: string | null
-          email: string | null
+          email: string
           full_name: string | null
           id: string
-          phone: string | null
+          phone: string
           university: string | null
           updated_at: string
           user_id: string
