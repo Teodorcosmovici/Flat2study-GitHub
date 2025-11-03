@@ -289,8 +289,8 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
               listing?.lng ?? 
               9.1900; // Default Milan
 
-  // Generate title if not provided
-  const title = listing.title || listing.name || generateTitle(type, address, bedrooms);
+  // Use the name field from Spacest data, which contains the full title
+  const title = listing.name || generateTitle(type, address, bedrooms);
 
   return {
     external_listing_id: listing.listing_code,
