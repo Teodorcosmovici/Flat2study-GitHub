@@ -29,7 +29,7 @@ Deno.serve(async (req) => {
     
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
-      .select('id, title, address_line, city, country, lat, lng')
+      .select('id, title, address_line, city, country, postcode, lat, lng')
       .eq('status', 'PUBLISHED')
       .eq('lat', DEFAULT_LAT)
       .eq('lng', DEFAULT_LNG)
@@ -87,8 +87,32 @@ Deno.serve(async (req) => {
           continue
         }
         
-        // Build full geocoding query - add Milan, Italy only once
-        const geocodeQuery = `${addressToGeocode}, Milan, Italy`
+        // Build full geocoding query using available fields, avoid duplicates
+        const normalizeCity = (raw?: string) => {
+          if (!raw) return 'Milano'
+          const c = raw.trim()
+          return /^milan$/i.test(c) ? 'Milano' : c
+        }
+        const normalizeCountry = (raw?: string) => {
+          if (!raw) return 'Italy'
+          const r = raw.trim()
+          if (/^it$/i.test(r)) return 'Italy'
+          if (/^italia$/i.test(r)) return 'Italy'
+          return r
+        }
+        const includesIgnoreCase = (str: string, sub: string) => (str || '').toLowerCase().includes((sub || '').toLowerCase())
+
+        const city = normalizeCity(listing.city)
+        const country = normalizeCountry(listing.country)
+        const postcode = listing.postcode ? String(listing.postcode).trim() : ''
+
+        const parts: string[] = []
+        if (addressToGeocode) parts.push(addressToGeocode)
+        if (postcode && !includesIgnoreCase(addressToGeocode, postcode)) parts.push(postcode)
+        if (city && !includesIgnoreCase(addressToGeocode, city)) parts.push(city)
+        if (country && !includesIgnoreCase(addressToGeocode, country) && !includesIgnoreCase(city, country)) parts.push(country)
+
+        const geocodeQuery = parts.join(', ')
         console.log(`🔍 Geocoding: ${geocodeQuery}`)
 
         const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(geocodeQuery)}&limit=1&addressdetails=1`
@@ -109,7 +133,26 @@ Deno.serve(async (req) => {
           continue
         }
 
-        const geocodeResults: GeocodeResult[] = await geocodeResponse.json()
+        let geocodeResults: GeocodeResult[] = await geocodeResponse.json()
+
+        if (geocodeResults.length === 0) {
+          // Fallback: try replacing Milan -> Milano and/or removing postcode
+          let fallbackQuery = geocodeQuery
+          if (/\bmilan\b/i.test(fallbackQuery) && !/\bmilano\b/i.test(fallbackQuery)) {
+            fallbackQuery = fallbackQuery.replace(/\bmilan\b/ig, 'Milano')
+          }
+          if (postcode) {
+            const pc = postcode.replace(/[-\s]/g, '')
+            const pcRegex = new RegExp(`,?\\s*${pc}`, 'i')
+            fallbackQuery = fallbackQuery.replace(pcRegex, '')
+          }
+          console.log(`🔁 Fallback geocoding: ${fallbackQuery}`)
+          const fallbackUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fallbackQuery)}&limit=1&addressdetails=1`
+          const fallbackResp = await fetch(fallbackUrl, { headers: { 'User-Agent': 'Flat2Study-App/1.0' } })
+          if (fallbackResp.ok) {
+            geocodeResults = await fallbackResp.json()
+          }
+        }
 
         if (geocodeResults.length === 0) {
           console.error(`❌ No results for: ${geocodeQuery}`)
