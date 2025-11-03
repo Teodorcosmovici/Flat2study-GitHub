@@ -125,26 +125,9 @@ Deno.serve(async (req) => {
       errors: []
     };
 
-    // Filter and process listings
+    // Process ALL listings without filtering
     for (const listing of listings) {
       try {
-        // Normalize core fields
-        const city = extractCity(listing);
-        const bedrooms = extractBedrooms(listing);
-
-        // Filter by city (Milan only) with robust matching
-        if (!containsMilan(city) && !containsMilan(listing.address) && !containsMilan(listing.title)) {
-          result.skipped++;
-          continue;
-        }
-
-        // Apply price filters based on category and bedrooms
-        const shouldImport = shouldImportListing({ ...listing, bedrooms });
-        if (!shouldImport) {
-          result.skipped++;
-          continue;
-        }
-
         // Map Spacest listing to our schema
         const mappedListing = mapSpacestListing(listing, agencyId);
 
