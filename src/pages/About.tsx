@@ -51,6 +51,17 @@ export default function About() {
                 <p className="mt-2 text-muted-foreground text-justify">
                   melchior.deleusse@studbocconi.it
                 </p>
+                <div className="mt-4 space-y-3">
+                  <p className="text-muted-foreground text-justify">
+                    I'm a student at Bocconi University in Milan, passionate about innovation and environmental sustainability.
+                  </p>
+                  <p className="text-muted-foreground text-justify">
+                    I'm particularly interested in how technology and entrepreneurship can create more sustainable ways of living.
+                  </p>
+                  <p className="text-muted-foreground text-justify">
+                    While looking for a project to help students, Teodor and I came up with the idea for Flat2Study — a platform designed to make finding student housing abroad simpler and more transparent.
+                  </p>
+                </div>
               </div>
               
               <div className="flex flex-col">
