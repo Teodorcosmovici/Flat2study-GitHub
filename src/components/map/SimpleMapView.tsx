@@ -68,7 +68,7 @@ export default function SimpleMapView({
     };
     const round = (n: number, p = 6) => Math.round(n * Math.pow(10, p)) / Math.pow(10, p);
 
-    return listings.reduce((acc, l) => {
+    const grouped = listings.reduce((acc, l) => {
       const coordKey = `${round(l.lat, 6)},${round(l.lng, 6)}`;
       const addressKey = normalizeAddress(l.addressLine);
       const key = addressKey ? `${addressKey}|${coordKey}` : coordKey;
@@ -76,6 +76,18 @@ export default function SimpleMapView({
       acc[key].push(l);
       return acc;
     }, {} as Record<string, Listing[]>);
+
+    // Debug logging
+    console.log('📍 Map Debug Info:');
+    console.log(`Total listings received: ${listings.length}`);
+    console.log(`Total marker groups: ${Object.keys(grouped).length}`);
+    Object.entries(grouped).forEach(([key, group]) => {
+      if (group.length > 5) {
+        console.log(`🎯 Large cluster at ${group[0].lat},${group[0].lng}: ${group.length} properties`);
+      }
+    });
+
+    return grouped;
   }, [listings]);
 
   // Initialize map only once
