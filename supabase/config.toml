@@ -41,3 +41,9 @@ verify_jwt = true
 
 [functions.update-postcodes]
 verify_jwt = true
+
+[functions.geocode-all-listings]
+verify_jwt = true
+
+[functions.geocode-addresses]
+verify_jwt = true
