@@ -7,9 +7,10 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download, MapPin, Loader2 } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download, MapPin, Loader2, Home } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
+import { Logo } from '@/components/ui/logo';
 import { SupportMessagesManager } from '@/components/admin/SupportMessagesManager';
 import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
@@ -238,9 +239,20 @@ export const AdminDashboard = () => {
   return (
     <div className="container mx-auto px-4 py-8">
       <div className="flex justify-between items-center mb-8">
-        <div>
-          <h1 className="text-3xl font-bold">Admin Dashboard</h1>
-          <p className="text-muted-foreground">Trust & Safety Review Portal</p>
+        <div className="flex items-center gap-4">
+          <Button
+            variant="ghost"
+            size="icon"
+            onClick={() => navigate('/')}
+            className="hover:bg-accent"
+            title="Back to homepage"
+          >
+            <Logo size={24} />
+          </Button>
+          <div>
+            <h1 className="text-3xl font-bold">Admin Dashboard</h1>
+            <p className="text-muted-foreground">Trust & Safety Review Portal</p>
+          </div>
         </div>
         <div className="flex gap-4 items-center">
           <Button 
