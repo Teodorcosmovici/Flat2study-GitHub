@@ -7,14 +7,12 @@ import MobileCompactControls from '@/components/search/MobileCompactControls';
 import SimpleMapView from '@/components/map/SimpleMapView';
 import { Listing, SearchFilters as SearchFiltersType } from '@/types';
 import { supabase } from '@/integrations/supabase/client';
-import { geocodeAllListings } from '@/utils/geocoding';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search as SearchIcon, Grid, Map, MapPin, Home, ChevronLeft } from 'lucide-react';
+import { Search as SearchIcon, Grid, Map, ChevronLeft } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { toast } from '@/hooks/use-toast';
 
 type ViewMode = 'grid' | 'map';
 
@@ -30,7 +28,6 @@ export default function Search() {
   const [viewMode, setViewMode] = useState<ViewMode>('grid');
   const [loading, setLoading] = useState(true);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
-  const [geocodingComplete, setGeocodingComplete] = useState(false);
   const [visibleListings, setVisibleListings] = useState<Listing[]>([]);
 
   const formatPrice = (price: number) => {
@@ -97,11 +94,6 @@ export default function Search() {
         }));
 
         setAllListings(transformedListings);
-        
-        // Auto-geocode listings if not done yet
-        if (!geocodingComplete && transformedListings.length > 0) {
-          handleGeocodeAll();
-        }
       } catch (error) {
         console.error('Error fetching listings:', error);
       } finally {
@@ -197,75 +189,6 @@ export default function Search() {
 
   const handleListingClick = (listingId: string) => {
     navigate(`/listing/${listingId}`);
-  };
-
-  const handleGeocodeAll = async () => {
-    try {
-      console.log('Auto-geocoding listings...');
-      const result = await geocodeAllListings();
-      console.log('Geocoding results:', result);
-      setGeocodingComplete(true);
-      
-      // Refresh listings after geocoding
-      setTimeout(() => {
-        fetchListings();
-      }, 1000);
-      
-    } catch (error) {
-      console.error('Geocoding error:', error);
-    }
-  };
-
-  const fetchListings = async () => {
-    try {
-      const { data, error } = await supabase.rpc('get_listings_with_agency_multilingual', {
-        p_limit: 100,
-        p_offset: 0,
-        p_language: language
-      });
-
-      if (error) {
-        console.error('Error fetching listings:', error);
-        return;
-      }
-
-      const transformedListings: Listing[] = (data || []).map((item: any) => ({
-        id: item.id,
-        title: item.title,
-        type: item.type,
-        description: item.description,
-        addressLine: item.address_line,
-        city: item.city,
-        country: item.country,
-        lat: item.lat,
-        lng: item.lng,
-        rentMonthlyEur: item.rent_monthly_eur,
-        depositEur: item.deposit_eur,
-        billsIncluded: item.bills_included,
-        furnished: item.furnished,
-        bedrooms: item.bedrooms,
-        bathrooms: item.bathrooms,
-        floor: item.floor,
-        sizeSqm: item.size_sqm,
-        amenities: item.amenities || [],
-        availabilityDate: item.availability_date,
-        images: item.images || [],
-        videoUrl: item.video_url,
-        createdAt: item.created_at,
-        publishedAt: item.published_at,
-        status: item.status,
-        landlord: {
-          id: item.id,
-          name: (item.agency_name && item.agency_name.trim()) ? item.agency_name : 'Property Manager',
-          phone: '',
-          email: ''
-        }
-      }));
-
-      setAllListings(transformedListings);
-    } catch (error) {
-      console.error('Error fetching listings:', error);
-    }
   };
 
   const handleMapBoundsChange = (bounds: { north: number; south: number; east: number; west: number }) => {
