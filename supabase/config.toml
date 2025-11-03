@@ -38,3 +38,6 @@ verify_jwt = false
 
 [functions.import-spacest-listings]
 verify_jwt = true
+
+[functions.update-postcodes]
+verify_jwt = true

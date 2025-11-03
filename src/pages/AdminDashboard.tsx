@@ -54,6 +54,8 @@ export const AdminDashboard = () => {
   const [spacestFeedUrl, setSpacestFeedUrl] = useState('');
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
+  const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
+  const [postcodeResults, setPostcodeResults] = useState<any>(null);
 
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
@@ -225,6 +227,33 @@ export const AdminDashboard = () => {
       });
     } finally {
       setIsGeocoding(false);
+    }
+  };
+
+  const handleUpdatePostcodes = async () => {
+    setIsUpdatingPostcodes(true);
+    setPostcodeResults(null);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('update-postcodes');
+      
+      if (error) throw error;
+      
+      setPostcodeResults(data);
+      
+      toast({
+        title: "Postcode Update Complete",
+        description: `${data.updated} updated, ${data.failed} failed`,
+      });
+    } catch (error) {
+      console.error('Error updating postcodes:', error);
+      toast({
+        title: "Error",
+        description: "Failed to update postcodes",
+        variant: "destructive",
+      });
+    } finally {
+      setIsUpdatingPostcodes(false);
     }
   };
 
@@ -473,23 +502,56 @@ export const AdminDashboard = () => {
               </CardDescription>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button 
-                onClick={handleGeocodeAllListings}
-                disabled={isGeocoding}
-                className="w-full"
-              >
-                {isGeocoding ? (
-                  <>
-                    <Loader2 className="mr-2 h-4 w-4 animate-spin" />
-                    Geocoding All Listings...
-                  </>
-                ) : (
-                  <>
-                    <MapPin className="mr-2 h-4 w-4" />
-                    Geocode All Published Listings
-                  </>
-                )}
-              </Button>
+              <div className="grid grid-cols-2 gap-4">
+                <Button 
+                  onClick={handleUpdatePostcodes}
+                  disabled={isUpdatingPostcodes}
+                  variant="outline"
+                >
+                  {isUpdatingPostcodes ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Updating Postcodes...
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Update Missing Postcodes
+                    </>
+                  )}
+                </Button>
+                <Button 
+                  onClick={handleGeocodeAllListings}
+                  disabled={isGeocoding}
+                >
+                  {isGeocoding ? (
+                    <>
+                      <Loader2 className="mr-2 h-4 w-4 animate-spin" />
+                      Geocoding All Listings...
+                    </>
+                  ) : (
+                    <>
+                      <MapPin className="mr-2 h-4 w-4" />
+                      Geocode All Published Listings
+                    </>
+                  )}
+                </Button>
+              </div>
+
+              {postcodeResults && (
+                <Card className="border-blue-200 bg-blue-50">
+                  <CardHeader className="pb-3">
+                    <CardTitle className="text-sm font-medium">Postcode Update Results</CardTitle>
+                  </CardHeader>
+                  <CardContent>
+                    <div className="space-y-2">
+                      <p className="text-sm">Total: {postcodeResults.total}</p>
+                      <p className="text-sm text-green-600">Updated: {postcodeResults.updated}</p>
+                      <p className="text-sm text-red-600">Failed: {postcodeResults.failed}</p>
+                    </div>
+                  </CardContent>
+                </Card>
+              )}
 
               {geocodingResults && (
                 <div className="space-y-4">
