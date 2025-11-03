@@ -154,11 +154,41 @@ export default function Search() {
       );
     }
 
-    // Availability date
-    if (filters.availabilityDate) {
-      filtered = filtered.filter(listing => 
-        new Date(listing.availabilityDate) <= new Date(filters.availabilityDate!)
-      );
+    // Availability date range with 1 month tolerance
+    if (filters.availabilityFrom || filters.availabilityTo) {
+      filtered = filtered.filter(listing => {
+        const listingAvailability = new Date(listing.availabilityDate);
+        const oneMonthMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
+        
+        // If both dates are specified
+        if (filters.availabilityFrom && filters.availabilityTo) {
+          const fromDate = new Date(filters.availabilityFrom);
+          const toDate = new Date(filters.availabilityTo);
+          
+          // Allow 1 month gap before the desired start date
+          const earliestAcceptable = new Date(fromDate.getTime() - oneMonthMs);
+          
+          // Listing is available if its availability date is:
+          // - Not more than 1 month before the requested start date
+          // - Before or at the requested end date
+          return listingAvailability >= earliestAcceptable && listingAvailability <= toDate;
+        }
+        
+        // If only "from" date is specified
+        if (filters.availabilityFrom) {
+          const fromDate = new Date(filters.availabilityFrom);
+          const earliestAcceptable = new Date(fromDate.getTime() - oneMonthMs);
+          return listingAvailability >= earliestAcceptable;
+        }
+        
+        // If only "to" date is specified
+        if (filters.availabilityTo) {
+          const toDate = new Date(filters.availabilityTo);
+          return listingAvailability <= toDate;
+        }
+        
+        return true;
+      });
     }
 
     // Sort results

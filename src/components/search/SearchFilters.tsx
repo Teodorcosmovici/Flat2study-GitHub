@@ -7,10 +7,13 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Slider } from '@/components/ui/slider';
 import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover';
 import { Badge } from '@/components/ui/badge';
+import { Calendar } from '@/components/ui/calendar';
 import { SearchFilters, ListingType } from '@/types';
 import { universities, commonAmenities } from '@/data/mockData';
 import { useLanguage } from '@/contexts/LanguageContext';
-import { ChevronDown, X, Euro, MapPin, Home, Bed, Sofa, Wifi } from 'lucide-react';
+import { ChevronDown, X, Euro, MapPin, Home, Bed, Sofa, Wifi, CalendarIcon } from 'lucide-react';
+import { format } from 'date-fns';
+import { cn } from '@/lib/utils';
 
 interface SearchFiltersProps {
   filters: SearchFilters;
@@ -21,6 +24,12 @@ interface SearchFiltersProps {
 export default function SearchFiltersComponent({ filters, onFiltersChange, className }: SearchFiltersProps) {
   const { t } = useLanguage();
   const [priceRange, setPriceRange] = useState([filters.priceMin || 400, filters.priceMax || 1500]);
+  const [availabilityFrom, setAvailabilityFrom] = useState<Date | undefined>(
+    filters.availabilityFrom ? new Date(filters.availabilityFrom) : undefined
+  );
+  const [availabilityTo, setAvailabilityTo] = useState<Date | undefined>(
+    filters.availabilityTo ? new Date(filters.availabilityTo) : undefined
+  );
 
   const listingTypes: { value: ListingType; label: string }[] = [
     { value: 'room', label: t('propertyType.room') },
@@ -58,6 +67,26 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
   const clearFilters = () => {
     onFiltersChange({});
     setPriceRange([400, 1500]);
+    setAvailabilityFrom(undefined);
+    setAvailabilityTo(undefined);
+  };
+
+  const handleAvailabilityFromSelect = (date: Date | undefined) => {
+    setAvailabilityFrom(date);
+    onFiltersChange({
+      ...filters,
+      availabilityFrom: date?.toISOString().split('T')[0],
+      availabilityTo: availabilityTo?.toISOString().split('T')[0]
+    });
+  };
+
+  const handleAvailabilityToSelect = (date: Date | undefined) => {
+    setAvailabilityTo(date);
+    onFiltersChange({
+      ...filters,
+      availabilityFrom: availabilityFrom?.toISOString().split('T')[0],
+      availabilityTo: date?.toISOString().split('T')[0]
+    });
   };
 
   const getPriceLabel = () => {
@@ -102,6 +131,17 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
     return t('filters.amenities');
   };
 
+  const getAvailabilityLabel = () => {
+    if (availabilityFrom && availabilityTo) {
+      return `${format(availabilityFrom, 'MMM d')} - ${format(availabilityTo, 'MMM d')}`;
+    } else if (availabilityFrom) {
+      return `From ${format(availabilityFrom, 'MMM d')}`;
+    } else if (availabilityTo) {
+      return `Until ${format(availabilityTo, 'MMM d')}`;
+    }
+    return 'Availability';
+  };
+
   const hasActiveFilters = () => {
     return (filters.priceMin !== undefined || filters.priceMax !== undefined) ||
            (filters.type && filters.type.length > 0) ||
@@ -109,7 +149,8 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
            filters.furnished !== undefined ||
            (filters.amenities && filters.amenities.length > 0) ||
            filters.universityId ||
-           filters.availabilityDate;
+           filters.availabilityFrom ||
+           filters.availabilityTo;
   };
 
   return (
@@ -188,29 +229,77 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
           </PopoverContent>
         </Popover>
 
-        {/* Availability Date Filter */}
+        {/* Availability Period Filter */}
         <Popover>
           <PopoverTrigger asChild>
             <Button 
-              variant={filters.availabilityDate ? "default" : "outline"} 
+              variant={filters.availabilityFrom || filters.availabilityTo ? "default" : "outline"} 
               size="sm" 
               className="w-full justify-between"
             >
-              <span>{t('filters.availableFrom')}</span>
+              <span className="flex items-center">
+                <CalendarIcon className="h-4 w-4 mr-2" />
+                {getAvailabilityLabel()}
+              </span>
               <ChevronDown className="h-4 w-4" />
             </Button>
           </PopoverTrigger>
-          <PopoverContent className="w-80 z-[60] bg-background border shadow-lg" align="start">
-            <div className="space-y-3">
-              <Label className="text-sm font-medium">{t('filters.availableFrom')}</Label>
-              <Input 
-                type="date"
-                value={filters.availabilityDate || ''}
-                onChange={(e) => onFiltersChange({ 
-                  ...filters, 
-                  availabilityDate: e.target.value || undefined 
-                })}
-              />
+          <PopoverContent className="w-auto z-[60] bg-background border shadow-lg p-0" align="start">
+            <div className="p-4 space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">From Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !availabilityFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {availabilityFrom ? format(availabilityFrom, "PPP") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[70]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={availabilityFrom}
+                      onSelect={handleAvailabilityFromSelect}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">To Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !availabilityTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {availabilityTo ? format(availabilityTo, "PPP") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[70]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={availabilityTo}
+                      onSelect={handleAvailabilityToSelect}
+                      disabled={(date) => date < (availabilityFrom || new Date())}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </PopoverContent>
         </Popover>
@@ -459,6 +548,79 @@ export default function SearchFiltersComponent({ filters, onFiltersChange, class
                   <SelectItem value="3">{t('filters.bedroomsPlus')}</SelectItem>
                 </SelectContent>
               </Select>
+            </div>
+          </PopoverContent>
+        </Popover>
+
+        {/* Availability Period Filter - Desktop */}
+        <Popover>
+          <PopoverTrigger asChild>
+            <Button 
+              variant={filters.availabilityFrom || filters.availabilityTo ? "default" : "outline"} 
+              size="sm" 
+              className="whitespace-nowrap h-9 text-sm"
+            >
+              <CalendarIcon className="h-4 w-4 mr-1.5" />
+              {getAvailabilityLabel()}
+              <ChevronDown className="h-4 w-4 ml-1.5" />
+            </Button>
+          </PopoverTrigger>
+          <PopoverContent className="w-auto z-[60] bg-background border shadow-lg p-0">
+            <div className="p-4 space-y-4">
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">From Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !availabilityFrom && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {availabilityFrom ? format(availabilityFrom, "PPP") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[70]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={availabilityFrom}
+                      onSelect={handleAvailabilityFromSelect}
+                      disabled={(date) => date < new Date()}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
+              <div className="space-y-2">
+                <Label className="text-sm font-medium">To Date</Label>
+                <Popover>
+                  <PopoverTrigger asChild>
+                    <Button
+                      variant="outline"
+                      className={cn(
+                        "w-full justify-start text-left font-normal",
+                        !availabilityTo && "text-muted-foreground"
+                      )}
+                    >
+                      <CalendarIcon className="mr-2 h-4 w-4" />
+                      {availabilityTo ? format(availabilityTo, "PPP") : "Select date"}
+                    </Button>
+                  </PopoverTrigger>
+                  <PopoverContent className="w-auto p-0 z-[70]" align="start">
+                    <Calendar
+                      mode="single"
+                      selected={availabilityTo}
+                      onSelect={handleAvailabilityToSelect}
+                      disabled={(date) => date < (availabilityFrom || new Date())}
+                      initialFocus
+                      className="pointer-events-auto"
+                    />
+                  </PopoverContent>
+                </Popover>
+              </div>
             </div>
           </PopoverContent>
         </Popover>

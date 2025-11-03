@@ -108,6 +108,8 @@ export interface SearchFilters {
   type?: ListingType[];
   bedrooms?: number;
   availabilityDate?: string;
+  availabilityFrom?: string;
+  availabilityTo?: string;
   furnished?: boolean;
   amenities?: string[];
   city?: string;
