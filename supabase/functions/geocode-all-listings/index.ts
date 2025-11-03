@@ -27,7 +27,7 @@ Deno.serve(async (req) => {
     // Get all published listings
     const { data: listings, error: listingsError } = await supabase
       .from('listings')
-      .select('id, address_line, city, country, lat, lng')
+      .select('id, title, address_line, city, country, lat, lng')
       .eq('status', 'PUBLISHED')
 
     if (listingsError) {
@@ -40,13 +40,27 @@ Deno.serve(async (req) => {
 
     for (const listing of listings) {
       try {
-        // Construct the full address for geocoding
-        const fullAddress = `${listing.address_line}, ${listing.city}, ${listing.country}`
+        // Try to extract address from title if it contains common Milan address patterns
+        let addressToGeocode = `${listing.address_line}, ${listing.city}, ${listing.country}`
         
-        console.log(`Geocoding: ${fullAddress}`)
+        // If title contains address-like patterns (street names, numbers), use it
+        if (listing.title) {
+          const title = listing.title.toLowerCase()
+          // Common Milan street patterns: Via, Viale, Corso, Piazza, etc.
+          const milanStreetPattern = /(via|viale|corso|piazza|largo|vicolo)\s+[a-zA-ZÀ-ÿ\s]+\d*|[a-zA-ZÀ-ÿ\s]+\d+/i
+          const addressMatch = listing.title.match(milanStreetPattern)
+          
+          if (addressMatch) {
+            // Use the extracted address from title, ensuring we include Milan, Italy
+            addressToGeocode = `${addressMatch[0]}, Milan, Italy`
+            console.log(`Extracted address from title: ${addressToGeocode}`)
+          }
+        }
+        
+        console.log(`Geocoding: ${addressToGeocode}`)
 
         // Use OpenStreetMap Nominatim for geocoding (free service)
-        const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(fullAddress)}&limit=1&addressdetails=1`
+        const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressToGeocode)}&limit=1&addressdetails=1`
         
         const geocodeResponse = await fetch(nominatimUrl, {
           headers: {
@@ -55,10 +69,10 @@ Deno.serve(async (req) => {
         })
 
         if (!geocodeResponse.ok) {
-          console.error(`Geocoding failed for ${fullAddress}: ${geocodeResponse.statusText}`)
+          console.error(`Geocoding failed for ${addressToGeocode}: ${geocodeResponse.statusText}`)
           results.push({
             listing_id: listing.id,
-            address: fullAddress,
+            address: addressToGeocode,
             success: false,
             error: `Geocoding failed: ${geocodeResponse.statusText}`
           })
@@ -68,10 +82,10 @@ Deno.serve(async (req) => {
         const geocodeResults: GeocodeResult[] = await geocodeResponse.json()
 
         if (geocodeResults.length === 0) {
-          console.error(`No results found for ${fullAddress}`)
+          console.error(`No results found for ${addressToGeocode}`)
           results.push({
             listing_id: listing.id,
-            address: fullAddress,
+            address: addressToGeocode,
             success: false,
             error: 'Address not found'
           })
@@ -82,7 +96,7 @@ Deno.serve(async (req) => {
         const lat = parseFloat(result.lat)
         const lng = parseFloat(result.lon)
 
-        console.log(`Found coordinates: ${lat}, ${lng} for ${fullAddress}`)
+        console.log(`Found coordinates: ${lat}, ${lng} for ${addressToGeocode}`)
 
         // Update the listing with accurate coordinates
         const { error: updateError } = await supabase
@@ -98,14 +112,14 @@ Deno.serve(async (req) => {
           console.error(`Failed to update listing ${listing.id}:`, updateError)
           results.push({
             listing_id: listing.id,
-            address: fullAddress,
+            address: addressToGeocode,
             success: false,
             error: `Database update failed: ${updateError.message}`
           })
         } else {
           results.push({
             listing_id: listing.id,
-            address: fullAddress,
+            address: addressToGeocode,
             success: true,
             old_coordinates: { lat: listing.lat, lng: listing.lng },
             new_coordinates: { lat, lng },
@@ -120,7 +134,7 @@ Deno.serve(async (req) => {
         console.error(`Error processing listing ${listing.id}:`, error)
         results.push({
           listing_id: listing.id,
-          address: `${listing.address_line}, ${listing.city}, ${listing.country}`,
+          address: listing.title || `${listing.address_line}, ${listing.city}, ${listing.country}`,
           success: false,
           error: error instanceof Error ? error.message : String(error)
         })
