@@ -45,32 +45,53 @@ Deno.serve(async (req) => {
 
     for (const listing of listings) {
       try {
-        // Extract address from title - prioritize patterns like "in Via/Viale X, Number"
-        let addressToGeocode = listing.address_line 
-          ? `${listing.address_line}, Milan, Italy`
-          : `Milan, Italy`
+        // Log the listing we're processing
+        console.log(`📋 Processing: ${listing.title} | address_line: ${listing.address_line}`)
         
+        let addressToGeocode = ''
+        
+        // Try to extract address from title first
         if (listing.title) {
-          // Match patterns: "in Via X", "Studio in X Y 123", etc.
           const patterns = [
-            /(?:in|at)\s+((?:via|viale|corso|piazza|largo|alzaia)\s+[a-zA-ZÀ-ÿ'\s]+?\s+\d+)/i,
-            /((?:via|viale|corso|piazza|largo|alzaia)\s+[a-zA-ZÀ-ÿ'\s]+?\s+\d+)/i,
-            /(?:in|at)\s+([a-zA-ZÀ-ÿ'\s]+?\s+\d+)/i,
+            // Match "in Via/Viale/etc Name Number"
+            /(?:in|at)\s+((?:via|viale|corso|piazza|largo|alzaia)\s+[a-zA-ZÀ-ÿ'\s.,-]+?\s+\d+)/i,
+            // Match just "Via/Viale/etc Name Number"
+            /((?:via|viale|corso|piazza|largo|alzaia)\s+[a-zA-ZÀ-ÿ'\s.,-]+?\s+\d+)/i,
           ]
           
           for (const pattern of patterns) {
             const match = listing.title.match(pattern)
             if (match && match[1]) {
-              addressToGeocode = `${match[1].trim()}, Milan, Italy`
-              console.log(`📍 Extracted from title: "${match[1]}"`)
+              addressToGeocode = match[1].trim()
+              console.log(`📍 Extracted from title: "${addressToGeocode}"`)
               break
             }
           }
         }
         
-        console.log(`🔍 Geocoding: ${addressToGeocode}`)
+        // If no address from title, use address_line
+        if (!addressToGeocode && listing.address_line) {
+          addressToGeocode = listing.address_line.trim()
+          console.log(`📍 Using address_line: "${addressToGeocode}"`)
+        }
+        
+        // If still no address, skip
+        if (!addressToGeocode) {
+          console.error(`❌ No address found for listing: ${listing.title}`)
+          results.push({
+            listing_id: listing.id,
+            title: listing.title,
+            success: false,
+            error: 'No address available'
+          })
+          continue
+        }
+        
+        // Build full geocoding query - add Milan, Italy only once
+        const geocodeQuery = `${addressToGeocode}, Milan, Italy`
+        console.log(`🔍 Geocoding: ${geocodeQuery}`)
 
-        const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(addressToGeocode)}&limit=1&addressdetails=1`
+        const nominatimUrl = `https://nominatim.openstreetmap.org/search?format=json&q=${encodeURIComponent(geocodeQuery)}&limit=1&addressdetails=1`
         
         const geocodeResponse = await fetch(nominatimUrl, {
           headers: { 'User-Agent': 'Flat2Study-App/1.0' }
@@ -91,10 +112,11 @@ Deno.serve(async (req) => {
         const geocodeResults: GeocodeResult[] = await geocodeResponse.json()
 
         if (geocodeResults.length === 0) {
-          console.error(`❌ No results for: ${addressToGeocode}`)
+          console.error(`❌ No results for: ${geocodeQuery}`)
           results.push({
             listing_id: listing.id,
             title: listing.title,
+            address_tried: geocodeQuery,
             success: false,
             error: 'Address not found'
           })
@@ -114,7 +136,7 @@ Deno.serve(async (req) => {
           .update({ 
             lat,
             lng,
-            address_line: listing.address_line || addressToGeocode.replace(', Milan, Italy', ''),
+            address_line: listing.address_line || addressToGeocode,
             updated_at: new Date().toISOString()
           })
           .eq('id', listing.id)
