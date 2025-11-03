@@ -56,6 +56,7 @@ export const AdminDashboard = () => {
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
   const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
   const [postcodeResults, setPostcodeResults] = useState<any>(null);
+  const [isDeletingSpacest, setIsDeletingSpacest] = useState(false);
 
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
@@ -257,6 +258,37 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleDeleteSpacestListings = async () => {
+    if (!confirm('Are you sure you want to delete ALL previously imported Spacest listings? This cannot be undone.')) {
+      return;
+    }
+
+    setIsDeletingSpacest(true);
+    
+    try {
+      const { data, error } = await supabase.functions.invoke('delete-spacest-listings');
+      
+      if (error) throw error;
+      
+      toast({
+        title: "Deletion Complete",
+        description: `Deleted ${data.deletedCount} Spacest listing(s)`,
+      });
+
+      // Refresh the pending listings
+      fetchPendingListings();
+    } catch (error) {
+      console.error('Error deleting Spacest listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to delete Spacest listings",
+        variant: "destructive",
+      });
+    } finally {
+      setIsDeletingSpacest(false);
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -306,6 +338,15 @@ export const AdminDashboard = () => {
           >
             <Download className="w-4 h-4 mr-2" />
             {importingSpacest ? 'Importing...' : 'Import Spacest Listings'}
+          </Button>
+          <Button 
+            onClick={handleDeleteSpacestListings} 
+            disabled={isDeletingSpacest}
+            variant="destructive"
+            size="sm"
+          >
+            <XCircle className="w-4 h-4 mr-2" />
+            {isDeletingSpacest ? 'Deleting...' : 'Delete All Spacest'}
           </Button>
           <Badge variant="outline" className="text-orange-600">
             {pendingListings.length} Pending Review
