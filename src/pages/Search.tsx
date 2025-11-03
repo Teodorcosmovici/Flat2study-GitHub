@@ -206,7 +206,12 @@ export default function Search() {
         filtered.sort((a, b) => (a.distance || 0) - (b.distance || 0));
         break;
       default:
-        // Keep original order for relevance
+        // Relevance: Sort by availability date (soonest first)
+        filtered.sort((a, b) => {
+          const dateA = new Date(a.availabilityDate).getTime();
+          const dateB = new Date(b.availabilityDate).getTime();
+          return dateA - dateB;
+        });
         break;
     }
 
