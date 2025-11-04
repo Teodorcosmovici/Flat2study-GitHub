@@ -239,8 +239,27 @@ function parseListingPage(html: string, listingId: string): ListingData {
     title = structuredData.name || '';
     description = structuredData.description || '';
     
-    if (structuredData.offers?.price) {
+    // Try to extract the actual displayed price from HTML first
+    // as structured data may contain per-room price instead of total
+    const priceElements = doc.querySelectorAll('[class*="price"], [class*="Price"], .rent, .cost');
+    for (const elem of priceElements) {
+      const priceText = elem.textContent || '';
+      // Look for prices in format like "€1,900" or "1900 €" or "1900"
+      const priceMatch = priceText.match(/€?\s*([1-9]\d{2,4})(?:[.,]\d{3})*(?!\d)/);
+      if (priceMatch) {
+        const extractedPrice = parseInt(priceMatch[1].replace(/[.,]/g, ''));
+        if (extractedPrice > 500) { // Reasonable minimum for full apartment
+          price = extractedPrice;
+          console.info('Extracted price from HTML element:', price, 'from text:', priceText);
+          break;
+        }
+      }
+    }
+    
+    // Fall back to structured data if HTML extraction failed
+    if (!price && structuredData.offers?.price) {
       price = parseInt(structuredData.offers.price);
+      console.info('Using structured data price:', price);
     }
     
     if (structuredData.address) {
