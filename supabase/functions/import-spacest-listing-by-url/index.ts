@@ -102,6 +102,48 @@ function manualDeduplication(urls: string[]): string[] {
   return result;
 }
 
+// Geocode address to get accurate coordinates
+async function geocodeAddress(address: string, city: string): Promise<{ lat: number; lng: number } | null> {
+  const GOOGLE_MAPS_API_KEY = Deno.env.get('GOOGLE_MAPS_API_KEY');
+  
+  if (!GOOGLE_MAPS_API_KEY) {
+    console.warn('No Google Maps API key configured, using default Milan coordinates');
+    return null;
+  }
+
+  try {
+    // Construct full address for geocoding
+    const fullAddress = `${address}, ${city}, Italy`;
+    const encodedAddress = encodeURIComponent(fullAddress);
+    
+    const response = await fetch(
+      `https://maps.googleapis.com/maps/api/geocode/json?address=${encodedAddress}&key=${GOOGLE_MAPS_API_KEY}`
+    );
+    
+    if (!response.ok) {
+      console.error('Geocoding API error:', response.status);
+      return null;
+    }
+    
+    const data = await response.json();
+    
+    if (data.status === 'OK' && data.results && data.results.length > 0) {
+      const location = data.results[0].geometry.location;
+      console.log(`✓ Geocoded "${fullAddress}" to: ${location.lat}, ${location.lng}`);
+      return {
+        lat: location.lat,
+        lng: location.lng
+      };
+    } else {
+      console.warn(`Geocoding failed for "${fullAddress}": ${data.status}`);
+      return null;
+    }
+  } catch (error) {
+    console.error('Error geocoding address:', error);
+    return null;
+  }
+}
+
 async function analyzeListingWithAI(html: string, url: string) {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   
@@ -286,8 +328,8 @@ Deno.serve(async (req) => {
       address: aiData.address || '',
       city: aiData.city || 'Milano',
       country: 'Italy',
-      lat: 45.4654219, // Milan default
-      lng: 9.1859243,
+      lat: 45.4654219, // Will be updated by geocoding
+      lng: 9.1859243, // Will be updated by geocoding
       bedrooms: Math.max(1, aiData.bedrooms || 1),
       bathrooms: Math.max(1, aiData.bathrooms || 1),
       size_sqm: aiData.size_sqm || null,
@@ -297,10 +339,22 @@ Deno.serve(async (req) => {
       bills_included: false,
     } : await parseListingPage(html, listingId);
     
+    // Geocode the address to get accurate coordinates
+    if (listingData.address) {
+      const coords = await geocodeAddress(listingData.address, listingData.city);
+      if (coords) {
+        listingData.lat = coords.lat;
+        listingData.lng = coords.lng;
+      } else {
+        console.log(`Using default Milan coordinates for: ${listingData.address}`);
+      }
+    }
+    
     console.log('Listing data prepared:', { 
       images: listingData.images.length,
       rent: listingData.price,
-      bedrooms: listingData.bedrooms 
+      bedrooms: listingData.bedrooms,
+      coordinates: `${listingData.lat}, ${listingData.lng}`
     });
 
     // Initialize Supabase
