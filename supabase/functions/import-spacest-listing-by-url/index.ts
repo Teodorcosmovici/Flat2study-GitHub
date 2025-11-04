@@ -1,6 +1,85 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts';
 
+// Helper to extract base filename without size indicators
+function getBaseImagePath(url: string): string {
+  try {
+    const urlObj = new URL(url);
+    const path = urlObj.pathname;
+    // Remove size indicators like -150x150, -300x300, -scaled, -1024x768, etc.
+    return path
+      .replace(/-\d+x\d+/g, '') // Remove -WIDTHxHEIGHT
+      .replace(/-scaled/g, '')   // Remove -scaled
+      .replace(/\d+x\d+\./g, '.'); // Remove WIDTHxHEIGHT. before extension
+  } catch {
+    return url;
+  }
+}
+
+// Extract images from main gallery section only
+function extractMainGalleryImages(html: string): string[] {
+  try {
+    const parser = new DOMParser();
+    const doc = parser.parseFromString(html, 'text/html');
+    
+    if (!doc) {
+      console.warn('Failed to parse HTML');
+      return [];
+    }
+
+    const images = new Map<string, string>(); // base path -> full URL
+    
+    // Target the main image gallery container (adjust selectors as needed)
+    const gallerySelectors = [
+      '.gallery-container img',
+      '.property-images img',
+      '.listing-gallery img',
+      '[class*="gallery"] img',
+      '[class*="image-container"] img',
+      'main img', // Main content area
+    ];
+    
+    for (const selector of gallerySelectors) {
+      const elements = doc.querySelectorAll(selector);
+      elements.forEach((img: any) => {
+        const src = img.getAttribute('src') || img.getAttribute('data-src') || '';
+        if (src.includes('roomless-listing-images.s3.us-east-2.amazonaws.com') && src.endsWith('.jpeg')) {
+          const basePath = getBaseImagePath(src);
+          // Keep the largest version (prefer URLs without size indicators)
+          if (!images.has(basePath) || src.length > (images.get(basePath)?.length || 0)) {
+            images.set(basePath, src);
+          }
+        }
+      });
+      
+      if (images.size > 0) {
+        console.log(`✓ Found ${images.size} unique images using selector: ${selector}`);
+        break; // Stop at first successful selector
+      }
+    }
+    
+    // Fallback: extract from anywhere but deduplicate aggressively
+    if (images.size === 0) {
+      console.log('Gallery selectors failed, using fallback extraction');
+      const allImages = html.match(/https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.jpeg/gi) || [];
+      allImages.forEach(url => {
+        const basePath = getBaseImagePath(url);
+        if (!images.has(basePath) || url.length > (images.get(basePath)?.length || 0)) {
+          images.set(basePath, url);
+        }
+      });
+    }
+    
+    const uniqueImages = Array.from(images.values());
+    console.log(`✓ Extracted ${uniqueImages.length} unique images (${images.size} unique base paths)`);
+    return uniqueImages;
+    
+  } catch (error) {
+    console.error('Error in extractMainGalleryImages:', error);
+    return [];
+  }
+}
+
 async function analyzeListingWithAI(html: string, url: string) {
   const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
   
@@ -9,40 +88,36 @@ async function analyzeListingWithAI(html: string, url: string) {
     return null;
   }
 
-  // First, extract all image URLs directly with regex as a baseline
-  const imageRegex = /https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.jpeg/gi;
-  const regexMatches = Array.from(new Set(html.match(imageRegex) || []));
-  console.log(`Regex found ${regexMatches.length} images directly from HTML`);
+  // Extract images from main gallery only with smart deduplication
+  const extractedImages = extractMainGalleryImages(html);
+  console.log(`✓ Smart extraction found ${extractedImages.length} unique property images`);
 
-  const prompt = `CRITICAL TASK: Extract ALL property images from this Spacest listing HTML.
+  const prompt = `Extract property details from this Spacest listing.
 
-**YOUR PRIMARY OBJECTIVE: EXTRACT EVERY SINGLE IMAGE URL**
+**PRE-EXTRACTED IMAGES:**
+I've already extracted ${extractedImages.length} unique property images using smart DOM parsing and deduplication.
+These images are from the main listing gallery only (no sidebar/related properties).
 
-I found ${regexMatches.length} images in the HTML using regex. You MUST find AT LEAST this many, preferably more.
+Images found:
+${extractedImages.slice(0, 3).join('\n')}
+... and ${Math.max(0, extractedImages.length - 3)} more
 
-Here are some examples of what the image URLs look like:
-${regexMatches.slice(0, 5).join('\n')}
+**YOUR TASK:**
+Extract the following property details:
+- Total apartment rent per month (look for "€" followed by amount, typically €1800-2000)
+- Monthly utilities/bills (spese condominiali, typically €70-100)
+- Number of bedrooms
+- Number of bathrooms  
+- Size in square meters (m²)
+- Full address
+- Property title
+- Property description
 
-**INSTRUCTIONS FOR IMAGE EXTRACTION:**
-1. Search the ENTIRE HTML for ALL occurrences of "roomless-listing-images.s3.us-east-2.amazonaws.com"
-2. Extract the complete URL for each occurrence
-3. Look in: <img src>, <img data-src>, background-image, JSON-LD, data attributes
-4. Return ALL unique URLs - do NOT limit to first few
-5. The listing has 20-25 images - you MUST extract ALL of them
-
-**OTHER DATA TO EXTRACT:**
-- Total apartment rent per month (€1800-2000 range, NOT the per-room price)
-- Monthly utilities (spese condominiali, €70-100)
-- Bedrooms, bathrooms, size in m²
-- Address and description
-
-**VALIDATION BEFORE RETURNING:**
-- images array length must be >= ${regexMatches.length}
-- If you found fewer images than regex, YOU FAILED - try again
+**VALIDATION:**
+- You must return ALL property details listed above
 
 Return ONLY this JSON structure:
 {
-  "images": ["url1", "url2", "url3", ...all ${regexMatches.length}+ URLs...],
   "rent_monthly_eur": 1900,
   "utility_cost_eur": 85,
   "bedrooms": 2,
@@ -54,7 +129,7 @@ Return ONLY this JSON structure:
   "city": "Milano"
 }
 
-HTML (search ALL of this):
+HTML:
 ${html}`;
 
   try {
@@ -65,7 +140,7 @@ ${html}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-pro', // Using more powerful model
+        model: 'google/gemini-2.5-flash', // Using faster model since images pre-extracted
         messages: [
           {
             role: 'user',
@@ -79,100 +154,30 @@ ${html}`;
 
     if (!response.ok) {
       const errorText = await response.text();
-      console.error('AI Gateway error:', response.status, errorText);
-      // Fallback to regex extraction with deduplication
-      const uniqueImages = Array.from(new Set(regexMatches));
-      console.log(`✓ Regex fallback: ${uniqueImages.length} unique images (removed ${regexMatches.length - uniqueImages.length} duplicates)`);
-      return {
-        images: uniqueImages,
-        rent_monthly_eur: 1900,
-        utility_cost_eur: 85,
-        bedrooms: 2,
-        bathrooms: 2,
-        size_sqm: 60,
-        title: 'Property',
-        description: '',
-        address: '',
-        city: 'Milano'
-      };
+      console.error('AI API error:', response.status, errorText);
+      return null;
     }
 
     const data = await response.json();
     const content = data.choices?.[0]?.message?.content;
     
     if (!content) {
-      console.error('No content in AI response, using regex fallback');
-      const uniqueImages = Array.from(new Set(regexMatches));
-      console.log(`✓ Regex fallback: ${uniqueImages.length} unique images (removed ${regexMatches.length - uniqueImages.length} duplicates)`);
-      return {
-        images: uniqueImages,
-        rent_monthly_eur: 1900,
-        utility_cost_eur: 85,
-        bedrooms: 2,
-        bathrooms: 2,
-        size_sqm: 60,
-        title: 'Property',
-        description: '',
-        address: '',
-        city: 'Milano'
-      };
+      console.error('No content in AI response');
+      return null;
     }
 
     const extracted = JSON.parse(content);
-    console.log(`✓ AI extracted ${extracted.images?.length || 0} images`);
     
-    // Helper function to normalize image URLs for deduplication
-    const normalizeImageUrl = (url: string): string => {
-      try {
-        const urlObj = new URL(url);
-        // Remove query parameters and extract the path
-        const pathWithoutQuery = urlObj.pathname;
-        // Remove size indicators like -150x150, -300x300, etc.
-        const normalizedPath = pathWithoutQuery.replace(/-\d+x\d+\.(jpg|jpeg|png|webp|gif)$/i, '.$1');
-        return normalizedPath;
-      } catch {
-        // If URL parsing fails, return the original
-        return url;
-      }
-    };
-    
-    // Deduplicate regex images using normalization
-    const regexDeduped = new Map<string, string>();
-    for (const img of regexMatches) {
-      const normalized = normalizeImageUrl(img);
-      if (!regexDeduped.has(normalized)) {
-        regexDeduped.set(normalized, img);
-      }
-    }
-    const uniqueRegexImages = Array.from(regexDeduped.values());
-    console.log(`✓ Regex: ${regexMatches.length} → ${uniqueRegexImages.length} after deduplication`);
-    
-    // If AI found fewer images than regex, use regex results
-    if (!extracted.images || extracted.images.length < uniqueRegexImages.length) {
-      console.warn(`⚠️ AI only found ${extracted.images?.length || 0} images, using deduplicated regex results (${uniqueRegexImages.length} images)`);
-      extracted.images = uniqueRegexImages;
-    } else {
-      // Deduplicate AI results using normalization
-      const aiDeduped = new Map<string, string>();
-      for (const img of extracted.images) {
-        const normalized = normalizeImageUrl(img);
-        if (!aiDeduped.has(normalized)) {
-          aiDeduped.set(normalized, img);
-        }
-      }
-      const uniqueImages = Array.from(aiDeduped.values());
-      console.log(`✓ AI: ${extracted.images.length} → ${uniqueImages.length} after deduplication`);
-      extracted.images = uniqueImages;
-    }
+    // Use pre-extracted images from smart gallery extraction
+    extracted.images = extractedImages;
+    console.log(`✓ Final result: ${extracted.images.length} images from smart extraction`);
     
     return extracted;
   } catch (error) {
     console.error('Failed to analyze with AI:', error);
-    // Always return regex results as fallback with deduplication
-    const uniqueImages = Array.from(new Set(regexMatches));
-    console.log(`✓ Error fallback: ${uniqueImages.length} unique images (removed ${regexMatches.length - uniqueImages.length} duplicates)`);
+    // Use extracted images even on error, or return empty if extraction failed
     return {
-      images: uniqueImages,
+      images: extractedImages.length > 0 ? extractedImages : [],
       rent_monthly_eur: 1900,
       utility_cost_eur: 85,
       bedrooms: 2,
@@ -537,47 +542,10 @@ function parseListingPage(html: string, listingId: string): ListingData {
       price = parseInt(priceMatch[1].replace(/[.,]/g, ''));
     }
     
-    // Extract images - try multiple sources
-    const imageSet = new Set<string>();
-    
-    // 1. Check structured data for images
-    if (structuredData?.image) {
-      const imgArray = Array.isArray(structuredData.image) ? structuredData.image : [structuredData.image];
-      imgArray.forEach(img => imageSet.add(img));
-    }
-    
-    // 2. Meta tags
-    const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
-    if (ogImage) imageSet.add(ogImage);
-    
-    // 3. Look for gallery/carousel images with various selectors
-    const imageSelectors = [
-      'img[src*="roomless"]',
-      'img[src*="spacest"]',
-      'img[src*="cloudinary"]',
-      '[class*="gallery"] img',
-      '[class*="carousel"] img',
-      '[class*="slider"] img',
-      '[data-testid*="image"] img',
-      'picture source',
-      'picture img'
-    ];
-    
-    for (const selector of imageSelectors) {
-      const elements = doc.querySelectorAll(selector);
-      for (const el of elements) {
-        const src = el.getAttribute('src') || el.getAttribute('srcset')?.split(' ')[0] || el.getAttribute('data-src');
-        if (src && (src.startsWith('http') || src.startsWith('//'))) {
-          const fullUrl = src.startsWith('//') ? `https:${src}` : src;
-          // Filter out tiny images, icons, logos
-          if (!fullUrl.match(/logo|icon|avatar|favicon/i)) {
-            imageSet.add(fullUrl);
-          }
-        }
-      }
-    }
-    
-    images = Array.from(imageSet);
+    // Extract images using smart gallery extraction
+    const extractedImages = extractMainGalleryImages(html);
+    images = extractedImages;
+    console.log(`Fallback parser extracted ${images.length} images`);
   }
 
   // Determine type based on bedrooms
@@ -601,7 +569,7 @@ function parseListingPage(html: string, listingId: string): ListingData {
     bedrooms: Math.max(1, bedrooms),
     bathrooms: Math.max(1, bathrooms),
     size_sqm,
-    images: images.slice(0, 10), // Limit to 10 images
+    images, // Already deduplicated by smart extraction
     type,
     furnished: true,
     bills_included: false,
