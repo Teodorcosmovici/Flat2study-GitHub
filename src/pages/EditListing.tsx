@@ -14,12 +14,41 @@ import { useAuth } from '@/hooks/useAuth';
 import { supabase } from '@/integrations/supabase/client';
 import { toast } from '@/hooks/use-toast';
 import { useListingTitleGenerator } from '@/utils/titleGeneration';
+import { useLanguage } from '@/contexts/LanguageContext';
+
+const AMENITIES_KEYS = [
+  'wifi',
+  'kitchen',
+  'washingMachine',
+  'dryer',
+  'dishwasher',
+  'airConditioning',
+  'heating',
+  'balcony',
+  'terrace',
+  'garden',
+  'parking',
+  'elevator',
+  'swimmingPool',
+  'gym',
+  'concierge',
+  'security',
+  'tv',
+  'desk',
+  'wardrobe'
+];
+
+const RULES_KEYS = [
+  'noSmoking',
+  'noPets'
+];
 
 export default function EditListing() {
   const { user, profile, loading } = useAuth();
   const navigate = useNavigate();
   const { id } = useParams<{ id: string }>();
   const generateTitle = useListingTitleGenerator();
+  const { t } = useLanguage();
 
   const [formData, setFormData] = useState({
     // Address fields
@@ -331,16 +360,21 @@ export default function EditListing() {
     }
   };
 
-  const commonAmenities = [
-    'WiFi', 'Washing Machine', 'Dishwasher', 'Parking', 'Balcony', 
-    'Garden', 'Gym', 'Swimming Pool', 'Air Conditioning', 'Heating',
-    'Microwave', 'Oven', 'Refrigerator', 'TV', 'Desk', 'Wardrobe'
-  ];
+  const handleAmenityChange = (amenityKey: string, checked: boolean) => {
+    const amenityValue = t(`amenities.${amenityKey}`);
+    const newAmenities = checked
+      ? [...formData.amenities, amenityValue]
+      : formData.amenities.filter(a => a !== amenityValue);
+    setFormData({ ...formData, amenities: newAmenities });
+  };
 
-  const commonRules = [
-    'No smoking', 'No pets', 'No parties', 'Quiet hours 10PM-8AM',
-    'Clean common areas', 'No overnight guests', 'Shoes off indoors'
-  ];
+  const handleRuleChange = (ruleKey: string, checked: boolean) => {
+    const ruleValue = t(`createListing.${ruleKey}`);
+    const newRules = checked
+      ? [...formData.rules, ruleValue]
+      : formData.rules.filter(r => r !== ruleValue);
+    setFormData({ ...formData, rules: newRules });
+  };
 
   // Show loading state while checking auth or fetching data
   if (loading || isLoading) {
@@ -580,22 +614,21 @@ export default function EditListing() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-2 md:grid-cols-3 gap-3">
-                {commonAmenities.map((amenity) => (
-                  <div key={amenity} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={amenity}
-                      checked={formData.amenities.includes(amenity)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData({...formData, amenities: [...formData.amenities, amenity]});
-                        } else {
-                          setFormData({...formData, amenities: formData.amenities.filter(a => a !== amenity)});
-                        }
-                      }}
-                    />
-                    <Label htmlFor={amenity} className="text-sm">{amenity}</Label>
-                  </div>
-                ))}
+                {AMENITIES_KEYS.map((amenityKey) => {
+                  const amenityValue = t(`amenities.${amenityKey}`);
+                  return (
+                    <div key={amenityKey} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={amenityKey}
+                        checked={formData.amenities.includes(amenityValue)}
+                        onCheckedChange={(checked) => handleAmenityChange(amenityKey, checked as boolean)}
+                      />
+                      <Label htmlFor={amenityKey} className="text-sm font-normal">
+                        {amenityValue}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
@@ -607,22 +640,21 @@ export default function EditListing() {
             </CardHeader>
             <CardContent>
               <div className="grid grid-cols-1 md:grid-cols-2 gap-3">
-                {commonRules.map((rule) => (
-                  <div key={rule} className="flex items-center space-x-2">
-                    <Checkbox
-                      id={rule}
-                      checked={formData.rules.includes(rule)}
-                      onCheckedChange={(checked) => {
-                        if (checked) {
-                          setFormData({...formData, rules: [...formData.rules, rule]});
-                        } else {
-                          setFormData({...formData, rules: formData.rules.filter(r => r !== rule)});
-                        }
-                      }}
-                    />
-                    <Label htmlFor={rule} className="text-sm">{rule}</Label>
-                  </div>
-                ))}
+                {RULES_KEYS.map((ruleKey) => {
+                  const ruleValue = t(`createListing.${ruleKey}`);
+                  return (
+                    <div key={ruleKey} className="flex items-center space-x-2">
+                      <Checkbox
+                        id={ruleKey}
+                        checked={formData.rules.includes(ruleValue)}
+                        onCheckedChange={(checked) => handleRuleChange(ruleKey, checked as boolean)}
+                      />
+                      <Label htmlFor={ruleKey} className="text-sm font-normal">
+                        {ruleValue}
+                      </Label>
+                    </div>
+                  );
+                })}
               </div>
             </CardContent>
           </Card>
