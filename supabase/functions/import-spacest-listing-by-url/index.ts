@@ -1,11 +1,85 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts';
 
-// Extract ALL images using comprehensive regex
+// Extract images ONLY from main listing gallery (not sidebar/related properties)
 function extractAllImageUrls(html: string): string[] {
+  try {
+    const doc = new DOMParser().parseFromString(html, 'text/html');
+    if (!doc) {
+      console.error('Failed to parse HTML, falling back to regex');
+      return extractImageUrlsFallback(html);
+    }
+
+    const imageSet = new Set<string>();
+    
+    // Target ONLY main content/gallery areas, exclude sidebars
+    const mainSelectors = [
+      'main img[src*="roomless"]',
+      '[class*="gallery"] img[src*="roomless"]',
+      '[class*="listing-image"] img[src*="roomless"]',
+      '[class*="property-image"] img[src*="roomless"]',
+      '[id*="gallery"] img[src*="roomless"]',
+      '[data-testid*="image"] img[src*="roomless"]',
+      '.content img[src*="roomless"]',
+    ];
+    
+    // Exclude sidebar/related/similar property areas
+    const excludeSelectors = [
+      '[class*="sidebar"]',
+      '[class*="related"]',
+      '[class*="similar"]',
+      '[class*="recommended"]',
+      'aside',
+    ];
+    
+    for (const selector of mainSelectors) {
+      const images = doc.querySelectorAll(selector);
+      
+      for (const img of images) {
+        // Check if this image is inside an excluded section
+        let isExcluded = false;
+        for (const excludeSelector of excludeSelectors) {
+          if (img.closest(excludeSelector)) {
+            isExcluded = true;
+            break;
+          }
+        }
+        
+        if (!isExcluded) {
+          const src = img.getAttribute('src') || img.getAttribute('data-src') || '';
+          if (src.includes('roomless-listing-images.s3.us-east-2.amazonaws.com') && src.endsWith('.jpeg')) {
+            imageSet.add(src);
+          }
+        }
+      }
+      
+      if (imageSet.size > 0) {
+        console.log(`✓ Found ${imageSet.size} images using selector: ${selector}`);
+        break; // Stop at first successful selector
+      }
+    }
+    
+    // If no images found with DOM parsing, try fallback
+    if (imageSet.size === 0) {
+      console.log('DOM extraction found 0 images, using fallback regex');
+      return extractImageUrlsFallback(html);
+    }
+    
+    const urls = Array.from(imageSet);
+    console.log(`✓ DOM extracted ${urls.length} images from main gallery`);
+    return urls;
+    
+  } catch (error) {
+    console.error('Error in DOM extraction:', error);
+    return extractImageUrlsFallback(html);
+  }
+}
+
+// Fallback: extract from entire page (less accurate)
+function extractImageUrlsFallback(html: string): string[] {
   const imageRegex = /https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.jpeg/gi;
   const allMatches = html.match(imageRegex) || [];
-  console.log(`Found ${allMatches.length} total image URLs in HTML`);
+  console.log(`⚠️ Fallback regex found ${allMatches.length} images (may include unrelated properties)`);
   return allMatches;
 }
 
