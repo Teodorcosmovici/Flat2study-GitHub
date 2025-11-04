@@ -35,6 +35,7 @@ export default function SimpleMapView({
   const markersRef = useRef<{ [id: string]: L.Marker }>({});
   const initialBoundsSet = useRef(false);
   const currentOpenPopupRef = useRef<L.Marker | null>(null);
+  const currentOpenTooltipRef = useRef<L.Marker | null>(null);
 
   // Stable callback refs to avoid re-rendering markers on every parent re-render
   const onListingClickRef = useRef(onListingClick);
@@ -255,12 +256,20 @@ export default function SimpleMapView({
 
           marker.on('click', () => onListingClickRef.current?.(listing.id));
           marker.on('mouseover', () => {
+            // Close any previously open tooltip
+            if (currentOpenTooltipRef.current && currentOpenTooltipRef.current !== marker) {
+              currentOpenTooltipRef.current.closeTooltip();
+            }
             onListingHoverRef.current?.(listing.id);
+            currentOpenTooltipRef.current = marker;
           });
           marker.on('mouseout', () => {
             onListingHoverRef.current?.(null);
-            // Explicitly close tooltip on mouseout
-            setTimeout(() => marker.closeTooltip(), 10);
+            // Close tooltip instantly on mouseout
+            marker.closeTooltip();
+            if (currentOpenTooltipRef.current === marker) {
+              currentOpenTooltipRef.current = null;
+            }
           });
 
           markersRef.current[listing.id] = marker;
@@ -369,6 +378,11 @@ export default function SimpleMapView({
             if (currentOpenPopupRef.current && currentOpenPopupRef.current !== groupMarker) {
               currentOpenPopupRef.current.closePopup();
             }
+            // Close any open tooltip from individual markers
+            if (currentOpenTooltipRef.current) {
+              currentOpenTooltipRef.current.closeTooltip();
+              currentOpenTooltipRef.current = null;
+            }
             groupMarker.openPopup();
             currentOpenPopupRef.current = groupMarker;
           });
@@ -383,6 +397,7 @@ export default function SimpleMapView({
               return;
             }
             
+            // Close popup instantly on mouseout
             groupMarker.closePopup();
             if (currentOpenPopupRef.current === groupMarker) {
               currentOpenPopupRef.current = null;
