@@ -83,6 +83,93 @@ function extractImageUrlsFallback(html: string): string[] {
   return allMatches;
 }
 
+// Use AI to identify which images belong to the MAIN property (not related/similar listings)
+async function identifyMainPropertyImages(allImageUrls: string[], html: string): Promise<string[]> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  
+  if (!LOVABLE_API_KEY || allImageUrls.length === 0) {
+    console.log('⚠️ Skipping AI image filtering, returning all URLs');
+    return allImageUrls;
+  }
+
+  // Create a map of shortened URLs for AI analysis (easier for AI to read)
+  const urlMap = new Map<string, string>();
+  allImageUrls.forEach((url, idx) => {
+    const shortId = `IMG_${idx}`;
+    urlMap.set(shortId, url);
+  });
+
+  const prompt = `You are analyzing a Spacest.com property listing page.
+
+CRITICAL TASK: Identify which images belong to the MAIN property listing being viewed, NOT related/similar properties shown in sidebars or recommendations.
+
+IMAGE LIST (${allImageUrls.length} total):
+${Array.from(urlMap.entries()).map(([id, url]) => `${id}: ${url.split('/').pop()}`).join('\n')}
+
+ANALYSIS INSTRUCTIONS:
+1. Look at the HTML structure to understand which images are in the main property gallery vs sidebars
+2. Images in the MAIN property gallery are typically:
+   - In a carousel/slideshow at the top of the page
+   - In the main content area (not sidebar)
+   - Part of the detailed property view
+3. EXCLUDE images that are:
+   - In "Similar Properties" or "Related Listings" sections
+   - In sidebars showing other properties
+   - Advertisements or promotional content
+   
+Return ONLY a JSON object with the IDs of images belonging to the MAIN property:
+{
+  "main_property_images": ["IMG_0", "IMG_5", "IMG_12"]
+}
+
+HTML SNIPPET (focusing on structure):
+${html.substring(0, 50000)}`;
+
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      console.error('AI image filtering failed:', response.status);
+      return allImageUrls;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    
+    if (!content) {
+      console.error('No AI response for image filtering');
+      return allImageUrls;
+    }
+
+    const result = JSON.parse(content);
+    const mainImageIds = result.main_property_images || [];
+    
+    // Map back to full URLs
+    const mainPropertyUrls = mainImageIds
+      .map((id: string) => urlMap.get(id))
+      .filter((url: string | undefined): url is string => url !== undefined);
+    
+    console.log(`✓ AI filtered ${allImageUrls.length} → ${mainPropertyUrls.length} main property images`);
+    return mainPropertyUrls;
+    
+  } catch (error) {
+    console.error('AI image filtering error:', error);
+    return allImageUrls; // Fallback to all images
+  }
+}
+
 // Strict deterministic deduplication based on URL patterns
 function deduplicateImageUrls(imageUrls: string[]): string[] {
   if (imageUrls.length === 0) return [];
@@ -195,21 +282,22 @@ async function analyzeListingWithAI(html: string, url: string) {
     return null;
   }
 
-  // Step 1: Extract ALL image URLs from HTML
+  // Step 1: Extract ALL image URLs from HTML (including duplicates and related properties)
   const allImageUrls = extractAllImageUrls(html);
+  console.log(`Found ${allImageUrls.length} total URLs (including duplicates and related properties)`);
   
-  // Step 2: Use strict deduplication to remove size variations
-  const propertyImages = deduplicateImageUrls(allImageUrls);
-  console.log(`✓ Final extraction: ${propertyImages.length} unique property images`);
+  // Step 2: Use AI to identify which images belong to THIS property (not related/similar listings)
+  const propertyImagesWithDuplicates = await identifyMainPropertyImages(allImageUrls, html);
+  console.log(`✓ AI identified ${propertyImagesWithDuplicates.length} images belonging to main property`);
+  
+  // Step 3: Use strict deduplication to remove size variations
+  const propertyImages = deduplicateImageUrls(propertyImagesWithDuplicates);
+  console.log(`✓ After deduplication: ${propertyImages.length} unique property images`);
 
   const prompt = `Extract property details from this Spacest listing.
 
-**PRE-EXTRACTED IMAGES:**
-I've already extracted ${propertyImages.length} unique property images using deterministic pattern matching.
-All duplicates and different size variations have been removed.
-
 **YOUR TASK:**
-Extract only the following property details (NOT images):
+Extract only the following property details:
 - Total apartment rent per month (look for "€" followed by amount, typically €1800-2000)
 - Monthly utilities/bills (spese condominiali, typically €70-100)
 - Number of bedrooms
