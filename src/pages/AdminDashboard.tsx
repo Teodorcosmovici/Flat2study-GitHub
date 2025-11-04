@@ -52,6 +52,8 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [importingSpacest, setImportingSpacest] = useState(false);
   const [spacestFeedUrl, setSpacestFeedUrl] = useState('');
+  const [spacestListingUrl, setSpacestListingUrl] = useState('');
+  const [importingSingleListing, setImportingSingleListing] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
   const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
@@ -258,6 +260,43 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleImportSingleListing = async () => {
+    if (!spacestListingUrl.trim()) {
+      toast({
+        title: "Error",
+        description: "Please enter a Spacest listing URL",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    setImportingSingleListing(true);
+    try {
+      const { data, error } = await supabase.functions.invoke('import-spacest-listing-by-url', {
+        body: { listing_url: spacestListingUrl },
+      });
+
+      if (error) throw error;
+
+      toast({
+        title: "Import Successful",
+        description: `Listing ${data.action} successfully`,
+      });
+
+      setSpacestListingUrl('');
+      fetchPendingListings();
+    } catch (error) {
+      console.error('Error importing listing:', error);
+      toast({
+        title: "Import Failed",
+        description: error.message || "Failed to import Spacest listing",
+        variant: "destructive",
+      });
+    } finally {
+      setImportingSingleListing(false);
+    }
+  };
+
   const handleDeleteSpacestListings = async () => {
     if (!confirm('Are you sure you want to delete ALL Spacest listings? This cannot be undone.')) {
       return;
@@ -313,41 +352,63 @@ export const AdminDashboard = () => {
             <p className="text-muted-foreground">Trust & Safety Review Portal</p>
           </div>
         </div>
-        <div className="flex gap-4 items-center">
-          <Button 
-            onClick={handleApproveAll} 
-            disabled={pendingListings.length === 0}
-            variant="default"
-            size="sm"
-          >
-            <CheckCircle className="w-4 h-4 mr-2" />
-            Approve All
-          </Button>
-          <Input
-            placeholder="Feed URL (optional)"
-            value={spacestFeedUrl}
-            onChange={(e) => setSpacestFeedUrl(e.target.value)}
-            className="w-80"
-          />
-          <Button 
-            onClick={handleDeleteSpacestListings} 
-            disabled={isDeletingSpacest}
-            variant="destructive"
-            size="sm"
-          >
-            {isDeletingSpacest ? 'Deleting...' : 'Delete All Spacest'}
-          </Button>
-          <Button 
-            onClick={handleSpacestImport} 
-            disabled={importingSpacest}
-            variant="outline"
-          >
-            <Download className="w-4 h-4 mr-2" />
-            {importingSpacest ? 'Importing...' : 'Import Spacest Listings'}
-          </Button>
-          <Badge variant="outline" className="text-orange-600">
-            {pendingListings.length} Pending Review
-          </Badge>
+        <div className="flex flex-col gap-2">
+          <div className="flex gap-2 items-center">
+            <Button 
+              onClick={handleApproveAll} 
+              disabled={pendingListings.length === 0}
+              variant="default"
+              size="sm"
+            >
+              <CheckCircle className="w-4 h-4 mr-2" />
+              Approve All
+            </Button>
+            <Button 
+              onClick={handleDeleteSpacestListings} 
+              disabled={isDeletingSpacest}
+              variant="destructive"
+              size="sm"
+            >
+              {isDeletingSpacest ? 'Deleting...' : 'Delete All Spacest'}
+            </Button>
+            <Badge variant="outline" className="text-orange-600">
+              {pendingListings.length} Pending Review
+            </Badge>
+          </div>
+          <div className="flex gap-2 items-center">
+            <Input
+              placeholder="Spacest listing URL (e.g., https://spacest.com/it/rent-listing/180298)"
+              value={spacestListingUrl}
+              onChange={(e) => setSpacestListingUrl(e.target.value)}
+              className="w-96"
+            />
+            <Button 
+              onClick={handleImportSingleListing} 
+              disabled={importingSingleListing}
+              variant="outline"
+              size="sm"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {importingSingleListing ? 'Importing...' : 'Import Single Listing'}
+            </Button>
+          </div>
+          <div className="flex gap-2 items-center">
+            <Input
+              placeholder="Feed URL (optional, leave empty for default)"
+              value={spacestFeedUrl}
+              onChange={(e) => setSpacestFeedUrl(e.target.value)}
+              className="w-96"
+            />
+            <Button 
+              onClick={handleSpacestImport} 
+              disabled={importingSpacest}
+              variant="outline"
+              size="sm"
+            >
+              <Download className="w-4 h-4 mr-2" />
+              {importingSpacest ? 'Importing...' : 'Import Feed'}
+            </Button>
+          </div>
         </div>
       </div>
 
