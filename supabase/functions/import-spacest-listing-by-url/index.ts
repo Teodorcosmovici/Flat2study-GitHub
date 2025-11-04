@@ -52,12 +52,9 @@ function extractAllImageUrls(html: string): string[] {
           }
         }
       }
-      
-      if (imageSet.size > 0) {
-        console.log(`✓ Found ${imageSet.size} images using selector: ${selector}`);
-        break; // Stop at first successful selector
-      }
     }
+    
+    console.log(`✓ Found ${imageSet.size} total images from all selectors`);
     
     // If no images found with DOM parsing, try fallback
     if (imageSet.size === 0) {
