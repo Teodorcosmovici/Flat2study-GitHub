@@ -80,9 +80,11 @@ ${html}`;
     if (!response.ok) {
       const errorText = await response.text();
       console.error('AI Gateway error:', response.status, errorText);
-      // Fallback to regex extraction
+      // Fallback to regex extraction with deduplication
+      const uniqueImages = Array.from(new Set(regexMatches));
+      console.log(`✓ Regex fallback: ${uniqueImages.length} unique images (removed ${regexMatches.length - uniqueImages.length} duplicates)`);
       return {
-        images: regexMatches,
+        images: uniqueImages,
         rent_monthly_eur: 1900,
         utility_cost_eur: 85,
         bedrooms: 2,
@@ -100,8 +102,10 @@ ${html}`;
     
     if (!content) {
       console.error('No content in AI response, using regex fallback');
+      const uniqueImages = Array.from(new Set(regexMatches));
+      console.log(`✓ Regex fallback: ${uniqueImages.length} unique images (removed ${regexMatches.length - uniqueImages.length} duplicates)`);
       return {
-        images: regexMatches,
+        images: uniqueImages,
         rent_monthly_eur: 1900,
         utility_cost_eur: 85,
         bedrooms: 2,
@@ -135,9 +139,11 @@ ${html}`;
     return extracted;
   } catch (error) {
     console.error('Failed to analyze with AI:', error);
-    // Always return regex results as fallback
+    // Always return regex results as fallback with deduplication
+    const uniqueImages = Array.from(new Set(regexMatches));
+    console.log(`✓ Error fallback: ${uniqueImages.length} unique images (removed ${regexMatches.length - uniqueImages.length} duplicates)`);
     return {
-      images: regexMatches,
+      images: uniqueImages,
       rent_monthly_eur: 1900,
       utility_cost_eur: 85,
       bedrooms: 2,
