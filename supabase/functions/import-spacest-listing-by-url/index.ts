@@ -121,19 +121,21 @@ ${html}`;
     const extracted = JSON.parse(content);
     console.log(`✓ AI extracted ${extracted.images?.length || 0} images`);
     
-    // If AI found fewer images than regex, use regex results
-    if (!extracted.images || extracted.images.length < regexMatches.length) {
-      console.warn(`⚠️ AI only found ${extracted.images?.length || 0} images, using regex results (${regexMatches.length} images)`);
-      extracted.images = regexMatches;
-    }
+    // Always deduplicate first
+    const uniqueRegexImages = Array.from(new Set(regexMatches));
     
-    // Remove duplicate images
-    if (extracted.images && extracted.images.length > 0) {
+    // If AI found fewer images than regex, use regex results
+    if (!extracted.images || extracted.images.length < uniqueRegexImages.length) {
+      console.warn(`⚠️ AI only found ${extracted.images?.length || 0} images, using deduplicated regex results (${uniqueRegexImages.length} images)`);
+      extracted.images = uniqueRegexImages;
+    } else {
+      // Always deduplicate AI results
       const uniqueImages = Array.from(new Set(extracted.images));
       if (uniqueImages.length !== extracted.images.length) {
-        console.log(`✓ Removed ${extracted.images.length - uniqueImages.length} duplicate images`);
-        extracted.images = uniqueImages;
+        console.log(`✓ Removed ${extracted.images.length - uniqueImages.length} duplicate images from AI results`);
       }
+      extracted.images = uniqueImages;
+      console.log(`✓ Final image count: ${uniqueImages.length} unique images`);
     }
     
     return extracted;
