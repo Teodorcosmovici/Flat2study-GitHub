@@ -9,97 +9,66 @@ function extractAllImageUrls(html: string): string[] {
   return allMatches;
 }
 
-// Use AI to identify property images and remove duplicates/sizes
-async function identifyPropertyImages(imageUrls: string[]): Promise<string[]> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+// Strict deterministic deduplication based on URL patterns
+function deduplicateImageUrls(imageUrls: string[]): string[] {
+  if (imageUrls.length === 0) return [];
   
-  if (!LOVABLE_API_KEY || imageUrls.length === 0) {
-    return imageUrls;
-  }
-
-  const prompt = `You are analyzing image URLs from a property listing page to identify the actual property photos.
-
-**YOUR TASK:**
-Given this list of ${imageUrls.length} image URLs, identify which ones are ACTUAL PROPERTY PHOTOS by analyzing URL patterns.
-
-**RULES:**
-1. The same photo appears in multiple sizes (e.g., image.jpeg, image-150x150.jpeg, image-800x600.jpeg)
-2. For duplicate photos at different sizes, keep ONLY the LARGEST version (longest URL or highest resolution)
-3. Include ALL unique property photos (bedrooms, bathrooms, kitchen, living room, exterior, etc.)
-4. EXCLUDE: logos, icons, profile pictures (usually small or in "profile"/"logo" paths)
-5. The listing should have 20-25 unique property photos
-
-**IMAGE URLs:**
-${imageUrls.slice(0, 100).join('\n')}
-
-Return a JSON array of the UNIQUE, FULL-SIZE property image URLs:
-{
-  "property_images": ["url1", "url2", "url3", ...]
-}`;
-
-  try {
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [{ role: 'user', content: prompt }],
-        temperature: 0,
-        response_format: { type: 'json_object' }
-      })
-    });
-
-    if (!response.ok) {
-      console.error('AI identification failed, using manual deduplication');
-      return manualDeduplication(imageUrls);
-    }
-
-    const data = await response.json();
-    const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
-    const identified = result.property_images || [];
-    
-    console.log(`✓ AI identified ${identified.length} unique property images from ${imageUrls.length} URLs`);
-    return identified.length > 0 ? identified : manualDeduplication(imageUrls);
-    
-  } catch (error) {
-    console.error('Error in AI identification:', error);
-    return manualDeduplication(imageUrls);
-  }
-}
-
-// Fallback: manual deduplication based on URL patterns
-function manualDeduplication(urls: string[]): string[] {
-  const basePathMap = new Map<string, { url: string; size: number }>();
+  // Group images by their base path (without size indicators)
+  const groups = new Map<string, string[]>();
   
-  for (const url of urls) {
+  for (const url of imageUrls) {
     try {
       const urlObj = new URL(url);
-      let path = urlObj.pathname;
+      const path = urlObj.pathname;
       
-      // Remove size indicators to get base path
+      // Extract base filename by removing ALL size patterns:
+      // - Remove -WIDTHxHEIGHT (e.g., -150x150, -800x600)
+      // - Remove -scaled
+      // - Remove WIDTHxHEIGHT. before extension
       const basePath = path
-        .replace(/-\d+x\d+/g, '')
-        .replace(/-scaled/g, '')
-        .replace(/\d+x\d+\./g, '.');
+        .replace(/-\d+x\d+(?=\.jpeg)/gi, '') // Remove -150x150 before .jpeg
+        .replace(/-scaled(?=\.jpeg)/gi, '')   // Remove -scaled before .jpeg  
+        .replace(/\d+x\d+\.jpeg$/i, '.jpeg'); // Remove 800x600.jpeg -> .jpeg
       
-      // Calculate "size" - prefer URLs without size indicators (they're usually largest)
-      const hasSize = /-\d+x\d+/.test(path) || /\d+x\d+\./.test(path);
-      const size = hasSize ? url.length : url.length + 10000; // Boost non-sized URLs
-      
-      if (!basePathMap.has(basePath) || size > basePathMap.get(basePath)!.size) {
-        basePathMap.set(basePath, { url, size });
+      if (!groups.has(basePath)) {
+        groups.set(basePath, []);
       }
+      groups.get(basePath)!.push(url);
     } catch {
       continue;
     }
   }
   
-  const result = Array.from(basePathMap.values()).map(v => v.url);
-  console.log(`✓ Manual deduplication: ${urls.length} → ${result.length} unique images`);
-  return result;
+  // For each group, keep only the largest version
+  const deduplicated: string[] = [];
+  let totalDuplicates = 0;
+  
+  for (const [basePath, urlGroup] of groups.entries()) {
+    if (urlGroup.length === 1) {
+      deduplicated.push(urlGroup[0]);
+      continue;
+    }
+    
+    totalDuplicates += urlGroup.length - 1;
+    
+    // Sort by: 1) URLs without size indicators first, 2) then by length
+    const sorted = urlGroup.sort((a, b) => {
+      const aHasSize = /-\d+x\d+/.test(a) || /\d+x\d+\./.test(a) || /-scaled/.test(a);
+      const bHasSize = /-\d+x\d+/.test(b) || /\d+x\d+\./.test(b) || /-scaled/.test(b);
+      
+      if (aHasSize && !bHasSize) return 1;  // b comes first (no size indicator)
+      if (!aHasSize && bHasSize) return -1; // a comes first (no size indicator)
+      
+      return b.length - a.length; // Longer URLs first
+    });
+    
+    deduplicated.push(sorted[0]);
+    console.log(`  Kept: ${sorted[0].split('/').pop()}`);
+    console.log(`  Removed ${urlGroup.length - 1} duplicates`);
+  }
+  
+  console.log(`✓ Strict deduplication: ${imageUrls.length} → ${deduplicated.length} unique images (removed ${totalDuplicates} duplicates)`);
+  return deduplicated;
 }
 
 // Geocode address to get accurate coordinates
@@ -155,15 +124,15 @@ async function analyzeListingWithAI(html: string, url: string) {
   // Step 1: Extract ALL image URLs from HTML
   const allImageUrls = extractAllImageUrls(html);
   
-  // Step 2: Use AI to identify property images and remove duplicates
-  const propertyImages = await identifyPropertyImages(allImageUrls);
+  // Step 2: Use strict deduplication to remove size variations
+  const propertyImages = deduplicateImageUrls(allImageUrls);
   console.log(`✓ Final extraction: ${propertyImages.length} unique property images`);
 
   const prompt = `Extract property details from this Spacest listing.
 
 **PRE-EXTRACTED IMAGES:**
-I've already extracted ${propertyImages.length} unique property images using AI-powered analysis.
-These are the main listing photos with all duplicates and different sizes removed.
+I've already extracted ${propertyImages.length} unique property images using deterministic pattern matching.
+All duplicates and different size variations have been removed.
 
 **YOUR TASK:**
 Extract only the following property details (NOT images):
@@ -172,7 +141,7 @@ Extract only the following property details (NOT images):
 - Number of bedrooms
 - Number of bathrooms  
 - Size in square meters (m²)
-- Full address
+- Full address (street name and number if available)
 - Property title
 - Property description
 
@@ -614,9 +583,9 @@ async function parseListingPage(html: string, listingId: string): Promise<Listin
       price = parseInt(priceMatch[1].replace(/[.,]/g, ''));
     }
     
-    // Extract images using AI-powered comprehensive extraction
+    // Extract images using strict deterministic deduplication
     const allImageUrls = extractAllImageUrls(html);
-    images = await identifyPropertyImages(allImageUrls);
+    images = deduplicateImageUrls(allImageUrls);
     console.log(`Fallback parser extracted ${images.length} property images`);
   }
 
