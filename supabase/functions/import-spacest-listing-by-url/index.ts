@@ -307,20 +307,47 @@ function parseListingPage(html: string, listingId: string): ListingData {
       price = parseInt(priceMatch[1].replace(/[.,]/g, ''));
     }
     
-    // Extract images
-    const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
-    if (ogImage) {
-      images.push(ogImage);
+    // Extract images - try multiple sources
+    const imageSet = new Set<string>();
+    
+    // 1. Check structured data for images
+    if (structuredData?.image) {
+      const imgArray = Array.isArray(structuredData.image) ? structuredData.image : [structuredData.image];
+      imgArray.forEach(img => imageSet.add(img));
     }
     
-    // Try to find gallery images
-    const imgElements = doc.querySelectorAll('img[src*="spacest"], img[src*="cloudinary"]');
-    for (const img of imgElements) {
-      const src = img.getAttribute('src');
-      if (src && !images.includes(src)) {
-        images.push(src);
+    // 2. Meta tags
+    const ogImage = doc.querySelector('meta[property="og:image"]')?.getAttribute('content');
+    if (ogImage) imageSet.add(ogImage);
+    
+    // 3. Look for gallery/carousel images with various selectors
+    const imageSelectors = [
+      'img[src*="roomless"]',
+      'img[src*="spacest"]',
+      'img[src*="cloudinary"]',
+      '[class*="gallery"] img',
+      '[class*="carousel"] img',
+      '[class*="slider"] img',
+      '[data-testid*="image"] img',
+      'picture source',
+      'picture img'
+    ];
+    
+    for (const selector of imageSelectors) {
+      const elements = doc.querySelectorAll(selector);
+      for (const el of elements) {
+        const src = el.getAttribute('src') || el.getAttribute('srcset')?.split(' ')[0] || el.getAttribute('data-src');
+        if (src && (src.startsWith('http') || src.startsWith('//'))) {
+          const fullUrl = src.startsWith('//') ? `https:${src}` : src;
+          // Filter out tiny images, icons, logos
+          if (!fullUrl.match(/logo|icon|avatar|favicon/i)) {
+            imageSet.add(fullUrl);
+          }
+        }
       }
     }
+    
+    images = Array.from(imageSet);
   }
 
   // Determine type based on bedrooms
