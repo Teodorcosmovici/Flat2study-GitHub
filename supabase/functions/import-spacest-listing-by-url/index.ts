@@ -259,7 +259,8 @@ function parseListingPage(html: string, listingId: string): ListingData {
     }
     
     if (structuredData.floorSize) {
-      const match = structuredData.floorSize.match(/(\d+)/);
+      const floorSizeStr = String(structuredData.floorSize);
+      const match = floorSizeStr.match(/(\d+)/);
       if (match) {
         size_sqm = parseInt(match[1]);
       }
