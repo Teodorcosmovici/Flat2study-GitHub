@@ -9,40 +9,50 @@ async function analyzeListingWithAI(html: string, url: string) {
     return null;
   }
 
-  const prompt = `You are analyzing a Spacest property listing page. Extract ALL information accurately:
+  const prompt = `You are analyzing a Spacest property listing HTML page. Your task is to extract EVERY SINGLE piece of information with 100% accuracy.
 
-1. **IMAGES**: Find ALL image URLs (there should be 20+ images). Look for:
-   - roomless-listing-images.s3.us-east-2.amazonaws.com URLs
-   - Extract every unique image URL you find
-   - Return as array of full URLs
+**CRITICAL - IMAGES (THIS IS THE MOST IMPORTANT PART):**
+The listing has 20-25 property images. You MUST extract ALL of them:
+- Search the ENTIRE HTML for ALL URLs containing "roomless-listing-images.s3.us-east-2.amazonaws.com"
+- Look in <img> tags, background-image styles, data attributes, JSON-LD structured data
+- Every single image URL must be included - missing even one image is a failure
+- Return the complete array of ALL image URLs found
+- DO NOT limit to first few images - extract EVERY SINGLE ONE
 
-2. **PRICING**: Find the TOTAL apartment monthly rent (not per-room price):
-   - Look for the main price in EUR
-   - This is usually the largest price shown
-   - Also find utility costs (spese condominiali)
+**PRICING (CRITICAL):**
+- Find the TOTAL apartment rent per month (not per-room price)
+- This is the main large price displayed (usually €1800-2000)
+- NOT the per-room price (usually €700-900)
+- Also extract monthly utility costs (spese condominiali, usually €70-100)
 
-3. **PROPERTY DETAILS**:
-   - Bedrooms, bathrooms, size in m²
-   - Address and location
-   - Description
-   - Available amenities
+**PROPERTY DETAILS:**
+- Number of bedrooms and bathrooms
+- Total size in square meters (m²)
+- Full address (street, city)
+- Complete description text
 
-Return ONLY a JSON object with this exact structure:
+**VALIDATION:**
+Before returning, verify:
+- You found 20+ images (if less, search again)
+- The rent price is the apartment total (not room price)
+- All fields are extracted
+
+Return ONLY valid JSON with this structure:
 {
-  "images": ["url1", "url2", ...],
-  "rent_monthly_eur": number,
-  "utility_cost_eur": number,
-  "bedrooms": number,
-  "bathrooms": number,
-  "size_sqm": number,
-  "title": "string",
-  "description": "string",
-  "address": "string",
-  "city": "string"
+  "images": ["url1", "url2", "url3", ...],
+  "rent_monthly_eur": 1900,
+  "utility_cost_eur": 85,
+  "bedrooms": 2,
+  "bathrooms": 2,
+  "size_sqm": 60,
+  "title": "Property title",
+  "description": "Full description",
+  "address": "Street address",
+  "city": "Milano"
 }
 
-HTML Content:
-${html.substring(0, 50000)}`;
+HTML Content (analyze ALL of it):
+${html.substring(0, 100000)}`;
 
   try {
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -78,7 +88,13 @@ ${html.substring(0, 50000)}`;
     }
 
     const extracted = JSON.parse(content);
-    console.log('AI extracted data:', extracted);
+    console.log(`AI extracted ${extracted.images?.length || 0} images`);
+    
+    // Validation: ensure we got enough images
+    if (!extracted.images || extracted.images.length < 15) {
+      console.warn(`⚠️ Only ${extracted.images?.length || 0} images extracted - expected 20+`);
+    }
+    
     return extracted;
   } catch (error) {
     console.error('Failed to analyze with AI:', error);
