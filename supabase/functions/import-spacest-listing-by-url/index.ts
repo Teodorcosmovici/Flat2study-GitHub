@@ -1,6 +1,91 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts';
 
+async function analyzeListingWithAI(html: string, url: string) {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  
+  if (!LOVABLE_API_KEY) {
+    console.error('LOVABLE_API_KEY not configured');
+    return null;
+  }
+
+  const prompt = `You are analyzing a Spacest property listing page. Extract ALL information accurately:
+
+1. **IMAGES**: Find ALL image URLs (there should be 20+ images). Look for:
+   - roomless-listing-images.s3.us-east-2.amazonaws.com URLs
+   - Extract every unique image URL you find
+   - Return as array of full URLs
+
+2. **PRICING**: Find the TOTAL apartment monthly rent (not per-room price):
+   - Look for the main price in EUR
+   - This is usually the largest price shown
+   - Also find utility costs (spese condominiali)
+
+3. **PROPERTY DETAILS**:
+   - Bedrooms, bathrooms, size in m²
+   - Address and location
+   - Description
+   - Available amenities
+
+Return ONLY a JSON object with this exact structure:
+{
+  "images": ["url1", "url2", ...],
+  "rent_monthly_eur": number,
+  "utility_cost_eur": number,
+  "bedrooms": number,
+  "bathrooms": number,
+  "size_sqm": number,
+  "title": "string",
+  "description": "string",
+  "address": "string",
+  "city": "string"
+}
+
+HTML Content:
+${html.substring(0, 50000)}`;
+
+  try {
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          {
+            role: 'user',
+            content: prompt
+          }
+        ],
+        temperature: 0.1,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      console.error('AI Gateway error:', response.status, await response.text());
+      return null;
+    }
+
+    const data = await response.json();
+    const content = data.choices?.[0]?.message?.content;
+    
+    if (!content) {
+      console.error('No content in AI response');
+      return null;
+    }
+
+    const extracted = JSON.parse(content);
+    console.log('AI extracted data:', extracted);
+    return extracted;
+  } catch (error) {
+    console.error('Failed to analyze with AI:', error);
+    return null;
+  }
+}
+
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
@@ -55,11 +140,45 @@ Deno.serve(async (req) => {
     }
 
     const html = await pageResponse.text();
-    console.log('Page fetched, parsing HTML...');
+    console.log('Page fetched, analyzing with AI...');
 
-    // Parse the listing data
-    const listingData = parseListingPage(html, listingId);
-    console.log('Parsed listing data:', JSON.stringify(listingData, null, 2));
+    // Use AI to analyze and extract all data accurately
+    let aiData = null;
+    try {
+      aiData = await analyzeListingWithAI(html, listing_url);
+      if (aiData) {
+        console.log(`✓ AI extracted ${aiData.images?.length || 0} images`);
+        console.log(`✓ Rent: €${aiData.rent_monthly_eur}, Utilities: €${aiData.utility_cost_eur}`);
+      }
+    } catch (error) {
+      console.warn('AI analysis failed:', error);
+    }
+    
+    // Use AI data if available, otherwise fall back to manual parsing
+    const listingData = aiData ? {
+      external_listing_id: `spacest-${listingId}`,
+      title: aiData.title || `Property ${listingId}`,
+      description: aiData.description || '',
+      price: aiData.rent_monthly_eur || 0,
+      address: aiData.address || '',
+      city: aiData.city || 'Milano',
+      country: 'Italy',
+      lat: 45.4654219, // Milan default
+      lng: 9.1859243,
+      bedrooms: Math.max(1, aiData.bedrooms || 1),
+      bathrooms: Math.max(1, aiData.bathrooms || 1),
+      size_sqm: aiData.size_sqm || null,
+      images: aiData.images || [],
+      type: (aiData.bedrooms || 1) >= 2 ? 'apartment' : 'studio',
+      furnished: true,
+      bills_included: false,
+    } : parseListingPage(html, listingId);
+    
+    console.log('Listing data prepared:', { 
+      images: listingData.images.length,
+      rent: listingData.price,
+      bedrooms: listingData.bedrooms 
+    });
 
     // Initialize Supabase
     const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
@@ -95,6 +214,8 @@ Deno.serve(async (req) => {
     }
 
     // Map to database schema
+    const utilityPerType = aiData ? Math.round((aiData.utility_cost_eur || 0) / 4) : 21;
+    
     const mappedListing = {
       external_listing_id: listingData.external_listing_id,
       external_source: 'spacest',
@@ -130,6 +251,15 @@ Deno.serve(async (req) => {
       minimum_stay_days: 30,
       maximum_stay_days: 365,
       last_synced_at: new Date().toISOString(),
+      // Utility costs
+      electricity_cost_eur: utilityPerType,
+      gas_cost_eur: utilityPerType,
+      water_cost_eur: utilityPerType,
+      internet_cost_eur: utilityPerType,
+      electricity_included: false,
+      gas_included: false,
+      water_included: false,
+      internet_included: false,
     };
 
     // Check if listing already exists
