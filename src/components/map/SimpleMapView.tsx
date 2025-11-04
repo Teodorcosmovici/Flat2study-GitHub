@@ -140,6 +140,7 @@ export default function SimpleMapView({
             display: flex;
             align-items: center;
             justify-content: center;
+            cursor: pointer;
           ">
             <div style="
               background-color: white;
@@ -154,7 +155,7 @@ export default function SimpleMapView({
         iconAnchor: [8, 8],
       });
 
-      L.marker([university.lat, university.lng], { icon: universityIcon })
+      const universityMarker = L.marker([university.lat, university.lng], { icon: universityIcon })
         .addTo(mapInstanceRef.current!)
         .bindTooltip(`
           <div style="padding: 8px;">
@@ -164,6 +165,9 @@ export default function SimpleMapView({
             <div style="font-size: 12px; color: #6b7280;">
               ${university.name}
             </div>
+            <div style="font-size: 11px; color: #3b82f6; margin-top: 4px; cursor: pointer;">
+              Click to see nearby properties
+            </div>
           </div>
         `, {
           permanent: false,
@@ -171,6 +175,12 @@ export default function SimpleMapView({
           offset: [0, -10],
           className: 'university-tooltip'
         });
+
+      // Make university marker clickable to filter nearby properties
+      universityMarker.on('click', () => {
+        // Navigate to search with university filter
+        window.location.href = `/search?universityLat=${university.lat}&universityLng=${university.lng}&universityName=${encodeURIComponent(university.shortName)}&maxDistance=1`;
+      });
     });
 
     return () => {
