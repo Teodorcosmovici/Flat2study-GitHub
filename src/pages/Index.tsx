@@ -163,7 +163,7 @@ const Index = () => {
                       };
                       
                       return (
-                        <Link key={university.id} to={`/search?location=Milan`}>
+                        <Link key={university.id} to={`/search?universityLat=${university.lat}&universityLng=${university.lng}&universityName=${encodeURIComponent(university.shortName)}&maxDistance=1`}>
                           <Card className="overflow-hidden hover:shadow-lg transition-shadow cursor-pointer h-64 relative group">
                             <div className="absolute inset-0">
                               <img 

@@ -1,5 +1,5 @@
 import { useState, useEffect } from 'react';
-import { useNavigate } from 'react-router-dom';
+import { useNavigate, useSearchParams } from 'react-router-dom';
 import Header from '@/components/layout/Header';
 import { FeaturedListingCard } from '@/components/listings/FeaturedListingCard';
 import SearchFilters from '@/components/search/SearchFilters';
@@ -10,14 +10,16 @@ import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Search as SearchIcon, Grid, Map, ChevronLeft } from 'lucide-react';
+import { Search as SearchIcon, Grid, Map, ChevronLeft, X } from 'lucide-react';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { useLanguage } from '@/contexts/LanguageContext';
+import { Badge } from '@/components/ui/badge';
 
 type ViewMode = 'grid' | 'map';
 
 export default function Search() {
   const navigate = useNavigate();
+  const [searchParams, setSearchParams] = useSearchParams();
   const isMobile = useIsMobile();
   const { t, language } = useLanguage();
   const [listings, setListings] = useState<Listing[]>([]);
@@ -29,6 +31,27 @@ export default function Search() {
   const [loading, setLoading] = useState(true);
   const [hoveredListingId, setHoveredListingId] = useState<string | null>(null);
   const [visibleListings, setVisibleListings] = useState<Listing[]>([]);
+  
+  // University filter state
+  const [universityFilter, setUniversityFilter] = useState<{
+    lat: number;
+    lng: number;
+    name: string;
+    maxDistance: number;
+  } | null>(null);
+
+  // Helper function to calculate distance between two coordinates (Haversine formula)
+  const calculateDistance = (lat1: number, lon1: number, lat2: number, lon2: number): number => {
+    const R = 6371; // Radius of Earth in km
+    const dLat = (lat2 - lat1) * Math.PI / 180;
+    const dLon = (lon2 - lon1) * Math.PI / 180;
+    const a = 
+      Math.sin(dLat/2) * Math.sin(dLat/2) +
+      Math.cos(lat1 * Math.PI / 180) * Math.cos(lat2 * Math.PI / 180) *
+      Math.sin(dLon/2) * Math.sin(dLon/2);
+    const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1-a));
+    return R * c; // Distance in km
+  };
 
   const formatPrice = (price: number) => {
     return `€${price.toLocaleString()}`;
@@ -42,6 +65,25 @@ export default function Search() {
       setViewMode('map');
     }
   }, [isMobile]);
+
+  // Parse URL parameters for university filter
+  useEffect(() => {
+    const lat = searchParams.get('universityLat');
+    const lng = searchParams.get('universityLng');
+    const name = searchParams.get('universityName');
+    const maxDistance = searchParams.get('maxDistance');
+    
+    if (lat && lng && name && maxDistance) {
+      setUniversityFilter({
+        lat: parseFloat(lat),
+        lng: parseFloat(lng),
+        name: decodeURIComponent(name),
+        maxDistance: parseFloat(maxDistance)
+      });
+    } else {
+      setUniversityFilter(null);
+    }
+  }, [searchParams]);
 
   // Fetch listings from database
   useEffect(() => {
@@ -107,6 +149,19 @@ export default function Search() {
   // Filter listings based on search criteria
   useEffect(() => {
     let filtered = [...allListings];
+
+    // University proximity filter (1km radius)
+    if (universityFilter) {
+      filtered = filtered.filter(listing => {
+        const distance = calculateDistance(
+          universityFilter.lat,
+          universityFilter.lng,
+          listing.lat,
+          listing.lng
+        );
+        return distance <= universityFilter.maxDistance;
+      });
+    }
 
     // Search query
     if (searchQuery) {
@@ -220,7 +275,7 @@ export default function Search() {
     if (viewMode === 'map') {
       setVisibleListings(filtered);
     }
-  }, [searchQuery, filters, sortBy, allListings, viewMode]);
+  }, [searchQuery, filters, sortBy, allListings, viewMode, universityFilter]);
 
   const handleListingClick = (listingId: string) => {
     navigate(`/listing/${listingId}`);
@@ -237,11 +292,35 @@ export default function Search() {
     setVisibleListings(visible);
   };
 
+  const clearUniversityFilter = () => {
+    const newParams = new URLSearchParams(searchParams);
+    newParams.delete('universityLat');
+    newParams.delete('universityLng');
+    newParams.delete('universityName');
+    newParams.delete('maxDistance');
+    setSearchParams(newParams);
+  };
+
   return (
     <div className="min-h-screen bg-background">
       <Header />
       
       <div className="sticky top-16 z-40 bg-background/95 backdrop-blur">
+        {/* University Filter Badge */}
+        {universityFilter && (
+          <div className="container py-2 border-b">
+            <Badge variant="secondary" className="flex items-center gap-2 w-fit">
+              <span>📍 Within {universityFilter.maxDistance}km of {universityFilter.name}</span>
+              <button
+                onClick={clearUniversityFilter}
+                className="ml-1 hover:bg-destructive/20 rounded-full p-0.5"
+              >
+                <X className="h-3 w-3" />
+              </button>
+            </Badge>
+          </div>
+        )}
+        
         {/* Search Bar */}
         <div className="container py-2">
           {isMobile ? (
