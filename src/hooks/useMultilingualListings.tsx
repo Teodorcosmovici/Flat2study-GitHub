@@ -30,7 +30,7 @@ interface MultilingualListing {
   agency_name: string;
 }
 
-export const useMultilingualListings = (limit: number = 50) => {
+export const useMultilingualListings = (limit: number = 1000) => {
   const [listings, setListings] = useState<MultilingualListing[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);

@@ -91,7 +91,7 @@ export default function Search() {
       try {
         // Use multilingual function to get localized fields
         const { data, error } = await supabase.rpc('get_listings_with_agency_multilingual', {
-          p_limit: 100,
+          p_limit: 1000,
           p_offset: 0,
           p_language: language
         });
