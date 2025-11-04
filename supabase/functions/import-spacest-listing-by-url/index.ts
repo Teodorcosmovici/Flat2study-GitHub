@@ -1,83 +1,105 @@
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
 import { DOMParser } from 'https://deno.land/x/deno_dom@v0.1.38/deno-dom-wasm.ts';
 
-// Helper to extract base filename without size indicators
-function getBaseImagePath(url: string): string {
+// Extract ALL images using comprehensive regex
+function extractAllImageUrls(html: string): string[] {
+  const imageRegex = /https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.jpeg/gi;
+  const allMatches = html.match(imageRegex) || [];
+  console.log(`Found ${allMatches.length} total image URLs in HTML`);
+  return allMatches;
+}
+
+// Use AI to identify property images and remove duplicates/sizes
+async function identifyPropertyImages(imageUrls: string[]): Promise<string[]> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  
+  if (!LOVABLE_API_KEY || imageUrls.length === 0) {
+    return imageUrls;
+  }
+
+  const prompt = `You are analyzing image URLs from a property listing page to identify the actual property photos.
+
+**YOUR TASK:**
+Given this list of ${imageUrls.length} image URLs, identify which ones are ACTUAL PROPERTY PHOTOS by analyzing URL patterns.
+
+**RULES:**
+1. The same photo appears in multiple sizes (e.g., image.jpeg, image-150x150.jpeg, image-800x600.jpeg)
+2. For duplicate photos at different sizes, keep ONLY the LARGEST version (longest URL or highest resolution)
+3. Include ALL unique property photos (bedrooms, bathrooms, kitchen, living room, exterior, etc.)
+4. EXCLUDE: logos, icons, profile pictures (usually small or in "profile"/"logo" paths)
+5. The listing should have 20-25 unique property photos
+
+**IMAGE URLs:**
+${imageUrls.slice(0, 100).join('\n')}
+
+Return a JSON array of the UNIQUE, FULL-SIZE property image URLs:
+{
+  "property_images": ["url1", "url2", "url3", ...]
+}`;
+
   try {
-    const urlObj = new URL(url);
-    const path = urlObj.pathname;
-    // Remove size indicators like -150x150, -300x300, -scaled, -1024x768, etc.
-    return path
-      .replace(/-\d+x\d+/g, '') // Remove -WIDTHxHEIGHT
-      .replace(/-scaled/g, '')   // Remove -scaled
-      .replace(/\d+x\d+\./g, '.'); // Remove WIDTHxHEIGHT. before extension
-  } catch {
-    return url;
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [{ role: 'user', content: prompt }],
+        temperature: 0,
+        response_format: { type: 'json_object' }
+      })
+    });
+
+    if (!response.ok) {
+      console.error('AI identification failed, using manual deduplication');
+      return manualDeduplication(imageUrls);
+    }
+
+    const data = await response.json();
+    const result = JSON.parse(data.choices?.[0]?.message?.content || '{}');
+    const identified = result.property_images || [];
+    
+    console.log(`✓ AI identified ${identified.length} unique property images from ${imageUrls.length} URLs`);
+    return identified.length > 0 ? identified : manualDeduplication(imageUrls);
+    
+  } catch (error) {
+    console.error('Error in AI identification:', error);
+    return manualDeduplication(imageUrls);
   }
 }
 
-// Extract images from main gallery section only
-function extractMainGalleryImages(html: string): string[] {
-  try {
-    const parser = new DOMParser();
-    const doc = parser.parseFromString(html, 'text/html');
-    
-    if (!doc) {
-      console.warn('Failed to parse HTML');
-      return [];
-    }
-
-    const images = new Map<string, string>(); // base path -> full URL
-    
-    // Target the main image gallery container (adjust selectors as needed)
-    const gallerySelectors = [
-      '.gallery-container img',
-      '.property-images img',
-      '.listing-gallery img',
-      '[class*="gallery"] img',
-      '[class*="image-container"] img',
-      'main img', // Main content area
-    ];
-    
-    for (const selector of gallerySelectors) {
-      const elements = doc.querySelectorAll(selector);
-      elements.forEach((img: any) => {
-        const src = img.getAttribute('src') || img.getAttribute('data-src') || '';
-        if (src.includes('roomless-listing-images.s3.us-east-2.amazonaws.com') && src.endsWith('.jpeg')) {
-          const basePath = getBaseImagePath(src);
-          // Keep the largest version (prefer URLs without size indicators)
-          if (!images.has(basePath) || src.length > (images.get(basePath)?.length || 0)) {
-            images.set(basePath, src);
-          }
-        }
-      });
+// Fallback: manual deduplication based on URL patterns
+function manualDeduplication(urls: string[]): string[] {
+  const basePathMap = new Map<string, { url: string; size: number }>();
+  
+  for (const url of urls) {
+    try {
+      const urlObj = new URL(url);
+      let path = urlObj.pathname;
       
-      if (images.size > 0) {
-        console.log(`✓ Found ${images.size} unique images using selector: ${selector}`);
-        break; // Stop at first successful selector
+      // Remove size indicators to get base path
+      const basePath = path
+        .replace(/-\d+x\d+/g, '')
+        .replace(/-scaled/g, '')
+        .replace(/\d+x\d+\./g, '.');
+      
+      // Calculate "size" - prefer URLs without size indicators (they're usually largest)
+      const hasSize = /-\d+x\d+/.test(path) || /\d+x\d+\./.test(path);
+      const size = hasSize ? url.length : url.length + 10000; // Boost non-sized URLs
+      
+      if (!basePathMap.has(basePath) || size > basePathMap.get(basePath)!.size) {
+        basePathMap.set(basePath, { url, size });
       }
+    } catch {
+      continue;
     }
-    
-    // Fallback: extract from anywhere but deduplicate aggressively
-    if (images.size === 0) {
-      console.log('Gallery selectors failed, using fallback extraction');
-      const allImages = html.match(/https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.jpeg/gi) || [];
-      allImages.forEach(url => {
-        const basePath = getBaseImagePath(url);
-        if (!images.has(basePath) || url.length > (images.get(basePath)?.length || 0)) {
-          images.set(basePath, url);
-        }
-      });
-    }
-    
-    const uniqueImages = Array.from(images.values());
-    console.log(`✓ Extracted ${uniqueImages.length} unique images (${images.size} unique base paths)`);
-    return uniqueImages;
-    
-  } catch (error) {
-    console.error('Error in extractMainGalleryImages:', error);
-    return [];
   }
+  
+  const result = Array.from(basePathMap.values()).map(v => v.url);
+  console.log(`✓ Manual deduplication: ${urls.length} → ${result.length} unique images`);
+  return result;
 }
 
 async function analyzeListingWithAI(html: string, url: string) {
@@ -88,22 +110,21 @@ async function analyzeListingWithAI(html: string, url: string) {
     return null;
   }
 
-  // Extract images from main gallery only with smart deduplication
-  const extractedImages = extractMainGalleryImages(html);
-  console.log(`✓ Smart extraction found ${extractedImages.length} unique property images`);
+  // Step 1: Extract ALL image URLs from HTML
+  const allImageUrls = extractAllImageUrls(html);
+  
+  // Step 2: Use AI to identify property images and remove duplicates
+  const propertyImages = await identifyPropertyImages(allImageUrls);
+  console.log(`✓ Final extraction: ${propertyImages.length} unique property images`);
 
   const prompt = `Extract property details from this Spacest listing.
 
 **PRE-EXTRACTED IMAGES:**
-I've already extracted ${extractedImages.length} unique property images using smart DOM parsing and deduplication.
-These images are from the main listing gallery only (no sidebar/related properties).
-
-Images found:
-${extractedImages.slice(0, 3).join('\n')}
-... and ${Math.max(0, extractedImages.length - 3)} more
+I've already extracted ${propertyImages.length} unique property images using AI-powered analysis.
+These are the main listing photos with all duplicates and different sizes removed.
 
 **YOUR TASK:**
-Extract the following property details:
+Extract only the following property details (NOT images):
 - Total apartment rent per month (look for "€" followed by amount, typically €1800-2000)
 - Monthly utilities/bills (spese condominiali, typically €70-100)
 - Number of bedrooms
@@ -112,9 +133,6 @@ Extract the following property details:
 - Full address
 - Property title
 - Property description
-
-**VALIDATION:**
-- You must return ALL property details listed above
 
 Return ONLY this JSON structure:
 {
@@ -140,7 +158,7 @@ ${html}`;
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        model: 'google/gemini-2.5-flash', // Using faster model since images pre-extracted
+        model: 'google/gemini-2.5-flash',
         messages: [
           {
             role: 'user',
@@ -168,16 +186,16 @@ ${html}`;
 
     const extracted = JSON.parse(content);
     
-    // Use pre-extracted images from smart gallery extraction
-    extracted.images = extractedImages;
-    console.log(`✓ Final result: ${extracted.images.length} images from smart extraction`);
+    // Use AI-identified property images
+    extracted.images = propertyImages;
+    console.log(`✓ Final result: ${extracted.images.length} property images`);
     
     return extracted;
   } catch (error) {
     console.error('Failed to analyze with AI:', error);
-    // Use extracted images even on error, or return empty if extraction failed
+    // Use extracted images even on error
     return {
-      images: extractedImages.length > 0 ? extractedImages : [],
+      images: propertyImages,
       rent_monthly_eur: 1900,
       utility_cost_eur: 85,
       bedrooms: 2,
@@ -277,7 +295,7 @@ Deno.serve(async (req) => {
       type: (aiData.bedrooms || 1) >= 2 ? 'apartment' : 'studio',
       furnished: true,
       bills_included: false,
-    } : parseListingPage(html, listingId);
+    } : await parseListingPage(html, listingId);
     
     console.log('Listing data prepared:', { 
       images: listingData.images.length,
@@ -432,7 +450,7 @@ function extractListingId(url: string): string {
   return match[1];
 }
 
-function parseListingPage(html: string, listingId: string): ListingData {
+async function parseListingPage(html: string, listingId: string): Promise<ListingData> {
   const doc = new DOMParser().parseFromString(html, 'text/html');
   
   if (!doc) {
@@ -542,10 +560,10 @@ function parseListingPage(html: string, listingId: string): ListingData {
       price = parseInt(priceMatch[1].replace(/[.,]/g, ''));
     }
     
-    // Extract images using smart gallery extraction
-    const extractedImages = extractMainGalleryImages(html);
-    images = extractedImages;
-    console.log(`Fallback parser extracted ${images.length} images`);
+    // Extract images using AI-powered comprehensive extraction
+    const allImageUrls = extractAllImageUrls(html);
+    images = await identifyPropertyImages(allImageUrls);
+    console.log(`Fallback parser extracted ${images.length} property images`);
   }
 
   // Determine type based on bedrooms
