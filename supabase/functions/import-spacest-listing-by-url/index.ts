@@ -121,21 +121,48 @@ ${html}`;
     const extracted = JSON.parse(content);
     console.log(`✓ AI extracted ${extracted.images?.length || 0} images`);
     
-    // Always deduplicate first
-    const uniqueRegexImages = Array.from(new Set(regexMatches));
+    // Helper function to normalize image URLs for deduplication
+    const normalizeImageUrl = (url: string): string => {
+      try {
+        const urlObj = new URL(url);
+        // Remove query parameters and extract the path
+        const pathWithoutQuery = urlObj.pathname;
+        // Remove size indicators like -150x150, -300x300, etc.
+        const normalizedPath = pathWithoutQuery.replace(/-\d+x\d+\.(jpg|jpeg|png|webp|gif)$/i, '.$1');
+        return normalizedPath;
+      } catch {
+        // If URL parsing fails, return the original
+        return url;
+      }
+    };
+    
+    // Deduplicate regex images using normalization
+    const regexDeduped = new Map<string, string>();
+    for (const img of regexMatches) {
+      const normalized = normalizeImageUrl(img);
+      if (!regexDeduped.has(normalized)) {
+        regexDeduped.set(normalized, img);
+      }
+    }
+    const uniqueRegexImages = Array.from(regexDeduped.values());
+    console.log(`✓ Regex: ${regexMatches.length} → ${uniqueRegexImages.length} after deduplication`);
     
     // If AI found fewer images than regex, use regex results
     if (!extracted.images || extracted.images.length < uniqueRegexImages.length) {
       console.warn(`⚠️ AI only found ${extracted.images?.length || 0} images, using deduplicated regex results (${uniqueRegexImages.length} images)`);
       extracted.images = uniqueRegexImages;
     } else {
-      // Always deduplicate AI results
-      const uniqueImages = Array.from(new Set(extracted.images));
-      if (uniqueImages.length !== extracted.images.length) {
-        console.log(`✓ Removed ${extracted.images.length - uniqueImages.length} duplicate images from AI results`);
+      // Deduplicate AI results using normalization
+      const aiDeduped = new Map<string, string>();
+      for (const img of extracted.images) {
+        const normalized = normalizeImageUrl(img);
+        if (!aiDeduped.has(normalized)) {
+          aiDeduped.set(normalized, img);
+        }
       }
+      const uniqueImages = Array.from(aiDeduped.values());
+      console.log(`✓ AI: ${extracted.images.length} → ${uniqueImages.length} after deduplication`);
       extracted.images = uniqueImages;
-      console.log(`✓ Final image count: ${uniqueImages.length} unique images`);
     }
     
     return extracted;
