@@ -123,6 +123,15 @@ ${html}`;
       extracted.images = regexMatches;
     }
     
+    // Remove duplicate images
+    if (extracted.images && extracted.images.length > 0) {
+      const uniqueImages = Array.from(new Set(extracted.images));
+      if (uniqueImages.length !== extracted.images.length) {
+        console.log(`✓ Removed ${extracted.images.length - uniqueImages.length} duplicate images`);
+        extracted.images = uniqueImages;
+      }
+    }
+    
     return extracted;
   } catch (error) {
     console.error('Failed to analyze with AI:', error);

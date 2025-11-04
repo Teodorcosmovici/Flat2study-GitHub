@@ -132,11 +132,22 @@ export default function ListingDetails() {
   const [translatedDescription, setTranslatedDescription] = useState('');
   const [isDescriptionTranslated, setIsDescriptionTranslated] = useState(false);
   const [showMobileVisitDialog, setShowMobileVisitDialog] = useState(false);
+  const [isAdmin, setIsAdmin] = useState(false);
+  
   useEffect(() => {
     if (id) {
       fetchListing();
     }
   }, [id, language]);
+
+  useEffect(() => {
+    const checkAdminStatus = async () => {
+      if (user && profile) {
+        setIsAdmin(profile.user_type === 'admin');
+      }
+    };
+    checkAdminStatus();
+  }, [user, profile]);
   const fetchListing = async () => {
     try {
       // First, get basic listing from direct query since we need all fields
@@ -428,14 +439,43 @@ export default function ListingDetails() {
                         {formatPrice(listing.rentMonthlyEur)}
                       </div>
                       <div className="text-sm text-muted-foreground">{t('listing.perMonth')}</div>
-                      <ContactInfo 
-                        profileId={listing.landlord.id}
-                        name={listing.landlord.name}
-                        phone={listing.landlord.phone}
-                        email={listing.landlord.email}
-                        listingId={listing.id}
-                        isOwner={user?.id === listing.landlord.id}
-                      />
+                      {isAdmin && (
+                        <div className="mt-4 p-3 bg-muted/50 rounded-lg border border-border">
+                          <div className="text-xs font-medium text-muted-foreground mb-2">Landlord Details (Admin Only)</div>
+                          <div className="space-y-1 text-sm">
+                            <div className="flex items-center gap-2">
+                              <Building className="h-3 w-3 text-muted-foreground" />
+                              <span className="font-medium">{listing.landlord.name}</span>
+                            </div>
+                            {listing.landlord.email && (
+                              <div className="flex items-center gap-2">
+                                <Mail className="h-3 w-3 text-muted-foreground" />
+                                <a href={`mailto:${listing.landlord.email}`} className="text-primary hover:underline">
+                                  {listing.landlord.email}
+                                </a>
+                              </div>
+                            )}
+                            {listing.landlord.phone && (
+                              <div className="flex items-center gap-2">
+                                <Phone className="h-3 w-3 text-muted-foreground" />
+                                <a href={`tel:${listing.landlord.phone}`} className="text-primary hover:underline">
+                                  {listing.landlord.phone}
+                                </a>
+                              </div>
+                            )}
+                          </div>
+                        </div>
+                      )}
+                      {!isAdmin && (
+                        <ContactInfo 
+                          profileId={listing.landlord.id}
+                          name={listing.landlord.name}
+                          phone={listing.landlord.phone}
+                          email={listing.landlord.email}
+                          listingId={listing.id}
+                          isOwner={user?.id === listing.landlord.id}
+                        />
+                      )}
                     </div>
                   </div>
                 </CardHeader>
