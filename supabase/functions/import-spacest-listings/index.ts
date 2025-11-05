@@ -322,7 +322,20 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     bathrooms: listing.bathrooms || 1,
     size_sqm: listing.size_sqm || null,
     amenities: [],
-    availability_date: listing.first_availability ? new Date(listing.first_availability).toISOString().split('T')[0] : new Date().toISOString().split('T')[0],
+    availability_date: (() => {
+      const today = new Date();
+      const oneYearFromNow = new Date(today);
+      oneYearFromNow.setFullYear(today.getFullYear() + 1);
+      
+      if (listing.first_availability) {
+        const firstAvail = new Date(listing.first_availability);
+        // Cap at 1 year from today to prevent unrealistic future dates
+        return firstAvail > oneYearFromNow 
+          ? oneYearFromNow.toISOString().split('T')[0]
+          : firstAvail.toISOString().split('T')[0];
+      }
+      return today.toISOString().split('T')[0];
+    })(),
     images: extractImages(listing),
     status: 'DRAFT',
     review_status: 'pending_review',
