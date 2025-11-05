@@ -244,9 +244,9 @@ function shouldImportListing(listing: SpacestListing): boolean {
     if (bedrooms === 0 || bedrooms === 1) {
       return price < 1100; // Studio
     } else {
-      // For apartments with multiple rooms: max €900 per bedroom
-      // 2 bedrooms: max €1800, 3 bedrooms: max €2700, etc.
-      return price <= (bedrooms * 900);
+      // For apartments with multiple rooms: max €1000 per bedroom
+      // 2 bedrooms: max €2000, 3 bedrooms: max €3000, etc.
+      return price <= (bedrooms * 1000);
     }
   }
   
