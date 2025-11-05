@@ -47,7 +47,8 @@ function extractAllImageUrls(html: string): string[] {
         
         if (!isExcluded) {
           const src = img.getAttribute('src') || img.getAttribute('data-src') || '';
-          if (src.includes('roomless-listing-images.s3.us-east-2.amazonaws.com') && src.endsWith('.jpeg')) {
+          // Capture all image formats from roomless S3
+          if (src.includes('roomless-listing-images.s3.us-east-2.amazonaws.com')) {
             imageSet.add(src);
           }
         }
@@ -74,7 +75,8 @@ function extractAllImageUrls(html: string): string[] {
 
 // Fallback: extract from entire page (less accurate)
 function extractImageUrlsFallback(html: string): string[] {
-  const imageRegex = /https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.jpeg/gi;
+  // Match all image formats from roomless S3
+  const imageRegex = /https:\/\/roomless-listing-images\.s3\.us-east-2\.amazonaws\.com\/[^"'\s<>)]+\.(?:jpeg|jpg|png|webp)/gi;
   const allMatches = html.match(imageRegex) || [];
   console.log(`⚠️ Fallback regex found ${allMatches.length} images (may include unrelated properties)`);
   return allMatches;
@@ -179,14 +181,16 @@ function deduplicateImageUrls(imageUrls: string[]): string[] {
       const urlObj = new URL(url);
       const path = urlObj.pathname;
       
-      // Extract base filename by removing ALL size patterns:
+      // Extract base filename by removing ALL size patterns and extensions:
       // - Remove -WIDTHxHEIGHT (e.g., -150x150, -800x600)
       // - Remove -scaled
       // - Remove WIDTHxHEIGHT. before extension
+      // - Normalize all extensions to compare base images
       const basePath = path
-        .replace(/-\d+x\d+(?=\.jpeg)/gi, '') // Remove -150x150 before .jpeg
-        .replace(/-scaled(?=\.jpeg)/gi, '')   // Remove -scaled before .jpeg  
-        .replace(/\d+x\d+\.jpeg$/i, '.jpeg'); // Remove 800x600.jpeg -> .jpeg
+        .replace(/-\d+x\d+(?=\.)/gi, '') // Remove -150x150 before extension
+        .replace(/-scaled(?=\.)/gi, '')   // Remove -scaled before extension  
+        .replace(/\d+x\d+\./i, '.')       // Remove 800x600. -> .
+        .replace(/\.(jpeg|jpg|png|webp)$/i, '.jpg'); // Normalize extension
       
       if (!groups.has(basePath)) {
         groups.set(basePath, []);
