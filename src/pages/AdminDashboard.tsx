@@ -15,6 +15,7 @@ import { SupportMessagesManager } from '@/components/admin/SupportMessagesManage
 import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
 import { AdminVisitRequests } from '@/components/admin/AdminVisitRequests';
+import { FeedImportButton } from '@/components/admin/FeedImportButton';
 import { geocodeAllListings } from '@/utils/geocoding';
 import {
   Table,
@@ -408,6 +409,7 @@ export const AdminDashboard = () => {
               <Download className="w-4 h-4 mr-2" />
               {importingSpacest ? 'Importing...' : 'Import Feed'}
             </Button>
+            <FeedImportButton />
           </div>
         </div>
       </div>
