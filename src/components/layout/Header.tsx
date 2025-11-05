@@ -178,12 +178,6 @@ export default function Header() {
                         </Link>
                       </DropdownMenuItem>
                       <DropdownMenuItem asChild>
-                        <Link to="/owner-dashboard" className="flex items-center">
-                          <Settings className="h-4 w-4 mr-2" />
-                          Owner Dashboard
-                        </Link>
-                      </DropdownMenuItem>
-                      <DropdownMenuItem asChild>
                         <Link to="/customer-database" className="flex items-center">
                           <User className="h-4 w-4 mr-2" />
                           Customer Database

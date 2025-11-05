@@ -26,7 +26,6 @@ import SignupPrivate from "./pages/SignupPrivate";
 import SignupStudent from "./pages/SignupStudent";
 import EditListing from "./pages/EditListing";
 import MyBookings from "./pages/MyBookings";
-import OwnerDashboard from "./pages/OwnerDashboard";
 import CustomerDatabase from "./pages/CustomerDatabase";
 import PaymentSuccess from "./pages/PaymentSuccess";
 import PaymentCanceled from "./pages/PaymentCanceled";
@@ -68,7 +67,6 @@ const AppRoutes = () => {
       <Route path="/listing/:id" element={<ListingDetails />} />
       <Route path="/checkout/:id" element={<CheckoutLazy />} />
       <Route path="/my-bookings" element={<MyBookings />} />
-      <Route path="/owner-dashboard" element={<OwnerDashboard />} />
       <Route path="/customer-database" element={<CustomerDatabase />} />
       <Route path="/payment-success" element={<PaymentSuccess />} />
       <Route path="/payment-canceled" element={<PaymentCanceled />} />

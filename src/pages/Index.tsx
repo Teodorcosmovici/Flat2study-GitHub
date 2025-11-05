@@ -14,8 +14,6 @@ import { useLanguage } from '@/contexts/LanguageContext';
 import { useDashboardStats } from '@/hooks/useDashboardStats';
 import { useIsMobile } from '@/hooks/use-mobile';
 import { LanguageSelector } from '@/components/ui/language-selector';
-import OwnerAccess from '@/components/OwnerAccess';
-import OwnerDashboard from '@/pages/OwnerDashboard';
 import React, { useState, useEffect, useRef } from 'react';
 import bocconiImg from '@/assets/university-bocconi.png';
 import cattolicaImg from '@/assets/university-cattolica.png';
@@ -48,9 +46,6 @@ const Index = () => {
     loading: listingsLoading
   } = useFeaturedListings(6);
   const isMobile = useIsMobile();
-  const [isOwnerAuthenticated, setIsOwnerAuthenticated] = useState(() => {
-    return sessionStorage.getItem('isOwnerAuthenticated') === 'true';
-  });
   const formatPrice = (price: number) => {
     return new Intl.NumberFormat('en-EU', {
       style: 'currency',
@@ -64,9 +59,6 @@ const Index = () => {
 
   // Removed automatic redirect - users can now access homepage when logged in
 
-  if (isOwnerAuthenticated) {
-    return <OwnerDashboard />;
-  }
   return <div className="min-h-screen bg-background">
       <Header />
       
@@ -650,21 +642,6 @@ const Index = () => {
         </>}
 
       {/* Admin Quick Access */}
-      
-      
-      {/* Discrete Owner Access at the bottom of homepage */}
-      <footer className="py-8 text-center bg-muted/20">
-        <div className="container mx-auto">
-          <OwnerAccess onAuthenticated={() => setIsOwnerAuthenticated(true)} />
-          
-          {/* Direct link for testing */}
-          <div className="mt-4 pt-4 border-t border-muted">
-            <Link to="/customer-database" className="text-sm text-muted-foreground hover:text-foreground">
-              Customer Database (Test Link)
-            </Link>
-          </div>
-        </div>
-      </footer>
     </div>;
 };
 export default Index;
