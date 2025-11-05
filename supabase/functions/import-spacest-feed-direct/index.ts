@@ -1,0 +1,215 @@
+import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.56.0';
+
+const corsHeaders = {
+  'Access-Control-Allow-Origin': '*',
+  'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
+};
+
+interface SpacestListing {
+  code: string;
+  title?: string;
+  description?: string;
+  address?: string;
+  city?: string;
+  province?: string;
+  region?: string;
+  country?: string;
+  lat?: number;
+  lng?: number;
+  price?: number;
+  deposit?: number;
+  category?: string;
+  bedrooms?: number;
+  bathrooms?: number;
+  floor?: string;
+  size?: number;
+  furnished?: boolean;
+  bills_included?: boolean;
+  images?: string[];
+  amenities?: string[];
+  availability_date?: string;
+  occupation_periods?: Array<{ from: string; to: string }>;
+}
+
+Deno.serve(async (req) => {
+  if (req.method === 'OPTIONS') {
+    return new Response(null, { headers: corsHeaders });
+  }
+
+  try {
+    const supabaseUrl = Deno.env.get('SUPABASE_URL')!;
+    const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
+    const supabase = createClient(supabaseUrl, supabaseServiceKey);
+
+    const { listings } = await req.json();
+
+    if (!listings || !Array.isArray(listings)) {
+      throw new Error('listings array is required');
+    }
+
+    console.log(`Processing ${listings.length} listings from feed`);
+
+    // Get or create Spacest agency profile
+    const { data: existingAgency } = await supabase
+      .from('profiles')
+      .select('id')
+      .eq('email', 'spacest@agency.com')
+      .eq('user_type', 'agency')
+      .single();
+
+    let agencyId: string;
+    if (existingAgency) {
+      agencyId = existingAgency.id;
+    } else {
+      const { data: newAgency, error: agencyError } = await supabase
+        .from('profiles')
+        .insert({
+          email: 'spacest@agency.com',
+          phone: '+39000000000',
+          user_type: 'agency',
+          agency_name: 'Spacest',
+          full_name: 'Spacest Agency',
+        })
+        .select('id')
+        .single();
+
+      if (agencyError) throw agencyError;
+      agencyId = newAgency.id;
+    }
+
+    let imported = 0;
+    let updated = 0;
+    let skipped = 0;
+
+    // Milan area bounds
+    const MILAN_BOUNDS = {
+      minLat: 45.26,
+      maxLat: 45.66,
+      minLng: 9.00,
+      maxLng: 9.38,
+    };
+
+    for (const listing of listings) {
+      try {
+        // Skip if not eligible for import
+        if (!shouldImportListing(listing)) {
+          skipped++;
+          continue;
+        }
+
+        // Skip if outside Milan area
+        if (
+          listing.lat &&
+          listing.lng &&
+          (listing.lat < MILAN_BOUNDS.minLat ||
+            listing.lat > MILAN_BOUNDS.maxLat ||
+            listing.lng < MILAN_BOUNDS.minLng ||
+            listing.lng > MILAN_BOUNDS.maxLng)
+        ) {
+          skipped++;
+          continue;
+        }
+
+        const mappedListing = mapSpacestListing(listing, agencyId);
+
+        // Check if listing exists
+        const { data: existingListing } = await supabase
+          .from('listings')
+          .select('id')
+          .eq('external_listing_id', listing.code)
+          .single();
+
+        if (existingListing) {
+          await supabase
+            .from('listings')
+            .update(mappedListing)
+            .eq('id', existingListing.id);
+          updated++;
+        } else {
+          await supabase.from('listings').insert(mappedListing);
+          imported++;
+        }
+      } catch (error) {
+        console.error(`Error processing listing ${listing.code}:`, error);
+      }
+    }
+
+    return new Response(
+      JSON.stringify({
+        success: true,
+        imported,
+        updated,
+        skipped,
+        total: listings.length,
+      }),
+      { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
+    );
+  } catch (error) {
+    console.error('Import failed:', error);
+    return new Response(
+      JSON.stringify({ success: false, error: error.message }),
+      {
+        status: 500,
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      }
+    );
+  }
+});
+
+function shouldImportListing(listing: SpacestListing): boolean {
+  // Only import if has valid price and is a room/apartment
+  if (!listing.price || listing.price < 100) return false;
+  if (!listing.category) return false;
+  
+  const validCategories = ['stanza', 'camera', 'appartamento', 'monolocale', 'bilocale'];
+  return validCategories.some(cat => 
+    listing.category?.toLowerCase().includes(cat)
+  );
+}
+
+function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
+  const city = listing.city || extractCity(listing.address);
+  const addressLine = listing.address || '';
+  
+  return {
+    external_listing_id: listing.code,
+    external_source: 'spacest',
+    agency_id: agencyId,
+    title: listing.title || generateTitle(listing),
+    type: listing.category || 'room',
+    description: listing.description || '',
+    address_line: addressLine,
+    city: city,
+    country: listing.country || 'Italy',
+    lat: listing.lat || 0,
+    lng: listing.lng || 0,
+    rent_monthly_eur: listing.price,
+    deposit_eur: listing.deposit || 0,
+    bills_included: listing.bills_included || false,
+    furnished: listing.furnished !== false,
+    bedrooms: listing.bedrooms || 1,
+    bathrooms: listing.bathrooms || 1,
+    floor: listing.floor || null,
+    size_sqm: listing.size || null,
+    amenities: listing.amenities || [],
+    availability_date: listing.availability_date || null,
+    images: listing.images || [],
+    status: 'PUBLISHED',
+    last_synced_at: new Date().toISOString(),
+  };
+}
+
+function extractCity(address?: string): string {
+  if (!address) return 'Milano';
+  const lowerAddress = address.toLowerCase();
+  if (lowerAddress.includes('milan') || lowerAddress.includes('milano')) {
+    return 'Milano';
+  }
+  return 'Milano';
+}
+
+function generateTitle(listing: SpacestListing): string {
+  const type = listing.category || 'Room';
+  const city = extractCity(listing.address);
+  return `${type} in ${city}`;
+}
