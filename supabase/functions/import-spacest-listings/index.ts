@@ -280,15 +280,15 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
   const postcode = extractPostcode(listing);
   const country = listing?.country || listing?.location?.country || 'IT';
   
-  // Extract coordinates from multiple possible locations
+  // Extract coordinates - prioritize feed's location.coordinates
   const lat = listing?.location?.coordinates?.latitude ?? 
               listing?.latitude ?? 
-              listing?.lat ?? 
               45.4642; // Default Milan
   const lng = listing?.location?.coordinates?.longitude ?? 
               listing?.longitude ?? 
-              listing?.lng ?? 
               9.1900; // Default Milan
+  
+  console.log(`Listing ${listing.listing_code}: lat=${lat}, lng=${lng}`);
 
   // Use the name field from Spacest data, which contains the full title
   const title = listing.name || generateTitle(type, address, bedrooms);
