@@ -137,12 +137,17 @@ export default function EditListing() {
 
   const fetchListing = async () => {
     try {
-      const { data, error } = await supabase
+      // For admins, allow viewing any listing; for others, check agency_id
+      let query = supabase
         .from('listings')
         .select('*')
-        .eq('id', id)
-        .eq('agency_id', profile?.id)
-        .single();
+        .eq('id', id);
+      
+      if (profile?.user_type !== 'admin') {
+        query = query.eq('agency_id', profile?.id);
+      }
+      
+      const { data, error } = await query.single();
 
       if (error) {
         toast({
@@ -326,11 +331,17 @@ export default function EditListing() {
         updated_at: new Date().toISOString()
       };
 
-      const { error } = await supabase
+      // For admins, allow updating any listing; for others, check agency_id
+      let updateQuery = supabase
         .from('listings')
         .update(listingData)
-        .eq('id', id)
-        .eq('agency_id', profile.id);
+        .eq('id', id);
+      
+      if (profile.user_type !== 'admin') {
+        updateQuery = updateQuery.eq('agency_id', profile.id);
+      }
+      
+      const { error } = await updateQuery;
 
       if (error) {
         console.error('Error updating listing:', error);
