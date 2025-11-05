@@ -157,8 +157,8 @@ Deno.serve(async (req) => {
 });
 
 function shouldImportListing(listing: SpacestListing): boolean {
-  // Only import if has valid price and is a room/apartment
-  if (!listing.price || listing.price < 100) return false;
+  // Only import if price is between 100-1200 EUR
+  if (!listing.price || listing.price < 100 || listing.price > 1200) return false;
   if (!listing.category) return false;
   
   const validCategories = ['stanza', 'camera', 'appartamento', 'monolocale', 'bilocale'];
