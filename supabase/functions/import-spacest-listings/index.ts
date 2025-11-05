@@ -232,7 +232,7 @@ Deno.serve(async (req) => {
 
 function shouldImportListing(listing: SpacestListing): boolean {
   const price = listing.price;
-  const bedrooms = listing.bedrooms || 0;
+  const bedrooms = listing.bedrooms || listing.house_informations?.bedrooms || 0;
   
   // Determine listing type based on category and bedrooms
   if (listing.category === 'room') {
@@ -243,10 +243,10 @@ function shouldImportListing(listing: SpacestListing): boolean {
     // If bedrooms not specified, assume studio
     if (bedrooms === 0 || bedrooms === 1) {
       return price < 1100; // Studio
-    } else if (bedrooms === 2) {
-      return price < 1800;
-    } else if (bedrooms === 3) {
-      return price < 2500;
+    } else {
+      // For apartments with multiple rooms: max €900 per bedroom
+      // 2 bedrooms: max €1800, 3 bedrooms: max €2700, etc.
+      return price <= (bedrooms * 900);
     }
   }
   
