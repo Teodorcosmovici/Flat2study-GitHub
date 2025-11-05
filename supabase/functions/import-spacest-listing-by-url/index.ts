@@ -291,34 +291,39 @@ async function analyzeListingWithAI(html: string, url: string) {
   const propertyImages = deduplicateImageUrls(propertyImagesWithDuplicates);
   console.log(`✓ After deduplication: ${propertyImages.length} unique property images`);
 
-  const prompt = `Extract property details from this Spacest listing.
+  const prompt = `Extract EXACT property details from this Spacest listing HTML.
 
-**YOUR TASK:**
-Extract only the following property details:
-- Total apartment rent per month (look for "€" followed by amount, typically €1800-2000)
-- Monthly utilities/bills (spese condominiali, typically €70-100)
-- Number of bedrooms
-- Number of bathrooms  
-- Size in square meters (m²)
-- Full address (street name and number if available)
-- Property title
-- Property description
+CRITICAL: Find these EXACT Italian labels and extract the numbers shown after them:
+1. "Prezzo mensile" → extract number (monthly rent in €)
+2. "Deposito cauzionale" → extract number (security deposit in €)  
+3. "Prezzo medio delle utenze" → extract number (average utilities in €)
+4. Check if utilities show "Non incluse" = NOT included, "Incluse" = included
+5. "N. delle camere" → number of bedrooms
+6. "N. dei bagni" → number of bathrooms
+7. "Dimensioni della casa" → size in m²
+8. Page title (H1 at top)
+9. "Descrizione" section content
+10. "Via [street name]" for address
 
-Return ONLY this JSON structure:
+DO NOT calculate or modify numbers. Extract EXACTLY what is shown.
+
+Return ONLY this JSON:
 {
-  "rent_monthly_eur": 1900,
-  "utility_cost_eur": 85,
-  "bedrooms": 2,
-  "bathrooms": 2,
-  "size_sqm": 60,
-  "title": "string",
-  "description": "string",
-  "address": "string",
+  "rent_monthly_eur": number (exact monthly rent),
+  "deposit_eur": number (exact deposit),
+  "utility_cost_eur": number (exact utilities cost),
+  "utilities_included": boolean (true only if "Incluse nel canone"),
+  "bedrooms": number,
+  "bathrooms": number,
+  "size_sqm": number or null,
+  "title": "exact H1 title",
+  "description": "full description text",
+  "address": "Via [street]",
   "city": "Milano"
 }
 
 HTML:
-${html}`;
+${html.substring(0, 150000)}`;
 
   try {
     const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -389,6 +394,9 @@ interface ListingData {
   title: string;
   description: string;
   price: number;
+  deposit: number;
+  utility_cost: number;
+  utilities_included: boolean;
   address: string;
   city: string;
   country: string;
@@ -453,6 +461,9 @@ Deno.serve(async (req) => {
       title: aiData.title || `Property ${listingId}`,
       description: aiData.description || '',
       price: aiData.rent_monthly_eur || 0,
+      deposit: aiData.deposit_eur || (aiData.rent_monthly_eur || 0) * 2,
+      utility_cost: aiData.utility_cost_eur || 0,
+      utilities_included: aiData.utilities_included || false,
       address: aiData.address || '',
       city: aiData.city || 'Milano',
       country: 'Italy',
@@ -464,7 +475,7 @@ Deno.serve(async (req) => {
       images: aiData.images || [],
       type: (aiData.bedrooms || 1) >= 2 ? 'apartment' : 'studio',
       furnished: true,
-      bills_included: false,
+      bills_included: aiData.utilities_included || false,
     } : await parseListingPage(html, listingId);
     
     // Geocode the address to get accurate coordinates
@@ -519,7 +530,7 @@ Deno.serve(async (req) => {
     }
 
     // Map to database schema
-    const utilityPerType = aiData ? Math.round((aiData.utility_cost_eur || 0) / 4) : 21;
+    const utilityPerType = Math.round((listingData.utility_cost || 0) / 4);
     
     const mappedListing = {
       external_listing_id: listingData.external_listing_id,
@@ -542,8 +553,8 @@ Deno.serve(async (req) => {
       lat: listingData.lat,
       lng: listingData.lng,
       rent_monthly_eur: listingData.price,
-      deposit_eur: listingData.price * 2,
-      bills_included: listingData.bills_included,
+      deposit_eur: listingData.deposit,
+      bills_included: listingData.utilities_included,
       furnished: listingData.furnished,
       bedrooms: listingData.bedrooms,
       bathrooms: listingData.bathrooms,
@@ -556,15 +567,15 @@ Deno.serve(async (req) => {
       minimum_stay_days: 30,
       maximum_stay_days: 365,
       last_synced_at: new Date().toISOString(),
-      // Utility costs
+      // Utility costs - split the total utilities across 4 types
       electricity_cost_eur: utilityPerType,
       gas_cost_eur: utilityPerType,
       water_cost_eur: utilityPerType,
       internet_cost_eur: utilityPerType,
-      electricity_included: false,
-      gas_included: false,
-      water_included: false,
-      internet_included: false,
+      electricity_included: listingData.utilities_included,
+      gas_included: listingData.utilities_included,
+      water_included: listingData.utilities_included,
+      internet_included: listingData.utilities_included,
     };
 
     // Check if listing already exists
@@ -761,6 +772,9 @@ async function parseListingPage(html: string, listingId: string): Promise<Listin
     title: title.trim() || `Property ${listingId}`,
     description: description.trim() || 'Spacest property listing',
     price: price || 800,
+    deposit: (price || 800) * 2,
+    utility_cost: 0,
+    utilities_included: false,
     address: address.trim() || 'Milan',
     city,
     country,
