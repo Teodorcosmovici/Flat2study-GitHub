@@ -8,23 +8,31 @@ const corsHeaders = {
 const SPACEST_FEED_URL = 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
 
 interface SpacestListing {
-  listing_code: string;
+  listing_code: string | number;
   name?: string;
   category: 'room' | 'apartment';
   price: number;
-  deposit?: number;
-  utility_cost?: number;
+  surcharges?: Array<{ deposit?: number; type?: string }>;
+  utilities?: { amount?: number; included_in_rent?: string[] };
+  amenities?: string[];
   bedrooms?: number;
+  house_informations?: {
+    bedrooms?: number;
+    bathrooms?: number;
+    size?: number;
+    person_capacity?: number;
+  };
   title?: string;
   description?: string;
   address?: string;
   city?: string;
   country?: string;
   images?: string[];
+  photos?: Array<{ url: string; main?: boolean }>;
   first_availability?: string;
   minimum_stay?: number;
   maximum_stay?: number;
-  occupation_periods?: Array<{ start_date: string; end_date: string }>;
+  occupation_periods?: Array<{ from: string; to: string }>;
   latitude?: number;
   longitude?: number;
   location?: {
@@ -246,8 +254,8 @@ function shouldImportListing(listing: SpacestListing): boolean {
 }
 
 function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
-  // Extract bedrooms from feed
-  const rawBedrooms = extractBedrooms(listing);
+  // Extract bedrooms from feed (house_informations.bedrooms)
+  const rawBedrooms = listing?.house_informations?.bedrooms ?? extractBedrooms(listing);
   
   // Determine our listing type and correct bedroom count
   let type = 'room';
@@ -285,8 +293,22 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
   // Use the name field from Spacest data, which contains the full title
   const title = listing.name || generateTitle(type, address, bedrooms);
 
+  // Extract deposit from surcharges array
+  const deposit = listing.surcharges?.find(s => s.type === 'security_deposit')?.deposit || (listing.price * 2);
+  
+  // Extract utility costs
+  const utilityAmount = listing.utilities?.amount || 0;
+  const utilitiesIncluded = (listing.utilities?.included_in_rent?.length ?? 0) > 0;
+  
+  // Extract amenities
+  const amenities = listing.amenities || [];
+  
+  // Extract bathrooms from house_informations
+  const bathrooms = listing.house_informations?.bathrooms || listing.bathrooms || 1;
+  const size_sqm = listing.house_informations?.size || listing.size_sqm || null;
+
   return {
-    external_listing_id: listing.listing_code,
+    external_listing_id: String(listing.listing_code),
     external_source: 'spacest',
     agency_id: agencyId,
     title,
@@ -307,21 +329,21 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     lat,
     lng,
     rent_monthly_eur: listing.price,
-    deposit_eur: listing.deposit || (listing.price * 2),
-    bills_included: listing.bills_included ?? false,
-    water_included: listing.bills_included ?? false,
-    electricity_included: listing.bills_included ?? false,
-    gas_included: listing.bills_included ?? false,
-    internet_included: listing.bills_included ?? false,
-    water_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.2) : null),
-    electricity_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.4) : null),
-    gas_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.3) : null),
-    internet_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.1) : null),
-    furnished: listing.furnished ?? true,
+    deposit_eur: deposit,
+    bills_included: utilitiesIncluded,
+    water_included: utilitiesIncluded,
+    electricity_included: utilitiesIncluded,
+    gas_included: utilitiesIncluded,
+    internet_included: utilitiesIncluded,
+    water_cost_eur: utilitiesIncluded ? 0 : (utilityAmount > 0 ? Math.round(utilityAmount * 0.2) : null),
+    electricity_cost_eur: utilitiesIncluded ? 0 : (utilityAmount > 0 ? Math.round(utilityAmount * 0.4) : null),
+    gas_cost_eur: utilitiesIncluded ? 0 : (utilityAmount > 0 ? Math.round(utilityAmount * 0.3) : null),
+    internet_cost_eur: utilitiesIncluded ? 0 : (utilityAmount > 0 ? Math.round(utilityAmount * 0.1) : null),
+    furnished: amenities.some(a => a.toLowerCase().includes('furnished')) || true,
     bedrooms: bedrooms,
-    bathrooms: listing.bathrooms || 1,
-    size_sqm: listing.size_sqm || null,
-    amenities: [],
+    bathrooms: bathrooms,
+    size_sqm: size_sqm,
+    amenities: amenities,
     availability_date: (() => {
       const today = new Date();
       const oneYearFromNow = new Date(today);
@@ -371,7 +393,7 @@ function generateTitle(type: string, address: string | undefined, bedrooms: numb
 async function updateAvailabilityPeriods(
   supabase: any,
   listingId: string,
-  occupationPeriods: Array<{ start_date: string; end_date: string }>
+  occupationPeriods: Array<{ from: string; to: string }>
 ) {
   try {
     // Delete existing availability for this listing
@@ -390,9 +412,10 @@ async function updateAvailabilityPeriods(
       const dateStr = date.toISOString().split('T')[0];
       
       // Check if this date falls within any occupation period
+      // Feed uses "from" and "to" fields, not "start_date" and "end_date"
       const isOccupied = occupationPeriods.some(period => {
-        const start = new Date(period.start_date);
-        const end = new Date(period.end_date);
+        const start = new Date(period.from);
+        const end = new Date(period.to);
         return date >= start && date <= end;
       });
       
@@ -446,7 +469,8 @@ function extractBedrooms(listing: any): number {
 }
 
 function extractImages(listing: any): string[] {
-  const imgs = listing?.images || listing?.photos || listing?.pictures || [];
+  // Feed uses "photos" array with objects containing "url" field
+  const imgs = listing?.photos || listing?.images || listing?.pictures || [];
   if (Array.isArray(imgs)) {
     return imgs
       .map((it: any) => typeof it === 'string' ? it : (it?.url || it?.src))
