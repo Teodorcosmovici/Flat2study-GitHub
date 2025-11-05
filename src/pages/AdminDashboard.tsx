@@ -327,6 +327,61 @@ export const AdminDashboard = () => {
     }
   };
 
+  const handleCleanPendingReviews = async () => {
+    if (!confirm('Delete all pending reviews outside Milan area and fix coordinates?')) {
+      return;
+    }
+
+    try {
+      // Milan bounds
+      const MILAN_BOUNDS = {
+        minLat: 45.26,
+        maxLat: 45.66,
+        minLng: 9.00,
+        maxLng: 9.38,
+      };
+
+      // Delete listings outside Milan
+      const { error: deleteError } = await supabase
+        .from('listings')
+        .delete()
+        .eq('review_status', 'pending_review')
+        .or(`lat.lt.${MILAN_BOUNDS.minLat},lat.gt.${MILAN_BOUNDS.maxLat},lng.lt.${MILAN_BOUNDS.minLng},lng.gt.${MILAN_BOUNDS.maxLng}`);
+
+      if (deleteError) throw deleteError;
+
+      // Geocode remaining pending listings
+      const { data: pendingToGeocode } = await supabase
+        .from('listings')
+        .select('id, address_line, city')
+        .eq('review_status', 'pending_review');
+
+      if (pendingToGeocode && pendingToGeocode.length > 0) {
+        const { error: geocodeError } = await supabase.functions.invoke('geocode-all-listings', {
+          body: { listingIds: pendingToGeocode.map(l => l.id) }
+        });
+
+        if (geocodeError) {
+          console.error('Geocoding error:', geocodeError);
+        }
+      }
+
+      toast({
+        title: "Cleanup Complete",
+        description: "Deleted listings outside Milan and fixed coordinates",
+      });
+
+      fetchPendingListings();
+    } catch (error) {
+      console.error('Error cleaning pending reviews:', error);
+      toast({
+        title: "Error",
+        description: "Failed to clean pending reviews",
+        variant: "destructive",
+      });
+    }
+  };
+
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -363,6 +418,13 @@ export const AdminDashboard = () => {
             >
               <CheckCircle className="w-4 h-4 mr-2" />
               Approve All
+            </Button>
+            <Button 
+              onClick={handleCleanPendingReviews} 
+              variant="outline"
+              size="sm"
+            >
+              Clean Pending Reviews
             </Button>
             <Button 
               onClick={handleDeleteSpacestListings} 
