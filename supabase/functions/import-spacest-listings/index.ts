@@ -9,8 +9,11 @@ const SPACEST_FEED_URL = 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-
 
 interface SpacestListing {
   listing_code: string;
+  name?: string;
   category: 'room' | 'apartment';
   price: number;
+  deposit?: number;
+  utility_cost?: number;
   bedrooms?: number;
   title?: string;
   description?: string;
@@ -24,6 +27,13 @@ interface SpacestListing {
   occupation_periods?: Array<{ start_date: string; end_date: string }>;
   latitude?: number;
   longitude?: number;
+  location?: {
+    coordinates?: { latitude?: number; longitude?: number };
+    city?: string;
+    country?: string;
+    address?: string;
+    addressZipCode?: string;
+  };
   size_sqm?: number;
   bathrooms?: number;
   furnished?: boolean;
@@ -297,8 +307,16 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     lat,
     lng,
     rent_monthly_eur: listing.price,
-    deposit_eur: listing.price * 2, // Default 2 months deposit
+    deposit_eur: listing.deposit || (listing.price * 2),
     bills_included: listing.bills_included ?? false,
+    water_included: listing.bills_included ?? false,
+    electricity_included: listing.bills_included ?? false,
+    gas_included: listing.bills_included ?? false,
+    internet_included: listing.bills_included ?? false,
+    water_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.2) : null),
+    electricity_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.4) : null),
+    gas_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.3) : null),
+    internet_cost_eur: listing.bills_included ? 0 : (listing.utility_cost ? Math.round(listing.utility_cost * 0.1) : null),
     furnished: listing.furnished ?? true,
     bedrooms: bedrooms,
     bathrooms: listing.bathrooms || 1,
