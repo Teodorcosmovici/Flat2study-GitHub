@@ -16,7 +16,6 @@ import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
 import { AdminVisitRequests } from '@/components/admin/AdminVisitRequests';
 import { FeedImportButton } from '@/components/admin/FeedImportButton';
-import { CleanupSpacestButton } from '@/components/admin/CleanupSpacestButton';
 import { geocodeAllListings } from '@/utils/geocoding';
 import {
   Table,
@@ -60,7 +59,6 @@ export const AdminDashboard = () => {
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
   const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
   const [postcodeResults, setPostcodeResults] = useState<any>(null);
-  const [isDeletingSpacest, setIsDeletingSpacest] = useState(false);
 
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
@@ -98,6 +96,47 @@ export const AdminDashboard = () => {
       toast({
         title: "Error",
         description: "Failed to approve listings",
+        variant: "destructive",
+      });
+    }
+  };
+
+  const handleRejectAll = async () => {
+    if (pendingListings.length === 0) {
+      toast({
+        title: "No listings to reject",
+        description: "There are no pending listings at the moment.",
+      });
+      return;
+    }
+
+    try {
+      const { error } = await supabase
+        .from('listings')
+        .update({
+          review_status: 'rejected',
+          review_notes: 'Bulk rejected',
+          reviewed_at: new Date().toISOString(),
+          reviewed_by: profile?.id,
+          status: 'DRAFT'
+        })
+        .eq('review_status', 'pending_review');
+
+      if (error) throw error;
+
+      toast({
+        title: "Success",
+        description: `Rejected ${pendingListings.length} listing(s)`,
+      });
+
+      fetchPendingListings();
+      setSelectedListing(null);
+      setReviewNotes('');
+    } catch (error) {
+      console.error('Error rejecting listings:', error);
+      toast({
+        title: "Error",
+        description: "Failed to reject listings",
         variant: "destructive",
       });
     }
@@ -299,34 +338,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteSpacestListings = async () => {
-    if (!confirm('Are you sure you want to delete ALL Spacest listings? This cannot be undone.')) {
-      return;
-    }
-
-    setIsDeletingSpacest(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('delete-spacest-listings');
-
-      if (error) throw error;
-
-      toast({
-        title: "Deletion Complete",
-        description: `Deleted ${data.deletedCount} Spacest listings`,
-      });
-
-      fetchPendingListings();
-    } catch (error) {
-      console.error('Error deleting Spacest listings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete Spacest listings",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeletingSpacest(false);
-    }
-  };
 
   const handleCleanPendingReviews = async () => {
     if (!confirm('Delete all pending reviews outside Milan area?')) {
@@ -392,19 +403,13 @@ export const AdminDashboard = () => {
               Approve All
             </Button>
             <Button 
-              onClick={handleCleanPendingReviews} 
-              variant="outline"
-              size="sm"
-            >
-              Clean Pending Reviews
-            </Button>
-            <Button 
-              onClick={handleDeleteSpacestListings} 
-              disabled={isDeletingSpacest}
+              onClick={handleRejectAll} 
+              disabled={pendingListings.length === 0}
               variant="destructive"
               size="sm"
             >
-              {isDeletingSpacest ? 'Deleting...' : 'Delete All Spacest'}
+              <XCircle className="w-4 h-4 mr-2" />
+              Reject All
             </Button>
             <Badge variant="outline" className="text-orange-600">
               {pendingListings.length} Pending Review
@@ -444,7 +449,6 @@ export const AdminDashboard = () => {
               {importingSpacest ? 'Importing...' : 'Import Feed'}
             </Button>
             <FeedImportButton />
-            <CleanupSpacestButton />
           </div>
         </div>
       </div>
