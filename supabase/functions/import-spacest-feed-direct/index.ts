@@ -89,6 +89,9 @@ Deno.serve(async (req) => {
       maxLng: 9.38,
     };
 
+    // Track valid listing codes from the feed
+    const validListingCodes = new Set<string>();
+
     for (const listing of listings) {
       try {
         // Skip if not eligible for import
@@ -109,6 +112,9 @@ Deno.serve(async (req) => {
           skipped++;
           continue;
         }
+
+        // Track this listing as valid
+        validListingCodes.add(listing.code);
 
         const mappedListing = mapSpacestListing(listing, agencyId);
 
@@ -134,11 +140,32 @@ Deno.serve(async (req) => {
       }
     }
 
+    // Remove listings that are no longer in the feed
+    const { data: existingSpacestListings } = await supabase
+      .from('listings')
+      .select('id, external_listing_id')
+      .eq('external_source', 'spacest')
+      .not('external_listing_id', 'is', null);
+
+    let removed = 0;
+    if (existingSpacestListings) {
+      for (const existing of existingSpacestListings) {
+        if (!validListingCodes.has(existing.external_listing_id)) {
+          await supabase
+            .from('listings')
+            .delete()
+            .eq('id', existing.id);
+          removed++;
+        }
+      }
+    }
+
     return new Response(
       JSON.stringify({
         success: true,
         imported,
         updated,
+        removed,
         skipped,
         total: listings.length,
       }),
@@ -195,6 +222,7 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     availability_date: listing.availability_date || null,
     images: listing.images || [],
     status: 'PUBLISHED',
+    review_status: 'approved',
     last_synced_at: new Date().toISOString(),
   };
 }

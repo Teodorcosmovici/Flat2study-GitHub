@@ -27,7 +27,7 @@ export const FeedImportButton = () => {
       if (error) throw error;
 
       toast.success(
-        `Import complete! ✅ Imported: ${data.imported}, 🔄 Updated: ${data.updated}, ⏭️ Skipped: ${data.skipped}`
+        `Import complete! ✅ Imported: ${data.imported}, 🔄 Updated: ${data.updated}, 🗑️ Removed: ${data.removed}, ⏭️ Skipped: ${data.skipped}`
       );
     } catch (error) {
       console.error('Import failed:', error);
