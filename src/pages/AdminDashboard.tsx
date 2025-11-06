@@ -434,21 +434,6 @@ export const AdminDashboard = () => {
             </Button>
           </div>
           <div className="flex gap-2 items-center">
-            <Input
-              placeholder="Feed URL (optional, leave empty for default)"
-              value={spacestFeedUrl}
-              onChange={(e) => setSpacestFeedUrl(e.target.value)}
-              className="w-96"
-            />
-            <Button 
-              onClick={handleSpacestImport} 
-              disabled={importingSpacest}
-              variant="outline"
-              size="sm"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {importingSpacest ? 'Importing...' : 'Import Feed'}
-            </Button>
             <FeedImportButton />
             <CleanupSpacestButton />
           </div>
