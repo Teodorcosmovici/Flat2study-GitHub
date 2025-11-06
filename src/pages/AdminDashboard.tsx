@@ -16,6 +16,7 @@ import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
 import { AdminVisitRequests } from '@/components/admin/AdminVisitRequests';
 import { FeedImportButton } from '@/components/admin/FeedImportButton';
+import { CleanupSpacestButton } from '@/components/admin/CleanupSpacestButton';
 import { geocodeAllListings } from '@/utils/geocoding';
 import {
   Table,
@@ -443,6 +444,7 @@ export const AdminDashboard = () => {
               {importingSpacest ? 'Importing...' : 'Import Feed'}
             </Button>
             <FeedImportButton />
+            <CleanupSpacestButton />
           </div>
         </div>
       </div>
