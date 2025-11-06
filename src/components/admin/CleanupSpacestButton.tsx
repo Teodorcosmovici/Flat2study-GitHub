@@ -19,7 +19,7 @@ export const CleanupSpacestButton = () => {
       if (error) throw error;
 
       toast.success(
-        `Cleanup complete! 🗑️ Removed: ${data.totalDeleted} listings (${data.deletedByPrice} by price, ${data.deletedByLocation} by location)`
+        `Cleanup complete! 🗑️ Removed: ${data.totalDeleted} listings`
       );
     } catch (error) {
       console.error('Cleanup failed:', error);
@@ -44,7 +44,7 @@ export const CleanupSpacestButton = () => {
       ) : (
         <>
           <Trash2 className="h-4 w-4" />
-          Clean Invalid Spacest Listings
+          Delete All Spacest (Keep €1900)
         </>
       )}
     </Button>

@@ -15,72 +15,42 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    console.log('Starting cleanup of invalid Spacest listings...');
-
-    // Milan area bounds
-    const MILAN_BOUNDS = {
-      minLat: 45.26,
-      maxLat: 45.66,
-      minLng: 9.00,
-      maxLng: 9.38,
-    };
+    console.log('Deleting all Spacest listings except the 1900 EUR apartment...');
 
     // Fetch all Spacest listings
     const { data: allSpacestListings, error: fetchError } = await supabase
       .from('listings')
-      .select('id, rent_monthly_eur, lat, lng')
+      .select('id, rent_monthly_eur, title, address_line')
       .eq('external_source', 'spacest');
 
     if (fetchError) throw fetchError;
 
-    let deletedByPrice = 0;
-    let deletedByLocation = 0;
+    let totalDeleted = 0;
 
     if (allSpacestListings) {
       for (const listing of allSpacestListings) {
-        let shouldDelete = false;
-        let reason = '';
-
-        // Check price range (300-1000 EUR)
-        if (!listing.rent_monthly_eur || listing.rent_monthly_eur < 300 || listing.rent_monthly_eur > 1000) {
-          shouldDelete = true;
-          reason = 'price';
-          deletedByPrice++;
-        }
-        // Check Milan location bounds
-        else if (
-          listing.lat < MILAN_BOUNDS.minLat ||
-          listing.lat > MILAN_BOUNDS.maxLat ||
-          listing.lng < MILAN_BOUNDS.minLng ||
-          listing.lng > MILAN_BOUNDS.maxLng
-        ) {
-          shouldDelete = true;
-          reason = 'location';
-          deletedByLocation++;
+        // Skip the 1900 EUR apartment
+        if (listing.rent_monthly_eur === 1900) {
+          console.log(`Keeping listing: ${listing.title} (€${listing.rent_monthly_eur})`);
+          continue;
         }
 
-        if (shouldDelete) {
-          await supabase
-            .from('listings')
-            .delete()
-            .eq('id', listing.id);
-          console.log(`Deleted listing ${listing.id} (reason: ${reason})`);
-        }
+        await supabase
+          .from('listings')
+          .delete()
+          .eq('id', listing.id);
+        
+        totalDeleted++;
+        console.log(`Deleted listing ${listing.id}: ${listing.title} (€${listing.rent_monthly_eur})`);
       }
     }
 
-    const totalDeleted = deletedByPrice + deletedByLocation;
-
-    console.log(`Cleanup complete. Deleted ${totalDeleted} invalid listings.`);
-    console.log(`- Deleted ${deletedByPrice} due to price (outside 300-1000 EUR range)`);
-    console.log(`- Deleted ${deletedByLocation} due to location (outside Milan area)`);
+    console.log(`Cleanup complete. Deleted ${totalDeleted} Spacest listings.`);
 
     return new Response(
       JSON.stringify({
         success: true,
         totalDeleted,
-        deletedByPrice,
-        deletedByLocation,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
