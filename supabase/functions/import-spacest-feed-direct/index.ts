@@ -123,19 +123,34 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Skip if missing coordinates or outside Milan area
-        if (
-          !listing.lat || 
-          !listing.lng ||
-          listing.lat === 0 ||
-          listing.lng === 0 ||
-          listing.lat < MILAN_BOUNDS.minLat ||
-          listing.lat > MILAN_BOUNDS.maxLat ||
-          listing.lng < MILAN_BOUNDS.minLng ||
-          listing.lng > MILAN_BOUNDS.maxLng
-        ) {
-          skipped++;
-          continue;
+        // Check Milan location - either by coordinates or address
+        const hasValidCoordinates = listing.lat && listing.lng && listing.lat !== 0 && listing.lng !== 0;
+        
+        if (hasValidCoordinates) {
+          // If we have coordinates, check if they're in Milan bounds
+          if (
+            listing.lat < MILAN_BOUNDS.minLat ||
+            listing.lat > MILAN_BOUNDS.maxLat ||
+            listing.lng < MILAN_BOUNDS.minLng ||
+            listing.lng > MILAN_BOUNDS.maxLng
+          ) {
+            skipped++;
+            continue;
+          }
+        } else {
+          // No valid coordinates - check address for Milan keywords
+          const address = (listing.address || '').toLowerCase();
+          const city = (listing.city || '').toLowerCase();
+          const combinedLocation = `${address} ${city}`;
+          
+          if (!combinedLocation.includes('milan') && 
+              !combinedLocation.includes('milano') && 
+              !combinedLocation.includes(' mi ') &&
+              !combinedLocation.includes(',mi,') &&
+              !combinedLocation.includes(' mi,')) {
+            skipped++;
+            continue;
+          }
         }
 
         // Track this listing as valid
