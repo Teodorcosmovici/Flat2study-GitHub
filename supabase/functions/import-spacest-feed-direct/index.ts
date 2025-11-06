@@ -54,7 +54,6 @@ Deno.serve(async (req) => {
       .from('profiles')
       .select('id')
       .eq('email', 'spacest@agency.com')
-      .eq('user_type', 'agency')
       .single();
 
     let agencyId: string;
@@ -62,42 +61,71 @@ Deno.serve(async (req) => {
       agencyId = existingAgency.id;
       console.log('Using existing Spacest agency profile:', agencyId);
     } else {
-      // Create auth user first
-      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-        email: 'spacest@agency.com',
-        password: crypto.randomUUID(), // Random password
-        email_confirm: true,
-        user_metadata: {
-          user_type: 'agency',
-          agency_name: 'Spacest',
-          full_name: 'Spacest Agency',
-          phone: '+39000000000',
-        },
-      });
+      // Check if auth user exists first
+      const { data: { users }, error: listError } = await supabase.auth.admin.listUsers();
+      const existingAuthUser = users?.find(u => u.email === 'spacest@agency.com');
 
-      if (authError) {
-        console.error('Error creating Spacest auth user:', authError);
-        throw authError;
+      if (existingAuthUser) {
+        console.log('Auth user exists, creating profile for:', existingAuthUser.id);
+        
+        // Create profile directly for existing auth user
+        const { data: newProfile, error: profileError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: existingAuthUser.id,
+            user_type: 'agency',
+            email: 'spacest@agency.com',
+            phone: '+39000000000',
+            agency_name: 'Spacest',
+            full_name: 'Spacest Agency',
+          })
+          .select('id')
+          .single();
+
+        if (profileError) {
+          console.error('Error creating profile:', profileError);
+          throw profileError;
+        }
+
+        agencyId = newProfile.id;
+      } else {
+        // Create new auth user with metadata
+        const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+          email: 'spacest@agency.com',
+          password: crypto.randomUUID(),
+          email_confirm: true,
+          user_metadata: {
+            user_type: 'agency',
+            agency_name: 'Spacest',
+            full_name: 'Spacest Agency',
+            phone: '+39000000000',
+          },
+        });
+
+        if (authError) {
+          console.error('Error creating Spacest auth user:', authError);
+          throw authError;
+        }
+
+        console.log('Created Spacest auth user:', authUser.user.id);
+
+        // Wait for trigger to create profile
+        await new Promise(resolve => setTimeout(resolve, 1000));
+        
+        const { data: newAgency, error: profileError } = await supabase
+          .from('profiles')
+          .select('id')
+          .eq('user_id', authUser.user.id)
+          .single();
+
+        if (profileError || !newAgency) {
+          console.error('Error fetching created profile:', profileError);
+          throw new Error('Failed to create Spacest agency profile');
+        }
+
+        agencyId = newAgency.id;
+        console.log('Created Spacest agency profile:', agencyId);
       }
-
-      console.log('Created Spacest auth user:', authUser.user.id);
-
-      // The trigger will create the profile automatically, so wait a moment and fetch it
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      const { data: newAgency, error: profileError } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', authUser.user.id)
-        .single();
-
-      if (profileError || !newAgency) {
-        console.error('Error fetching created profile:', profileError);
-        throw new Error('Failed to create Spacest agency profile');
-      }
-
-      agencyId = newAgency.id;
-      console.log('Created Spacest agency profile:', agencyId);
     }
 
     let imported = 0;
