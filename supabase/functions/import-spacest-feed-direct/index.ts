@@ -123,14 +123,16 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Skip if outside Milan area
+        // Skip if missing coordinates or outside Milan area
         if (
-          listing.lat &&
-          listing.lng &&
-          (listing.lat < MILAN_BOUNDS.minLat ||
-            listing.lat > MILAN_BOUNDS.maxLat ||
-            listing.lng < MILAN_BOUNDS.minLng ||
-            listing.lng > MILAN_BOUNDS.maxLng)
+          !listing.lat || 
+          !listing.lng ||
+          listing.lat === 0 ||
+          listing.lng === 0 ||
+          listing.lat < MILAN_BOUNDS.minLat ||
+          listing.lat > MILAN_BOUNDS.maxLat ||
+          listing.lng < MILAN_BOUNDS.minLng ||
+          listing.lng > MILAN_BOUNDS.maxLng
         ) {
           skipped++;
           continue;
