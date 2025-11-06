@@ -54,66 +54,27 @@ Deno.serve(async (req) => {
       .from('profiles')
       .select('id')
       .eq('email', 'spacest@agency.com')
+      .eq('user_type', 'agency')
       .single();
 
     let agencyId: string;
     if (existingAgency) {
       agencyId = existingAgency.id;
-      console.log('Using existing Spacest agency profile:', agencyId);
     } else {
-      console.log('No existing Spacest profile found, creating fresh user...');
-      
-      // First, try to delete any existing auth user to ensure clean state
-      try {
-        const { data: { users } } = await supabase.auth.admin.listUsers();
-        const existingAuthUser = users?.find(u => u.email === 'spacest@agency.com');
-        
-        if (existingAuthUser) {
-          console.log('Deleting existing Spacest auth user:', existingAuthUser.id);
-          await supabase.auth.admin.deleteUser(existingAuthUser.id);
-          // Wait a moment for deletion to complete
-          await new Promise(resolve => setTimeout(resolve, 500));
-        }
-      } catch (cleanupError) {
-        console.log('Cleanup check completed:', cleanupError);
-      }
-
-      // Now create fresh auth user
-      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
-        email: 'spacest@agency.com',
-        password: crypto.randomUUID(),
-        email_confirm: true,
-        user_metadata: {
+      const { data: newAgency, error: agencyError } = await supabase
+        .from('profiles')
+        .insert({
+          email: 'spacest@agency.com',
+          phone: '+39000000000',
           user_type: 'agency',
           agency_name: 'Spacest',
           full_name: 'Spacest Agency',
-          phone: '+39000000000',
-        },
-      });
-
-      if (authError) {
-        console.error('Error creating Spacest auth user:', authError);
-        throw authError;
-      }
-
-      console.log('Created Spacest auth user:', authUser.user.id);
-
-      // Wait for trigger to create profile
-      await new Promise(resolve => setTimeout(resolve, 1500));
-      
-      const { data: newAgency, error: profileError } = await supabase
-        .from('profiles')
+        })
         .select('id')
-        .eq('user_id', authUser.user.id)
         .single();
 
-      if (profileError || !newAgency) {
-        console.error('Error fetching created profile:', profileError);
-        throw new Error('Failed to create Spacest agency profile');
-      }
-
+      if (agencyError) throw agencyError;
       agencyId = newAgency.id;
-      console.log('Created Spacest agency profile:', agencyId);
     }
 
     let imported = 0;
@@ -139,31 +100,17 @@ Deno.serve(async (req) => {
           continue;
         }
 
-        // Check Milan location - either by coordinates or address
-        const hasValidCoordinates = listing.lat && listing.lng && listing.lat !== 0 && listing.lng !== 0;
-        
-        if (hasValidCoordinates) {
-          // If we have coordinates, check if they're in Milan bounds
-          if (
-            listing.lat < MILAN_BOUNDS.minLat ||
+        // Skip if outside Milan area
+        if (
+          listing.lat &&
+          listing.lng &&
+          (listing.lat < MILAN_BOUNDS.minLat ||
             listing.lat > MILAN_BOUNDS.maxLat ||
             listing.lng < MILAN_BOUNDS.minLng ||
-            listing.lng > MILAN_BOUNDS.maxLng
-          ) {
-            skipped++;
-            continue;
-          }
-        } else {
-          // No valid coordinates - check address for Milan keywords
-          const address = (listing.address || '').toLowerCase();
-          const city = (listing.city || '').toLowerCase();
-          const combinedLocation = `${address} ${city}`;
-          
-          if (!combinedLocation.includes('milan') && 
-              !combinedLocation.includes('milano')) {
-            skipped++;
-            continue;
-          }
+            listing.lng > MILAN_BOUNDS.maxLng)
+        ) {
+          skipped++;
+          continue;
         }
 
         // Track this listing as valid
