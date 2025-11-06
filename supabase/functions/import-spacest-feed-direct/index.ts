@@ -144,10 +144,7 @@ Deno.serve(async (req) => {
           const combinedLocation = `${address} ${city}`;
           
           if (!combinedLocation.includes('milan') && 
-              !combinedLocation.includes('milano') && 
-              !combinedLocation.includes(' mi ') &&
-              !combinedLocation.includes(',mi,') &&
-              !combinedLocation.includes(' mi,')) {
+              !combinedLocation.includes('milano')) {
             skipped++;
             continue;
           }
