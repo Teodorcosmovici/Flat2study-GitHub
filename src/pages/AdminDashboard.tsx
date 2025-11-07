@@ -298,7 +298,7 @@ export const AdminDashboard = () => {
   };
 
   const handleCleanPendingReviews = async () => {
-    if (!confirm('Reject ALL pending reviews? This cannot be undone.')) {
+    if (!confirm('Reject all pending reviews that don\'t meet requirements (Milan location + €300-1000 price range)?')) {
       return;
     }
 
@@ -309,7 +309,7 @@ export const AdminDashboard = () => {
 
       toast({
         title: "Clear Complete",
-        description: `Rejected ${data.rejected} pending reviews`,
+        description: `Rejected ${data.rejected} listings not meeting Milan/price requirements`,
       });
 
       fetchPendingListings();
