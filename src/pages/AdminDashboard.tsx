@@ -59,7 +59,6 @@ export const AdminDashboard = () => {
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
   const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
   const [postcodeResults, setPostcodeResults] = useState<any>(null);
-  const [isDeletingSpacest, setIsDeletingSpacest] = useState(false);
 
   const handleApproveAll = async () => {
     if (pendingListings.length === 0) {
@@ -298,37 +297,8 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleDeleteSpacestListings = async () => {
-    if (!confirm('Are you sure you want to delete ALL Spacest listings? This cannot be undone.')) {
-      return;
-    }
-
-    setIsDeletingSpacest(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('delete-spacest-listings');
-
-      if (error) throw error;
-
-      toast({
-        title: "Deletion Complete",
-        description: `Deleted ${data.deletedCount} Spacest listings`,
-      });
-
-      fetchPendingListings();
-    } catch (error) {
-      console.error('Error deleting Spacest listings:', error);
-      toast({
-        title: "Error",
-        description: "Failed to delete Spacest listings",
-        variant: "destructive",
-      });
-    } finally {
-      setIsDeletingSpacest(false);
-    }
-  };
-
   const handleCleanPendingReviews = async () => {
-    if (!confirm('Delete all pending reviews outside Milan area?')) {
+    if (!confirm('Reject all pending reviews outside Milan area?')) {
       return;
     }
 
@@ -338,16 +308,16 @@ export const AdminDashboard = () => {
       if (error) throw error;
 
       toast({
-        title: "Cleanup Complete",
-        description: `Deleted ${data.deleted} listings outside Milan`,
+        title: "Clear Complete",
+        description: `Rejected ${data.rejected} listings outside Milan`,
       });
 
       fetchPendingListings();
     } catch (error) {
-      console.error('Error cleaning pending reviews:', error);
+      console.error('Error clearing pending reviews:', error);
       toast({
         title: "Error",
-        description: "Failed to clean pending reviews",
+        description: "Failed to clear pending reviews",
         variant: "destructive",
       });
     }
@@ -395,15 +365,7 @@ export const AdminDashboard = () => {
               variant="outline"
               size="sm"
             >
-              Clean Pending Reviews
-            </Button>
-            <Button 
-              onClick={handleDeleteSpacestListings} 
-              disabled={isDeletingSpacest}
-              variant="destructive"
-              size="sm"
-            >
-              {isDeletingSpacest ? 'Deleting...' : 'Delete All Spacest'}
+              Clear Pending Reviews
             </Button>
             <Badge variant="outline" className="text-orange-600">
               {pendingListings.length} Pending Review

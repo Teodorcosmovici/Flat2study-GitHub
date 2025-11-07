@@ -23,12 +23,17 @@ Deno.serve(async (req) => {
       maxLng: 9.38,
     };
 
-    console.log('Cleaning pending reviews outside Milan area...');
+    console.log('Rejecting pending reviews outside Milan area...');
 
-    // Delete listings outside Milan
-    const { data: deletedListings, error: deleteError } = await supabase
+    // Reject listings outside Milan
+    const { data: rejectedListings, error: rejectError } = await supabase
       .from('listings')
-      .delete()
+      .update({
+        review_status: 'rejected',
+        review_notes: 'Automatically rejected - outside Milan area',
+        reviewed_at: new Date().toISOString(),
+        status: 'DRAFT'
+      })
       .eq('review_status', 'pending_review')
       .or(
         `lat.lt.${MILAN_BOUNDS.minLat},` +
@@ -38,18 +43,18 @@ Deno.serve(async (req) => {
       )
       .select('id, title, city, lat, lng');
 
-    if (deleteError) {
-      console.error('Delete error:', deleteError);
-      throw deleteError;
+    if (rejectError) {
+      console.error('Reject error:', rejectError);
+      throw rejectError;
     }
 
-    console.log(`Deleted ${deletedListings?.length || 0} listings outside Milan`);
+    console.log(`Rejected ${rejectedListings?.length || 0} listings outside Milan`);
 
     return new Response(
       JSON.stringify({
         success: true,
-        deleted: deletedListings?.length || 0,
-        deletedListings: deletedListings,
+        rejected: rejectedListings?.length || 0,
+        rejectedListings: rejectedListings,
       }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
