@@ -7,7 +7,7 @@ import { Badge } from '@/components/ui/badge';
 import { Textarea } from '@/components/ui/textarea';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Input } from '@/components/ui/input';
-import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download, MapPin, Loader2, Home } from 'lucide-react';
+import { CheckCircle, XCircle, Clock, Eye, MessageSquare, Calendar, Download, MapPin, Loader2, Home, RefreshCw } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
 import { toast } from '@/hooks/use-toast';
 import { Logo } from '@/components/ui/logo';
@@ -366,6 +366,31 @@ export const AdminDashboard = () => {
               size="sm"
             >
               Clear Pending Reviews
+            </Button>
+            <Button 
+              onClick={async () => {
+                try {
+                  const { data, error } = await supabase.functions.invoke('restore-vague-rejections');
+                  if (error) throw error;
+                  toast({
+                    title: "Success",
+                    description: `Restored ${data.restored} vaguely-rejected listings to pending review`,
+                  });
+                  fetchPendingListings();
+                } catch (error) {
+                  console.error('Error restoring listings:', error);
+                  toast({
+                    title: "Error",
+                    description: "Failed to restore listings",
+                    variant: "destructive",
+                  });
+                }
+              }}
+              variant="secondary"
+              size="sm"
+            >
+              <RefreshCw className="w-4 h-4 mr-2" />
+              Restore Vague Rejections
             </Button>
             <Badge variant="outline" className="text-orange-600">
               {pendingListings.length} Pending Review
