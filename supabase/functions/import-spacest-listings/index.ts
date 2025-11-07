@@ -143,11 +143,30 @@ Deno.serve(async (req) => {
       errors: []
     };
 
-    // Process ALL listings without filtering
+    // Milan area bounds for validation
+    const MILAN_BOUNDS = {
+      minLat: 45.26,
+      maxLat: 45.66,
+      minLng: 9.00,
+      maxLng: 9.38,
+    };
+
+    // Process ALL listings with automatic rejection for non-compliant ones
     for (const listing of listings) {
       try {
         // Map Spacest listing to our schema
         const mappedListing = mapSpacestListing(listing, agencyId);
+
+        // Check if listing meets requirements
+        const meetsRequirements = checkListingRequirements(mappedListing, MILAN_BOUNDS);
+        
+        // Set review status based on requirements
+        if (!meetsRequirements.isValid) {
+          mappedListing.review_status = 'rejected';
+          mappedListing.review_notes = `Automatically rejected - ${meetsRequirements.reason}`;
+          mappedListing.reviewed_at = new Date().toISOString();
+          mappedListing.status = 'DRAFT';
+        }
 
         // Check if listing already exists
         const { data: existing } = await supabase
@@ -477,5 +496,41 @@ function extractImages(listing: any): string[] {
       .filter((u: any) => typeof u === 'string' && u.length > 0);
   }
   return [];
+}
+
+function checkListingRequirements(
+  listing: any,
+  milanBounds: { minLat: number; maxLat: number; minLng: number; maxLng: number }
+): { isValid: boolean; reason?: string } {
+  // Check Milan location (coordinates OR text)
+  const inMilanBounds = listing.lat >= milanBounds.minLat &&
+                       listing.lat <= milanBounds.maxLat &&
+                       listing.lng >= milanBounds.minLng &&
+                       listing.lng <= milanBounds.maxLng;
+  
+  const hasMilanText = (listing.city?.toLowerCase().includes('milan') || 
+                       listing.city?.toLowerCase().includes('milano') ||
+                       listing.address_line?.toLowerCase().includes('milan') ||
+                       listing.address_line?.toLowerCase().includes('milano'));
+  
+  const isInMilan = inMilanBounds || hasMilanText;
+
+  if (!isInMilan) {
+    return { 
+      isValid: false, 
+      reason: `Location outside Milan area (${listing.city || 'Unknown city'})` 
+    };
+  }
+
+  // Check price range (€300-€1000 for students)
+  const price = listing.rent_monthly_eur;
+  if (price < 300 || price > 1000) {
+    return { 
+      isValid: false, 
+      reason: `Price €${price}/month outside student range (€300-€1000)` 
+    };
+  }
+
+  return { isValid: true };
 }
 
