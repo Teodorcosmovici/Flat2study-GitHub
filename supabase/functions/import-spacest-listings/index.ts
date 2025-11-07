@@ -177,13 +177,31 @@ Deno.serve(async (req) => {
           .single();
 
         if (existing) {
-          // Update existing listing
+          // Update existing listing but preserve review status if already reviewed
+          const updateData: any = {
+            ...mappedListing,
+            last_synced_at: new Date().toISOString(),
+          };
+          
+          // Don't overwrite review status for already approved/rejected listings
+          // Only set review status for new imports or if requirements changed
+          const { data: existingFull } = await supabase
+            .from('listings')
+            .select('review_status')
+            .eq('id', existing.id)
+            .single();
+          
+          if (existingFull?.review_status === 'approved' || existingFull?.review_status === 'rejected') {
+            // Keep existing review status - don't overwrite
+            delete updateData.review_status;
+            delete updateData.review_notes;
+            delete updateData.reviewed_at;
+            delete updateData.reviewed_by;
+          }
+          
           const { error: updateError } = await supabase
             .from('listings')
-            .update({
-              ...mappedListing,
-              last_synced_at: new Date().toISOString(),
-            })
+            .update(updateData)
             .eq('id', existing.id);
 
           if (updateError) {
