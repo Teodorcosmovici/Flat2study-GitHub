@@ -15,32 +15,18 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
-    // Milan area bounds
-    const MILAN_BOUNDS = {
-      minLat: 45.26,
-      maxLat: 45.66,
-      minLng: 9.00,
-      maxLng: 9.38,
-    };
+    console.log('Rejecting ALL pending reviews...');
 
-    console.log('Rejecting pending reviews outside Milan area...');
-
-    // Reject listings outside Milan
+    // Reject all pending reviews
     const { data: rejectedListings, error: rejectError } = await supabase
       .from('listings')
       .update({
         review_status: 'rejected',
-        review_notes: 'Automatically rejected - outside Milan area',
+        review_notes: 'Automatically rejected by admin',
         reviewed_at: new Date().toISOString(),
         status: 'DRAFT'
       })
       .eq('review_status', 'pending_review')
-      .or(
-        `lat.lt.${MILAN_BOUNDS.minLat},` +
-        `lat.gt.${MILAN_BOUNDS.maxLat},` +
-        `lng.lt.${MILAN_BOUNDS.minLng},` +
-        `lng.gt.${MILAN_BOUNDS.maxLng}`
-      )
       .select('id, title, city, lat, lng');
 
     if (rejectError) {
@@ -48,7 +34,7 @@ Deno.serve(async (req) => {
       throw rejectError;
     }
 
-    console.log(`Rejected ${rejectedListings?.length || 0} listings outside Milan`);
+    console.log(`Rejected ${rejectedListings?.length || 0} pending reviews`);
 
     return new Response(
       JSON.stringify({

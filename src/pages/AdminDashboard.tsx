@@ -298,7 +298,7 @@ export const AdminDashboard = () => {
   };
 
   const handleCleanPendingReviews = async () => {
-    if (!confirm('Reject all pending reviews outside Milan area?')) {
+    if (!confirm('Reject ALL pending reviews? This cannot be undone.')) {
       return;
     }
 
@@ -309,7 +309,7 @@ export const AdminDashboard = () => {
 
       toast({
         title: "Clear Complete",
-        description: `Rejected ${data.rejected} listings outside Milan`,
+        description: `Rejected ${data.rejected} pending reviews`,
       });
 
       fetchPendingListings();
