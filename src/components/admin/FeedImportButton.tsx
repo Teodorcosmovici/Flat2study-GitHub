@@ -13,15 +13,40 @@ export const FeedImportButton = () => {
       // Fetch the Spacest JSON feed
       const feedUrl = 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
       const response = await fetch(feedUrl);
-      const listings = await response.json();
+      const rawListings = await response.json();
 
-      toast.info(`Starting import of ${listings.length} listings from Spacest feed...`);
+      // Map Spacest feed format to expected format
+      const mappedListings = rawListings.map((listing: any) => ({
+        code: String(listing.listing_code),
+        title: listing.name,
+        description: listing.description,
+        address: listing.location?.address,
+        city: listing.location?.city,
+        province: listing.location?.province,
+        region: listing.location?.region,
+        country: listing.location?.country,
+        lat: listing.location?.coordinates?.latitude,
+        lng: listing.location?.coordinates?.longitude,
+        price: listing.price,
+        deposit: listing.surcharges?.find((s: any) => s.type === 'security_deposit')?.deposit,
+        category: listing.category,
+        bedrooms: listing.house_informations?.bedrooms,
+        bathrooms: listing.house_informations?.bathrooms,
+        size: listing.house_informations?.size,
+        furnished: listing.amenities?.includes('Furnished'),
+        bills_included: listing.utilities?.included_in_rent?.length > 0,
+        images: listing.photos?.map((p: any) => p.url) || [],
+        amenities: listing.amenities || [],
+        availability_date: listing.first_availability,
+      }));
+
+      toast.info(`Starting import of ${mappedListings.length} listings from Spacest feed...`);
 
       // Call feed import edge function
       const { data, error } = await supabase.functions.invoke(
         'import-spacest-feed-direct',
         {
-          body: { listings },
+          body: { listings: mappedListings },
         }
       );
 
