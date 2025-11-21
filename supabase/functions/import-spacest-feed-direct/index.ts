@@ -60,21 +60,57 @@ Deno.serve(async (req) => {
     let agencyId: string;
     if (existingAgency) {
       agencyId = existingAgency.id;
+      console.log('Using existing Spacest agency:', agencyId);
     } else {
-      const { data: newAgency, error: agencyError } = await supabase
-        .from('profiles')
-        .insert({
-          email: 'spacest@agency.com',
-          phone: '+39000000000',
+      // Create a service account user first
+      const { data: authUser, error: authError } = await supabase.auth.admin.createUser({
+        email: 'spacest@agency.com',
+        password: crypto.randomUUID(),
+        email_confirm: true,
+        user_metadata: {
           user_type: 'agency',
-          agency_name: 'Spacest',
           full_name: 'Spacest Agency',
-        })
+          phone: '+39000000000',
+          company: 'Spacest'
+        }
+      });
+
+      if (authError) {
+        console.error('Error creating auth user:', authError);
+        throw authError;
+      }
+
+      console.log('Created auth user for Spacest:', authUser.user.id);
+
+      // The profile should be auto-created by the trigger, but let's verify
+      const { data: newAgency, error: profileError } = await supabase
+        .from('profiles')
         .select('id')
+        .eq('user_id', authUser.user.id)
         .single();
 
-      if (agencyError) throw agencyError;
-      agencyId = newAgency.id;
+      if (profileError || !newAgency) {
+        // Fallback: manually create if trigger didn't work
+        const { data: manualProfile, error: manualError } = await supabase
+          .from('profiles')
+          .insert({
+            user_id: authUser.user.id,
+            email: 'spacest@agency.com',
+            phone: '+39000000000',
+            user_type: 'agency',
+            agency_name: 'Spacest',
+            full_name: 'Spacest Agency',
+          })
+          .select('id')
+          .single();
+
+        if (manualError) throw manualError;
+        agencyId = manualProfile.id;
+      } else {
+        agencyId = newAgency.id;
+      }
+      
+      console.log('Created Spacest agency profile:', agencyId);
     }
 
     let imported = 0;
