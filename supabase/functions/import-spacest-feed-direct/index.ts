@@ -132,27 +132,96 @@ Return the classification type and the appropriate Italian category mapping:
   }
 }
 
-// Fallback rule-based classification
+// Comprehensive fallback classification with all vocabulary variations
 function fallbackClassification(category: string, bedrooms: number): Classification {
-  const lowerCategory = (category || '').toLowerCase();
+  const lowerCategory = (category || '').toLowerCase().trim();
   
-  // Detect studios (0 bedrooms or studio keywords)
-  if (bedrooms === 0 || lowerCategory.includes('studio') || lowerCategory.includes('monolocale')) {
-    return { type: 'studio', mappedCategory: 'monolocale', reasoning: 'Fallback: studio detected' };
+  // Single room keywords (English, Italian, Spanish, French, Portuguese, German)
+  const roomKeywords = [
+    'room', 'single room', 'private room', 'bedroom', 'double room',
+    'stanza', 'camera', 'camera singola', 'camera doppia', 'posto letto',
+    'habitación', 'habitacion', 'cuarto',
+    'chambre', 'chambre privée', 'chambre simple',
+    'quarto', 'quarto individual',
+    'zimmer', 'einzelzimmer'
+  ];
+  
+  // Studio/efficiency keywords (all languages)
+  const studioKeywords = [
+    'studio', 'studio apartment', 'efficiency', 'bachelor', 'bedsit',
+    'monolocale', 'miniappartamento',
+    'estudio',
+    'studio meublé',
+    'kitchenette',
+    'apartamento tipo estudio'
+  ];
+  
+  // Multi-bedroom apartment keywords (all languages)
+  const apartmentKeywords = [
+    'apartment', 'flat', 'condo', 'unit',
+    'appartamento', 'bilocale', 'trilocale', 'quadrilocale', 'attico',
+    'apartamento', 'piso', 'departamento',
+    'appartement',
+    'wohnung'
+  ];
+  
+  // Shared/co-living keywords (treat as single room)
+  const sharedKeywords = [
+    'shared', 'coliving', 'co-living', 'flatshare', 'houseshare',
+    'condiviso', 'condivisa',
+    'compartido', 'compartida',
+    'partagé', 'colocation'
+  ];
+  
+  // Check for studios first (most specific)
+  if (bedrooms === 0 || studioKeywords.some(kw => lowerCategory.includes(kw))) {
+    return { 
+      type: 'studio', 
+      mappedCategory: 'monolocale', 
+      reasoning: `Fallback: Studio detected (${bedrooms} bedrooms, category: "${category}")` 
+    };
   }
   
-  // Detect single rooms (1 bedroom or room keywords)
-  if (bedrooms === 1 || lowerCategory.includes('room') || lowerCategory.includes('stanza') || lowerCategory.includes('camera')) {
-    return { type: 'single_room', mappedCategory: 'stanza', reasoning: 'Fallback: single room detected' };
+  // Check for single/shared rooms
+  if (
+    bedrooms === 1 || 
+    roomKeywords.some(kw => lowerCategory.includes(kw)) ||
+    sharedKeywords.some(kw => lowerCategory.includes(kw))
+  ) {
+    return { 
+      type: 'single_room', 
+      mappedCategory: 'stanza', 
+      reasoning: `Fallback: Single room detected (${bedrooms} bedrooms, category: "${category}")` 
+    };
   }
   
-  // Detect multi-bedroom apartments
+  // Check for multi-bedroom apartments
+  if (bedrooms >= 2 || apartmentKeywords.some(kw => lowerCategory.includes(kw))) {
+    const effectiveBedrooms = bedrooms || 2; // Default to 2 if not specified
+    const mappedCategory = effectiveBedrooms === 2 ? 'bilocale' : 
+                           effectiveBedrooms === 3 ? 'trilocale' : 'appartamento';
+    return { 
+      type: 'multi_bedroom_apartment', 
+      mappedCategory, 
+      reasoning: `Fallback: ${effectiveBedrooms}-bedroom apartment detected (category: "${category}")` 
+    };
+  }
+  
+  // If we still can't classify, default based on bedrooms count
   if (bedrooms >= 2) {
     const mappedCategory = bedrooms === 2 ? 'bilocale' : 'appartamento';
-    return { type: 'multi_bedroom_apartment', mappedCategory, reasoning: 'Fallback: multi-bedroom apartment' };
+    return { 
+      type: 'multi_bedroom_apartment', 
+      mappedCategory, 
+      reasoning: `Fallback: Default to apartment based on ${bedrooms} bedrooms` 
+    };
   }
   
-  return { type: 'unknown', mappedCategory: '', reasoning: 'Fallback: could not classify' };
+  return { 
+    type: 'unknown', 
+    mappedCategory: '', 
+    reasoning: `Fallback: Could not classify (bedrooms: ${bedrooms}, category: "${category}")` 
+  };
 }
 
 // Updated validation function with AI classification
