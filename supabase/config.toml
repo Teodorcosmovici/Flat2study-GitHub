@@ -65,3 +65,6 @@ verify_jwt = false
 
 [functions.test-spacest-api]
 verify_jwt = false
+
+[functions.scrape-spacest-listings]
+verify_jwt = false
