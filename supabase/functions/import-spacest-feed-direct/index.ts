@@ -380,8 +380,8 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string, mappedCate
     amenities: listing.amenities || [],
     availability_date: listing.availability_date || null,
     images: listing.images || [],
-    status: 'PUBLISHED',
-    review_status: 'approved',
+    status: 'DRAFT',
+    review_status: 'pending_review',
     last_synced_at: new Date().toISOString(),
   };
 }
