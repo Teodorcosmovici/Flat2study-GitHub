@@ -38,7 +38,7 @@ interface Classification {
 }
 
 // Comprehensive multilingual classification
-function classifyListing(category: string, bedrooms: number): Classification {
+function classifyListing(category: string, bedrooms: number, price: number): Classification {
   const lowerCategory = (category || '').toLowerCase().trim();
   
   // Single room keywords (English, Italian, Spanish, French, Portuguese, German)
@@ -78,16 +78,7 @@ function classifyListing(category: string, bedrooms: number): Classification {
     'partagé', 'colocation'
   ];
   
-  // Check for studios first (most specific)
-  if (bedrooms === 0 || studioKeywords.some(kw => lowerCategory.includes(kw))) {
-    return { 
-      type: 'studio', 
-      mappedCategory: 'monolocale', 
-      reasoning: `Studio detected (${bedrooms} bedrooms, category: "${category}")` 
-    };
-  }
-  
-  // Check for single/shared rooms
+  // Check for single/shared rooms first
   if (
     bedrooms === 1 || 
     roomKeywords.some(kw => lowerCategory.includes(kw)) ||
@@ -100,19 +91,42 @@ function classifyListing(category: string, bedrooms: number): Classification {
     };
   }
   
-  // Check for multi-bedroom apartments
-  if (bedrooms >= 2 || apartmentKeywords.some(kw => lowerCategory.includes(kw))) {
-    const effectiveBedrooms = bedrooms || 2;
-    const mappedCategory = effectiveBedrooms === 2 ? 'bilocale' : 
-                           effectiveBedrooms === 3 ? 'trilocale' : 'appartamento';
+  // Check for studios (but only if explicitly mentioned or price suggests it's a small unit)
+  if (studioKeywords.some(kw => lowerCategory.includes(kw)) || 
+      (bedrooms === 0 && price > 0 && price <= 1500)) {
     return { 
-      type: 'multi_bedroom_apartment', 
-      mappedCategory, 
-      reasoning: `${effectiveBedrooms}-bedroom apartment detected (category: "${category}")` 
+      type: 'studio', 
+      mappedCategory: 'monolocale', 
+      reasoning: `Studio detected (${bedrooms} bedrooms, category: "${category}", price: ${price})` 
     };
   }
   
-  // If we still can't classify, default based on bedrooms count
+  // For apartments with 0 bedrooms but high price, infer it's a multi-bedroom with missing data
+  if (apartmentKeywords.some(kw => lowerCategory.includes(kw))) {
+    if (bedrooms === 0 && price > 1500) {
+      // Infer bedroom count from price: roughly 800-1000€ per bedroom in Milan
+      const inferredBedrooms = Math.max(2, Math.round(price / 900));
+      const mappedCategory = inferredBedrooms === 2 ? 'bilocale' : 
+                             inferredBedrooms === 3 ? 'trilocale' : 'appartamento';
+      return {
+        type: 'multi_bedroom_apartment',
+        mappedCategory,
+        reasoning: `Apartment with missing bedroom data, inferred ${inferredBedrooms} bedrooms from ${price}€ price`
+      };
+    }
+    
+    if (bedrooms >= 2) {
+      const mappedCategory = bedrooms === 2 ? 'bilocale' : 
+                             bedrooms === 3 ? 'trilocale' : 'appartamento';
+      return { 
+        type: 'multi_bedroom_apartment', 
+        mappedCategory, 
+        reasoning: `${bedrooms}-bedroom apartment detected (category: "${category}")` 
+      };
+    }
+  }
+  
+  // Default based on bedrooms if we have that info
   if (bedrooms >= 2) {
     const mappedCategory = bedrooms === 2 ? 'bilocale' : 'appartamento';
     return { 
@@ -125,7 +139,7 @@ function classifyListing(category: string, bedrooms: number): Classification {
   return { 
     type: 'unknown', 
     mappedCategory: '', 
-    reasoning: `Could not classify (bedrooms: ${bedrooms}, category: "${category}")` 
+    reasoning: `Could not classify (bedrooms: ${bedrooms}, category: "${category}", price: ${price})` 
   };
 }
 
@@ -230,14 +244,19 @@ function shouldImportListing(
   
   const price = listing.price || 0;
   
-  if (classification.type === 'single_room' || classification.type === 'studio') {
+  // Single rooms: 300-1200€
+  if (classification.type === 'single_room') {
     return price >= 300 && price <= 1200;
   }
   
+  // Studios: 400-2000€ (Milan market)
+  if (classification.type === 'studio') {
+    return price >= 400 && price <= 2000;
+  }
+  
+  // Multi-bedroom apartments: 800-5000€ total (realistic for Milan)
   if (classification.type === 'multi_bedroom_apartment') {
-    const bedrooms = listing.bedrooms || 2;
-    const pricePerRoom = price / bedrooms;
-    return pricePerRoom >= 300 && pricePerRoom <= 1000;
+    return price >= 800 && price <= 5000;
   }
   
   return false;
@@ -332,13 +351,14 @@ Deno.serve(async (req) => {
     for (const listing of listings) {
       try {
         // Classify listing
-        const cacheKey = `${listing.category}-${listing.bedrooms || 0}`;
+        const cacheKey = `${listing.category}-${listing.bedrooms || 0}-${listing.price || 0}`;
         let classification = classificationCache.get(cacheKey);
         
         if (!classification) {
           classification = classifyListing(
             listing.category || '',
-            listing.bedrooms || 0
+            listing.bedrooms || 0,
+            listing.price || 0
           );
           classificationCache.set(cacheKey, classification);
           console.log(`Classified "${cacheKey}" as ${classification.type} (${classification.mappedCategory}): ${classification.reasoning}`);
