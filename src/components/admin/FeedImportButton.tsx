@@ -10,29 +10,29 @@ export const FeedImportButton = () => {
   const handleImport = async () => {
     setIsImporting(true);
     try {
-      toast.info('Starting Spacest web scraper...');
+      // Fetch the Spacest JSON feed
+      const feedUrl = 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
+      const response = await fetch(feedUrl);
+      const listings = await response.json();
 
-      // Call scraper edge function
+      toast.info(`Starting import of ${listings.length} listings from Spacest feed...`);
+
+      // Call feed import edge function
       const { data, error } = await supabase.functions.invoke(
-        'scrape-spacest-listings',
+        'import-spacest-feed-direct',
         {
-          body: { 
-            maxListings: 50,
-            importToDb: true 
-          },
+          body: { listings },
         }
       );
 
       if (error) throw error;
 
       toast.success(
-        `Scraping complete! ✅ Found: ${data.total_scraped}, 📥 Imported: ${data.imported_to_db}`
+        `Import complete! ✅ Imported: ${data.imported}, 🔄 Updated: ${data.updated}, 🗑️ Removed: ${data.removed}, ⏭️ Skipped: ${data.skipped}`
       );
-      
-      console.log('Scraper results:', data.results);
     } catch (error) {
-      console.error('Scraping failed:', error);
-      toast.error(`Scraping failed: ${error.message}`);
+      console.error('Import failed:', error);
+      toast.error(`Import failed: ${error.message}`);
     } finally {
       setIsImporting(false);
     }
