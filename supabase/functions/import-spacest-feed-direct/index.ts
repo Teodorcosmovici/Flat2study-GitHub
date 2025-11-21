@@ -41,6 +41,16 @@ Deno.serve(async (req) => {
     const supabaseServiceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!;
     const supabase = createClient(supabaseUrl, supabaseServiceKey);
 
+    // Get the authorization header to identify the requesting user
+    const authHeader = req.headers.get('Authorization');
+    let requestingUserId: string | null = null;
+    
+    if (authHeader) {
+      const token = authHeader.replace('Bearer ', '');
+      const { data: { user } } = await supabase.auth.getUser(token);
+      requestingUserId = user?.id || null;
+    }
+
     const { listings } = await req.json();
 
     if (!listings || !Array.isArray(listings)) {
@@ -50,14 +60,14 @@ Deno.serve(async (req) => {
     console.log(`Processing ${listings.length} listings from feed`);
 
     // Get or create Spacest agency profile
-    const spacestEmail = 'spacest@agency.com';
+    const spacestEmail = 'spacest-listings@flat2study.com';
     
     const { data: existingAgency } = await supabase
       .from('profiles')
       .select('id')
       .eq('email', spacestEmail)
       .eq('user_type', 'agency')
-      .single();
+      .maybeSingle();
 
     let agencyId: string;
     
@@ -65,80 +75,26 @@ Deno.serve(async (req) => {
       agencyId = existingAgency.id;
       console.log('Using existing Spacest agency:', agencyId);
     } else {
-      console.log('No existing Spacest profile found, checking for auth user...');
+      console.log('No existing Spacest profile found');
       
-      // Check if auth user exists
-      const { data: existingAuthUsers, error: listError } = await supabase.auth.admin.listUsers();
-      
-      if (listError) {
-        console.error('Error listing users:', listError);
-        throw new Error('Failed to check existing users');
-      }
-      
-      const existingAuthUser = existingAuthUsers.users.find(u => u.email === spacestEmail);
-      
-      let authUserId: string;
-      
-      if (existingAuthUser) {
-        console.log('Found existing auth user:', existingAuthUser.id);
-        authUserId = existingAuthUser.id;
-      } else {
-        // Create auth user
-        console.log('Creating new auth user for Spacest...');
-        const { data: newAuthUser, error: authError } = await supabase.auth.admin.createUser({
-          email: spacestEmail,
-          password: crypto.randomUUID(),
-          email_confirm: true,
-          user_metadata: {
-            user_type: 'agency',
-            full_name: 'Spacest Agency',
-            phone: '+39000000000',
-            company: 'Spacest'
-          }
-        });
-
-        if (authError) {
-          console.error('Error creating auth user:', authError);
-          throw new Error('Database error creating new user');
-        }
-
-        authUserId = newAuthUser.user.id;
-        console.log('Created new auth user:', authUserId);
-      }
-
-      // Now check if profile exists for this user_id
-      const { data: profileByUserId } = await supabase
-        .from('profiles')
-        .select('id')
-        .eq('user_id', authUserId)
-        .single();
-
-      if (profileByUserId) {
-        agencyId = profileByUserId.id;
-        console.log('Found existing profile for auth user:', agencyId);
-      } else {
-        // Create profile manually
-        console.log('Creating profile for Spacest...');
-        const { data: newProfile, error: profileError } = await supabase
+      // Fallback: Use the requesting admin user's profile as temporary owner
+      if (requestingUserId) {
+        console.log('Using requesting user as fallback owner:', requestingUserId);
+        
+        const { data: adminProfile } = await supabase
           .from('profiles')
-          .insert({
-            user_id: authUserId,
-            email: spacestEmail,
-            phone: '+39000000000',
-            user_type: 'agency',
-            agency_name: 'Spacest',
-            full_name: 'Spacest Agency',
-          })
           .select('id')
+          .eq('user_id', requestingUserId)
           .single();
-
-        if (profileError) {
-          console.error('Error creating profile:', profileError);
-          throw new Error('Failed to create Spacest profile');
+        
+        if (adminProfile) {
+          agencyId = adminProfile.id;
+          console.log('Using admin profile as agency:', agencyId);
+        } else {
+          throw new Error('Could not find profile for requesting user');
         }
-
-        agencyId = newProfile.id;
-        console.log('Created Spacest profile:', agencyId);
+      } else {
+        throw new Error('No authentication provided and no Spacest profile exists. Please create a Spacest agency profile manually first.');
       }
     }
 
