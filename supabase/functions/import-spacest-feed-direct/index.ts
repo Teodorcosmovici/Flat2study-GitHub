@@ -37,99 +37,96 @@ interface Classification {
   reasoning?: string;
 }
 
-// AI-powered classification using Lovable AI Gateway
-async function classifyListingWithAI(
-  category: string,
-  bedrooms: number,
-  description?: string
-): Promise<Classification> {
-  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+// Comprehensive multilingual classification
+function classifyListing(category: string, bedrooms: number): Classification {
+  const lowerCategory = (category || '').toLowerCase().trim();
   
-  if (!LOVABLE_API_KEY) {
-    console.log('LOVABLE_API_KEY not found, using fallback classification');
-    return fallbackClassification(category, bedrooms);
+  // Single room keywords (English, Italian, Spanish, French, Portuguese, German)
+  const roomKeywords = [
+    'room', 'single room', 'private room', 'bedroom', 'double room',
+    'stanza', 'camera', 'camera singola', 'camera doppia', 'posto letto',
+    'habitación', 'habitacion', 'cuarto',
+    'chambre', 'chambre privée', 'chambre simple',
+    'quarto', 'quarto individual',
+    'zimmer', 'einzelzimmer'
+  ];
+  
+  // Studio/efficiency keywords (all languages)
+  const studioKeywords = [
+    'studio', 'studio apartment', 'efficiency', 'bachelor', 'bedsit',
+    'monolocale', 'miniappartamento',
+    'estudio',
+    'studio meublé',
+    'kitchenette',
+    'apartamento tipo estudio'
+  ];
+  
+  // Multi-bedroom apartment keywords (all languages)
+  const apartmentKeywords = [
+    'apartment', 'flat', 'condo', 'unit',
+    'appartamento', 'bilocale', 'trilocale', 'quadrilocale', 'attico',
+    'apartamento', 'piso', 'departamento',
+    'appartement',
+    'wohnung'
+  ];
+  
+  // Shared/co-living keywords (treat as single room)
+  const sharedKeywords = [
+    'shared', 'coliving', 'co-living', 'flatshare', 'houseshare',
+    'condiviso', 'condivisa',
+    'compartido', 'compartida',
+    'partagé', 'colocation'
+  ];
+  
+  // Check for studios first (most specific)
+  if (bedrooms === 0 || studioKeywords.some(kw => lowerCategory.includes(kw))) {
+    return { 
+      type: 'studio', 
+      mappedCategory: 'monolocale', 
+      reasoning: `Studio detected (${bedrooms} bedrooms, category: "${category}")` 
+    };
   }
-
-  try {
-    const prompt = `Classify this rental listing into one of these types:
-- single_room: A private room in a shared apartment/house
-- studio: A complete small apartment for one person (monolocale, efficiency, studio)
-- multi_bedroom_apartment: An apartment with 2+ bedrooms
-- unknown: Cannot determine or invalid listing
-
-Listing details:
-- Category: "${category}"
-- Bedrooms: ${bedrooms}
-${description ? `- Description: "${description.substring(0, 200)}"` : ''}
-
-Return the classification type and the appropriate Italian category mapping:
-- single_room → "stanza"
-- studio → "monolocale"
-- multi_bedroom_apartment → "bilocale" (2 bed) or "appartamento" (3+ bed)`;
-
-    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
-      method: 'POST',
-      headers: {
-        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
-        'Content-Type': 'application/json',
-      },
-      body: JSON.stringify({
-        model: 'google/gemini-2.5-flash',
-        messages: [
-          { role: 'system', content: 'You are a real estate listing classifier. Respond with structured JSON only.' },
-          { role: 'user', content: prompt }
-        ],
-        tools: [{
-          type: 'function',
-          function: {
-            name: 'classify_listing',
-            description: 'Classify a rental listing',
-            parameters: {
-              type: 'object',
-              properties: {
-                type: {
-                  type: 'string',
-                  enum: ['single_room', 'studio', 'multi_bedroom_apartment', 'unknown']
-                },
-                mappedCategory: {
-                  type: 'string',
-                  description: 'Italian category: stanza, monolocale, bilocale, or appartamento'
-                },
-                reasoning: {
-                  type: 'string',
-                  description: 'Brief explanation of classification'
-                }
-              },
-              required: ['type', 'mappedCategory']
-            }
-          }
-        }],
-        tool_choice: { type: 'function', function: { name: 'classify_listing' } }
-      }),
-    });
-
-    if (!response.ok) {
-      console.error(`AI Gateway error: ${response.status}`);
-      return fallbackClassification(category, bedrooms);
-    }
-
-    const data = await response.json();
-    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
-    
-    if (toolCall?.function?.arguments) {
-      const result = JSON.parse(toolCall.function.arguments);
-      return {
-        type: result.type,
-        mappedCategory: result.mappedCategory,
-        reasoning: result.reasoning
-      };
-    }
-
-    return fallbackClassification(category, bedrooms);
-  } catch (error) {
-    console.error('AI classification error:', error);
-    return fallbackClassification(category, bedrooms);
+  
+  // Check for single/shared rooms
+  if (
+    bedrooms === 1 || 
+    roomKeywords.some(kw => lowerCategory.includes(kw)) ||
+    sharedKeywords.some(kw => lowerCategory.includes(kw))
+  ) {
+    return { 
+      type: 'single_room', 
+      mappedCategory: 'stanza', 
+      reasoning: `Single room detected (${bedrooms} bedrooms, category: "${category}")` 
+    };
   }
+  
+  // Check for multi-bedroom apartments
+  if (bedrooms >= 2 || apartmentKeywords.some(kw => lowerCategory.includes(kw))) {
+    const effectiveBedrooms = bedrooms || 2;
+    const mappedCategory = effectiveBedrooms === 2 ? 'bilocale' : 
+                           effectiveBedrooms === 3 ? 'trilocale' : 'appartamento';
+    return { 
+      type: 'multi_bedroom_apartment', 
+      mappedCategory, 
+      reasoning: `${effectiveBedrooms}-bedroom apartment detected (category: "${category}")` 
+    };
+  }
+  
+  // If we still can't classify, default based on bedrooms count
+  if (bedrooms >= 2) {
+    const mappedCategory = bedrooms === 2 ? 'bilocale' : 'appartamento';
+    return { 
+      type: 'multi_bedroom_apartment', 
+      mappedCategory, 
+      reasoning: `Default to apartment based on ${bedrooms} bedrooms` 
+    };
+  }
+  
+  return { 
+    type: 'unknown', 
+    mappedCategory: '', 
+    reasoning: `Could not classify (bedrooms: ${bedrooms}, category: "${category}")` 
+  };
 }
 
 // Comprehensive fallback classification with all vocabulary variations
@@ -224,24 +221,20 @@ function fallbackClassification(category: string, bedrooms: number): Classificat
   };
 }
 
-// Updated validation function with AI classification
-async function shouldImportListing(
+// Price validation based on classification
+function shouldImportListing(
   listing: SpacestListing,
   classification: Classification
-): Promise<boolean> {
-  // Reject unknown types
+): boolean {
   if (classification.type === 'unknown') return false;
   
-  // Price validation based on type
   const price = listing.price || 0;
   
   if (classification.type === 'single_room' || classification.type === 'studio') {
-    // Single rooms and studios: 300-1200 EUR total
     return price >= 300 && price <= 1200;
   }
   
   if (classification.type === 'multi_bedroom_apartment') {
-    // Multi-bedroom apartments: 300-1000 EUR per room
     const bedrooms = listing.bedrooms || 2;
     const pricePerRoom = price / bedrooms;
     return pricePerRoom >= 300 && pricePerRoom <= 1000;
@@ -338,22 +331,21 @@ Deno.serve(async (req) => {
 
     for (const listing of listings) {
       try {
-        // Get or create classification
+        // Classify listing
         const cacheKey = `${listing.category}-${listing.bedrooms || 0}`;
         let classification = classificationCache.get(cacheKey);
         
         if (!classification) {
-          classification = await classifyListingWithAI(
+          classification = classifyListing(
             listing.category || '',
-            listing.bedrooms || 0,
-            listing.description
+            listing.bedrooms || 0
           );
           classificationCache.set(cacheKey, classification);
-          console.log(`AI classified "${cacheKey}" as ${classification.type} (${classification.mappedCategory}): ${classification.reasoning}`);
+          console.log(`Classified "${cacheKey}" as ${classification.type} (${classification.mappedCategory}): ${classification.reasoning}`);
         }
 
-        // Validate with AI classification
-        const isValid = await shouldImportListing(listing, classification);
+        // Validate with classification
+        const isValid = shouldImportListing(listing, classification);
         if (!isValid) {
           if (skippedDetails.length < 10) {
             skippedDetails.push(`${listing.code}: ${classification.type}, ${listing.price}€, ${listing.bedrooms}bed`);
