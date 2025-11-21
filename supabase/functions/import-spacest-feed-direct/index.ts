@@ -31,6 +31,156 @@ interface SpacestListing {
   occupation_periods?: Array<{ from: string; to: string }>;
 }
 
+interface Classification {
+  type: 'single_room' | 'studio' | 'multi_bedroom_apartment' | 'unknown';
+  mappedCategory: string;
+  reasoning?: string;
+}
+
+// AI-powered classification using Lovable AI Gateway
+async function classifyListingWithAI(
+  category: string,
+  bedrooms: number,
+  description?: string
+): Promise<Classification> {
+  const LOVABLE_API_KEY = Deno.env.get('LOVABLE_API_KEY');
+  
+  if (!LOVABLE_API_KEY) {
+    console.log('LOVABLE_API_KEY not found, using fallback classification');
+    return fallbackClassification(category, bedrooms);
+  }
+
+  try {
+    const prompt = `Classify this rental listing into one of these types:
+- single_room: A private room in a shared apartment/house
+- studio: A complete small apartment for one person (monolocale, efficiency, studio)
+- multi_bedroom_apartment: An apartment with 2+ bedrooms
+- unknown: Cannot determine or invalid listing
+
+Listing details:
+- Category: "${category}"
+- Bedrooms: ${bedrooms}
+${description ? `- Description: "${description.substring(0, 200)}"` : ''}
+
+Return the classification type and the appropriate Italian category mapping:
+- single_room → "stanza"
+- studio → "monolocale"
+- multi_bedroom_apartment → "bilocale" (2 bed) or "appartamento" (3+ bed)`;
+
+    const response = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
+      method: 'POST',
+      headers: {
+        'Authorization': `Bearer ${LOVABLE_API_KEY}`,
+        'Content-Type': 'application/json',
+      },
+      body: JSON.stringify({
+        model: 'google/gemini-2.5-flash',
+        messages: [
+          { role: 'system', content: 'You are a real estate listing classifier. Respond with structured JSON only.' },
+          { role: 'user', content: prompt }
+        ],
+        tools: [{
+          type: 'function',
+          function: {
+            name: 'classify_listing',
+            description: 'Classify a rental listing',
+            parameters: {
+              type: 'object',
+              properties: {
+                type: {
+                  type: 'string',
+                  enum: ['single_room', 'studio', 'multi_bedroom_apartment', 'unknown']
+                },
+                mappedCategory: {
+                  type: 'string',
+                  description: 'Italian category: stanza, monolocale, bilocale, or appartamento'
+                },
+                reasoning: {
+                  type: 'string',
+                  description: 'Brief explanation of classification'
+                }
+              },
+              required: ['type', 'mappedCategory']
+            }
+          }
+        }],
+        tool_choice: { type: 'function', function: { name: 'classify_listing' } }
+      }),
+    });
+
+    if (!response.ok) {
+      console.error(`AI Gateway error: ${response.status}`);
+      return fallbackClassification(category, bedrooms);
+    }
+
+    const data = await response.json();
+    const toolCall = data.choices?.[0]?.message?.tool_calls?.[0];
+    
+    if (toolCall?.function?.arguments) {
+      const result = JSON.parse(toolCall.function.arguments);
+      return {
+        type: result.type,
+        mappedCategory: result.mappedCategory,
+        reasoning: result.reasoning
+      };
+    }
+
+    return fallbackClassification(category, bedrooms);
+  } catch (error) {
+    console.error('AI classification error:', error);
+    return fallbackClassification(category, bedrooms);
+  }
+}
+
+// Fallback rule-based classification
+function fallbackClassification(category: string, bedrooms: number): Classification {
+  const lowerCategory = (category || '').toLowerCase();
+  
+  // Detect studios (0 bedrooms or studio keywords)
+  if (bedrooms === 0 || lowerCategory.includes('studio') || lowerCategory.includes('monolocale')) {
+    return { type: 'studio', mappedCategory: 'monolocale', reasoning: 'Fallback: studio detected' };
+  }
+  
+  // Detect single rooms (1 bedroom or room keywords)
+  if (bedrooms === 1 || lowerCategory.includes('room') || lowerCategory.includes('stanza') || lowerCategory.includes('camera')) {
+    return { type: 'single_room', mappedCategory: 'stanza', reasoning: 'Fallback: single room detected' };
+  }
+  
+  // Detect multi-bedroom apartments
+  if (bedrooms >= 2) {
+    const mappedCategory = bedrooms === 2 ? 'bilocale' : 'appartamento';
+    return { type: 'multi_bedroom_apartment', mappedCategory, reasoning: 'Fallback: multi-bedroom apartment' };
+  }
+  
+  return { type: 'unknown', mappedCategory: '', reasoning: 'Fallback: could not classify' };
+}
+
+// Updated validation function with AI classification
+async function shouldImportListing(
+  listing: SpacestListing,
+  classification: Classification
+): Promise<boolean> {
+  // Reject unknown types
+  if (classification.type === 'unknown') return false;
+  
+  // Price validation based on type
+  const price = listing.price || 0;
+  
+  if (classification.type === 'single_room' || classification.type === 'studio') {
+    // Single rooms and studios: 300-1200 EUR total
+    return price >= 300 && price <= 1200;
+  }
+  
+  if (classification.type === 'multi_bedroom_apartment') {
+    // Multi-bedroom apartments: 300-1000 EUR per room
+    const bedrooms = listing.bedrooms || 2;
+    const pricePerRoom = price / bedrooms;
+    return pricePerRoom >= 300 && pricePerRoom <= 1000;
+  }
+  
+  return false;
+}
+
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -112,24 +262,49 @@ Deno.serve(async (req) => {
 
     // Track valid listing codes from the feed
     const validListingCodes = new Set<string>();
+    
+    // Classification cache to minimize AI calls
+    const classificationCache = new Map<string, Classification>();
+    let skippedDetails: string[] = [];
 
     for (const listing of listings) {
       try {
-        // Skip if not eligible for import
-        if (!shouldImportListing(listing)) {
+        // Get or create classification
+        const cacheKey = `${listing.category}-${listing.bedrooms || 0}`;
+        let classification = classificationCache.get(cacheKey);
+        
+        if (!classification) {
+          classification = await classifyListingWithAI(
+            listing.category || '',
+            listing.bedrooms || 0,
+            listing.description
+          );
+          classificationCache.set(cacheKey, classification);
+          console.log(`AI classified "${cacheKey}" as ${classification.type} (${classification.mappedCategory}): ${classification.reasoning}`);
+        }
+
+        // Validate with AI classification
+        const isValid = await shouldImportListing(listing, classification);
+        if (!isValid) {
+          if (skippedDetails.length < 10) {
+            skippedDetails.push(`${listing.code}: ${classification.type}, ${listing.price}€, ${listing.bedrooms}bed`);
+          }
           skipped++;
           continue;
         }
 
-        // Skip if outside Milan area
+        // REJECT invalid coordinates (changed from allowing null/0)
         if (
-          listing.lat &&
-          listing.lng &&
-          (listing.lat < MILAN_BOUNDS.minLat ||
-            listing.lat > MILAN_BOUNDS.maxLat ||
-            listing.lng < MILAN_BOUNDS.minLng ||
-            listing.lng > MILAN_BOUNDS.maxLng)
+          !listing.lat || !listing.lng ||
+          listing.lat === 0 || listing.lng === 0 ||
+          listing.lat < MILAN_BOUNDS.minLat ||
+          listing.lat > MILAN_BOUNDS.maxLat ||
+          listing.lng < MILAN_BOUNDS.minLng ||
+          listing.lng > MILAN_BOUNDS.maxLng
         ) {
+          if (skippedDetails.length < 10) {
+            skippedDetails.push(`${listing.code}: Invalid/non-Milan coordinates`);
+          }
           skipped++;
           continue;
         }
@@ -137,7 +312,7 @@ Deno.serve(async (req) => {
         // Track this listing as valid
         validListingCodes.add(listing.code);
 
-        const mappedListing = mapSpacestListing(listing, agencyId);
+        const mappedListing = mapSpacestListing(listing, agencyId, classification.mappedCategory);
 
         // Check if listing exists
         const { data: existingListing } = await supabase
@@ -159,6 +334,12 @@ Deno.serve(async (req) => {
       } catch (error) {
         console.error(`Error processing listing ${listing.code}:`, error);
       }
+    }
+    
+    // Log summary
+    console.log(`Import summary: ${imported} imported, ${updated} updated, ${skipped} skipped, ${classificationCache.size} unique categories classified`);
+    if (skippedDetails.length > 0) {
+      console.log('Sample skipped listings:', skippedDetails.join('; '));
     }
 
     // Remove listings that are no longer in the feed
@@ -204,18 +385,7 @@ Deno.serve(async (req) => {
   }
 });
 
-function shouldImportListing(listing: SpacestListing): boolean {
-  // Only import if price is between 300-1000 EUR
-  if (!listing.price || listing.price < 300 || listing.price > 1000) return false;
-  if (!listing.category) return false;
-  
-  const validCategories = ['stanza', 'camera', 'appartamento', 'monolocale', 'bilocale'];
-  return validCategories.some(cat => 
-    listing.category?.toLowerCase().includes(cat)
-  );
-}
-
-function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
+function mapSpacestListing(listing: SpacestListing, agencyId: string, mappedCategory: string): any {
   const city = listing.city || extractCity(listing.address);
   const addressLine = listing.address || '';
   
@@ -224,7 +394,7 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     external_source: 'spacest',
     agency_id: agencyId,
     title: listing.title || generateTitle(listing),
-    type: listing.category || 'room',
+    type: mappedCategory,
     description: listing.description || '',
     address_line: addressLine,
     city: city,
@@ -235,7 +405,7 @@ function mapSpacestListing(listing: SpacestListing, agencyId: string): any {
     deposit_eur: listing.deposit || 0,
     bills_included: listing.bills_included || false,
     furnished: listing.furnished !== false,
-    bedrooms: listing.bedrooms || 1,
+    bedrooms: listing.bedrooms || (mappedCategory === 'monolocale' ? 0 : 1),
     bathrooms: listing.bathrooms || 1,
     floor: listing.floor || null,
     size_sqm: listing.size || null,
