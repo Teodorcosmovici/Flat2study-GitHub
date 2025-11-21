@@ -143,31 +143,10 @@ function classifyListing(category: string, bedrooms: number, price: number): Cla
   };
 }
 
-// Price validation based on classification
-function shouldImportListing(
-  listing: SpacestListing,
-  classification: Classification
-): boolean {
-  if (classification.type === 'unknown') return false;
-  
+// Simple price validation: 300-1200€ for all properties
+function shouldImportListing(listing: SpacestListing): boolean {
   const price = listing.price || 0;
-  
-  // Single rooms: 300-1200€
-  if (classification.type === 'single_room') {
-    return price >= 300 && price <= 1200;
-  }
-  
-  // Studios: 400-2000€ (Milan market)
-  if (classification.type === 'studio') {
-    return price >= 400 && price <= 2000;
-  }
-  
-  // Multi-bedroom apartments: 800-5000€ total (realistic for Milan)
-  if (classification.type === 'multi_bedroom_apartment') {
-    return price >= 800 && price <= 5000;
-  }
-  
-  return false;
+  return price >= 300 && price <= 1200;
 }
 
 Deno.serve(async (req) => {
@@ -258,7 +237,17 @@ Deno.serve(async (req) => {
 
     for (const listing of listings) {
       try {
-        // Classify listing
+        // Validate with simple price check
+        const isValid = shouldImportListing(listing);
+        if (!isValid) {
+          if (skippedDetails.length < 10) {
+            skippedDetails.push(`${listing.code}: Price ${listing.price}€ outside 300-1200€ range`);
+          }
+          skipped++;
+          continue;
+        }
+        
+        // Classify listing for category mapping only
         const cacheKey = `${listing.category}-${listing.bedrooms || 0}-${listing.price || 0}`;
         let classification = classificationCache.get(cacheKey);
         
@@ -270,16 +259,6 @@ Deno.serve(async (req) => {
           );
           classificationCache.set(cacheKey, classification);
           console.log(`Classified "${cacheKey}" as ${classification.type} (${classification.mappedCategory}): ${classification.reasoning}`);
-        }
-
-        // Validate with classification
-        const isValid = shouldImportListing(listing, classification);
-        if (!isValid) {
-          if (skippedDetails.length < 10) {
-            skippedDetails.push(`${listing.code}: ${classification.type}, ${listing.price}€, ${listing.bedrooms}bed`);
-          }
-          skipped++;
-          continue;
         }
 
         // REJECT invalid coordinates (changed from allowing null/0)
