@@ -176,8 +176,8 @@ export const AdminDashboard = () => {
   const handleSpacestImport = async () => {
     setImportingSpacest(true);
     try {
-      // Always use the S3 JSON feed (CORS restrictions prevent direct Spacest fetch)
-      const feedUrl = 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
+      // Use custom feed URL if provided, otherwise use default S3 feed
+      const feedUrl = spacestFeedUrl.trim() || 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
       const response = await fetch(feedUrl);
       const rawListings = await response.json();
 
@@ -381,7 +381,13 @@ export const AdminDashboard = () => {
               {importingSingleListing ? 'Importing...' : 'Import Single Listing'}
             </Button>
           </div>
-          <div className="flex gap-2 items-center justify-end">
+          <div className="flex gap-2 items-center">
+            <Input
+              placeholder="Custom feed URL (optional, defaults to S3 feed)"
+              value={spacestFeedUrl}
+              onChange={(e) => setSpacestFeedUrl(e.target.value)}
+              className="w-96"
+            />
             <Button 
               onClick={handleSpacestImport} 
               disabled={importingSpacest}
@@ -389,7 +395,7 @@ export const AdminDashboard = () => {
               size="sm"
             >
               <Download className="w-4 h-4 mr-2" />
-              {importingSpacest ? 'Importing...' : 'Import Spacest Feed'}
+              {importingSpacest ? 'Importing...' : 'Import Feed'}
             </Button>
           </div>
         </div>
