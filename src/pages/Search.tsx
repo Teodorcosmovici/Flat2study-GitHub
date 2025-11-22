@@ -101,6 +101,9 @@ export default function Search() {
           return;
         }
 
+        console.log('Fetched listings from DB:', data?.length);
+        console.log('Spacest listings:', data?.filter((d: any) => d.address_line?.includes('Via')).length);
+
         // Transform the data to match our Listing type
         const transformedListings: Listing[] = (data || []).map((item: any) => ({
           id: item.id,
