@@ -178,8 +178,16 @@ export const AdminDashboard = () => {
     try {
       // Use custom feed URL if provided, otherwise use default S3 feed
       const feedUrl = spacestFeedUrl.trim() || 'https://roomless-file.s3.us-east-2.amazonaws.com/feed-partner/example_feed.json';
+      
+      console.log('Fetching feed from:', feedUrl);
       const response = await fetch(feedUrl);
+      
+      if (!response.ok) {
+        throw new Error(`Failed to fetch feed: ${response.status} ${response.statusText}`);
+      }
+      
       const rawListings = await response.json();
+      console.log(`Fetched ${rawListings.length} listings from feed`);
 
       // Map Spacest feed format to expected format (same as FeedImportButton)
       const mappedListings = rawListings.map((listing: any) => ({
@@ -206,12 +214,18 @@ export const AdminDashboard = () => {
         availability_date: listing.first_availability,
       }));
 
+      console.log('Calling import edge function...');
       // Call the correct edge function
       const { data, error } = await supabase.functions.invoke('import-spacest-feed-direct', {
         body: { listings: mappedListings },
       });
 
-      if (error) throw error;
+      if (error) {
+        console.error('Edge function error:', error);
+        throw error;
+      }
+
+      console.log('Import result:', data);
 
       toast({
         title: "Import Completed",
@@ -223,7 +237,7 @@ export const AdminDashboard = () => {
       console.error('Error importing Spacest listings:', error);
       toast({
         title: "Import Failed",
-        description: error.message || "Failed to import Spacest listings",
+        description: error.message || "Failed to import Spacest listings. Check console for details.",
         variant: "destructive",
       });
     } finally {
