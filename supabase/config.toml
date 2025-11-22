@@ -48,8 +48,6 @@ verify_jwt = true
 [functions.geocode-addresses]
 verify_jwt = true
 
-[functions.import-spacest-listing-by-url]
-verify_jwt = true
 
 [functions.fix-spacest-listing-price]
 verify_jwt = false

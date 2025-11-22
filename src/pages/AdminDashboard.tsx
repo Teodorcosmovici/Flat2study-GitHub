@@ -53,8 +53,6 @@ export const AdminDashboard = () => {
   const [loading, setLoading] = useState(true);
   const [importingSpacest, setImportingSpacest] = useState(false);
   const [spacestFeedUrl, setSpacestFeedUrl] = useState('');
-  const [spacestListingUrl, setSpacestListingUrl] = useState('');
-  const [importingSingleListing, setImportingSingleListing] = useState(false);
   const [isGeocoding, setIsGeocoding] = useState(false);
   const [geocodingResults, setGeocodingResults] = useState<any>(null);
   const [isUpdatingPostcodes, setIsUpdatingPostcodes] = useState(false);
@@ -299,44 +297,6 @@ export const AdminDashboard = () => {
     }
   };
 
-  const handleImportSingleListing = async () => {
-    if (!spacestListingUrl.trim()) {
-      toast({
-        title: "Error",
-        description: "Please enter a Spacest listing URL",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    setImportingSingleListing(true);
-    try {
-      const { data, error } = await supabase.functions.invoke('import-spacest-listing-by-url', {
-        body: { listing_url: spacestListingUrl },
-      });
-
-      if (error) throw error;
-
-      toast({
-        title: "Import Successful",
-        description: `Listing ${data.action} successfully`,
-      });
-
-      setSpacestListingUrl('');
-      fetchPendingListings();
-    } catch (error) {
-      console.error('Error importing listing:', error);
-      toast({
-        title: "Import Failed",
-        description: error.message || "Failed to import Spacest listing",
-        variant: "destructive",
-      });
-    } finally {
-      setImportingSingleListing(false);
-    }
-  };
-
-
   if (loading) {
     return (
       <div className="container mx-auto px-4 py-8">
@@ -377,23 +337,6 @@ export const AdminDashboard = () => {
             <Badge variant="outline" className="text-orange-600">
               {pendingListings.length} Pending Review
             </Badge>
-          </div>
-          <div className="flex gap-2 items-center">
-            <Input
-              placeholder="Spacest listing URL (e.g., https://spacest.com/it/rent-listing/180298)"
-              value={spacestListingUrl}
-              onChange={(e) => setSpacestListingUrl(e.target.value)}
-              className="w-96"
-            />
-            <Button 
-              onClick={handleImportSingleListing} 
-              disabled={importingSingleListing}
-              variant="outline"
-              size="sm"
-            >
-              <Download className="w-4 h-4 mr-2" />
-              {importingSingleListing ? 'Importing...' : 'Import Single Listing'}
-            </Button>
           </div>
           <div className="flex gap-2 items-center">
             <Input
