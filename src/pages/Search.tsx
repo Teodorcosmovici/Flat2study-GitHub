@@ -212,6 +212,9 @@ export default function Search() {
     // Availability date range with 1 month tolerance
     if (filters.availabilityFrom || filters.availabilityTo) {
       filtered = filtered.filter(listing => {
+        // Skip filtering if availability_date is missing
+        if (!listing.availabilityDate) return true;
+        
         const listingAvailability = new Date(listing.availabilityDate);
         const oneMonthMs = 30 * 24 * 60 * 60 * 1000; // 30 days in milliseconds
         
