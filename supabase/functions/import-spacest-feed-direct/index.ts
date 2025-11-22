@@ -5,6 +5,48 @@ const corsHeaders = {
   'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type',
 };
 
+// ============= IMPORT CRITERIA (DEFINED ONCE) =============
+const IMPORT_CRITERIA = {
+  // Price validation: all properties must be within this range
+  PRICE_MIN: 300,
+  PRICE_MAX: 1200,
+  
+  // Milan area geographic bounds
+  MILAN_BOUNDS: {
+    minLat: 45.26,
+    maxLat: 45.66,
+    minLng: 9.00,
+    maxLng: 9.38,
+  },
+  
+  // Keywords for classification (multilingual)
+  KEYWORDS: {
+    single_room: [
+      'room', 'single room', 'private room', 'bedroom', 'double room',
+      'stanza', 'camera', 'camera singola', 'camera doppia', 'posto letto',
+      'habitación', 'habitacion', 'cuarto',
+      'chambre', 'chambre privée', 'chambre simple',
+      'quarto', 'quarto individual',
+      'zimmer', 'einzelzimmer',
+      'shared', 'coliving', 'co-living', 'flatshare', 'houseshare',
+      'condiviso', 'condivisa', 'compartido', 'compartida',
+      'partagé', 'colocation'
+    ],
+    studio: [
+      'studio', 'studio apartment', 'efficiency', 'bachelor', 'bedsit',
+      'monolocale', 'miniappartamento', 'estudio', 'studio meublé',
+      'kitchenette', 'apartamento tipo estudio'
+    ],
+    apartment: [
+      'apartment', 'flat', 'condo', 'unit',
+      'appartamento', 'bilocale', 'trilocale', 'quadrilocale', 'attico',
+      'apartamento', 'piso', 'departamento',
+      'appartement', 'wohnung'
+    ]
+  }
+};
+
+// ============= TYPE DEFINITIONS =============
 interface SpacestListing {
   code: string;
   title?: string;
@@ -37,118 +79,90 @@ interface Classification {
   reasoning?: string;
 }
 
-// Comprehensive multilingual classification
-function classifyListing(category: string, bedrooms: number, price: number): Classification {
+// ============= VALIDATION =============
+function shouldImportListing(listing: SpacestListing): boolean {
+  const price = listing.price || 0;
+  const { lat, lng } = listing;
+  const { PRICE_MIN, PRICE_MAX, MILAN_BOUNDS } = IMPORT_CRITERIA;
+  
+  // Price must be within range
+  if (price < PRICE_MIN || price > PRICE_MAX) {
+    return false;
+  }
+  
+  // Coordinates must be valid and within Milan bounds
+  if (
+    !lat || !lng ||
+    lat === 0 || lng === 0 ||
+    lat < MILAN_BOUNDS.minLat || lat > MILAN_BOUNDS.maxLat ||
+    lng < MILAN_BOUNDS.minLng || lng > MILAN_BOUNDS.maxLng
+  ) {
+    return false;
+  }
+  
+  return true;
+}
+
+// ============= CLASSIFICATION =============
+function classifyListing(category: string, bedrooms: number): Classification {
   const lowerCategory = (category || '').toLowerCase().trim();
+  const { KEYWORDS } = IMPORT_CRITERIA;
   
-  // Single room keywords (English, Italian, Spanish, French, Portuguese, German)
-  const roomKeywords = [
-    'room', 'single room', 'private room', 'bedroom', 'double room',
-    'stanza', 'camera', 'camera singola', 'camera doppia', 'posto letto',
-    'habitación', 'habitacion', 'cuarto',
-    'chambre', 'chambre privée', 'chambre simple',
-    'quarto', 'quarto individual',
-    'zimmer', 'einzelzimmer'
-  ];
-  
-  // Studio/efficiency keywords (all languages)
-  const studioKeywords = [
-    'studio', 'studio apartment', 'efficiency', 'bachelor', 'bedsit',
-    'monolocale', 'miniappartamento',
-    'estudio',
-    'studio meublé',
-    'kitchenette',
-    'apartamento tipo estudio'
-  ];
-  
-  // Multi-bedroom apartment keywords (all languages)
-  const apartmentKeywords = [
-    'apartment', 'flat', 'condo', 'unit',
-    'appartamento', 'bilocale', 'trilocale', 'quadrilocale', 'attico',
-    'apartamento', 'piso', 'departamento',
-    'appartement',
-    'wohnung'
-  ];
-  
-  // Shared/co-living keywords (treat as single room)
-  const sharedKeywords = [
-    'shared', 'coliving', 'co-living', 'flatshare', 'houseshare',
-    'condiviso', 'condivisa',
-    'compartido', 'compartida',
-    'partagé', 'colocation'
-  ];
-  
-  // Check for single/shared rooms first
+  // Check for single/shared rooms
   if (
     bedrooms === 1 || 
-    roomKeywords.some(kw => lowerCategory.includes(kw)) ||
-    sharedKeywords.some(kw => lowerCategory.includes(kw))
+    KEYWORDS.single_room.some(kw => lowerCategory.includes(kw))
   ) {
     return { 
       type: 'single_room', 
       mappedCategory: 'stanza', 
-      reasoning: `Single room detected (${bedrooms} bedrooms, category: "${category}")` 
+      reasoning: `Single room (${bedrooms} bed, "${category}")` 
     };
   }
   
-  // Check for studios (but only if explicitly mentioned or price suggests it's a small unit)
-  if (studioKeywords.some(kw => lowerCategory.includes(kw)) || 
-      (bedrooms === 0 && price > 0 && price <= 1500)) {
+  // Check for studios
+  if (
+    KEYWORDS.studio.some(kw => lowerCategory.includes(kw)) || 
+    bedrooms === 0
+  ) {
     return { 
       type: 'studio', 
       mappedCategory: 'monolocale', 
-      reasoning: `Studio detected (${bedrooms} bedrooms, category: "${category}", price: ${price})` 
+      reasoning: `Studio (${bedrooms} bed, "${category}")` 
     };
   }
   
-  // For apartments with 0 bedrooms but high price, infer it's a multi-bedroom with missing data
-  if (apartmentKeywords.some(kw => lowerCategory.includes(kw))) {
-    if (bedrooms === 0 && price > 1500) {
-      // Infer bedroom count from price: roughly 800-1000€ per bedroom in Milan
-      const inferredBedrooms = Math.max(2, Math.round(price / 900));
-      const mappedCategory = inferredBedrooms === 2 ? 'bilocale' : 
-                             inferredBedrooms === 3 ? 'trilocale' : 'appartamento';
-      return {
-        type: 'multi_bedroom_apartment',
-        mappedCategory,
-        reasoning: `Apartment with missing bedroom data, inferred ${inferredBedrooms} bedrooms from ${price}€ price`
-      };
-    }
-    
+  // Check for apartments
+  if (KEYWORDS.apartment.some(kw => lowerCategory.includes(kw))) {
     if (bedrooms >= 2) {
       const mappedCategory = bedrooms === 2 ? 'bilocale' : 
                              bedrooms === 3 ? 'trilocale' : 'appartamento';
       return { 
         type: 'multi_bedroom_apartment', 
         mappedCategory, 
-        reasoning: `${bedrooms}-bedroom apartment detected (category: "${category}")` 
+        reasoning: `${bedrooms}-bed apartment ("${category}")` 
       };
     }
   }
   
-  // Default based on bedrooms if we have that info
+  // Default based on bedrooms
   if (bedrooms >= 2) {
     const mappedCategory = bedrooms === 2 ? 'bilocale' : 'appartamento';
     return { 
       type: 'multi_bedroom_apartment', 
       mappedCategory, 
-      reasoning: `Default to apartment based on ${bedrooms} bedrooms` 
+      reasoning: `Default apartment (${bedrooms} bed)` 
     };
   }
   
   return { 
     type: 'unknown', 
     mappedCategory: '', 
-    reasoning: `Could not classify (bedrooms: ${bedrooms}, category: "${category}", price: ${price})` 
+    reasoning: `Unclassified (${bedrooms} bed, "${category}")` 
   };
 }
 
-// Simple price validation: 300-1200€ for all properties
-function shouldImportListing(listing: SpacestListing): boolean {
-  const price = listing.price || 0;
-  return price >= 300 && price <= 1200;
-}
-
+// ============= MAIN HANDLER =============
 Deno.serve(async (req) => {
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
@@ -220,61 +234,38 @@ Deno.serve(async (req) => {
     let updated = 0;
     let skipped = 0;
 
-    // Milan area bounds
-    const MILAN_BOUNDS = {
-      minLat: 45.26,
-      maxLat: 45.66,
-      minLng: 9.00,
-      maxLng: 9.38,
-    };
-
     // Track valid listing codes from the feed
     const validListingCodes = new Set<string>();
     
-    // Classification cache to minimize AI calls
+    // Classification cache to minimize repeated classifications
     const classificationCache = new Map<string, Classification>();
-    let skippedDetails: string[] = [];
+    const skippedDetails: string[] = [];
 
     for (const listing of listings) {
       try {
-        // Validate with simple price check
-        const isValid = shouldImportListing(listing);
-        if (!isValid) {
+        // Validate listing against import criteria
+        if (!shouldImportListing(listing)) {
           if (skippedDetails.length < 10) {
-            skippedDetails.push(`${listing.code}: Price ${listing.price}€ outside 300-1200€ range`);
+            const reason = (listing.price || 0) < IMPORT_CRITERIA.PRICE_MIN || (listing.price || 0) > IMPORT_CRITERIA.PRICE_MAX
+              ? `Price ${listing.price}€ outside ${IMPORT_CRITERIA.PRICE_MIN}-${IMPORT_CRITERIA.PRICE_MAX}€ range`
+              : 'Invalid/non-Milan coordinates';
+            skippedDetails.push(`${listing.code}: ${reason}`);
           }
           skipped++;
           continue;
         }
         
-        // Classify listing for category mapping only
-        const cacheKey = `${listing.category}-${listing.bedrooms || 0}-${listing.price || 0}`;
+        // Classify listing using cache
+        const cacheKey = `${listing.category}-${listing.bedrooms || 0}`;
         let classification = classificationCache.get(cacheKey);
         
         if (!classification) {
           classification = classifyListing(
             listing.category || '',
-            listing.bedrooms || 0,
-            listing.price || 0
+            listing.bedrooms || 0
           );
           classificationCache.set(cacheKey, classification);
           console.log(`Classified "${cacheKey}" as ${classification.type} (${classification.mappedCategory}): ${classification.reasoning}`);
-        }
-
-        // REJECT invalid coordinates (changed from allowing null/0)
-        if (
-          !listing.lat || !listing.lng ||
-          listing.lat === 0 || listing.lng === 0 ||
-          listing.lat < MILAN_BOUNDS.minLat ||
-          listing.lat > MILAN_BOUNDS.maxLat ||
-          listing.lng < MILAN_BOUNDS.minLng ||
-          listing.lng > MILAN_BOUNDS.maxLng
-        ) {
-          if (skippedDetails.length < 10) {
-            skippedDetails.push(`${listing.code}: Invalid/non-Milan coordinates`);
-          }
-          skipped++;
-          continue;
         }
 
         // Track this listing as valid
@@ -304,7 +295,7 @@ Deno.serve(async (req) => {
       }
     }
     
-    // Log summary
+    // Log import summary
     console.log(`Import summary: ${imported} imported, ${updated} updated, ${skipped} skipped, ${classificationCache.size} unique categories classified`);
     if (skippedDetails.length > 0) {
       console.log('Sample skipped listings:', skippedDetails.join('; '));
