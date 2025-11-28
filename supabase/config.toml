@@ -66,3 +66,9 @@ verify_jwt = false
 
 [functions.scrape-spacest-listings]
 verify_jwt = false
+
+[functions.import-flat2study-feed]
+verify_jwt = true
+
+[functions.import-spacest-feed-direct]
+verify_jwt = true

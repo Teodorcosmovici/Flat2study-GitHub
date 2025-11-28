@@ -16,6 +16,7 @@ import { UserImpersonation } from '@/components/admin/UserImpersonation';
 import { AdminBookingRequests } from '@/components/admin/AdminBookingRequests';
 import { AdminVisitRequests } from '@/components/admin/AdminVisitRequests';
 import { FeedImportButton } from '@/components/admin/FeedImportButton';
+import { Flat2StudyImportButton } from '@/components/admin/Flat2StudyImportButton';
 import { geocodeAllListings } from '@/utils/geocoding';
 import {
   Table,
@@ -339,6 +340,7 @@ export const AdminDashboard = () => {
             </Badge>
           </div>
           <div className="flex gap-2 items-center">
+            <Flat2StudyImportButton />
             <Input
               placeholder="Custom feed URL (optional, defaults to S3 feed)"
               value={spacestFeedUrl}
@@ -352,7 +354,7 @@ export const AdminDashboard = () => {
               size="sm"
             >
               <Download className="w-4 h-4 mr-2" />
-              {importingSpacest ? 'Importing...' : 'Import Feed'}
+              {importingSpacest ? 'Importing...' : 'Import Spacest Feed'}
             </Button>
           </div>
         </div>
