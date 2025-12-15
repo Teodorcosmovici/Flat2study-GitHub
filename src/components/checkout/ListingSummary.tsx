@@ -45,8 +45,7 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
   const dailyRate = monthlyRate / 30; // Approximate daily rate
   
   const firstMonthPayment = monthlyRate;
-  const serviceFee = Math.round(monthlyRate * 0.4); // 40% service fee
-  const total = firstMonthPayment + serviceFee;
+  const total = firstMonthPayment;
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -151,17 +150,13 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
             </div>
             
             <p className="text-xs text-muted-foreground">
-              Includes one month rent in advance and the Flat2study fee.
+              Includes one month rent in advance.
             </p>
             
             <div className="mt-4 space-y-2">
               <div className="flex justify-between text-sm">
                 <span>First rental payment</span>
                 <span>{formatPrice(firstMonthPayment)}</span>
-              </div>
-              <div className="flex justify-between text-sm">
-                <span>One-time service fee</span>
-                <span>{formatPrice(serviceFee)}</span>
               </div>
               <Separator />
               <div className="flex justify-between font-medium">
