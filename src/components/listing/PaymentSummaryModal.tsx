@@ -95,9 +95,8 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
     return rentMonthlyEur;
   };
 
-  const serviceFee = Math.round(rentMonthlyEur * 0.4); // 40% of monthly rent
   const firstMonthRent = calculateFirstMonthPayment();
-  const firstPaymentTotal = firstMonthRent + serviceFee;
+  const firstPaymentTotal = firstMonthRent;
   
   // Calculate monthly utilities total
   const monthlyUtilitiesTotal = utilities ? (
@@ -138,10 +137,6 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                 <div className="flex justify-between">
                   <span>{t('paymentSummary.firstRentalFull')}</span>
                   <span>{formatPrice(firstMonthRent)}</span>
-                </div>
-                <div className="flex justify-between">
-                  <span>{t('paymentSummary.oneTimeServiceFee')}</span>
-                  <span>{formatPrice(serviceFee)}</span>
                 </div>
               </div>
             </CollapsibleContent>
