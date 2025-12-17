@@ -227,6 +227,7 @@ export default function ListingDetails() {
             cost: listingData.internet_cost_eur ?? 0 
           }
         },
+        propertyManagerFeeEur: (listingData as any).property_manager_fee_eur ?? undefined,
         landlord: {
           id: listingData.agency_id,
           name: agencyProfile?.agency_name || 'Property Manager',
@@ -762,14 +763,16 @@ export default function ListingDetails() {
                           {formatPrice(listing.rentMonthlyEur)}
                         </span>
                       </div>
-                      <div className="flex justify-between">
-                        <span>{t('listing.oneTimeServiceFee')}</span>
-                        <span>{formatPrice(Math.round(listing.rentMonthlyEur * 0.4))}</span>
-                      </div>
+                      {listing.propertyManagerFeeEur && listing.propertyManagerFeeEur > 0 && (
+                        <div className="flex justify-between">
+                          <span>{t('listing.propertyManagerFee')}</span>
+                          <span>{formatPrice(listing.propertyManagerFeeEur)}</span>
+                        </div>
+                      )}
                       <div className="flex justify-between font-semibold border-t pt-2">
                         <span>{t('listing.total')}</span>
                         <span>
-                          {formatPrice(listing.rentMonthlyEur + Math.round(listing.rentMonthlyEur * 0.4))}
+                          {formatPrice(listing.rentMonthlyEur + (listing.propertyManagerFeeEur || 0))}
                         </span>
                       </div>
                     </div>
@@ -778,6 +781,7 @@ export default function ListingDetails() {
                       rentMonthlyEur={listing.rentMonthlyEur} 
                       depositEur={listing.depositEur} 
                       landlordAdminFee={listing.landlordAdminFee}
+                      propertyManagerFeeEur={listing.propertyManagerFeeEur}
                       utilities={listing.utilities}
                       selectedDates={selectedDates}
                     >

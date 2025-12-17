@@ -20,6 +20,7 @@ interface PaymentSummaryModalProps {
   rentMonthlyEur: number;
   depositEur?: number;
   landlordAdminFee?: number;
+  propertyManagerFeeEur?: number;
   utilities?: {
     electricity: { included: boolean; cost: number };
     gas: { included: boolean; cost: number };
@@ -38,6 +39,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   rentMonthlyEur,
   depositEur = 0,
   landlordAdminFee = 0,
+  propertyManagerFeeEur = 0,
   utilities,
   selectedDates,
   children
@@ -96,7 +98,7 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
   };
 
   const firstMonthRent = calculateFirstMonthPayment();
-  const firstPaymentTotal = firstMonthRent;
+  const firstPaymentTotal = firstMonthRent + propertyManagerFeeEur;
   
   // Calculate monthly utilities total
   const monthlyUtilitiesTotal = utilities ? (
@@ -138,6 +140,12 @@ export const PaymentSummaryModal: React.FC<PaymentSummaryModalProps> = ({
                   <span>{t('paymentSummary.firstRentalFull')}</span>
                   <span>{formatPrice(firstMonthRent)}</span>
                 </div>
+                {propertyManagerFeeEur > 0 && (
+                  <div className="flex justify-between">
+                    <span>{t('paymentSummary.propertyManagerFee')}</span>
+                    <span>{formatPrice(propertyManagerFeeEur)}</span>
+                  </div>
+                )}
               </div>
             </CollapsibleContent>
           </Collapsible>

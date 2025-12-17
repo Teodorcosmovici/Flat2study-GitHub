@@ -78,6 +78,7 @@ export interface Listing {
   maximumStayDays?: number;
   advanceBookingDays?: number;
   priceHistory?: any[];
+  propertyManagerFeeEur?: number;
   utilities?: {
     electricity: { included: boolean; cost: number };
     gas: { included: boolean; cost: number };

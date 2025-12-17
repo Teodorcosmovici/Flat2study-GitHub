@@ -29,10 +29,10 @@ export function PaymentSection({
   
   // Align amounts with the "Review price details" modal
   const monthlyRate = listing.rentMonthlyEur || 0;
-  const serviceFee = Math.round(monthlyRate * 0.4); // 40%
+  const propertyManagerFee = listing.propertyManagerFeeEur || 0;
   const moveInDay = checkInDate.getDate();
   const firstMonthRent = monthlyRate; // Always full month for first payment
-  const totalToAuthorize = firstMonthRent + serviceFee;
+  const totalToAuthorize = firstMonthRent + propertyManagerFee;
   
   const handlePayment = async () => {
     try {
@@ -78,7 +78,7 @@ export function PaymentSection({
           checkInDate: checkInDate.toISOString().split('T')[0],
           checkOutDate: checkOutDate.toISOString().split('T')[0],
           firstMonthRent,
-          serviceFee,
+          serviceFee: propertyManagerFee,
           totalAmount: totalToAuthorize,
           applicationData: updatedApplicationData,
         }
@@ -127,10 +127,12 @@ export function PaymentSection({
                 <span>First month rent</span>
                 <span>€{firstMonthRent}</span>
               </div>
-              <div className="flex justify-between">
-                <span>Service fee</span>
-                <span>€{serviceFee}</span>
-              </div>
+              {propertyManagerFee > 0 && (
+                <div className="flex justify-between">
+                  <span>Property Manager Fee</span>
+                  <span>€{propertyManagerFee}</span>
+                </div>
+              )}
               <hr className="my-2" />
               <div className="flex justify-between font-medium">
                 <span>Total</span>
