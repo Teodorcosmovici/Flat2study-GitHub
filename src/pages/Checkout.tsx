@@ -111,7 +111,8 @@ export default function Checkout() {
         minimumStayDays: data.minimum_stay_days,
         maximumStayDays: data.maximum_stay_days,
         advanceBookingDays: data.advance_booking_days,
-        priceHistory: Array.isArray(data.price_history) ? data.price_history : []
+        priceHistory: Array.isArray(data.price_history) ? data.price_history : [],
+        propertyManagerFeeEur: (data as any).property_manager_fee_eur ?? undefined,
       };
       
       setListing(transformedListing);
