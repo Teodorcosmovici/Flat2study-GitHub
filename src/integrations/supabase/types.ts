@@ -535,6 +535,7 @@ export type Database = {
           minimum_stay_days: number | null
           postcode: string | null
           price_history: Json | null
+          property_manager_fee_eur: number | null
           published_at: string | null
           rent_monthly_eur: number | null
           review_notes: string | null
@@ -599,6 +600,7 @@ export type Database = {
           minimum_stay_days?: number | null
           postcode?: string | null
           price_history?: Json | null
+          property_manager_fee_eur?: number | null
           published_at?: string | null
           rent_monthly_eur?: number | null
           review_notes?: string | null
@@ -663,6 +665,7 @@ export type Database = {
           minimum_stay_days?: number | null
           postcode?: string | null
           price_history?: Json | null
+          property_manager_fee_eur?: number | null
           published_at?: string | null
           rent_monthly_eur?: number | null
           review_notes?: string | null

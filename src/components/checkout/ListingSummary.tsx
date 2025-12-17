@@ -45,7 +45,8 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
   const dailyRate = monthlyRate / 30; // Approximate daily rate
   
   const firstMonthPayment = monthlyRate;
-  const total = firstMonthPayment;
+  const propertyManagerFee = listing.propertyManagerFeeEur || 0;
+  const total = firstMonthPayment + propertyManagerFee;
 
   const nextImage = () => {
     setCurrentImageIndex((prev) => (prev + 1) % images.length);
@@ -158,6 +159,12 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
                 <span>First rental payment</span>
                 <span>{formatPrice(firstMonthPayment)}</span>
               </div>
+              {propertyManagerFee > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span>Property Manager Fee</span>
+                  <span>{formatPrice(propertyManagerFee)}</span>
+                </div>
+              )}
               <Separator />
               <div className="flex justify-between font-medium">
                 <span>Total</span>
@@ -171,6 +178,7 @@ export function ListingSummary({ listing, checkInDate, checkOutDate, persons }: 
                 rentMonthlyEur={monthlyRate}
                 depositEur={listing.depositEur}
                 landlordAdminFee={listing.landlordAdminFee}
+                propertyManagerFeeEur={listing.propertyManagerFeeEur}
                 utilities={listing.utilities}
                 selectedDates={{
                   checkIn: checkInDate,
