@@ -1,5 +1,5 @@
 import { useEffect } from 'react';
-import { MapContainer, TileLayer, Marker, Popup, Tooltip, useMap } from 'react-leaflet';
+import { MapContainer, TileLayer, Marker, Popup, useMap } from 'react-leaflet';
 import L from 'leaflet';
 import { Listing } from '@/types';
 import { MILAN_UNIVERSITIES } from '@/data/universities';
@@ -245,7 +245,7 @@ export default function MapView({
             );
           }
           
-          // Multiple listings - use cluster marker
+          // Multiple listings - use cluster marker with Popup for clickable content
           return (
             <Marker
               key={key}
@@ -259,7 +259,7 @@ export default function MapView({
                 mouseout: () => onListingHover?.(null),
               }}
             >
-              <Tooltip direction="top" offset={[0, -10]} opacity={1}>
+              <Popup>
                 <div className="w-80 p-2">
                   <h3 className="font-semibold text-sm mb-3 text-center">
                     {groupListings.length} Properties at {groupListings[0].addressLine}
@@ -269,7 +269,10 @@ export default function MapView({
                       <div 
                         key={listing.id}
                         className="flex items-start space-x-3 p-2 border rounded-lg hover:bg-gray-50 cursor-pointer transition-colors"
-                        onClick={() => onListingClick?.(listing.id)}
+                        onClick={(e) => {
+                          e.stopPropagation();
+                          onListingClick?.(listing.id);
+                        }}
                       >
                         {listing.images && listing.images[0] && (
                           <img 
@@ -295,7 +298,7 @@ export default function MapView({
                     ))}
                   </div>
                 </div>
-              </Tooltip>
+              </Popup>
             </Marker>
           );
         })}
