@@ -36,6 +36,8 @@ export default function SimpleMapView({
   const initialBoundsSet = useRef(false);
   const currentOpenPopupRef = useRef<L.Marker | null>(null);
   const currentOpenTooltipRef = useRef<L.Marker | null>(null);
+  const popupCloseTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const isMouseOverPopupRef = useRef(false);
 
   // Stable callback refs to avoid re-rendering markers on every parent re-render
   const onListingClickRef = useRef(onListingClick);
@@ -174,6 +176,9 @@ export default function SimpleMapView({
     });
 
     return () => {
+      if (popupCloseTimeoutRef.current) {
+        clearTimeout(popupCloseTimeoutRef.current);
+      }
       if (mapInstanceRef.current) {
         mapInstanceRef.current.remove();
         mapInstanceRef.current = null;
@@ -374,6 +379,11 @@ export default function SimpleMapView({
 
           // Hover behavior - close any open popup first
           groupMarker.on('mouseover', () => {
+            // Cancel any pending close
+            if (popupCloseTimeoutRef.current) {
+              clearTimeout(popupCloseTimeoutRef.current);
+              popupCloseTimeoutRef.current = null;
+            }
             // Close any previously open popup
             if (currentOpenPopupRef.current && currentOpenPopupRef.current !== groupMarker) {
               currentOpenPopupRef.current.closePopup();
@@ -387,21 +397,16 @@ export default function SimpleMapView({
             currentOpenPopupRef.current = groupMarker;
           });
           
-          groupMarker.on('mouseout', (e) => {
-            // Check if mouse is leaving to the popup element
-            const relatedTarget = (e.originalEvent as MouseEvent).relatedTarget as HTMLElement;
-            const popupEl = groupMarker.getPopup()?.getElement();
-            
-            // Don't close if moving to the popup
-            if (popupEl && relatedTarget && popupEl.contains(relatedTarget)) {
-              return;
-            }
-            
-            // Close popup instantly on mouseout
-            groupMarker.closePopup();
-            if (currentOpenPopupRef.current === groupMarker) {
-              currentOpenPopupRef.current = null;
-            }
+          groupMarker.on('mouseout', () => {
+            // Use timeout to allow mouse to move to popup
+            popupCloseTimeoutRef.current = setTimeout(() => {
+              if (!isMouseOverPopupRef.current) {
+                groupMarker.closePopup();
+                if (currentOpenPopupRef.current === groupMarker) {
+                  currentOpenPopupRef.current = null;
+                }
+              }
+            }, 150);
           });
           
           // Handle popup events
@@ -409,6 +414,24 @@ export default function SimpleMapView({
             const popupEl = groupMarker.getPopup()?.getElement();
             if (!popupEl) return;
             
+            const mouseenterHandler = () => {
+              isMouseOverPopupRef.current = true;
+              // Cancel close timeout
+              if (popupCloseTimeoutRef.current) {
+                clearTimeout(popupCloseTimeoutRef.current);
+                popupCloseTimeoutRef.current = null;
+              }
+            };
+
+            const mouseleaveHandler = () => {
+              isMouseOverPopupRef.current = false;
+              groupMarker.closePopup();
+              if (currentOpenPopupRef.current === groupMarker) {
+                currentOpenPopupRef.current = null;
+              }
+            };
+            
+            // Use mousedown for more reliable click detection
             const clickHandler = (e: Event) => {
               const target = e.target as HTMLElement;
               const itemEl = target?.closest('[data-listing-id]') as HTMLElement | null;
@@ -416,34 +439,38 @@ export default function SimpleMapView({
               e.stopPropagation();
               e.preventDefault();
               const id = itemEl.getAttribute('data-listing-id');
+              console.log('Popup item clicked:', id);
               if (id) {
-                onListingClickRef.current?.(id);
+                isMouseOverPopupRef.current = false;
                 groupMarker.closePopup();
+                onListingClickRef.current?.(id);
               }
             };
 
-            const mouseleaveHandler = () => {
-              groupMarker.closePopup();
-              if (currentOpenPopupRef.current === groupMarker) {
-                currentOpenPopupRef.current = null;
-              }
-            };
-
-            popupEl.addEventListener('click', clickHandler);
+            popupEl.addEventListener('mouseenter', mouseenterHandler);
             popupEl.addEventListener('mouseleave', mouseleaveHandler);
+            popupEl.addEventListener('click', clickHandler);
+            popupEl.addEventListener('mousedown', clickHandler);
             L.DomEvent.disableClickPropagation(popupEl);
             L.DomEvent.disableScrollPropagation(popupEl);
-            (popupEl as any).__clickHandler = clickHandler;
+            (popupEl as any).__mouseenterHandler = mouseenterHandler;
             (popupEl as any).__mouseleaveHandler = mouseleaveHandler;
+            (popupEl as any).__clickHandler = clickHandler;
           });
 
           groupMarker.on('popupclose', () => {
+            isMouseOverPopupRef.current = false;
             const popupEl = groupMarker.getPopup()?.getElement();
             if (popupEl) {
-              const clickHandler = (popupEl as any).__clickHandler;
+              const mouseenterHandler = (popupEl as any).__mouseenterHandler;
               const mouseleaveHandler = (popupEl as any).__mouseleaveHandler;
-              if (clickHandler) popupEl.removeEventListener('click', clickHandler);
+              const clickHandler = (popupEl as any).__clickHandler;
+              if (mouseenterHandler) popupEl.removeEventListener('mouseenter', mouseenterHandler);
               if (mouseleaveHandler) popupEl.removeEventListener('mouseleave', mouseleaveHandler);
+              if (clickHandler) {
+                popupEl.removeEventListener('click', clickHandler);
+                popupEl.removeEventListener('mousedown', clickHandler);
+              }
             }
             onListingHoverRef.current?.(null);
           });
