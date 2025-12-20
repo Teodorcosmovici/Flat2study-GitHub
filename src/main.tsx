@@ -7,7 +7,7 @@ import { ImpersonationProvider } from './hooks/useImpersonation'
 import { ThemeProvider } from 'next-themes'
 
 createRoot(document.getElementById("root")!).render(
-  <ThemeProvider attribute="class" defaultTheme="system" enableSystem>
+  <ThemeProvider attribute="class" defaultTheme="light" enableSystem>
     <LanguageProvider>
       <AuthProvider>
         <ImpersonationProvider>
